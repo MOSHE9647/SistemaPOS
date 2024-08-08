@@ -1,84 +1,81 @@
 <?php
-    session_start();
     include __DIR__ . '/../service/impuestoBusiness.php';
+    require_once __DIR__ . '/../utils/Utils.php';
+
+    // Función para validar los datos del impuesto
+    function validarDatos($nombre, $valor, $fecha) {
+        $errors = [];
+
+        if (empty($nombre) || is_numeric($nombre)) {
+            $errors[] = "El campo 'Nombre' no puede estar vacío o ser numérico.";
+        }
+        if (!is_numeric($valor) || $valor <= '0') {
+            $errors[] = "El campo 'Valor' tiene que ser mayor a 0.";
+        }
+        if (empty($fecha) || !Utils::validar_fecha($fecha)) {
+            $errors[] = "El campo 'Fecha Vigencia' no es válido.";
+        }
+
+        return $errors;
+    }
+
+    $response = [];
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $accion = $_POST['accion'];
         $id = isset($_POST['id']) ? $_POST['id'] : null;
-        $nombre = $_POST['nombre'];
-        $valor = $_POST['valor'];
-        $descripcion = $_POST['descripcion'];
-        $fecha = $_POST['fecha'];
-
-        function validar_fecha($fecha) {
-            $formato = 'Y-m-d';
-            $date = DateTime::createFromFormat($formato, $fecha);
-            return $date && $date->format($formato) === $fecha;
-        }
-
-        if ($accion == 'insertar') {
-            $redirect_url = '../view/impuesto/insertarImpuesto.php';
-        } elseif ($accion == 'actualizar') {
-            $redirect_url = '../view/impuesto/actualizarImpuesto.php';
-        } elseif ($accion == 'eliminar') {
-            $redirect_url = '../view/impuesto/eliminarImpuesto.php';
-        }
-
-        if ($accion != 'eliminar') {
-            if (empty($nombre) || is_numeric($nombre)) {
-                $_SESSION['error'] = "El campo 'Nombre' no puede estar vacío o ser numérico.";
-                header("Location: $redirect_url");
-                exit();
-            }
-            if (!is_numeric($valor) || $valor == '0') {
-                $_SESSION['error'] = "El campo 'Valor' no puede ser 0.";
-                header("Location: $redirect_url");
-                exit();
-            }
-            if (empty($descripcion) || is_numeric($descripcion)) {
-                $_SESSION['error'] = "El campo 'Descripción' no puede estar vacío o ser numérico.";
-                header("Location: $redirect_url");
-                exit();
-            }
-            if (empty($fecha) || !validar_fecha($fecha)) {
-                $_SESSION['error'] = "El campo 'Fecha' no es válido.";
-                header("Location: $redirect_url");
-                exit();
-            }
-        }
+        $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : "";
+        $valor = isset($_POST['valor']) ? $_POST['valor'] : "";
+        $descripcion = isset($_POST['descripcion']) ? $_POST['descripcion'] : "";
+        $fecha = isset($_POST['fecha_vigencia']) ? $_POST['fecha_vigencia'] : "";
 
         $impuestoBusiness = new ImpuestoBusiness();
 
-        if ($accion == 'insertar') {
-            $impuesto = new Impuesto(0, $nombre, $valor, $descripcion, $fecha);
-            $result = $impuestoBusiness->insertTBImpuesto($impuesto);
-            if (!$result["success"]) {
-                $_SESSION['error'] = $result["message"];
-                header("Location: $redirect_url");
+        if ($accion == 'eliminar') {
+            if (empty($id) || !is_numeric($id)) {
+                $response['success'] = false;
+                $response['message'] = "El ID no puede estar vacío.";
             } else {
-                $_SESSION['success'] = "Impuesto insertado exitosamente.";
-                header("Location: $redirect_url");
+                $result = $impuestoBusiness->deleteTBImpuesto($id);
+                $response['success'] = $result["success"];
+                $response['message'] = $result["message"];
             }
-        } elseif ($accion == 'actualizar') {
-            $impuesto = new Impuesto($id, $nombre, $valor, $descripcion, $fecha);
-            $result = $impuestoBusiness->updateTBImpuesto($impuesto);
-            if (!$result["success"]) {
-                $_SESSION['error'] = $result["message"];
-                header("Location: $redirect_url");
+        } else {
+            $validationErrors = validarDatos($nombre, $valor, $fecha);
+
+            if (empty($validationErrors)) {
+                if ($accion == 'insertar') {
+                    $impuesto = new Impuesto($nombre, $valor, $fecha, $id, $descripcion);
+
+                    Utils::writeLog(
+                        $impuesto->getImpuestoID() . ", " .
+                        $impuesto->getImpuestoNombre() . ", " .
+                        $impuesto->getImpuestoValor() . ", " .
+                        $impuesto->getImpuestoEstado() . ", " .
+                        $impuesto->getImpuestoDescripcion() . ", " .
+                        $impuesto->getImpuestoFechaVigencia()
+                    );
+
+                    $result = $impuestoBusiness->insertTBImpuesto($impuesto);
+                    $response['success'] = $result["success"];
+                    $response['message'] = $result["message"];
+                } elseif ($accion == 'actualizar') {
+                    $impuesto = new Impuesto($nombre, $valor, $fecha, $id, $descripcion);
+                    $result = $impuestoBusiness->updateTBImpuesto($impuesto);
+                    $response['success'] = $result["success"];
+                    $response['message'] = $result["message"];
+                } else {
+                    $response['success'] = false;
+                    $response['message'] = "Acción no válida.";
+                }
             } else {
-                $_SESSION['success'] = "Impuesto actualizado exitosamente.";
-                header("Location: $redirect_url");
-            }
-        } elseif ($accion == 'eliminar') {
-            $result = $impuestoBusiness->deleteTBImpuesto($id);
-            if (!$result["success"]) {
-                $_SESSION['error'] = $result["message"];
-                header("Location: $redirect_url");
-            } else {
-                $_SESSION['success'] = "Impuesto eliminado exitosamente.";
-                header("Location: $redirect_url");
+                $response['success'] = false;
+                $response['message'] = implode(' ', $validationErrors);
             }
         }
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
         exit();
     }
 ?>
