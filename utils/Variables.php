@@ -15,6 +15,16 @@
     define('IMPUESTO_DESCRIPCION', 'impuestodescripcion');
     define('IMPUESTO_FECHA_VIGENCIA', 'impuestofechavigencia');
 
+  // TABLA 'tbProveedor'
+    define('TB_PROVEEDOR', 'tbproveedor'); //<- Nombre de la Tabla
+    define('PROVEEDOR_ID', 'proveedorid');
+    define('PROVEEDOR_NOMBRE', 'proveedornombre'); 
+    define('PROVEEDOR_EMAIL', 'proveedoremail');
+    define('PROVEEDOR_TIPO', 'proveedortipo');
+    define('PROVEEDOR_ESTADO', 'proveedorestado');
+    define('PROVEEDOR_FECHA_REGISTRO', 'proveedorfecharegistro');
+
+    
     // TABLA 'tbDireccion'
     define('TB_DIRECCION', 'tbdireccion');
     define('DIRECCION_ID', 'direccionid');
@@ -26,10 +36,7 @@
     define('DIRECCION_DISTANCIA', 'direcciondistancia');
     define('DIRECCION_ESTADO', 'direccionestado');
 
-    // TABLA 'tbProveedor'
-    define('TB_PROVEEDOR', 'tbproveedor');
-    define('PROVEEDOR_ID', 'proveedorid');
-    define('PROVEEDOR_ESTADO', 'proveedorestado');
+  
 
     /*************** TABLAS INTERMEDIAS ***************/
 
@@ -38,4 +45,5 @@
     define('PROVEEDOR_DIRECCION_ESTADO', 'proveedordireccionestado');
     define('PROVEEDOR_DIRECCION_ID', 'proveedordireccionid');
 
+ 
 ?>
