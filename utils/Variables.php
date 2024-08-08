@@ -24,7 +24,6 @@
     define('PROVEEDOR_ESTADO', 'proveedorestado');
     define('PROVEEDOR_FECHA_REGISTRO', 'proveedorfecharegistro');
 
-    
     // TABLA 'tbDireccion'
     define('TB_DIRECCION', 'tbdireccion');
     define('DIRECCION_ID', 'direccionid');
@@ -35,8 +34,6 @@
     define('DIRECCION_SENNAS', 'direccionsennas');
     define('DIRECCION_DISTANCIA', 'direcciondistancia');
     define('DIRECCION_ESTADO', 'direccionestado');
-
-  
 
     /*************** TABLAS INTERMEDIAS ***************/
 
