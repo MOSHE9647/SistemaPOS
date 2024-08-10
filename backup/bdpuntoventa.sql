@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 10-08-2024 a las 00:58:31
+-- Tiempo de generación: 10-08-2024 a las 18:46:58
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -47,7 +47,8 @@ INSERT INTO `tbdireccion` (`direccionid`, `direccionprovincia`, `direccioncanton
 (2, 'Provincia B', 'Canton B', 'Distrito B', 'Barrio B', 'Señas B', '2.50', 1),
 (3, 'Provincia C', 'Canton C', 'Distrito C', 'Barrio C', 'Señas C', '3.75', 1),
 (4, 'Provincia D', 'Canton D', 'Distrito D', 'Barrio D', 'Señas D', '1.25', 1),
-(5, 'Provincia E', 'Canton E', 'Distrito E', 'Barrio E', 'Señas E', '2.00', 1);
+(5, 'Provincia E', 'Canton E', 'Distrito E', 'Barrio E', 'Señas E', '2.00', 1),
+(6, 'Provincia 6', 'Canton 6', 'Distrito 6', 'Barrio 6', 'Señas 6', '16.00', 1);
 
 -- --------------------------------------------------------
 
@@ -73,7 +74,8 @@ INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impu
 (2, 'IRF', '12.00', 'q', 0, '2024-08-01 06:00:00'),
 (3, 'IRF', '12.00', 'qw', 0, '2024-08-02 06:00:00'),
 (4, 'IRF', '12.00', 'Prueba', 0, '2024-08-02 06:00:00'),
-(5, 'IRF', '12.00', 'Impuesto al Regalo Fraterno', 1, '2024-07-15 06:00:00');
+(5, 'IRF', '12.00', 'Impuesto al Regalo Fraterno', 1, '2024-07-15 06:00:00'),
+(6, 'IMP', '34.00', 'Impuesto al Mejor Personaje', 1, '2024-08-10 06:00:00');
 
 -- --------------------------------------------------------
 
@@ -119,11 +121,16 @@ CREATE TABLE `tbproveedordireccion` (
 --
 
 INSERT INTO `tbproveedordireccion` (`proveedordireccionid`, `proveedorid`, `direccionid`, `proveedordireccionestado`) VALUES
-(1, 1, 1, 1),
+(1, 1, 1, 0),
 (2, 2, 2, 1),
 (3, 3, 3, 0),
 (4, 4, 4, 1),
-(5, 5, 5, 0);
+(5, 5, 5, 0),
+(6, 1, 6, 0),
+(7, 1, 6, 1),
+(8, 1, 1, 0),
+(9, 1, 1, 0),
+(10, 1, 1, 1);
 
 --
 -- Índices para tablas volcadas
