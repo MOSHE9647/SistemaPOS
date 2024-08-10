@@ -32,4 +32,14 @@ class Impuesto {
     function setImpuestoDescripcion($impuestoDescripcion) { $this->impuestoDescripcion = $impuestoDescripcion; }
     function setImpuestoFechaVigencia($impuestoFechaVigencia) { $this->impuestoFechaVigencia = $impuestoFechaVigencia; }
     
+    // Implementación del método __toString
+    public function __toString() {
+        return "ID: " . $this->impuestoID . "\n" .
+               "Nombre: " . $this->impuestoNombre . "\n" .
+               "Valor: " . $this->impuestoValor . "\n" .
+               "Estado: " . ($this->impuestoEstado ? "Activo" : "Inactivo") . "\n" .
+               "Descripción: " . $this->impuestoDescripcion . "\n" .
+               "Fecha de Vigencia: " . $this->impuestoFechaVigencia . "\n";
+    }
+
 }

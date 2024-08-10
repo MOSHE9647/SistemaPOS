@@ -41,6 +41,17 @@
         function setDireccionDistancia($direccionDistancia) { $this->direccionDistancia = $direccionDistancia; }
         function setDireccionEstado($direccionEstado) { $this->direccionEstado = $direccionEstado; }
 
+        public function __toString() {
+            return "ID: " . $this->direccionID . "\n" .
+                   "Provincia: " . $this->direccionProvincia . "\n" .
+                   "Canton: " . $this->direccionCanton . "\n" .
+                   "Distrito: " . $this->direccionDistrito . "\n" .
+                   "Barrio: " . $this->direccionBarrio . "\n" .
+                   "Señales: " . $this->direccionSennas . "\n" .
+                   "Distancia: " . $this->direccionDistancia . "\n" .
+                   "Estado: " . ($this->direccionEstado ? "Activo" : "Inactivo") . "\n";
+        }
+
     }
 
 ?>
