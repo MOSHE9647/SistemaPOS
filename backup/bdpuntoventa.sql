@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 02-08-2024 a las 22:22:04
+-- Tiempo de generación: 10-08-2024 a las 00:58:31
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -24,10 +24,35 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `tbimpuesto`
+-- Estructura de tabla para la tabla `tbdireccion`
 --
--- Creación: 02-08-2024 a las 01:09:44
--- Última actualización: 02-08-2024 a las 01:28:25
+
+CREATE TABLE `tbdireccion` (
+  `direccionid` int NOT NULL,
+  `direccionprovincia` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `direccioncanton` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `direcciondistrito` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `direccionbarrio` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `direccionsennas` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `direcciondistancia` decimal(5,2) NOT NULL,
+  `direccionestado` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `tbdireccion`
+--
+
+INSERT INTO `tbdireccion` (`direccionid`, `direccionprovincia`, `direccioncanton`, `direcciondistrito`, `direccionbarrio`, `direccionsennas`, `direcciondistancia`, `direccionestado`) VALUES
+(1, 'Provincia A', 'Canton A', 'Distrito A', 'Barrio A', 'Señas A', '1.00', 1),
+(2, 'Provincia B', 'Canton B', 'Distrito B', 'Barrio B', 'Señas B', '2.50', 1),
+(3, 'Provincia C', 'Canton C', 'Distrito C', 'Barrio C', 'Señas C', '3.75', 1),
+(4, 'Provincia D', 'Canton D', 'Distrito D', 'Barrio D', 'Señas D', '1.25', 1),
+(5, 'Provincia E', 'Canton E', 'Distrito E', 'Barrio E', 'Señas E', '2.00', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbimpuesto`
 --
 
 CREATE TABLE `tbimpuesto` (
@@ -50,16 +75,11 @@ INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impu
 (4, 'IRF', '12.00', 'Prueba', 0, '2024-08-02 06:00:00'),
 (5, 'IRF', '12.00', 'Impuesto al Regalo Fraterno', 1, '2024-07-15 06:00:00');
 
---
--- Índices para tablas volcadas
---
+-- --------------------------------------------------------
 
 --
--- Indices de la tabla `tbimpuesto`
+-- Estructura de tabla para la tabla `tbproveedor`
 --
-ALTER TABLE `tbimpuesto`
-  ADD PRIMARY KEY (`impuestoid`);
-COMMIT;
 
 CREATE TABLE `tbproveedor` (
   `proveedorid` int NOT NULL,
@@ -67,20 +87,72 @@ CREATE TABLE `tbproveedor` (
   `proveedoremail` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `proveedortipo` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `proveedorestado` tinyint(1) NOT NULL,
-  `proveedorfecharegistro` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`proveedorid`)
+  `proveedorfecharegistro` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Volcado de datos para la tabla `tbproveedor`
+--
+
+INSERT INTO `tbproveedor` (`proveedorid`, `proveedornombre`, `proveedoremail`, `proveedortipo`, `proveedorestado`, `proveedorfecharegistro`) VALUES
+(1, 'Proveedor A', 'proveedora@example.com', 'Tipo 1', 1, '2024-01-01 10:00:00'),
+(2, 'Proveedor B', 'proveedorb@example.com', 'Tipo 2', 1, '2024-02-01 11:00:00'),
+(3, 'Proveedor C', 'proveedorc@example.com', 'Tipo 1', 0, '2024-03-01 12:00:00'),
+(4, 'Proveedor D', 'proveedord@example.com', 'Tipo 3', 1, '2024-04-01 13:00:00'),
+(5, 'Proveedor E', 'proveedore@example.com', 'Tipo 2', 0, '2024-05-01 14:00:00');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbproveedordireccion`
+--
+
+CREATE TABLE `tbproveedordireccion` (
+  `proveedordireccionid` int NOT NULL,
+  `proveedorid` int NOT NULL,
+  `direccionid` int NOT NULL,
+  `proveedordireccionestado` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `tbproveedordireccion`
+--
+
+INSERT INTO `tbproveedordireccion` (`proveedordireccionid`, `proveedorid`, `direccionid`, `proveedordireccionestado`) VALUES
+(1, 1, 1, 1),
+(2, 2, 2, 1),
+(3, 3, 3, 0),
+(4, 4, 4, 1),
+(5, 5, 5, 0);
+
+--
+-- Índices para tablas volcadas
+--
+
+--
+-- Indices de la tabla `tbdireccion`
+--
+ALTER TABLE `tbdireccion`
+  ADD PRIMARY KEY (`direccionid`);
+
+--
+-- Indices de la tabla `tbimpuesto`
+--
+ALTER TABLE `tbimpuesto`
+  ADD PRIMARY KEY (`impuestoid`);
+
+--
+-- Indices de la tabla `tbproveedor`
+--
 ALTER TABLE `tbproveedor`
   ADD PRIMARY KEY (`proveedorid`);
-COMMIT;
 
-INSERT INTO `tbproveedor` (`proveedorid`, `proveedornombre`, `proveedortipo`, `proveedoremail`, `proveedorestado`, `proveedorfecharegistro`) VALUES
-(1, 'Proveedor A', 'Tipo 1', 'proveedora@example.com', 1, '2024-01-01 10:00:00'),
-(2, 'Proveedor B', 'Tipo 2', 'proveedorb@example.com', 1, '2024-02-01 11:00:00'),
-(3, 'Proveedor C', 'Tipo 1', 'proveedorc@example.com', 0, '2024-03-01 12:00:00'),
-(4, 'Proveedor D', 'Tipo 3', 'proveedord@example.com', 1, '2024-04-01 13:00:00'),
-(5, 'Proveedor E', 'Tipo 2', 'proveedore@example.com', 0, '2024-05-01 14:00:00');
+--
+-- Indices de la tabla `tbproveedordireccion`
+--
+ALTER TABLE `tbproveedordireccion`
+  ADD PRIMARY KEY (`proveedordireccionid`);
+COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

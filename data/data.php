@@ -37,10 +37,10 @@
                     $this->dbname = DB_NAME;
                     break;
                 // PC de Gonzalo (Ubuntu WSL2)
-                case "4":
+                case "DESKTOP-G544DN0":
                     $this->servername = "localhost";
-                    $this->username = "root";
-                    $this->password = "";
+                    $this->username = "gonzalo";
+                    $this->password = "#SistemaPOS1234";
                     $this->dbname = DB_NAME;
                     break;
                 // PC de Jason (Ubuntu 24.04)
@@ -70,9 +70,8 @@
             } else {
                 // Comando para Linux/Unix
                 $output = [];
-                exec('systemctl is-active mysql', $output);
-                $status = implode("\n", $output);
-                return trim($status) === 'active';
+                exec('ps aux | grep [m]ysqld', $output);
+                return count($output) > 0; // Si hay resultados, el proceso mysqld está en ejecución
             }
         }
         
