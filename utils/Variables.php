@@ -43,4 +43,14 @@
 	define('PROVEEDOR_DIRECCION_ESTADO', 'proveedordireccionestado');
 	define('PROVEEDOR_DIRECCION_ID', 'proveedordireccionid');
 
+	//TABLA PROVEEDORTELEFONO
+	// Nombre de la tabla
+    public static $tablaProveedorTelefono = "tbproveedortelefono";
+
+    //Columnas
+    public static $proveedortelefonoid = "proveedortelefonoid";
+    public static $proveedorid = "proveedorid";
+    public static $telefono = "telefono";
+    public static $activo = "activo";
+
 ?>
