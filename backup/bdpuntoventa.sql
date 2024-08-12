@@ -2,8 +2,8 @@
 -- version 5.1.1deb5ubuntu1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: localhost:3306
--- Tiempo de generación: 10-08-2024 a las 00:58:31
+-- Servidor: 127.0.0.1:3306
+-- Tiempo de generación: 12-08-2024 a las 00:50:29
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -78,6 +78,30 @@ INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impu
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `tbproducto`
+--
+
+CREATE TABLE `tbproducto` (
+  `productoid` int NOT NULL,
+  `productonombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `productopreciounitario` double NOT NULL,
+  `productocantidad` int NOT NULL,
+  `productofechaadquisicion` datetime NOT NULL,
+  `productodescripcion` text COLLATE utf8mb4_unicode_ci,
+  `productoestado` tinyint NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `tbproducto`
+--
+
+INSERT INTO `tbproducto` (`productoid`, `productonombre`, `productopreciounitario`, `productocantidad`, `productofechaadquisicion`, `productodescripcion`, `productoestado`) VALUES
+(1, 'coca-cola', 1200, 30, '2024-08-11 21:46:52', 'coca-cola de 2.5L', 1),
+(2, 'pepsi', 1500, 40, '2023-08-10 00:00:00', 'refresco de 3L sin azucar', 0);
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `tbproveedor`
 --
 
@@ -95,10 +119,10 @@ CREATE TABLE `tbproveedor` (
 --
 
 INSERT INTO `tbproveedor` (`proveedorid`, `proveedornombre`, `proveedoremail`, `proveedortipo`, `proveedorestado`, `proveedorfecharegistro`) VALUES
-(1, 'Proveedor A', 'proveedora@example.com', 'Tipo 1', 1, '2024-01-01 10:00:00'),
+(1, 'PROVEEDOR A', 'proveedora@example.com', 'Tipo 1', 1, '2024-01-01 06:00:00'),
 (2, 'Proveedor B', 'proveedorb@example.com', 'Tipo 2', 1, '2024-02-01 11:00:00'),
 (3, 'Proveedor C', 'proveedorc@example.com', 'Tipo 1', 0, '2024-03-01 12:00:00'),
-(4, 'Proveedor D', 'proveedord@example.com', 'Tipo 3', 1, '2024-04-01 13:00:00'),
+(4, 'PROVEEDOR D', 'proveedord@example.com', 'Tipo 3', 1, '2024-04-01 06:00:00'),
 (5, 'Proveedor E', 'proveedore@example.com', 'Tipo 2', 0, '2024-05-01 14:00:00');
 
 -- --------------------------------------------------------
@@ -140,6 +164,12 @@ ALTER TABLE `tbdireccion`
 --
 ALTER TABLE `tbimpuesto`
   ADD PRIMARY KEY (`impuestoid`);
+
+--
+-- Indices de la tabla `tbproducto`
+--
+ALTER TABLE `tbproducto`
+  ADD PRIMARY KEY (`productoid`);
 
 --
 -- Indices de la tabla `tbproveedor`

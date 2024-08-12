@@ -193,7 +193,6 @@
 					);
 					array_push($listaImpuestos, $currentImpuesto);
 				}
-
 				return ["success" => true, "listaImpuestos" => $listaImpuestos];
 			} catch (Exception $e) {
 				// Devuleve el mensaje de error

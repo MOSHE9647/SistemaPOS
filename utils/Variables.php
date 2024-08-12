@@ -35,6 +35,17 @@
 	define('DIRECCION_DISTANCIA', 'direcciondistancia');
 	define('DIRECCION_ESTADO', 'direccionestado');
 
+	// Tabla 'tbproducto'
+	define('TB_PRODUCTO','tbproducto');
+	define('PRODUCTO_ID','productoid');
+	define('PRODUCTO_NOMBRE','productonombre');
+	define('PRODUCTO_PRECIO_U','productopreciounitario');
+	define('PRODUCTO_CANTIDAD','productocantidad');
+	define('PRODUCTO_FECHA_ADQ', 'productofechaadquisicion');
+	define('PRODUCTO_DESCRIPCION','productodescripcion');
+	define('PRODUCTO_ESTADO','productoestado');
+
+
 	/*************** TABLAS INTERMEDIAS ***************/
 
 	// TABLA INTERMEDIA PARA Proveedor Y Direccion 'tbProveedorDireccion'
