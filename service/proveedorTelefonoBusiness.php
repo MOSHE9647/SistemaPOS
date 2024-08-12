@@ -1,5 +1,5 @@
 <?php
-include 'ProveedorTelefonoData.php'; // Incluir la clase ProveedorTelefonoData para manejar operaciones con la base de datos
+include __DIR__ . "/../data/ProveedorTelefonoData.php";
 
 class ProveedorTelefonoBusiness {
 

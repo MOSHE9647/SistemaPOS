@@ -26,7 +26,7 @@
 	define('PROVEEDOR_FECHA_REGISTRO', 'proveedorfecharegistro');
 
 	// TABLA 'tbDireccion'
-	define('TB_DIRECCION', 'tbdireccion');
+	define('TB_DIRECCION', 'tbdireccion'); //<- Nombre de la Tabla
 	define('DIRECCION_ID', 'direccionid');
 	define('DIRECCION_PROVINCIA', 'direccionprovincia');
 	define('DIRECCION_CANTON', 'direccioncanton');
@@ -37,7 +37,7 @@
 	define('DIRECCION_ESTADO', 'direccionestado');
 
 	// Tabla 'tbproducto'
-	define('TB_PRODUCTO','tbproducto');
+	define('TB_PRODUCTO','tbproducto'); //<- Nombre de la Tabla
 	define('PRODUCTO_ID','productoid');
 	define('PRODUCTO_NOMBRE','productonombre');
 	define('PRODUCTO_PRECIO_U','productopreciounitario');
@@ -50,18 +50,24 @@
 	/*************** TABLAS INTERMEDIAS ***************/
 
 	// TABLA INTERMEDIA PARA Proveedor Y Direccion 'tbProveedorDireccion'
-	define('TB_PROVEEDOR_DIRECCION', 'tbproveedordireccion');
+	define('TB_PROVEEDOR_DIRECCION', 'tbproveedordireccion'); //<- Nombre de la Tabla
 	define('PROVEEDOR_DIRECCION_ESTADO', 'proveedordireccionestado');
 	define('PROVEEDOR_DIRECCION_ID', 'proveedordireccionid');
 
-	//TABLA PROVEEDORTELEFONO
-	// Nombre de la tabla
-    public static $tablaProveedorTelefono = "tbproveedortelefono";
+	// TABLA INTERMEDIA PARA Proveedor Y Telefono 'tbProveedorTelefono'
+    define('TB_PROVEEDOR_TELEFONO', 'tbproveedortelefono'); //<- Nombre de la Tabla
+    define('PROVEEDOR_TELEFONO_ESTADO', 'proveedorestado');
+    define('PROVEEDOR_TELEFONO_ID', 'proveedortelefonoid');
+    define('PROVEEDOR_TELEFONO', 'proveedortelefono');
 
-    //Columnas
-    public static $proveedortelefonoid = "proveedortelefonoid";
-    public static $proveedorid = "proveedorid";
-    public static $telefono = "telefono";
-    public static $activo = "activo";
+	/*
+		public static $tablaProveedorTelefono = "tbproveedortelefono";
+
+		//Columnas
+		public static $proveedortelefonoid = "proveedortelefonoid";
+		public static $proveedorid = "proveedorid";
+		public static $telefono = "telefono";
+		public static $activo = "activo";
+	*/
 
 ?>
