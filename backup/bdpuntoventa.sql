@@ -1,9 +1,9 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1deb5ubuntu1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: localhost:3306
--- Tiempo de generación: 10-08-2024 a las 18:46:58
+-- Servidor: localhost
+-- Tiempo de generación: 12-08-2024 a las 17:32:45
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -43,12 +43,12 @@ CREATE TABLE `tbdireccion` (
 --
 
 INSERT INTO `tbdireccion` (`direccionid`, `direccionprovincia`, `direccioncanton`, `direcciondistrito`, `direccionbarrio`, `direccionsennas`, `direcciondistancia`, `direccionestado`) VALUES
-(1, 'Provincia A', 'Canton A', 'Distrito A', 'Barrio A', 'Señas A', '1.00', 1),
-(2, 'Provincia B', 'Canton B', 'Distrito B', 'Barrio B', 'Señas B', '2.50', 1),
-(3, 'Provincia C', 'Canton C', 'Distrito C', 'Barrio C', 'Señas C', '3.75', 1),
-(4, 'Provincia D', 'Canton D', 'Distrito D', 'Barrio D', 'Señas D', '1.25', 1),
-(5, 'Provincia E', 'Canton E', 'Distrito E', 'Barrio E', 'Señas E', '2.00', 1),
-(6, 'Provincia 6', 'Canton 6', 'Distrito 6', 'Barrio 6', 'Señas 6', '16.00', 1);
+(1, 'Provincia A', 'Canton A', 'Distrito A', 'Barrio A', 'Señas A', 1.00, 1),
+(2, 'Provincia B', 'Canton B', 'Distrito B', 'Barrio B', 'Señas B', 2.50, 1),
+(3, 'Provincia C', 'Canton C', 'Distrito C', 'Barrio C', 'Señas C', 3.75, 1),
+(4, 'Provincia D', 'Canton D', 'Distrito D', 'Barrio D', 'Señas D', 1.25, 1),
+(5, 'Provincia E', 'Canton E', 'Distrito E', 'Barrio E', 'Señas E', 2.00, 1),
+(6, 'Provincia 6', 'Canton 6', 'Distrito 6', 'Barrio 6', 'Señas 6', 16.00, 1);
 
 -- --------------------------------------------------------
 
@@ -70,12 +70,12 @@ CREATE TABLE `tbimpuesto` (
 --
 
 INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impuestodescripcion`, `impuestoestado`, `impuestofechavigencia`) VALUES
-(1, 'IVA', '13.00', 'Impuesto al Valor Agregado', 1, '2024-08-01 06:00:00'),
-(2, 'IRF', '12.00', 'q', 0, '2024-08-01 06:00:00'),
-(3, 'IRF', '12.00', 'qw', 0, '2024-08-02 06:00:00'),
-(4, 'IRF', '12.00', 'Prueba', 0, '2024-08-02 06:00:00'),
-(5, 'IRF', '12.00', 'Impuesto al Regalo Fraterno', 1, '2024-07-15 06:00:00'),
-(6, 'IMP', '34.00', 'Impuesto al Mejor Personaje', 1, '2024-08-10 06:00:00');
+(1, 'IVA', 13.00, 'Impuesto al Valor Agregado', 1, '2024-08-01 06:00:00'),
+(2, 'IRF', 12.00, 'q', 0, '2024-08-01 06:00:00'),
+(3, 'IRF', 12.00, 'qw', 0, '2024-08-02 06:00:00'),
+(4, 'IRF', 12.00, 'Prueba', 0, '2024-08-02 06:00:00'),
+(5, 'IRF', 12.00, 'Impuesto al Regalo Fraterno', 1, '2024-07-15 06:00:00'),
+(6, 'IMP', 32.00, 'Impuesto al Mejor Personaje', 1, '2024-08-10 06:00:00');
 
 -- --------------------------------------------------------
 
@@ -97,11 +97,15 @@ CREATE TABLE `tbproveedor` (
 --
 
 INSERT INTO `tbproveedor` (`proveedorid`, `proveedornombre`, `proveedoremail`, `proveedortipo`, `proveedorestado`, `proveedorfecharegistro`) VALUES
-(1, 'PROVEEDOR A', 'proveedora@example.com', 'Tipo 1', 1, '2024-01-01 06:00:00'),
+(1, 'Proveedor A', 'proveedora@example.com', 'Tipo 1', 1, '2024-01-01 10:00:00'),
 (2, 'Proveedor B', 'proveedorb@example.com', 'Tipo 2', 1, '2024-02-01 11:00:00'),
 (3, 'Proveedor C', 'proveedorc@example.com', 'Tipo 1', 0, '2024-03-01 12:00:00'),
-(4, 'PROVEEDOR D', 'proveedord@example.com', 'Tipo 3', 1, '2024-04-01 06:00:00'),
-(5, 'Proveedor E', 'proveedore@example.com', 'Tipo 2', 0, '2024-05-01 14:00:00');
+(4, 'Proveedor D', 'proveedord@example.com', 'Tipo 3', 1, '2024-04-01 13:00:00'),
+(5, 'Proveedor E', 'proveedore@example.com', 'Tipo 2', 0, '2024-05-01 14:00:00'),
+(6, 'Proveedor F', 'proveedorf@example.com', 'Tipo 4', 1, '2024-08-12 06:00:00'),
+(7, 'Proveedor G', 'proveedorg@example.com', 'Tipo 5', 1, '2024-08-12 06:00:00'),
+(8, 'Proveedor H', 'proveedorh@example.com', 'Tipo 6', 1, '2024-08-12 06:00:00'),
+(9, 'Proveedor I', 'proveedori@example.com', 'Tipo 7', 1, '2024-08-12 06:00:00');
 
 -- --------------------------------------------------------
 
@@ -132,6 +136,28 @@ INSERT INTO `tbproveedordireccion` (`proveedordireccionid`, `proveedorid`, `dire
 (9, 1, 1, 0),
 (10, 1, 1, 1);
 
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbproveedortelefono`
+--
+
+CREATE TABLE `tbproveedortelefono` (
+  `proveedortelefonoid` int NOT NULL,
+  `proveedorid` int NOT NULL,
+  `proveedortelefono` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `proveedorestado` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `tbproveedortelefono`
+--
+
+INSERT INTO `tbproveedortelefono` (`proveedortelefonoid`, `proveedorid`, `proveedortelefono`, `proveedorestado`) VALUES
+(1, 9, '+506 6421 2950', 0),
+(2, 9, '+1 123 456 7890', 1),
+(3, 8, '+506 6421 2950', 1);
+
 --
 -- Índices para tablas volcadas
 --
@@ -149,12 +175,6 @@ ALTER TABLE `tbimpuesto`
   ADD PRIMARY KEY (`impuestoid`);
 
 --
--- Indices de la tabla `tbproducto`
---
-ALTER TABLE `tbproducto`
-  ADD PRIMARY KEY (`productoid`);
-
---
 -- Indices de la tabla `tbproveedor`
 --
 ALTER TABLE `tbproveedor`
@@ -165,6 +185,12 @@ ALTER TABLE `tbproveedor`
 --
 ALTER TABLE `tbproveedordireccion`
   ADD PRIMARY KEY (`proveedordireccionid`);
+
+--
+-- Indices de la tabla `tbproveedortelefono`
+--
+ALTER TABLE `tbproveedortelefono`
+  ADD PRIMARY KEY (`proveedortelefonoid`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
