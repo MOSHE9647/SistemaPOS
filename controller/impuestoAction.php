@@ -46,16 +46,6 @@
             if (empty($validationErrors)) {
                 if ($accion == 'insertar') {
                     $impuesto = new Impuesto($nombre, $valor, $fecha, $id, $descripcion);
-
-                    Utils::writeLog(
-                        $impuesto->getImpuestoID() . ", " .
-                        $impuesto->getImpuestoNombre() . ", " .
-                        $impuesto->getImpuestoValor() . ", " .
-                        $impuesto->getImpuestoEstado() . ", " .
-                        $impuesto->getImpuestoDescripcion() . ", " .
-                        $impuesto->getImpuestoFechaVigencia()
-                    );
-
                     $result = $impuestoBusiness->insertTBImpuesto($impuesto);
                     $response['success'] = $result["success"];
                     $response['message'] = $result["message"];

@@ -35,11 +35,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($accion == 'eliminar') {
         if (empty($id) || !is_numeric($id)) {
-           
+            $response['success'] = false;
             $response['message'] = "El ID no puede estar vacío.";
         } else {
             $result = $proveedorBusiness->deleteTBProveedor($id);
-          
+            $response['success'] = $result["success"];
+            $response['message'] = $result["message"];
         }
 
     } else {
@@ -47,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (empty($validationErrors)) {
             if ($accion == 'insertar') {
-                $proveedor = new Proveedor($nombre, $email, $fecha, $tipo);
+                $proveedor = new Proveedor($nombre, $email, $fecha, $id, $tipo);
                 $result = $proveedorBusiness->insertTBProveedor($proveedor);
                 $response['success'] = $result["success"];
                 $response['message'] = $result["message"];
