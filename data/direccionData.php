@@ -241,6 +241,93 @@
 			}
         }
 
+        public function getPaginatedDirecciones($page, $size, $sort = null) {
+            try {
+                // Validar los parámetros de paginación
+                if (!is_numeric($page) || $page < 1) {
+                    throw new Exception("El número de página debe ser un entero positivo.");
+                }
+                if (!is_numeric($size) || $size < 1) {
+                    throw new Exception("El tamaño de la página debe ser un entero positivo.");
+                }
+                $offset = ($page - 1) * $size;
+        
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
+                }
+                $conn = $result["connection"];
+        
+                // Construir la consulta SQL
+                $querySelect = "SELECT * FROM " . TB_DIRECCION . " WHERE " . DIRECCION_ESTADO . " != false ";
+        
+                // Añadir la cláusula de ordenamiento si se proporciona
+                if ($sort) {
+                    $querySelect .= "ORDER BY direccion" . $sort . " ";
+                }
+        
+                // Añadir la cláusula de limitación y offset
+                $querySelect .= "LIMIT ? OFFSET ?";
+        
+                // Preparar la consulta
+                $stmt = mysqli_prepare($conn, $querySelect);
+                if (!$stmt) {
+                    throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
+                }
+        
+                // Vincular los parámetros
+                mysqli_stmt_bind_param($stmt, "ii", $size, $offset);
+        
+                // Ejecutar la consulta
+                $result = mysqli_stmt_execute($stmt);
+                if (!$result) {
+                    throw new Exception("Error al ejecutar la consulta: " . mysqli_error($conn));
+                }
+        
+                // Obtener el resultado
+                $result = mysqli_stmt_get_result($stmt);
+                if (!$result) {
+                    throw new Exception("Error al obtener el resultado: " . mysqli_error($conn));
+                }
+        
+                // Crear la lista con los datos obtenidos
+                $listaDirecciones = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $currentDireccion = new Direccion(
+                        $row[DIRECCION_PROVINCIA],
+                        $row[DIRECCION_CANTON],
+                        $row[DIRECCION_DISTRITO],
+                        $row[DIRECCION_BARRIO],
+                        $row[DIRECCION_ID],
+                        $row[DIRECCION_SENNAS],
+                        $row[DIRECCION_DISTANCIA],
+                        $row[DIRECCION_ESTADO]
+                    );
+                    // array_push($listaDirecciones, $currentDireccion);
+                    $listaDirecciones[] = [
+                        'ID' => $currentDireccion->getDireccionID(),
+                        'Provincia' => $currentDireccion->getDireccionProvincia(),
+                        'Canton' => $currentDireccion->getDireccionCanton(),
+                        'Distrito' => $currentDireccion->getDireccionDistrito(),
+                        'Barrio' => $currentDireccion->getDireccionBarrio(),
+                        'Sennas' => $currentDireccion->getDireccionSennas(),
+                        'Distancia' => $currentDireccion->getDireccionDistancia(),
+                        'Estado' => $currentDireccion->getDireccionEstado()
+                    ];
+                }
+        
+                return ["success" => true, "listaDirecciones" => $listaDirecciones];
+            } catch (Exception $e) {
+                // Devolver el mensaje de error
+                return ["success" => false, "message" => $e->getMessage()];
+            } finally {
+                // Cerrar la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn)) { mysqli_close($conn); }
+            }
+        }        
+
         private function direccionExiste($direccionID) {
             try {
                 // Establece una conexión con la base de datos

@@ -3,8 +3,9 @@
 	// ARCHIVO QUE CONTIENE EL NOMBRE DE LAS DISTINTAS VARIABLES
 	// ESTÁTICAS QUE SE VAN A ESTAR UTILIZANDO DENTRO DEL PROGRAMA
 
-	// NOMBRE DE LA BD:
+	// VARIABLES DE LA BD:
 	define('DB_NAME', 'bdpuntoventa');
+	define('DB_PASS', '#SistemaPOS1234');
 
 	// TABLA 'tbImpuesto'
 	define('TB_IMPUESTO', 'tbimpuesto'); //<- Nombre de la Tabla

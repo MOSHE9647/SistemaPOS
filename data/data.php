@@ -15,35 +15,28 @@
             
             // Configuracion del acceso a la bd
             switch ($hostName) {
-                // PC de Isaac (Ubuntu WSL2)
+                // PC de Isaac (Ubuntu WSL2 - Win11)
                 case "Moshe9647-PC":
                     $this->servername = "localhost";
                     $this->username = "root";
-                    $this->password = "#SistemaPOS1234";
+                    $this->password = DB_PASS;
                     $this->dbname = DB_NAME;
                     break;
-                // PC de Maikel
-                case "2":
-                    $this->servername = "localhost";
-                    $this->username = "root";
-                    $this->password = "";
-                    $this->dbname = DB_NAME;
-                    break;
-                // PC de Javier
-                case "3":
-                    $this->servername = "localhost";
-                    $this->username = "root";
-                    $this->password = "";
-                    $this->dbname = DB_NAME;
-                    break;
-                // PC de Gonzalo (Ubuntu WSL2)
+                // PC de Gonzalo (Ubuntu WSL2 - Win10)
                 case "DESKTOP-G544DN0":
                     $this->servername = "localhost";
                     $this->username = "gonzalo";
-                    $this->password = "#SistemaPOS1234";
+                    $this->password = DB_PASS;
                     $this->dbname = DB_NAME;
                     break;
                 // PC de Jason (Ubuntu 24.04)
+                case "jasonmadrigalo-123":
+                    $this->servername = "localhost";
+                    $this->username = "root";
+                    $this->password = "";
+                    $this->dbname = DB_NAME;
+                    break;
+                // Otras PC's
                 default:
                     $this->servername = "localhost";
                     $this->username = "root";

@@ -15,9 +15,7 @@
         <h2>CRUD de Impuesto | <?php echo gethostname() ?></h2>
         <ul>
             <li> <a href="./view/impuestoView.php">Gestión de Impuestos</a> </li>
-            <li> <a href="./view/proveedor.php">Gestión de Proveedores</a> </li>
-            <li> <a href="./view/productoView.php">Gestión de Productos</a> </li>
-            <li> <a href="./view/prueba.php">Prueba</a> </li>
+            <li> <a href="./view/proveedorView.php">Gestión de Proveedores</a> </li>
         </ul>
     </body>
 </html>
