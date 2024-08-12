@@ -26,6 +26,10 @@
             return $this->direccionData->deleteDireccion($direccionID);
         }
 
+        public function getPaginatedDirecciones($page, $size, $sort = null) {
+            return $this->direccionData->getPaginatedDirecciones($page, $size, $sort);
+        }
+
     }
 
 ?>
