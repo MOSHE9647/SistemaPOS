@@ -1,27 +1,102 @@
-// Función para hacer una fila editable
+let totalRecords = 0;
+let currentPage = 1;
+let totalPages = 1;
+let pageSize = defaultPageSize;
+
+const defaultPageSize = 5;
+
+function fetchProducts(page, size) {
+    fetch(`../controller/productoAction.php?page=${page}&size=${size}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderTable(data.listaProductos);
+                currentPage = data.page;
+                totalPages = data.totalPages;
+                totalRecords = data.totalRecords;
+                pageSize = data.size;
+                updatePaginationControls();
+            } else {
+                showMessage(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Ocurrió un error al procesar la solicitud.', 'error');
+        });
+}
+
+function renderTable(productos) {
+    let tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = '';
+
+    productos.forEach(producto => {
+        let row = `<tr data-id="${producto.idproducto}">
+            <td data-field="nombreproducto">${producto.nombreproducto}</td>
+            <td data-field="preciounitarioproducto">${producto.preciounitarioproducto}</td>
+            <td data-field="cantidadproducto">${producto.cantidadproducto}</td>
+            <td data-field="fechaadquisicionproducto" data-iso="${producto.fechaadquisicionproducto}">${producto.fechaadquisicionproducto}</td>
+            <td data-field="descripcionproducto">${producto.descripcionproducto}</td>
+            <td data-field="estadoproducto">${producto.estadoproducto}</td>
+            <td>
+                <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
+                <button onclick="deleteRow(${producto.idproducto})">Eliminar</button>
+            </td>
+        </tr>`;
+        tableBody.innerHTML += row;
+    });
+}
+
+function updatePaginationControls() {
+    document.getElementById('totalRecords').textContent = totalRecords;
+    document.getElementById('currentPage').textContent = currentPage;
+    document.getElementById('totalPages').textContent = totalPages;
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage === totalPages;
+}
+
+function changePage(newPage) {
+    if (newPage >= 1 && newPage <= totalPages) {
+        fetchProducts(newPage, pageSize);
+    }
+}
+
+function changePageSize(newSize) {
+    pageSize = newSize;
+    fetchProducts(currentPage, pageSize);
+}
+
+document.getElementById('pageSizeSelector').addEventListener('change', (event) => {
+    changePageSize(event.target.value);
+});
+
+// Llamada inicial para cargar la primera página
+fetchProducts(currentPage, pageSize);
+
 function makeRowEditable(row) {
     let cells = row.querySelectorAll('td');
-    for (let i = 0; i < cells.length - 1; i++) { // Excluimos la última columna
+    for (let i = 0; i < cells.length - 1; i++) {
         let value = cells[i].innerText;
-        
+        let fieldName = cells[i].dataset.field;
+
         // Si la columna es 'fecha', usar un input de tipo date
-        if (cells[i].dataset.field === 'fechaadquisicionproducto') {
+        if (fieldName === 'fechaadquisicionproducto') {
             value = cells[i].dataset.iso; // Obtener el valor en formato 'Y-MM-dd'
             cells[i].innerHTML = `<input type="date" value="${value}" max="${getCurrentDate()}">`;
-        } else if (cells[i].dataset.field === 'preciounitarioproducto' || cells[i].dataset.field === 'cantidadproducto') {
+        } else if (fieldName === 'preciounitarioproducto' || fieldName === 'cantidadproducto') {
             cells[i].innerHTML = `<input type="number" value="${value}" required>`;
         } else {
             cells[i].innerHTML = `<input type="text" value="${value}">`;
         }
     }
     let actionCell = cells[cells.length - 1];
-    actionCell.innerHTML = `<button onclick="saveRow(${row.dataset.id})">Guardar</button>
-                            <button onclick="cancelEdit()">Cancelar</button>`;
+    actionCell.innerHTML = `
+        <button onclick="saveRow(${row.dataset.id})">Guardar</button>
+        <button onclick="cancelEdit()">Cancelar</button>`;
 }
 
-// Función para mostrar la fila de creación
 function showCreateRow() {
-    document.getElementById('createButton').style.display = 'none'; // Oculta el botón de crear
+    document.getElementById('createButton').style.display = 'none';
 
     let tableBody = document.getElementById('tableBody');
     let newRow = document.createElement('tr');
@@ -41,17 +116,13 @@ function showCreateRow() {
     tableBody.appendChild(newRow);
 }
 
-// Función para crear un nuevo producto
 function createRow() {
     let row = document.getElementById('createRow');
     let inputs = row.querySelectorAll('input');
     let data = { accion: 'insertar' };
 
-    // Validar campos obligatorios
     if (!validateInputs(inputs)) {
-        localStorage.setItem('message', 'Por favor, complete todos los campos obligatorios.');
-        localStorage.setItem('messageType', 'error');
-        location.reload(); // Recargar la página para reflejar los cambios
+        showMessage('Por favor, complete todos los campos obligatorios.', 'error');
         return;
     }
 
@@ -59,8 +130,8 @@ function createRow() {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
 
-        // Convertir 'Precio Unitario' a double
-        if (fieldName === 'preciounitarioproducto') {
+        // Convertir 'Precio Unitario' y 'Cantidad' a double
+        if (fieldName === 'preciounitarioproducto' || fieldName === 'cantidadproducto') {
             value = parseFloat(value).toFixed(2); // Convertir a double y limitar a 2 decimales
         }
 
@@ -77,13 +148,12 @@ function createRow() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            localStorage.setItem('message', data.message);
-            localStorage.setItem('messageType', 'success');
-            location.reload(); // Recargar la página para reflejar los cambios
+            showMessage(data.message, 'success');
+            fetchProducts(currentPage, pageSize); // Recargar datos para reflejar el nuevo producto
+            document.getElementById('createRow').remove();
+            document.getElementById('createButton').style.display = 'inline-block';
         } else {
-            localStorage.setItem('message', data.message);
-            localStorage.setItem('messageType', 'error');
-            location.reload(); // Recargar la página para reflejar los cambios
+            showMessage(data.message, 'error');
         }
     })
     .catch(error => {
@@ -92,17 +162,13 @@ function createRow() {
     });
 }
 
-// Función para guardar los cambios de un producto
 function saveRow(id) {
     let row = document.querySelector(`tr[data-id='${id}']`);
     let inputs = row.querySelectorAll('input');
     let data = { accion: 'actualizar', id: id };
 
-    // Validar campos obligatorios
     if (!validateInputs(inputs)) {
-        localStorage.setItem('message', 'Por favor, complete todos los campos obligatorios.');
-        localStorage.setItem('messageType', 'error');
-        location.reload(); // Recargar la página para reflejar los cambios
+        showMessage('Por favor, complete todos los campos obligatorios.', 'error');
         return;
     }
 
@@ -110,8 +176,8 @@ function saveRow(id) {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
 
-        // Convertir 'Precio Unitario' a double
-        if (fieldName === 'preciounitarioproducto') {
+        // Convertir 'Precio Unitario' y 'Cantidad' a double
+        if (fieldName === 'preciounitarioproducto' || fieldName === 'cantidadproducto') {
             value = parseFloat(value).toFixed(2); // Convertir a double y limitar a 2 decimales
         }
 
@@ -127,14 +193,11 @@ function saveRow(id) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {    
-            localStorage.setItem('message', data.message);
-            localStorage.setItem('messageType', 'success');
-            location.reload(); // Recargar la página para reflejar los cambios
+        if (data.success) {
+            showMessage(data.message, 'success');
+            fetchProducts(currentPage, pageSize); // Recargar datos para reflejar los cambios
         } else {
-            localStorage.setItem('message', data.message);
-            localStorage.setItem('messageType', 'error');
-            location.reload(); // Recargar la página para reflejar los cambios
+            showMessage(data.message, 'error');
         }
     })
     .catch(error => {
@@ -143,70 +206,65 @@ function saveRow(id) {
     });
 }
 
-// Función para cancelar la edición de un producto
+function deleteRow(id) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+        return;
+    }
+
+    fetch('../controller/productoAction.php', {
+        method: 'POST',
+        body: new URLSearchParams({ accion: 'eliminar', id: id }),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage(data.message, 'success');
+            fetchProducts(currentPage, pageSize); // Recargar datos para reflejar la eliminación
+        } else {
+            showMessage(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('Ocurrió un error al procesar la solicitud.', 'error');
+    });
+}
+
+function validateInputs(inputs) {
+    return Array.from(inputs).every(input => input.value.trim() !== '');
+}
+
+function showMessage(message, type) {
+    let messageContainer = document.getElementById('message');
+    messageContainer.textContent = message;
+    messageContainer.className = type; // 'success' o 'error'
+    messageContainer.style.display = 'block';
+    setTimeout(() => messageContainer.style.display = 'none', 3000);
+}
+
 function cancelEdit() {
-    location.reload(); // Recargar la página para cancelar la edición
+    fetchProducts(currentPage, pageSize);
 }
 
-// Función para cancelar la creación de un nuevo producto
 function cancelCreate() {
-    let row = document.getElementById('createRow');
-    row.remove();
-    document.getElementById('createButton').style.display = ''; // Mostrar el botón de crear
+    document.getElementById('createRow').remove();
+    document.getElementById('createButton').style.display = 'inline-block';
 }
 
-// Función para obtener la fecha actual en formato 'YYYY-MM-DD'
 function getCurrentDate() {
     let today = new Date();
-    let dd = String(today.getDate()).padStart(2, '0');
-    let mm = String(today.getMonth() + 1).padStart(2, '0'); // Enero es 0!
-    let yyyy = today.getFullYear();
-
-    return yyyy + '-' + mm + '-' + dd;
+    let year = today.getFullYear();
+    let month = ('0' + (today.getMonth() + 1)).slice(-2);
+    let day = ('0' + today.getDate()).slice(-2);
+    return `${year}-${month}-${day}`;
 }
 
-// Función para validar que los campos obligatorios no estén vacíos
-function validateInputs(inputs) {
-    for (let input of inputs) {
-        if (input.hasAttribute('required') && !input.value.trim()) {
-            return false;
-        }
-    }
-    return true;
-}
+// Eventos de paginación
+document.getElementById('prevPage').addEventListener('click', () => changePage(currentPage - 1));
+document.getElementById('nextPage').addEventListener('click', () => changePage(currentPage + 1));
 
-// Función para eliminar un producto
-function deleteRow(id) {
-    if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
-        fetch('../controller/productoAction.php', {
-            method: 'POST',
-            body: new URLSearchParams({ accion: 'eliminar', id: id }),
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                localStorage.setItem('message', data.message);
-                localStorage.setItem('messageType', 'success');
-                location.reload(); // Recargar la página para reflejar los cambios
-            } else {
-                localStorage.setItem('message', data.message);
-                localStorage.setItem('messageType', 'error');
-                location.reload(); // Recargar la página para reflejar los cambios
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showMessage('Ocurrió un error al procesar la solicitud.', 'error');
-        });
-    }
-}
-
-// Función para mostrar mensajes en pantalla
-function showMessage(message, type) {
-    let messageDiv = document.getElementById('message');
-    messageDiv.innerText = message;
-    messageDiv.className = type;
-}
+// Evento para el botón de crear nuevo producto
+document.getElementById('createButton').addEventListener('click', showCreateRow);

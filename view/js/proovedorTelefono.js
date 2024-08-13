@@ -1,7 +1,80 @@
+let totalRecords = 0;
+let currentPage = 1;
+let totalPages = 1;
+let pageSize = defaultPageSize;
+
+const defaultPageSize = 5;
+
+// Función para obtener proveedores telefónicos
+function fetchProveedorTelefonos(page, size) {
+    fetch(`../controller/proveedorTelefonoAction.php?page=${page}&size=${size}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderTable(data.listaProveedorTelefonos);
+                currentPage = data.page;
+                totalPages = data.totalPages;
+                totalRecords = data.totalRecords;
+                pageSize = data.size;
+                updatePaginationControls();
+            } else {
+                showMessage(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Ocurrió un error al procesar la solicitud.', 'error');
+        });
+}
+
+// Función para renderizar la tabla de proveedores telefónicos
+function renderTable(proveedorTelefonos) {
+    let tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = '';
+
+    proveedorTelefonos.forEach(proveedorTelefono => {
+        let row = `<tr data-id="${proveedorTelefono.proveedortelefonoid}">
+            <td data-field="proveedorid">${proveedorTelefono.proveedorid}</td>
+            <td data-field="telefono">${proveedorTelefono.telefono}</td>
+            <td data-field="activo">${proveedorTelefono.activo}</td>
+            <td>
+                <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
+                <button onclick="deleteRow(${proveedorTelefono.proveedortelefonoid})">Eliminar</button>
+            </td>
+        </tr>`;
+        tableBody.innerHTML += row;
+    });
+}
+
+// Función para actualizar los controles de paginación
+function updatePaginationControls() {
+    document.getElementById('totalRecords').textContent = totalRecords;
+    document.getElementById('currentPage').textContent = currentPage;
+    document.getElementById('totalPages').textContent = totalPages;
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage === totalPages;
+}
+
+// Función para cambiar la página
+function changePage(newPage) {
+    if (newPage >= 1 && newPage <= totalPages) {
+        fetchProveedorTelefonos(newPage, pageSize);
+    }
+}
+
+// Función para cambiar el tamaño de la página
+function changePageSize(newSize) {
+    pageSize = newSize;
+    fetchProveedorTelefonos(currentPage, pageSize);
+}
+
+// Llamada inicial para cargar la primera página
+fetchProveedorTelefonos(currentPage, pageSize);
+
 // Función para hacer una fila editable
 function makeRowEditable(row) {
     let cells = row.querySelectorAll('td');
-    for (let i = 0; i < cells.length - 1; i++) { // Excluimos la última columna
+    for (let i = 0; i < cells.length - 1; i++) {
         let value = cells[i].innerText;
         cells[i].innerHTML = `<input type="text" value="${value}" required>`;
     }
@@ -12,7 +85,7 @@ function makeRowEditable(row) {
 
 // Función para mostrar la fila de creación
 function showCreateRow() {
-    document.getElementById('createButton').style.display = 'none'; // Oculta el botón de crear
+    document.getElementById('createButton').style.display = 'none';
 
     let tableBody = document.getElementById('tableBody');
     let newRow = document.createElement('tr');
@@ -35,11 +108,8 @@ function createRow() {
     let inputs = row.querySelectorAll('input');
     let data = { accion: 'insertar' };
 
-    // Validar campos obligatorios
     if (!validateInputs(inputs)) {
-        localStorage.setItem('message', 'Por favor, complete todos los campos obligatorios.');
-        localStorage.setItem('messageType', 'error');
-        location.reload(); // Recargar la página para reflejar los cambios
+        showMessage('Por favor, complete todos los campos obligatorios.', 'error');
         return;
     }
 
@@ -58,13 +128,12 @@ function createRow() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            localStorage.setItem('message', data.message);
-            localStorage.setItem('messageType', 'success');
-            location.reload(); // Recargar la página para reflejar los cambios
+            showMessage(data.message, 'success');
+            fetchProveedorTelefonos(currentPage, pageSize);
+            document.getElementById('createRow').remove();
+            document.getElementById('createButton').style.display = 'inline-block';
         } else {
-            localStorage.setItem('message', data.message);
-            localStorage.setItem('messageType', 'error');
-            location.reload(); // Recargar la página para reflejar los cambios
+            showMessage(data.message, 'error');
         }
     })
     .catch(error => {
@@ -79,11 +148,8 @@ function saveRow(id) {
     let inputs = row.querySelectorAll('input');
     let data = { accion: 'actualizar', id: id };
 
-    // Validar campos obligatorios
     if (!validateInputs(inputs)) {
-        localStorage.setItem('message', 'Por favor, complete todos los campos obligatorios.');
-        localStorage.setItem('messageType', 'error');
-        location.reload(); // Recargar la página para reflejar los cambios
+        showMessage('Por favor, complete todos los campos obligatorios.', 'error');
         return;
     }
 
@@ -102,13 +168,10 @@ function saveRow(id) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            localStorage.setItem('message', data.message);
-            localStorage.setItem('messageType', 'success');
-            location.reload(); // Recargar la página para reflejar los cambios
+            showMessage(data.message, 'success');
+            fetchProveedorTelefonos(currentPage, pageSize);
         } else {
-            localStorage.setItem('message', data.message);
-            localStorage.setItem('messageType', 'error');
-            location.reload(); // Recargar la página para reflejar los cambios
+            showMessage(data.message, 'error');
         }
     })
     .catch(error => {
@@ -130,13 +193,10 @@ function deleteRow(id) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                localStorage.setItem('message', data.message);
-                localStorage.setItem('messageType', 'success');
-                location.reload(); // Recargar la página para reflejar los cambios
+                showMessage(data.message, 'success');
+                fetchProveedorTelefonos(currentPage, pageSize);
             } else {
-                localStorage.setItem('message', data.message);
-                localStorage.setItem('messageType', 'error');
-                location.reload(); // Recargar la página para reflejar los cambios
+                showMessage(data.message, 'error');
             }
         })
         .catch(error => {
@@ -148,24 +208,21 @@ function deleteRow(id) {
 
 // Función para cancelar la edición
 function cancelEdit() {
-    location.reload(); // Recargar la página para cancelar la edición
+    fetchProveedorTelefonos(currentPage, pageSize);
 }
 
 // Función para cancelar la creación
 function cancelCreate() {
     document.getElementById('createRow').remove();
-    document.getElementById('createButton').style.display = 'inline-block'; // Volver a mostrar el botón de crear
+    document.getElementById('createButton').style.display = 'inline-block';
 }
 
+// Función para mostrar mensajes
 function showMessage(message, type) {
     let container = document.getElementById('message');
-    if (container != null) {
+    if (container) {
         container.innerHTML = message;
-
-        // Primero eliminamos las clases relacionadas con mensajes anteriores
         container.classList.remove('error', 'success');
-
-        // Agregamos las clases apropiadas según el tipo
         container.classList.add('message');
         if (type === 'error') {
             container.classList.add('error');
@@ -179,26 +236,28 @@ function showMessage(message, type) {
 
 // Función para validar inputs obligatorios
 function validateInputs(inputs) {
-    let valid = true;
-    inputs.forEach(input => {
-        if (input.required && !input.value) {
-            valid = false;
-        }
-    });
-    return valid;
+    return Array.from(inputs).every(input => input.value.trim() !== '');
 }
 
+// Función para mostrar mensajes almacenados
 function displayStoredMessage() {
     let message = localStorage.getItem('message');
     let type = localStorage.getItem('messageType');
 
     if (message && type) {
         showMessage(message, type);
-        // Limpiar el mensaje después de mostrarlo
         localStorage.removeItem('message');
         localStorage.removeItem('messageType');
     }
 }
+
+// Eventos de paginación
+document.getElementById('prevPage').addEventListener('click', () => changePage(currentPage - 1));
+document.getElementById('nextPage').addEventListener('click', () => changePage(currentPage + 1));
+document.getElementById('pageSizeSelector').addEventListener('change', (event) => changePageSize(event.target.value));
+
+// Evento para el botón de crear nuevo proveedor teléfono
+document.getElementById('createButton').addEventListener('click', showCreateRow);
 
 // Llama a displayStoredMessage al cargar la página
 window.onload = displayStoredMessage;
