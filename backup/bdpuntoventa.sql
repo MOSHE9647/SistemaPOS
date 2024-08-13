@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 12-08-2024 a las 17:32:45
+-- Tiempo de generación: 13-08-2024 a las 11:55:56
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -46,7 +46,7 @@ INSERT INTO `tbdireccion` (`direccionid`, `direccionprovincia`, `direccioncanton
 (1, 'Provincia A', 'Canton A', 'Distrito A', 'Barrio A', 'Señas A', 1.00, 1),
 (2, 'Provincia B', 'Canton B', 'Distrito B', 'Barrio B', 'Señas B', 2.50, 1),
 (3, 'Provincia C', 'Canton C', 'Distrito C', 'Barrio C', 'Señas C', 3.75, 1),
-(4, 'Provincia D', 'Canton D', 'Distrito D', 'Barrio D', 'Señas D', 1.25, 1),
+(4, 'Provincia D', 'Canton D', 'Distrito D', 'Barrio D', 'Señas D', 1.26, 1),
 (5, 'Provincia E', 'Canton E', 'Distrito E', 'Barrio E', 'Señas E', 2.00, 1),
 (6, 'Provincia 6', 'Canton 6', 'Distrito 6', 'Barrio 6', 'Señas 6', 16.00, 1);
 
@@ -75,7 +75,34 @@ INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impu
 (3, 'IRF', 12.00, 'qw', 0, '2024-08-02 06:00:00'),
 (4, 'IRF', 12.00, 'Prueba', 0, '2024-08-02 06:00:00'),
 (5, 'IRF', 12.00, 'Impuesto al Regalo Fraterno', 1, '2024-07-15 06:00:00'),
-(6, 'IMP', 32.00, 'Impuesto al Mejor Personaje', 1, '2024-08-10 06:00:00');
+(6, 'IMP', 33.00, 'Impuesto al Mejor Personaje', 1, '2024-08-10 06:00:00'),
+(7, 'IJP', 20.00, 'Impuesto al Jugador Preferido', 0, '2024-08-12 06:00:00'),
+(8, 'IJK', 12.00, 'SDFG', 0, '2024-08-13 06:00:00');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbproducto`
+--
+
+CREATE TABLE `tbproducto` (
+  `productoid` int NOT NULL,
+  `productonombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `productopreciounitario` decimal(10,2) NOT NULL,
+  `productocantidad` int NOT NULL,
+  `productofechaadquisicion` datetime NOT NULL,
+  `productodescripcion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `productoestado` tinyint NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `tbproducto`
+--
+
+INSERT INTO `tbproducto` (`productoid`, `productonombre`, `productopreciounitario`, `productocantidad`, `productofechaadquisicion`, `productodescripcion`, `productoestado`) VALUES
+(1, 'coca-cola', 1200.00, 30, '2024-08-11 21:46:52', 'coca-cola de 2.5L', 1),
+(2, 'pepsi', 1500.00, 40, '2023-08-10 00:00:00', 'refresco de 3L sin azucar', 1),
+(3, 'Ginger Ale', 1300.00, 20, '2024-08-13 00:00:00', 'Refresco de 3L', 0);
 
 -- --------------------------------------------------------
 
@@ -105,7 +132,8 @@ INSERT INTO `tbproveedor` (`proveedorid`, `proveedornombre`, `proveedoremail`, `
 (6, 'Proveedor F', 'proveedorf@example.com', 'Tipo 4', 1, '2024-08-12 06:00:00'),
 (7, 'Proveedor G', 'proveedorg@example.com', 'Tipo 5', 1, '2024-08-12 06:00:00'),
 (8, 'Proveedor H', 'proveedorh@example.com', 'Tipo 6', 1, '2024-08-12 06:00:00'),
-(9, 'Proveedor I', 'proveedori@example.com', 'Tipo 7', 1, '2024-08-12 06:00:00');
+(9, 'Proveedor I', 'proveedori@example.com', 'Tipo 7', 1, '2024-08-12 06:00:00'),
+(10, 'Proveedor J', 'proveedorj@example.com', 'Tipo 9', 0, '2024-08-12 06:00:00');
 
 -- --------------------------------------------------------
 
@@ -146,17 +174,18 @@ CREATE TABLE `tbproveedortelefono` (
   `proveedortelefonoid` int NOT NULL,
   `proveedorid` int NOT NULL,
   `proveedortelefono` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `proveedorestado` tinyint(1) NOT NULL
+  `proveedortelefonoestado` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `tbproveedortelefono`
 --
 
-INSERT INTO `tbproveedortelefono` (`proveedortelefonoid`, `proveedorid`, `proveedortelefono`, `proveedorestado`) VALUES
+INSERT INTO `tbproveedortelefono` (`proveedortelefonoid`, `proveedorid`, `proveedortelefono`, `proveedortelefonoestado`) VALUES
 (1, 9, '+506 6421 2950', 0),
-(2, 9, '+1 123 456 7890', 1),
-(3, 8, '+506 6421 2950', 1);
+(2, 9, '+506 6397 3487', 1),
+(3, 8, '+506 6421 2951', 1),
+(4, 8, '+506 6421 2952', 0);
 
 --
 -- Índices para tablas volcadas
@@ -173,6 +202,12 @@ ALTER TABLE `tbdireccion`
 --
 ALTER TABLE `tbimpuesto`
   ADD PRIMARY KEY (`impuestoid`);
+
+--
+-- Indices de la tabla `tbproducto`
+--
+ALTER TABLE `tbproducto`
+  ADD PRIMARY KEY (`productoid`);
 
 --
 -- Indices de la tabla `tbproveedor`
