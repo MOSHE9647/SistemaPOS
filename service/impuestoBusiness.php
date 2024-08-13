@@ -18,6 +18,10 @@
             return $this->impuestoData->getAllTBImpuesto();
         }
 
+        public function getPaginatedImpuestos($page, $size, $sort = null) {
+            return $this->impuestoData->getPaginatedImpuestos($page, $size, $sort);
+        }
+
         public function updateTBImpuesto($impuesto) {
             return $this->impuestoData->updateImpuesto($impuesto);
         }

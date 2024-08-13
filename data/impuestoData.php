@@ -205,6 +205,96 @@
 			}
 		}
 
+		public function getPaginatedImpuestos($page, $size, $sort = null) {
+			try {
+				// Validar los parámetros de paginación
+                if (!is_numeric($page) || $page < 1) {
+                    throw new Exception("El número de página debe ser un entero positivo.");
+                }
+                if (!is_numeric($size) || $size < 1) {
+                    throw new Exception("El tamaño de la página debe ser un entero positivo.");
+                }
+                $offset = ($page - 1) * $size;
+        
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
+                }
+                $conn = $result["connection"];
+
+				// Consultar el total de registros
+                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_IMPUESTO . " WHERE " . IMPUESTO_ESTADO . " != false";
+                $totalResult = mysqli_query($conn, $queryTotalCount);
+                if (!$totalResult) {
+                    throw new Exception("Error al obtener el conteo total de registros: " . mysqli_error($conn));
+                }
+                $totalRow = mysqli_fetch_assoc($totalResult);
+                $totalRecords = (int)$totalRow['total'];
+                $totalPages = ceil($totalRecords / $size);
+
+				// Construir la consulta SQL para paginación
+                $querySelect = "SELECT * FROM " . TB_IMPUESTO . " WHERE " . IMPUESTO_ESTADO . " != false ";
+
+				// Añadir la cláusula de ordenamiento si se proporciona
+                if ($sort) {
+                    $querySelect .= "ORDER BY impuesto" . $sort . " ";
+                }
+
+				// Añadir la cláusula de limitación y offset
+                $querySelect .= "LIMIT ? OFFSET ?";
+
+				// Preparar la consulta
+                $stmt = mysqli_prepare($conn, $querySelect);
+                if (!$stmt) {
+                    throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
+                }
+        
+                // Vincular los parámetros
+                mysqli_stmt_bind_param($stmt, "ii", $size, $offset);
+
+				// Ejecutar la consulta
+                $result = mysqli_stmt_execute($stmt);
+                if (!$result) {
+                    throw new Exception("Error al ejecutar la consulta: " . mysqli_error($conn));
+                }
+
+				// Obtener el resultado
+                $result = mysqli_stmt_get_result($stmt);
+                if (!$result) {
+                    throw new Exception("Error al obtener el resultado: " . mysqli_error($conn));
+                }
+
+				$listaImpuestos = [];
+				while ($row = mysqli_fetch_assoc($result)) {
+					$listaImpuestos[] = [
+						'ID' => $row[IMPUESTO_ID],
+						'Nombre' => $row[IMPUESTO_NOMBRE],
+						'Valor' => $row[IMPUESTO_VALOR],
+						'Descripcion' => $row[IMPUESTO_DESCRIPCION],
+						'Vigencia' => $row[IMPUESTO_FECHA_VIGENCIA],
+						'Estado' => $row[IMPUESTO_ESTADO]
+					];
+				}
+
+				return [
+                    "success" => true,
+                    "page" => $page,
+                    "size" => $size,
+                    "totalPages" => $totalPages,
+                    "totalRecords" => $totalRecords,
+                    "listaImpuestos" => $listaImpuestos
+                ];
+			} catch (Exception $e) {
+				// Devolver el mensaje de error
+                return ["success" => false, "message" => $e->getMessage()];
+            } finally {
+                // Cerrar la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn)) { mysqli_close($conn); }
+            }
+		}
+
 		public function updateImpuesto($impuesto) {
 			try {
 				// Obtener los valores de las propiedades del objeto
