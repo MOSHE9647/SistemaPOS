@@ -1,15 +1,80 @@
-// Función para hacer una fila editable
+let totalRecords = 5;
+let currentPage = 1;
+let totalPages = 1;
+const defaultPageSize = 5; // Tamaño de página predeterminado
+let pageSize = defaultPageSize; // Tamaño de página actual
+
+function fetchProveedores(page, size) {
+    fetch(`../controller/proveedorAction.php?page=${page}&size=${size}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderTable(data.listaProveedores);
+                currentPage = data.page;
+                totalPages = data.totalPages;
+                totalRecords = data.totalRecords;
+                pageSize = data.size;
+                updatePaginationControls();
+            } else {
+                showMessage(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error: ', error);
+            showMessage('Ocurrió un error al procesar la solicitud.', 'error');
+        });
+}
+
+function renderTable(proveedores) {
+    let tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = '';
+
+    proveedores.forEach(proveedor => {
+        let fechaFormateada = Utils.formatearFecha(proveedor.fecha_registro); // Asume que tienes una función Utils para formatear fechas
+        let fechaISO = proveedor.fecha_registro;
+
+        let row = `<tr data-id="${proveedor.id}">
+            <td data-field="nombre">${proveedor.nombre}</td>
+            <td data-field="email">${proveedor.email}</td>
+            <td data-field="tipo">${proveedor.tipo}</td>
+            <td data-field="fecha_registro" data-iso="${fechaISO}">${fechaFormateada}</td>
+            <td>
+                <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
+                <button onclick="deleteRow(${proveedor.id})">Eliminar</button>
+            </td>
+        </tr>`;
+        tableBody.innerHTML += row;
+    });
+}
+
+function updatePaginationControls() {
+    document.getElementById('totalRecords').textContent = totalRecords;
+    document.getElementById('currentPage').textContent = currentPage;
+    document.getElementById('totalPages').textContent = totalPages;
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage === totalPages;
+}
+
+function changePage(newPage) {
+    if (newPage >= 1 && newPage <= totalPages) {
+        fetchProveedores(newPage, pageSize);
+    }
+}
+
+// Llamada inicial para cargar la primera página
+fetchProveedores(currentPage, pageSize);
+
 function makeRowEditable(row) {
     let cells = row.querySelectorAll('td');
-    for (let i = 0; i < cells.length - 1; i++) { // Excluimos la última columna
+    for (let i = 0; i < cells.length - 1; i++) {
         let value = cells[i].innerText;
         let fieldType = cells[i].dataset.field;
 
         // Si la columna es 'fecha_registro', usar un input de tipo date
-        if (cells[i].dataset.field === 'fecha_registro') {
+        if (fieldType === 'fecha_registro') {
             value = cells[i].dataset.iso; // Obtener el valor en formato 'Y-m-d'
             cells[i].innerHTML = `<input type="date" value="${value}" max="${getCurrentDate()}">`;
-        } else if (cells[i].dataset.field === 'nombre'  || fieldType === 'email') {
+        } else if (fieldType === 'nombre' || fieldType === 'email') {
             cells[i].innerHTML = `<input type="text" value="${value}" required>`;
         } else {
             cells[i].innerHTML = `<input type="text" value="${value}">`;
@@ -20,9 +85,8 @@ function makeRowEditable(row) {
                             <button onclick="cancelEdit()">Cancelar</button>`;
 }
 
-// Función para mostrar la fila de creación
 function showCreateRow() {
-    document.getElementById('createButton').style.display = 'none'; // Oculta el botón de crear
+    document.getElementById('createButton').style.display = 'none';
 
     let tableBody = document.getElementById('tableBody');
     let newRow = document.createElement('tr');
@@ -40,17 +104,13 @@ function showCreateRow() {
     tableBody.appendChild(newRow);
 }
 
-// Función para crear un nuevo proveedor
 function createRow() {
     let row = document.getElementById('createRow');
     let inputs = row.querySelectorAll('input');
     let data = { accion: 'insertar' };
 
-    // Validar campos obligatorios
     if (!validateInputs(inputs)) {
-        localStorage.setItem('message', 'Por favor, complete todos los campos obligatorios.');
-        localStorage.setItem('messageType', 'error');
-        location.reload(); // Recargar la página para reflejar los cambios
+        showMessage('Por favor, complete todos los campos obligatorios.', 'error');
         return;
     }
 
@@ -71,13 +131,12 @@ function createRow() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            localStorage.setItem('message', data.message);
-            localStorage.setItem('messageType', 'success');
-            location.reload(); // Recargar la página para reflejar los cambios
+            showMessage(data.message, 'success');
+            fetchProveedores(currentPage, pageSize); // Recargar datos para reflejar el nuevo proveedor
+            document.getElementById('createRow').remove();
+            document.getElementById('createButton').style.display = 'inline-block';
         } else {
-            localStorage.setItem('message', data.message);
-            localStorage.setItem('messageType', 'error');
-            location.reload(); // Recargar la página para reflejar los cambios
+            showMessage(data.message, 'error');
         }
     })
     .catch(error => {
@@ -86,17 +145,13 @@ function createRow() {
     });
 }
 
-// Función para guardar los cambios de un proveedor
 function saveRow(id) {
     let row = document.querySelector(`tr[data-id='${id}']`);
     let inputs = row.querySelectorAll('input');
     let data = { accion: 'actualizar', id: id };
 
-    // Validar campos obligatorios
     if (!validateInputs(inputs)) {
-        localStorage.setItem('message', 'Por favor, complete todos los campos obligatorios.');
-        localStorage.setItem('messageType', 'error');
-        location.reload(); // Recargar la página para reflejar los cambios
+        showMessage('Por favor, complete todos los campos obligatorios.', 'error');
         return;
     }
 
@@ -117,13 +172,10 @@ function saveRow(id) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            localStorage.setItem('message', data.message);
-            localStorage.setItem('messageType', 'success');
-            location.reload(); // Recargar la página para reflejar los cambios
+            showMessage(data.message, 'success');
+            fetchProveedores(currentPage, pageSize); // Recargar datos para reflejar los cambios
         } else {
-            localStorage.setItem('message', data.message);
-            localStorage.setItem('messageType', 'error');
-            location.reload(); // Recargar la página para reflejar los cambios
+            showMessage(data.message, 'error');
         }
     })
     .catch(error => {
@@ -132,48 +184,37 @@ function saveRow(id) {
     });
 }
 
-// Función para eliminar un proveedor
 function deleteRow(id) {
-    if (confirm('¿Está seguro de que desea eliminar este proveedor?')) {
-        fetch('../controller/proveedorAction.php', {
-            method: 'POST',
-            body: new URLSearchParams({ accion: 'eliminar', id: id }),
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                localStorage.setItem('message', data.message);
-                localStorage.setItem('messageType', 'success');
-                location.reload(); // Recargar la página para reflejar los cambios
-            } else {
-                localStorage.setItem('message', data.message);
-                localStorage.setItem('messageType', 'error');
-                location.reload(); // Recargar la página para reflejar los cambios
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-           // showMessage('BIEN Ocurrió un error al procesar la solicitud.', 'error');
-            location.reload(); // Recargar la página para reflejar los cambios
-        });
+    if (!confirm('¿Está seguro de que desea eliminar este proveedor?')) {
+        return;
     }
+
+    fetch('../controller/proveedorAction.php', {
+        method: 'POST',
+        body: new URLSearchParams({ accion: 'eliminar', id: id }),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage(data.message, 'success');
+            fetchProveedores(currentPage, pageSize); // Recargar datos para reflejar la eliminación
+        } else {
+            showMessage(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('Ocurrió un error al procesar la solicitud.', 'error');
+    });
 }
 
-// Función para cancelar la edición
-function cancelEdit() {
-    location.reload(); // Recargar la página para cancelar la edición
+function validateInputs(inputs) {
+    return Array.from(inputs).every(input => input.value.trim() !== '');
 }
 
-// Función para cancelar la creación
-function cancelCreate() {
-    document.getElementById('createRow').remove();
-    document.getElementById('createButton').style.display = 'inline-block'; // Volver a mostrar el botón de crear
-}
-
-// Función para mostrar mensajes
 function showMessage(message, type) {
     let container = document.getElementById('message');
     if (container != null) {
@@ -189,23 +230,13 @@ function showMessage(message, type) {
         } else if (type === 'success') {
             container.classList.add('success');
         }
+
+        container.style.display = 'flex';
     } else {
         alert('Error al mostrar el mensaje');
     }
 }
 
-// Función para validar inputs obligatorios
-function validateInputs(inputs) {
-    let valid = true;
-    inputs.forEach(input => {
-        if (input.required && !input.value) {
-            valid = false;
-        }
-    });
-    return valid;
-}
-
-// Función para obtener la fecha actual en formato 'Y-MM-dd'
 function getCurrentDate() {
     let today = new Date();
     let year = today.getFullYear();
@@ -214,16 +245,19 @@ function getCurrentDate() {
     return `${year}-${month}-${day}`;
 }
 
-// Función para mostrar mensajes almacenados en localStorage
-function displayStoredMessage() {
-    let message = localStorage.getItem('message');
-    let messageType = localStorage.getItem('messageType');
-    if (message && messageType) {
-        showMessage(message, messageType);
-        localStorage.removeItem('message');
-        localStorage.removeItem('messageType');
-    }
+document.getElementById('pageSizeSelector').addEventListener('change', (event) => {
+    changePageSize(parseInt(event.target.value));
+});
+
+function changePageSize(newSize) {
+    pageSize = newSize;
+    fetchProveedores(1, pageSize); // Volver a la primera página con el nuevo tamaño de página
 }
 
-// Ejecutar esta función cuando se cargue la página
-document.addEventListener('DOMContentLoaded', displayStoredMessage);
+document.getElementById('prevPage').addEventListener('click', () => {
+    changePage(currentPage - 1);
+});
+
+document.getElementById('nextPage').addEventListener('click', () => {
+    changePage(currentPage + 1);
+});

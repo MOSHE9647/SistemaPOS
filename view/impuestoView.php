@@ -30,34 +30,27 @@
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <?php
-                    $impuestoBusiness = new ImpuestoBusiness();
-                    $result = $impuestoBusiness->getAllTBImpuesto();
-
-                    if ($result["success"]) {
-                        $listaImpuestos = $result["listaImpuestos"];
-
-                        foreach ($listaImpuestos as $current) {
-                            $fechaFormateada = Utils::formatearFecha($current->getImpuestoFechaVigencia());
-                            $fechaISO = Utils::formatearFecha($current->getImpuestoFechaVigencia(), 'Y-MM-dd');
-
-                            echo '<tr data-id="' . $current->getImpuestoID() . '">';
-                            echo '<td data-field="nombre">' . $current->getImpuestoNombre() . '</td>';
-                            echo '<td data-field="valor">' . $current->getImpuestoValor() . '%</td>';
-                            echo '<td data-field="descripcion">' . $current->getImpuestoDescripcion() . '</td>';
-                            echo '<td data-field="fecha_vigencia" data-iso="' . $fechaISO . '">' . $fechaFormateada . '</td>';
-                            echo '<td>';
-                            echo '<button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>';
-                            echo '<button onclick="deleteRow(' . $current->getImpuestoID() . ')">Eliminar</button>';
-                            echo '</td>';
-                            echo '</tr>';
-                        }
-                    } else {
-                        echo '<tr> <td colspan="6"> <p style="color: red; text-align: center;">' . $result["message"] . '</p> </td> </tr>';
-                    }
-                ?>
+                <!-- Las filas se llenarán con JavaScript -->
             </tbody>
         </table>
+
+        <!-- Controles de paginación -->
+        <div id="paginationControls">
+            <button id="prevPage" onclick="changePage(currentPage - 1)">Anterior</button>
+            <span> Página <span id="currentPage">1</span> de <span id="totalPages">1</span> </span>
+            <button id="nextPage" onclick="changePage(currentPage + 1)">Siguiente</button>
+        </div>
+
+        <!-- Selector de tamaño de página -->
+        <div id="pageSizeSelector">
+            <label for="pageSize">Tamaño de página:</label>
+            <select id="pageSize">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+            </select>
+        </div>
+
         <a href="../index.php" class="menu-button">Regresar al Menú</a>
         <script src="./js/impuesto.js"></script>
     </body>
