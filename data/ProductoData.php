@@ -185,7 +185,8 @@
                         'Descripcion' => $row[PRODUCTO_DESCRIPCION],
                         'Precio' => $row[PRODUCTO_PRECIO_U],
                         'Cantidad' => $row[PRODUCTO_CANTIDAD],
-                        'Fecha' => $row[PRODUCTO_FECHA_ADQ],
+                        'FechaISO' => Utils::formatearFecha($row[PRODUCTO_FECHA_ADQ], 'Y-MM-dd'),
+						'Fecha' => Utils::formatearFecha($row[PRODUCTO_FECHA_ADQ]),
                         'Estado' => $row[PRODUCTO_ESTADO]
 					];
 				}

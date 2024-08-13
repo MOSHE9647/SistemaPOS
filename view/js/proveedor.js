@@ -30,17 +30,14 @@ function renderTable(proveedores) {
     tableBody.innerHTML = '';
 
     proveedores.forEach(proveedor => {
-        let fechaFormateada = Utils.formatearFecha(proveedor.fecha_registro); // Asume que tienes una función Utils para formatear fechas
-        let fechaISO = proveedor.fecha_registro;
-
-        let row = `<tr data-id="${proveedor.id}">
-            <td data-field="nombre">${proveedor.nombre}</td>
-            <td data-field="email">${proveedor.email}</td>
-            <td data-field="tipo">${proveedor.tipo}</td>
-            <td data-field="fecha_registro" data-iso="${fechaISO}">${fechaFormateada}</td>
+        let row = `<tr data-id="${proveedor.ID}">
+            <td data-field="nombre">${proveedor.Nombre}</td>
+            <td data-field="email">${proveedor.Email}</td>
+            <td data-field="tipo">${proveedor.Tipo}</td>
+            <td data-field="fecha_registro" data-iso="${proveedor.FechaISO}">${proveedor.Fecha}</td>
             <td>
                 <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
-                <button onclick="deleteRow(${proveedor.id})">Eliminar</button>
+                <button onclick="deleteRow(${proveedor.ID})">Eliminar</button>
             </td>
         </tr>`;
         tableBody.innerHTML += row;
@@ -117,7 +114,6 @@ function createRow() {
     inputs.forEach(input => {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
-
         data[fieldName] = value;
     });
 
@@ -158,7 +154,6 @@ function saveRow(id) {
     inputs.forEach(input => {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
-
         data[fieldName] = value;
     });
 
@@ -213,6 +208,17 @@ function deleteRow(id) {
 
 function validateInputs(inputs) {
     return Array.from(inputs).every(input => input.value.trim() !== '');
+}
+
+// Función para cancelar la edición
+function cancelEdit(id) {
+    fetchProveedores(currentPage, pageSize); // Recargar la página para cancelar la edición
+}
+
+// Función para cancelar la creación
+function cancelCreate() {
+    document.getElementById('createRow').remove();
+    document.getElementById('createButton').style.display = 'inline-block'; // Volver a mostrar el botón de crear
 }
 
 function showMessage(message, type) {

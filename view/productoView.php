@@ -22,12 +22,11 @@
     <table>
         <thead>
             <tr>
-                <th data-field="nombreproducto">Nombre</th>
-                <th data-field="preciounitarioproducto">Precio Unitario</th>
-                <th data-field="cantidadproducto">Cantidad</th>
-                <th data-field="fechaadquisicionproducto">Fecha Adquisición</th>
-                <th data-field="descripcionproducto">Descripción</th>
-                <th data-field="estadoproducto">Estado</th>
+                <th data-field="nombre">Nombre</th>
+                <th data-field="precio">Precio Unitario</th>
+                <th data-field="cantidad">Cantidad</th>
+                <th data-field="fecha">Fecha Adquisición</th>
+                <th data-field="descripcion">Descripción</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -36,17 +35,25 @@
         </tbody>
     </table>
 
-    <!-- Controles de paginación -->
-    <div id="paginationControls">
-        <button id="prevPage">Anterior</button>
-        <span>Página <span id="currentPage">1</span> de <span id="totalPages">1</span></span>
-        <button id="nextPage">Siguiente</button>
-        <label for="pageSize">Tamaño de página:</label>
-        <select id="pageSize">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-        </select>
+    <div class="pagination-container">
+        <!-- Selector de tamaño de página -->
+        <div id="paginationSize">
+            Mostrando:
+            <select id="pageSizeSelector">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+            </select>
+            de <span id="totalRecords"></span> registros
+        </div>
+
+        <!-- Controles de paginación -->
+        <div id="paginationControls">
+            <button id="prevPage" onclick="changePage(currentPage - 1)">Anterior</button>
+            <span id="pageInfo">Página <span id="currentPage">1</span> de <span id="totalPages">1</span></span>
+            <button id="nextPage" onclick="changePage(currentPage + 1)">Siguiente</button>
+        </div>
     </div>
 
     <a href="../index.php" class="menu-button">Regresar al Menú</a>

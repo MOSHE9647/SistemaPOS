@@ -35,7 +35,7 @@ function renderTable(impuestos) {
             <td data-field="nombre">${impuesto.Nombre}</td>
             <td data-field="valor">${impuesto.Valor}%</td>
             <td data-field="descripcion">${impuesto.Descripcion}</td>
-            <td data-field="fecha_vigencia" data-iso="${impuesto.FechaVigenciaISO}">${impuesto.FechaVigencia}</td>
+            <td data-field="fecha_vigencia" data-iso="${impuesto.VigenciaISO}">${impuesto.Vigencia}</td>
             <td>
                 <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
                 <button onclick="deleteRow(${impuesto.ID})">Eliminar</button>
@@ -47,6 +47,7 @@ function renderTable(impuestos) {
 
 // Función para actualizar los controles de paginación
 function updatePaginationControls() {
+    document.getElementById('totalRecords').textContent = totalRecords;
     document.getElementById('currentPage').textContent = currentPage;
     document.getElementById('totalPages').textContent = totalPages;
     document.getElementById('prevPage').disabled = currentPage === 1;
@@ -64,6 +65,27 @@ function changePage(newPage) {
 function changePageSize(newSize) {
     pageSize = newSize;
     fetchImpuestos(currentPage, pageSize);
+}
+
+// Función para hacer una fila editable
+function makeRowEditable(row) {
+    let cells = row.querySelectorAll('td');
+    for (let i = 0; i < cells.length - 1; i++) { // Excluimos la última columna
+        let value = cells[i].innerText;
+        
+        // Si la columna es 'fecha', usar un input de tipo date
+        if (cells[i].dataset.field === 'fecha_vigencia') {
+            value = cells[i].dataset.iso; // Obtener el valor en formato 'Y-MM-dd'
+            cells[i].innerHTML = `<input type="date" value="${value}" max="${getCurrentDate()}">`;
+        } else if (cells[i].dataset.field === 'nombre' || cells[i].dataset.field === 'valor') {
+            cells[i].innerHTML = `<input type="text" value="${value}" required>`;
+        } else {
+            cells[i].innerHTML = `<input type="text" value="${value}">`;
+        }
+    }
+    let actionCell = cells[cells.length - 1];
+    actionCell.innerHTML = `<button onclick="saveRow(${row.dataset.id})">Guardar</button>
+                            <button onclick="cancelEdit(${row.dataset.id})">Cancelar</button>`;
 }
 
 // Función para mostrar la fila de creación
@@ -232,6 +254,8 @@ function showMessage(message, type) {
         } else if (type === 'success') {
             container.classList.add('success');
         }
+
+        container.style.display = 'flex';
     } else {
         alert('Error al mostrar el mensaje');
     }

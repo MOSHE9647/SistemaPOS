@@ -305,14 +305,14 @@
                 $listaDirecciones = [];
                 while ($row = mysqli_fetch_assoc($result)) {
                     $listaDirecciones[] = [
-                        'ID' => $currentDireccion->getDireccionID(),
-                        'Provincia' => $currentDireccion->getDireccionProvincia(),
-                        'Canton' => $currentDireccion->getDireccionCanton(),
-                        'Distrito' => $currentDireccion->getDireccionDistrito(),
-                        'Barrio' => $currentDireccion->getDireccionBarrio(),
-                        'Sennas' => $currentDireccion->getDireccionSennas(),
-                        'Distancia' => $currentDireccion->getDireccionDistancia(),
-                        'Estado' => $currentDireccion->getDireccionEstado()
+                        'ID' => $row[DIRECCION_ID],
+                        'Provincia' => $row[DIRECCION_PROVINCIA],
+                        'Canton' => $row[DIRECCION_CANTON],
+                        'Distrito' => $row[DIRECCION_DISTRITO],
+                        'Barrio' => $row[DIRECCION_BARRIO],
+                        'Sennas' => $row[DIRECCION_SENNAS],
+                        'Distancia' => $row[DIRECCION_DISTANCIA],
+                        'Estado' => $row[DIRECCION_ESTADO]
                     ];
                 }
         

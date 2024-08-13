@@ -273,7 +273,8 @@
 						'Nombre' => $row[PROVEEDOR_NOMBRE],
 						'Email' => $row[PROVEEDOR_EMAIL],
 						'Tipo' => $row[PROVEEDOR_TIPO],                                             
-						'Fecha' => $row[PROVEEDOR_FECHA_REGISTRO],
+						'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO], 'Y-MM-dd'),
+						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO]),
 						'Estado' => $row[PROVEEDOR_ESTADO]
 					];
 				}

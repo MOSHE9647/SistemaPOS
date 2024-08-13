@@ -10,7 +10,7 @@
 
     <h2>Lista de Teléfonos de Proveedores</h2>
 
-    <div id="message" style="display: none;"></div>
+    <div id="message"></div>
 
     <!-- Botón para crear nuevo teléfono -->
     <button id="createButton" onclick="showCreateRow()">Crear</button>

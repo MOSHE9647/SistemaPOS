@@ -9,7 +9,7 @@
 <body>
     <h2>Lista de Direcciones</h2>
 
-    <div id="message" style="display: none;"></div>
+    <div id="message"></div>
 
     <!-- Botón para crear nueva dirección -->
     <button id="createButton" onclick="showCreateRow()">Crear</button>

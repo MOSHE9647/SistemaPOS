@@ -34,21 +34,25 @@
             </tbody>
         </table>
 
-        <!-- Controles de paginación -->
-        <div id="paginationControls">
-            <button id="prevPage" onclick="changePage(currentPage - 1)">Anterior</button>
-            <span> Página <span id="currentPage">1</span> de <span id="totalPages">1</span> </span>
-            <button id="nextPage" onclick="changePage(currentPage + 1)">Siguiente</button>
-        </div>
+        <div class="pagination-container">
+            <!-- Selector de tamaño de página -->
+            <div id="paginationSize">
+                Mostrando:
+                <select id="pageSizeSelector">
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+                de <span id="totalRecords"></span> registros
+            </div>
 
-        <!-- Selector de tamaño de página -->
-        <div id="pageSizeSelector">
-            <label for="pageSize">Tamaño de página:</label>
-            <select id="pageSize">
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="20">20</option>
-            </select>
+            <!-- Controles de paginación -->
+            <div id="paginationControls">
+                <button id="prevPage" onclick="changePage(currentPage - 1)">Anterior</button>
+                <span id="pageInfo">Página <span id="currentPage">1</span> de <span id="totalPages">1</span></span>
+                <button id="nextPage" onclick="changePage(currentPage + 1)">Siguiente</button>
+            </div>
         </div>
 
         <a href="../index.php" class="menu-button">Regresar al Menú</a>

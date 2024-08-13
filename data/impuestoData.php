@@ -272,7 +272,8 @@
 						'Nombre' => $row[IMPUESTO_NOMBRE],
 						'Valor' => $row[IMPUESTO_VALOR],
 						'Descripcion' => $row[IMPUESTO_DESCRIPCION],
-						'Vigencia' => $row[IMPUESTO_FECHA_VIGENCIA],
+						'VigenciaISO' => Utils::formatearFecha($row[IMPUESTO_FECHA_VIGENCIA], 'Y-MM-dd'),
+						'Vigencia' => Utils::formatearFecha($row[IMPUESTO_FECHA_VIGENCIA]),
 						'Estado' => $row[IMPUESTO_ESTADO]
 					];
 				}

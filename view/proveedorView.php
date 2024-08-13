@@ -14,7 +14,7 @@
 
     <h2>Lista de Proveedores</h2>
 
-    <div id="message" style="display: none;"></div>
+    <div id="message"></div>
 
     <!-- Botón para crear nuevo proveedor -->
     <button id="createButton" onclick="showCreateRow()">Crear</button>

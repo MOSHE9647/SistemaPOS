@@ -1,9 +1,8 @@
 let totalRecords = 0;
 let currentPage = 1;
 let totalPages = 1;
-let pageSize = defaultPageSize;
-
 const defaultPageSize = 5;
+let pageSize = defaultPageSize;
 
 function fetchProducts(page, size) {
     fetch(`../controller/productoAction.php?page=${page}&size=${size}`)
@@ -31,16 +30,15 @@ function renderTable(productos) {
     tableBody.innerHTML = '';
 
     productos.forEach(producto => {
-        let row = `<tr data-id="${producto.idproducto}">
-            <td data-field="nombreproducto">${producto.nombreproducto}</td>
-            <td data-field="preciounitarioproducto">${producto.preciounitarioproducto}</td>
-            <td data-field="cantidadproducto">${producto.cantidadproducto}</td>
-            <td data-field="fechaadquisicionproducto" data-iso="${producto.fechaadquisicionproducto}">${producto.fechaadquisicionproducto}</td>
-            <td data-field="descripcionproducto">${producto.descripcionproducto}</td>
-            <td data-field="estadoproducto">${producto.estadoproducto}</td>
+        let row = `<tr data-id="${producto.ID}">
+            <td data-field="nombre">${producto.Nombre}</td>
+            <td data-field="precio">${producto.Precio}</td>
+            <td data-field="cantidad">${producto.Cantidad}</td>
+            <td data-field="fecha" data-iso="${producto.FechaISO}">${producto.Fecha}</td>
+            <td data-field="descripcion">${producto.Descripcion}</td>
             <td>
                 <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
-                <button onclick="deleteRow(${producto.idproducto})">Eliminar</button>
+                <button onclick="deleteRow(${producto.ID})">Eliminar</button>
             </td>
         </tr>`;
         tableBody.innerHTML += row;
@@ -80,10 +78,10 @@ function makeRowEditable(row) {
         let fieldName = cells[i].dataset.field;
 
         // Si la columna es 'fecha', usar un input de tipo date
-        if (fieldName === 'fechaadquisicionproducto') {
+        if (fieldName === 'fecha') {
             value = cells[i].dataset.iso; // Obtener el valor en formato 'Y-MM-dd'
             cells[i].innerHTML = `<input type="date" value="${value}" max="${getCurrentDate()}">`;
-        } else if (fieldName === 'preciounitarioproducto' || fieldName === 'cantidadproducto') {
+        } else if (fieldName === 'precio' || fieldName === 'cantidad') {
             cells[i].innerHTML = `<input type="number" value="${value}" required>`;
         } else {
             cells[i].innerHTML = `<input type="text" value="${value}">`;
@@ -102,12 +100,11 @@ function showCreateRow() {
     let newRow = document.createElement('tr');
     newRow.id = 'createRow';
     newRow.innerHTML = `
-        <td data-field="nombreproducto"><input type="text" required></td>
-        <td data-field="preciounitarioproducto"><input type="number" required></td>
-        <td data-field="cantidadproducto"><input type="number" required></td>
-        <td data-field="fechaadquisicionproducto"><input type="date" required max="${getCurrentDate()}"></td>
-        <td data-field="descripcionproducto"><input type="text"></td>
-        <td data-field="estadoproducto"><input type="text" required></td>
+        <td data-field="nombre"><input type="text" required></td>
+        <td data-field="precio"><input type="number" required></td>
+        <td data-field="cantidad"><input type="number" required></td>
+        <td data-field="fecha"><input type="date" required max="${getCurrentDate()}"></td>
+        <td data-field="descripcion"><input type="text"></td>
         <td>
             <button onclick="createRow()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>
@@ -131,7 +128,7 @@ function createRow() {
         let value = input.value;
 
         // Convertir 'Precio Unitario' y 'Cantidad' a double
-        if (fieldName === 'preciounitarioproducto' || fieldName === 'cantidadproducto') {
+        if (fieldName === 'precio') {
             value = parseFloat(value).toFixed(2); // Convertir a double y limitar a 2 decimales
         }
 
@@ -177,7 +174,7 @@ function saveRow(id) {
         let value = input.value;
 
         // Convertir 'Precio Unitario' y 'Cantidad' a double
-        if (fieldName === 'preciounitarioproducto' || fieldName === 'cantidadproducto') {
+        if (fieldName === 'precio') {
             value = parseFloat(value).toFixed(2); // Convertir a double y limitar a 2 decimales
         }
 
@@ -265,6 +262,3 @@ function getCurrentDate() {
 // Eventos de paginación
 document.getElementById('prevPage').addEventListener('click', () => changePage(currentPage - 1));
 document.getElementById('nextPage').addEventListener('click', () => changePage(currentPage + 1));
-
-// Evento para el botón de crear nuevo producto
-document.getElementById('createButton').addEventListener('click', showCreateRow);
