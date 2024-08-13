@@ -3,7 +3,7 @@
     require_once __DIR__ . '/../utils/Utils.php';
 
     // Función para validar los datos del impuesto
-    function validarDatos($nombre, $preciounitarioproducto, $fecha) {
+    function validarDatos($nombre, $preciounitarioproducto, $fecha, $cantidad) {
         $errors = [];
         if(empty($nombre) || is_numeric($nombre) || $nombre == null){
             $errors[] = "El campo 'Nombre' no puede estar vacío o ser numérico.";
@@ -18,6 +18,9 @@
         if (empty($fecha) || !Utils::validar_fecha($fecha)) {
             $errors[] = "El campo 'Fecha de adquisicion' no es válido.";
         }
+        if(empty($cantidad) || $cantidad < 0){
+            $errors[] = "La cantidad es obigatoria, debes ser numero positivo.";
+        }
         return $errors;
     }
 
@@ -27,10 +30,10 @@
         $accion = $_POST['accion'];
 
         $idproducto = isset($_POST['id']) ? $_POST['id'] : null;
-        $nombreproducto = isset($_POST['nombre']) ? $_POST['nombre'] : "";
-        $preciounitarioproducto = isset($_POST['precio']) ? $_POST['precio'] : "";
-        $cantidadproducto = isset($_POST['cantidad']) ? $_POST['cantidad'] : "";
-        $fechaadquisicionproducto = isset($_POST['fecha']) ? $_POST['fecha'] : "";
+        $nombreproducto = $_POST['nombre'];
+        $preciounitarioproducto = $_POST['precio'];
+        $cantidadproducto = $_POST['cantidad'];
+        $fechaadquisicionproducto = $_POST['fecha'];
         $descripcionproducto = isset($_POST['descripcion']) ? $_POST['descripcion'] : "";
 
         $ProductoBusiness = new ProductoBusiness();
@@ -45,7 +48,7 @@
                 $response['message'] = $result["message"];
             }
         } else {
-            $validationErrors = validarDatos($nombreproducto, $preciounitarioproducto, $fechaadquisicionproducto);
+            $validationErrors = validarDatos($nombreproducto, $preciounitarioproducto, $fechaadquisicionproducto, $cantidadproducto);
             if (empty($validationErrors)) {
                 $producto = new Producto($nombreproducto,$preciounitarioproducto,$cantidadproducto,$fechaadquisicionproducto,$idproducto,$descripcionproducto);
                 if ($accion == 'insertar') {

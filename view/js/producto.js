@@ -134,7 +134,7 @@ function createRow() {
 
         data[fieldName] = value;
     });
-
+    console.log(data);
     fetch('../controller/productoAction.php', {
         method: 'POST',
         body: new URLSearchParams(data),
@@ -231,7 +231,13 @@ function deleteRow(id) {
 }
 
 function validateInputs(inputs) {
-    return Array.from(inputs).every(input => input.value.trim() !== '');
+    let valid = true;
+    inputs.forEach(input => {
+        if (input.required && !input.value) {
+            valid = false;
+        }
+    });
+    return valid;
 }
 
 function showMessage(message, type) {
