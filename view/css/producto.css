@@ -1,0 +1,77 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h2 {
+    margin: auto;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+table {
+    width: 80%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid black;
+    text-align: center;
+    padding: 8px;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+button {
+    margin: 5px 10px;
+    background-color: #ffffd6;
+    border: 1px solid #545454;
+    border-radius: 5px;
+    padding: 5px;
+    width: 80px;
+    cursor: pointer;
+}
+
+#createButton {
+    align-self: flex-start;
+    margin-left: 165px;
+    margin-bottom: 10px;
+}
+
+.message {
+    max-width: 500px;
+    margin: auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.menu-button {
+    display: block; 
+    width: max-content; 
+    margin: 20px auto; 
+    text-align: center; 
+    padding: 10px; 
+    background-color: #ffffd6;
+    border: 1px solid #545454;
+    border-radius: 5px; 
+    text-decoration: none; 
+    color: black;
+}
