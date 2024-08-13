@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Index | SistemaPOS</title>
+        <title>Index | POSFusion</title>
 
         <style>
             body {
@@ -12,7 +12,7 @@
         </style>
     </head>
     <body>
-        <h2>CRUD de Impuesto | <?php echo gethostname() ?></h2>
+        <h2>Administración de CRUDS <?php //echo gethostname() ?></h2>
         <ul>
             <li> <a href="./view/impuestoView.php">Gestión de Impuestos</a> </li>
             <li> <a href="./view/proveedorView.php">Gestión de Proveedores</a> </li>
