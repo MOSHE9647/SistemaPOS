@@ -116,6 +116,97 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
+
+        function getPaginatedProductos($page, $size, $sort = null) {
+            try {
+				// Validar los parámetros de paginación
+                if (!is_numeric($page) || $page < 1) {
+                    throw new Exception("El número de página debe ser un entero positivo.");
+                }
+                if (!is_numeric($size) || $size < 1) {
+                    throw new Exception("El tamaño de la página debe ser un entero positivo.");
+                }
+                $offset = ($page - 1) * $size;
+        
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
+                }
+                $conn = $result["connection"];
+
+				// Consultar el total de registros
+                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_PRODUCTO . " WHERE " . PRODUCTO_ESTADO . " != false";
+                $totalResult = mysqli_query($conn, $queryTotalCount);
+                if (!$totalResult) {
+                    throw new Exception("Error al obtener el conteo total de registros: " . mysqli_error($conn));
+                }
+                $totalRow = mysqli_fetch_assoc($totalResult);
+                $totalRecords = (int)$totalRow['total'];
+                $totalPages = ceil($totalRecords / $size);
+
+				// Construir la consulta SQL para paginación
+                $querySelect = "SELECT * FROM " . TB_PRODUCTO . " WHERE " . PRODUCTO_ESTADO . " != false ";
+
+				// Añadir la cláusula de ordenamiento si se proporciona
+                if ($sort) {
+                    $querySelect .= "ORDER BY producto" . $sort . " ";
+                }
+
+				// Añadir la cláusula de limitación y offset
+                $querySelect .= "LIMIT ? OFFSET ?";
+
+				// Preparar la consulta
+                $stmt = mysqli_prepare($conn, $querySelect);
+                if (!$stmt) {
+                    throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
+                }
+        
+                // Vincular los parámetros
+                mysqli_stmt_bind_param($stmt, "ii", $size, $offset);
+
+				// Ejecutar la consulta
+                $result = mysqli_stmt_execute($stmt);
+                if (!$result) {
+                    throw new Exception("Error al ejecutar la consulta: " . mysqli_error($conn));
+                }
+
+				// Obtener el resultado
+                $result = mysqli_stmt_get_result($stmt);
+                if (!$result) {
+                    throw new Exception("Error al obtener el resultado: " . mysqli_error($conn));
+                }
+
+				$listaProductos = [];
+				while ($row = mysqli_fetch_assoc($result)) {
+					$listaProductos[] = [
+                        'ID' => $row[PRODUCTO_ID],
+                        'Nombre' => $row[PRODUCTO_NOMBRE],
+                        'Descripcion' => $row[PRODUCTO_DESCRIPCION],
+                        'Precio' => $row[PRODUCTO_PRECIO_U],
+                        'Cantidad' => $row[PRODUCTO_CANTIDAD],
+                        'Fecha' => $row[PRODUCTO_FECHA_ADQ],
+                        'Estado' => $row[PRODUCTO_ESTADO]
+					];
+				}
+
+				return [
+                    "success" => true,
+                    "page" => $page,
+                    "size" => $size,
+                    "totalPages" => $totalPages,
+                    "totalRecords" => $totalRecords,
+                    "listaProductos" => $listaProductos
+                ];
+			} catch (Exception $e) {
+				// Devolver el mensaje de error
+                return ["success" => false, "message" => $e->getMessage()];
+            } finally {
+                // Cerrar la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn)) { mysqli_close($conn); }
+            }
+        }
         
         function updateProducto($producto){
             try {
@@ -214,7 +305,6 @@
                 }
                 if (empty($fechaadquisicionproducto) || !Utils::validar_fecha($fechaadquisicionproducto)) {
                     throw new Exception("La fecha de adquisicion está vacía o no es válida");
-                    Utils::writeLog("Fecha ".$fechaadquisicionproducto);
                 }
                 if ($productoestado === null || empty( $productoestado)) {
                     throw new Exception("El estado del producto no puede estar vacío");

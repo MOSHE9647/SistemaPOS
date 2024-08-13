@@ -1,19 +1,8 @@
 <?php
-      include __DIR__ . '/../service/ProductoBusiness.php';
-      require_once __DIR__ . '/../utils/Utils.php';
+    include __DIR__ . '/../service/ProductoBusiness.php';
+    require_once __DIR__ . '/../utils/Utils.php';
 
-
-
-
-    //   private $idproducto;
-    //   private $nombreproducto;
-    //   private $preciounitarioproducto;
-    //   private $cantidadproducto;
-    //   private $fechaadquisicionproducto;
-    //   private $descripcionproducto;
-    //   private $estadoproducto;
-
-          // Función para validar los datos del impuesto
+    // Función para validar los datos del impuesto
     function validarDatos($nombre, $preciounitarioproducto, $fecha) {
         $errors = [];
         if(empty($nombre) || is_numeric($nombre) || $nombre == null){
@@ -28,7 +17,6 @@
         }
         if (empty($fecha) || !Utils::validar_fecha($fecha)) {
             $errors[] = "El campo 'Fecha de adquisicion' no es válido.";
-            Utils::writeLog($fecha);
         }
         return $errors;
     }
@@ -61,12 +49,10 @@
             if (empty($validationErrors)) {
                 $producto = new Producto($nombreproducto,$preciounitarioproducto,$cantidadproducto,$fechaadquisicionproducto,$idproducto,$descripcionproducto);
                 if ($accion == 'insertar') {
-                    // $impuesto = new Impuesto($nombre, $valor, $fecha, $id, $descripcion);
                     $result = $ProductoBusiness->insertTBProducto($producto);
                     $response['success'] = $result["success"];
                     $response['message'] = $result["message"];
                 } elseif ($accion == 'actualizar') {
-                    // $impuesto = new Impuesto($nombre, $valor, $fecha, $id, $descripcion);
                     $result = $ProductoBusiness->updateTBProducto($producto);
                     $response['success'] = $result["success"];
                     $response['message'] = $result["message"];
@@ -85,6 +71,22 @@
         exit();
     }
 
+    if ($_SERVER["REQUEST_METHOD"] == "GET") {
+        // Obtener parámetros de la solicitud GET
+        $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+        $size = isset($_GET['size']) ? intval($_GET['size']) : 10;
+        $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
 
+        // Validar los parámetros
+        if ($page < 1) $page = 1;
+        if ($size < 1) $size = 10;
+
+        $ProductoBusiness = new ProductoBusiness();
+        $result = $ProductoBusiness->getPaginatedProductos($page, $size, $sort);
+        
+        header('Content-Type: application/json');
+        echo json_encode($result);
+        exit();
+    }
 
 ?>

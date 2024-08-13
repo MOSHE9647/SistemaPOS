@@ -355,6 +355,10 @@
             }
         }
 
+        public function getPaginatedDireccionesByProveedor($proveedorID, $page, $size, $sort = null) {
+            
+        }
+
         public function getProveedoresByDireccion($direccionID) {
             try {
                 // Verifica que la Dirección exista en la BD

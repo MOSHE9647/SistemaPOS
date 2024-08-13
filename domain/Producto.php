@@ -10,9 +10,6 @@ class Producto{
     private $estadoproducto;
 
     function __construct($nombreproducto,$preciounitarioproducto,$cantidadproducto,$fechaadquisicionproducto,$idproducto=0,$descripcionproducto="",$estadoproducto = true){
-        
-        
-        
         $this->idproducto = $idproducto;
         $this->nombreproducto = $nombreproducto;
         $this->preciounitarioproducto = $preciounitarioproducto;

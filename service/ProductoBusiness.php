@@ -17,6 +17,9 @@
         function getAllTBProducto(){
             return $this->ProductoData->getAllProductos();
         }
+        function getPaginatedProductos($page, $size, $sort = null) {
+            return $this->ProductoData->getPaginatedProductos($page, $size, $sort);
+        }
         function updateTBProducto($producto){
             return $this->ProductoData->updateProducto($producto);
         }
