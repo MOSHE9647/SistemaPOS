@@ -167,3 +167,64 @@ function getCurrentDate() {
     let today = new Date();
     return today.toISOString().split('T')[0];
 }
+let currentPage = 1;
+let totalPages = 1;
+
+function fetchDirecciones(page) {
+    fetch(`../controller/direccionAction.php?page=${page}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Renderizar la tabla con los datos recibidos
+                renderTable(data.listaDirecciones);
+                currentPage = data.paginaActual;
+                totalPages = data.totalPaginas;
+                updatePaginationControls();
+            } else {
+                showMessage(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Ocurrió un error al procesar la solicitud.', 'error');
+        });
+}
+
+function renderTable(direcciones) {
+    let tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = '';
+
+    direcciones.forEach(direccion => {
+        let row = `<tr data-id="${direccion.ID}">
+            <td>${direccion.Provincia}</td>
+            <td>${direccion.Canton}</td>
+            <td>${direccion.Distrito}</td>
+            <td>${direccion.Barrio}</td>
+            <td>${direccion.Sennas}</td>
+            <td>${direccion.Distancia}</td>
+            <td>${direccion.Estado}</td>
+            <td>
+                <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
+                <button onclick="deleteRow(${direccion.ID})">Eliminar</button>
+            </td>
+        </tr>`;
+        tableBody.innerHTML += row;
+    });
+}
+
+function updatePaginationControls() {
+    document.getElementById('currentPage').textContent = currentPage;
+    document.getElementById('totalPages').textContent = totalPages;
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage === totalPages;
+}
+
+function changePage(newPage) {
+    if (newPage >= 1 && newPage <= totalPages) {
+        fetchDirecciones(newPage);
+    }
+}
+
+// Llamada inicial para cargar la primera página
+fetchDirecciones(1);
+

@@ -62,6 +62,12 @@
             ?>
         </tbody>
     </table>
+    <div id="paginationControls">
+    <button id="prevPage" onclick="changePage(currentPage - 1)">Anterior</button>
+    <span id="pageInfo">Página <span id="currentPage">1</span> de <span id="totalPages">1</span></span>
+    <button id="nextPage" onclick="changePage(currentPage + 1)">Siguiente</button>
+</div>
+
     <a href="../index.php" class="menu-button">Regresar al Menú</a>
     <script src="./js/direccion.js"></script>
 </body>
