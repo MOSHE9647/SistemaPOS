@@ -67,7 +67,15 @@ function makeRowEditable(row) {
     let cells = row.querySelectorAll('td');
     for (let i = 0; i < cells.length - 1; i++) {
         let value = cells[i].innerText;
-        cells[i].innerHTML = `<input type="text" value="${value}">`;
+
+        if (cells[i].dataset.field === 'barrio' || cells[i].dataset.field === 'sennas') {
+            cells[i].innerHTML = `<input type="text" value="${value}">`;
+        } else if (cells[i].dataset.field === 'distancia') {
+            value = parseFloat(value).toFixed(2); // Convertir a double y limitar a 2 decimales
+            cells[i].innerHTML = `<input type="number" value="${value}" min="0" step="0.01" required>`;
+        } else {
+            cells[i].innerHTML = `<input type="text" value="${value}" required>`;
+        }
     }
     let actionCell = cells[cells.length - 1];
     actionCell.innerHTML = `
@@ -85,9 +93,9 @@ function showCreateRow() {
         <td data-field="provincia"><input type="text" required></td>
         <td data-field="canton"><input type="text" required></td>
         <td data-field="distrito"><input type="text" required></td>
-        <td data-field="barrio"><input type="text" required></td>
+        <td data-field="barrio"><input type="text"></td>
         <td data-field="sennas"><input type="text"></td>
-        <td data-field="distancia"><input type="text"></td>
+        <td data-field="distancia"><input type="number" min="0" step="0.01" required></td>
         <td>
             <button onclick="createRow()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>

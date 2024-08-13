@@ -78,6 +78,8 @@ function makeRowEditable(row) {
         
         if (cells[i].dataset.field === 'proveedor') {
             cells[i].innerHTML = `<input type="text" value="${value}" disabled>`;
+        } else if(cells[i].dataset.field === 'proveedorid') {
+            cells[i].innerHTML = `<input type="number" min=0 value="${value}" required>`;
         } else {
             cells[i].innerHTML = `<input type="text" value="${value}" required>`;
         }
@@ -95,7 +97,7 @@ function showCreateRow() {
     let newRow = document.createElement('tr');
     newRow.id = 'createRow';
     newRow.innerHTML = `
-        <td data-field="proveedorid"><input type="text" required></td>
+        <td data-field="proveedorid"><input type="number" min=0 required></td>
         <td data-field="proveedor"><input class="proveedor" type="text" disabled></td>
         <td data-field="telefono"><input type="text" required></td>
         <td>

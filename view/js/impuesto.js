@@ -76,9 +76,12 @@ function makeRowEditable(row) {
         // Si la columna es 'fecha', usar un input de tipo date
         if (cells[i].dataset.field === 'fecha_vigencia') {
             value = cells[i].dataset.iso; // Obtener el valor en formato 'Y-MM-dd'
-            cells[i].innerHTML = `<input type="date" value="${value}" max="${getCurrentDate()}">`;
-        } else if (cells[i].dataset.field === 'nombre' || cells[i].dataset.field === 'valor') {
+            cells[i].innerHTML = `<input type="date" value="${value}" max="${getCurrentDate()} required">`;
+        } else if (cells[i].dataset.field === 'nombre') {
             cells[i].innerHTML = `<input type="text" value="${value}" required>`;
+        } else if (cells[i].dataset.field === 'valor') {
+            value = parseFloat(value).toFixed(2); // Convertir a double y limitar a 2 decimales
+            cells[i].innerHTML = `<input type="number" value="${value}" min="0" step="0.01" required>`;
         } else {
             cells[i].innerHTML = `<input type="text" value="${value}">`;
         }
@@ -97,7 +100,7 @@ function showCreateRow() {
     newRow.id = 'createRow';
     newRow.innerHTML = `
         <td data-field="nombre"><input type="text" required></td>
-        <td data-field="valor"><input type="text" required></td>
+        <td data-field="valor"><input type="number" min="0" step="0.01" required></td>
         <td data-field="descripcion"><input type="text"></td>
         <td data-field="fecha_vigencia"><input type="date" required max="${getCurrentDate()}"></td>
         <td>

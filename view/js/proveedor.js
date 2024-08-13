@@ -70,9 +70,9 @@ function makeRowEditable(row) {
         // Si la columna es 'fecha_registro', usar un input de tipo date
         if (fieldType === 'fecha_registro') {
             value = cells[i].dataset.iso; // Obtener el valor en formato 'Y-m-d'
-            cells[i].innerHTML = `<input type="date" value="${value}" max="${getCurrentDate()}">`;
+            cells[i].innerHTML = `<input type="date" value="${value}" max="${getCurrentDate()} required">`;
         } else if (fieldType === 'nombre' || fieldType === 'email') {
-            cells[i].innerHTML = `<input type="text" value="${value}" required>`;
+            cells[i].innerHTML = `<input type="email" value="${value}" required>`;
         } else {
             cells[i].innerHTML = `<input type="text" value="${value}">`;
         }
@@ -180,34 +180,38 @@ function saveRow(id) {
 }
 
 function deleteRow(id) {
-    if (!confirm('¿Está seguro de que desea eliminar este proveedor?')) {
-        return;
+    if (confirm('¿Está seguro de que desea eliminar este proveedor?')) {
+        fetch('../controller/proveedorAction.php', {
+            method: 'POST',
+            body: new URLSearchParams({ accion: 'eliminar', id: id }),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMessage(data.message, 'success');
+                fetchProveedores(currentPage, pageSize); // Recargar datos para reflejar la eliminación
+            } else {
+                showMessage(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Ocurrió un error al procesar la solicitud.', 'error');
+        });
     }
-
-    fetch('../controller/proveedorAction.php', {
-        method: 'POST',
-        body: new URLSearchParams({ accion: 'eliminar', id: id }),
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showMessage(data.message, 'success');
-            fetchProveedores(currentPage, pageSize); // Recargar datos para reflejar la eliminación
-        } else {
-            showMessage(data.message, 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showMessage('Ocurrió un error al procesar la solicitud.', 'error');
-    });
 }
 
 function validateInputs(inputs) {
-    return Array.from(inputs).every(input => input.value.trim() !== '');
+    let valid = true;
+    inputs.forEach(input => {
+        if (input.required && !input.value) {
+            valid = false;
+        }
+    });
+    return valid;
 }
 
 // Función para cancelar la edición
