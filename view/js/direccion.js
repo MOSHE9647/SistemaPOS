@@ -55,8 +55,6 @@ function updatePaginationControls() {
 }
 
 function changePage(newPage) {
-    console.log("Current Page: " + newPage);
-
     if (newPage >= 1 && newPage <= totalPages) {
         fetchDirecciones(newPage, pageSize);
     }

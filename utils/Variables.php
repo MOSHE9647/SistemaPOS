@@ -56,18 +56,8 @@
 
 	// TABLA INTERMEDIA PARA Proveedor Y Telefono 'tbProveedorTelefono'
     define('TB_PROVEEDOR_TELEFONO', 'tbproveedortelefono'); //<- Nombre de la Tabla
-    define('PROVEEDOR_TELEFONO_ESTADO', 'proveedorestado');
+    define('PROVEEDOR_TELEFONO_ESTADO', 'proveedortelefonoestado');
     define('PROVEEDOR_TELEFONO_ID', 'proveedortelefonoid');
     define('PROVEEDOR_TELEFONO', 'proveedortelefono');
-
-	/*
-		public static $tablaProveedorTelefono = "tbproveedortelefono";
-
-		//Columnas
-		public static $proveedortelefonoid = "proveedortelefonoid";
-		public static $proveedorid = "proveedorid";
-		public static $telefono = "telefono";
-		public static $activo = "activo";
-	*/
 
 ?>
