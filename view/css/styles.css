@@ -6,7 +6,7 @@ body {
 }
 
 h2 {
-    margin: auto;
+    margin: 10px 0;
     padding: 10px;
     text-align: center;
     margin-bottom: 10px;
@@ -15,6 +15,7 @@ h2 {
 table {
     width: 80%;
     border-collapse: collapse;
+    margin-bottom: 20px;
 }
 
 th, td {
@@ -39,11 +40,41 @@ button {
 
 #createButton {
     align-self: flex-start;
-    margin-left: 165px;
+    margin-left: 184px;
     margin-bottom: 10px;
 }
 
-.message {
+.pagination-container {
+    display: flex;
+    justify-content: space-between; /* Alinea los elementos a los extremos del contenedor */
+    align-items: center;
+    width: 80%; /* Ajusta según el ancho deseado */
+    margin-bottom: 20px; /* Espacio abajo del contenedor */
+}
+
+#paginationSize {
+    flex: 1; /* Permite que este elemento ocupe el espacio disponible */
+}
+
+#pageSizeSelector {
+    margin: 5px 10px;
+    background-color: #ffffd6;
+    border: 1px solid #545454;
+    border-radius: 5px;
+    padding: 5px;
+    width: 60px;
+}
+
+#paginationControls {
+    display: flex;
+    align-items: center;
+}
+
+#paginationControls button {
+    margin: 0 10px; /* Espacio entre los botones */
+}
+
+#message {
     max-width: 500px;
     margin: auto;
     padding: 10px;
@@ -52,26 +83,24 @@ button {
     text-align: center;
     margin-bottom: 20px;
 }
-
 .error {
     background-color: #f8d7da;
     color: #721c24;
 }
-
 .success {
     background-color: #d4edda;
     color: #155724;
 }
 
 .menu-button {
-    display: block; 
-    width: max-content; 
-    margin: 20px auto; 
-    text-align: center; 
-    padding: 10px; 
+    display: block;
+    width: max-content;
+    margin: 20px auto;
+    text-align: center;
+    padding: 10px;
     background-color: #ffffd6;
     border: 1px solid #545454;
-    border-radius: 5px; 
-    text-decoration: none; 
+    border-radius: 5px;
+    text-decoration: none;
     color: black;
 }

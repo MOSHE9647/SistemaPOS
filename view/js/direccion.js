@@ -1,9 +1,75 @@
-// Función para hacer una fila editable
+let totalRecords = 5;
+let currentPage = 1;
+let totalPages = 1;
+const defaultPageSize = 5; // Tamaño de página predeterminado
+let pageSize = defaultPageSize; // Tamaño de página actual
+
+function fetchDirecciones(page, size) {
+    fetch(`../controller/direccionAction.php?page=${page}&size=${size}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderTable(data.listaDirecciones);
+                currentPage = data.page;
+                totalPages = data.totalPages;
+                totalRecords = data.totalRecords;
+                pageSize = data.size;
+                updatePaginationControls();
+            } else {
+                showMessage(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error: ', error);
+            showMessage('Ocurrió un error al procesar la solicitud.', 'error');
+        });
+}
+
+function renderTable(direcciones) {
+    let tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = '';
+
+    direcciones.forEach(direccion => {
+        let row = `<tr data-id="${direccion.ID}">
+            <td data-field="provincia">${direccion.Provincia}</td>
+            <td data-field="canton">${direccion.Canton}</td>
+            <td data-field="distrito">${direccion.Distrito}</td>
+            <td data-field="barrio">${direccion.Barrio}</td>
+            <td data-field="sennas">${direccion.Sennas}</td>
+            <td data-field="distancia">${direccion.Distancia} km</td>
+            <td>
+                <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
+                <button onclick="deleteRow(${direccion.ID})">Eliminar</button>
+            </td>
+        </tr>`;
+        tableBody.innerHTML += row;
+    });
+}
+
+function updatePaginationControls() {
+    document.getElementById('totalRecords').textContent = totalRecords;
+    document.getElementById('currentPage').textContent = currentPage;
+    document.getElementById('totalPages').textContent = totalPages;
+    document.getElementById('prevPage').disabled = currentPage === 1;
+    document.getElementById('nextPage').disabled = currentPage === totalPages;
+}
+
+function changePage(newPage) {
+    console.log("Current Page: " + newPage);
+
+    if (newPage >= 1 && newPage <= totalPages) {
+        fetchDirecciones(newPage, pageSize);
+    }
+}
+
+// Llamada inicial para cargar la primera página
+fetchDirecciones(currentPage, pageSize);
+
 function makeRowEditable(row) {
     let cells = row.querySelectorAll('td');
-    for (let i = 0; i < cells.length - 1; i++) { // Excluye la última columna (acciones)
+    for (let i = 0; i < cells.length - 1; i++) {
         let value = cells[i].innerText;
-        cells[i].innerHTML = `<input type="text" value="${value}" ${cells[i].dataset.field === 'estado' ? 'required' : ''}>`;
+        cells[i].innerHTML = `<input type="text" value="${value}">`;
     }
     let actionCell = cells[cells.length - 1];
     actionCell.innerHTML = `
@@ -11,7 +77,6 @@ function makeRowEditable(row) {
         <button onclick="cancelEdit()">Cancelar</button>`;
 }
 
-// Función para mostrar la fila de creación
 function showCreateRow() {
     document.getElementById('createButton').style.display = 'none';
 
@@ -23,9 +88,8 @@ function showCreateRow() {
         <td data-field="canton"><input type="text" required></td>
         <td data-field="distrito"><input type="text" required></td>
         <td data-field="barrio"><input type="text" required></td>
-        <td data-field="senas"><input type="text"></td>
+        <td data-field="sennas"><input type="text"></td>
         <td data-field="distancia"><input type="text"></td>
-        <td data-field="estado"><input type="text" required></td>
         <td>
             <button onclick="createRow()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>
@@ -34,7 +98,6 @@ function showCreateRow() {
     tableBody.appendChild(newRow);
 }
 
-// Función para crear una nueva dirección
 function createRow() {
     let row = document.getElementById('createRow');
     let inputs = row.querySelectorAll('input');
@@ -48,6 +111,12 @@ function createRow() {
     inputs.forEach(input => {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
+
+        // Convertir 'Distancia' a double
+        if (fieldName === 'distancia') {
+            value = parseFloat(value).toFixed(2); // Convertir a double y limitar a 2 decimales
+        }
+
         data[fieldName] = value;
     });
 
@@ -62,7 +131,9 @@ function createRow() {
     .then(data => {
         if (data.success) {
             showMessage(data.message, 'success');
-            location.reload();
+            fetchDirecciones(currentPage, pageSize); // Recargar datos para reflejar la nueva dirección
+            document.getElementById('createRow').remove();
+            document.getElementById('createButton').style.display = 'inline-block';
         } else {
             showMessage(data.message, 'error');
         }
@@ -73,7 +144,6 @@ function createRow() {
     });
 }
 
-// Función para guardar los cambios de una dirección
 function saveRow(id) {
     let row = document.querySelector(`tr[data-id='${id}']`);
     let inputs = row.querySelectorAll('input');
@@ -87,6 +157,12 @@ function saveRow(id) {
     inputs.forEach(input => {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
+
+        // Convertir 'Distancia' a double
+        if (fieldName === 'distancia') {
+            value = parseFloat(value).toFixed(2); // Convertir a double y limitar a 2 decimales
+        }
+
         data[fieldName] = value;
     });
 
@@ -101,7 +177,7 @@ function saveRow(id) {
     .then(data => {
         if (data.success) {
             showMessage(data.message, 'success');
-            location.reload();
+            fetchDirecciones(currentPage, pageSize); // Recargar datos para reflejar los cambios
         } else {
             showMessage(data.message, 'error');
         }
@@ -112,7 +188,6 @@ function saveRow(id) {
     });
 }
 
-// Función para eliminar una dirección
 function deleteRow(id) {
     if (!confirm('¿Estás seguro de que deseas eliminar esta dirección?')) {
         return;
@@ -129,7 +204,8 @@ function deleteRow(id) {
     .then(data => {
         if (data.success) {
             showMessage(data.message, 'success');
-            document.querySelector(`tr[data-id='${id}']`).remove();
+            fetchDirecciones(currentPage, pageSize); // Recargar datos para reflejar la eliminación
+            location.reload();
         } else {
             showMessage(data.message, 'error');
         }
@@ -140,91 +216,48 @@ function deleteRow(id) {
     });
 }
 
-// Función para validar los campos de entrada
 function validateInputs(inputs) {
     return Array.from(inputs).every(input => input.value.trim() !== '');
 }
 
-// Función para mostrar mensajes al usuario
 function showMessage(message, type) {
-    let messageDiv = document.getElementById('message');
-    messageDiv.innerHTML = `<p class="${type}">${message}</p>`;
+    let container = document.getElementById('message');
+    if (container != null) {
+        container.innerHTML = message;
+        
+        // Primero eliminamos las clases relacionadas con mensajes anteriores
+        container.classList.remove('error', 'success');
+        
+        // Agregamos las clases apropiadas según el tipo
+        container.classList.add('message');
+        if (type === 'error') {
+            container.classList.add('error');
+        } else if (type === 'success') {
+            container.classList.add('success');
+        }
+
+        container.style.display = 'flex';
+    } else {
+        alert('Error al mostrar el mensaje');
+    }
 }
 
-// Función para cancelar la edición de una fila
 function cancelEdit() {
-    location.reload();
+    fetchDirecciones(currentPage, pageSize); // Recargar datos para cancelar la edición
 }
 
-// Función para cancelar la creación de una nueva dirección
 function cancelCreate() {
     document.getElementById('createRow').remove();
     document.getElementById('createButton').style.display = 'inline-block';
 }
 
-// Función para obtener la fecha actual en formato ISO
-function getCurrentDate() {
-    let today = new Date();
-    return today.toISOString().split('T')[0];
-}
-let currentPage = 1;
-let totalPages = 1;
-
-function fetchDirecciones(page) {
-    fetch(`../controller/direccionAction.php?page=${page}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Renderizar la tabla con los datos recibidos
-                renderTable(data.listaDirecciones);
-                currentPage = data.paginaActual;
-                totalPages = data.totalPaginas;
-                updatePaginationControls();
-            } else {
-                showMessage(data.message, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showMessage('Ocurrió un error al procesar la solicitud.', 'error');
-        });
+// Función para cambiar el tamaño de página
+function changePageSize(newSize) {
+    pageSize = newSize;
+    fetchDirecciones(currentPage, pageSize);
 }
 
-function renderTable(direcciones) {
-    let tableBody = document.getElementById('tableBody');
-    tableBody.innerHTML = '';
-
-    direcciones.forEach(direccion => {
-        let row = `<tr data-id="${direccion.ID}">
-            <td>${direccion.Provincia}</td>
-            <td>${direccion.Canton}</td>
-            <td>${direccion.Distrito}</td>
-            <td>${direccion.Barrio}</td>
-            <td>${direccion.Sennas}</td>
-            <td>${direccion.Distancia}</td>
-            <td>${direccion.Estado}</td>
-            <td>
-                <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
-                <button onclick="deleteRow(${direccion.ID})">Eliminar</button>
-            </td>
-        </tr>`;
-        tableBody.innerHTML += row;
-    });
-}
-
-function updatePaginationControls() {
-    document.getElementById('currentPage').textContent = currentPage;
-    document.getElementById('totalPages').textContent = totalPages;
-    document.getElementById('prevPage').disabled = currentPage === 1;
-    document.getElementById('nextPage').disabled = currentPage === totalPages;
-}
-
-function changePage(newPage) {
-    if (newPage >= 1 && newPage <= totalPages) {
-        fetchDirecciones(newPage);
-    }
-}
-
-// Llamada inicial para cargar la primera página
-fetchDirecciones(1);
-
+// Ejemplo de llamada para cambiar el tamaño de página (puedes agregar un selector para esto en tu HTML)
+document.getElementById('pageSizeSelector').addEventListener('change', (event) => {
+    changePageSize(event.target.value);
+});

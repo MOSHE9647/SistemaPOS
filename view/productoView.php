@@ -8,7 +8,7 @@
         include __DIR__ . '/../service/productoBusiness.php'; 
         require_once __DIR__ . '/../utils/Utils.php';
     ?>
-    <link rel="stylesheet" href="./css/producto.css">
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
 

@@ -259,14 +259,24 @@
                 }
                 $conn = $result["connection"];
         
-                // Construir la consulta SQL
-                $querySelect = "SELECT * FROM " . TB_DIRECCION . " WHERE " . DIRECCION_ESTADO . " != false ";
+                // Consultar el total de registros
+                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_DIRECCION . " WHERE " . DIRECCION_ESTADO . " != false";
+                $totalResult = mysqli_query($conn, $queryTotalCount);
+                if (!$totalResult) {
+                    throw new Exception("Error al obtener el conteo total de registros: " . mysqli_error($conn));
+                }
+                $totalRow = mysqli_fetch_assoc($totalResult);
+                $totalRecords = (int)$totalRow['total'];
+                $totalPages = ceil($totalRecords / $size);
         
+                // Construir la consulta SQL para paginación
+                $querySelect = "SELECT * FROM " . TB_DIRECCION . " WHERE " . DIRECCION_ESTADO . " != false ";
+                
                 // Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) {
                     $querySelect .= "ORDER BY direccion" . $sort . " ";
                 }
-        
+                
                 // Añadir la cláusula de limitación y offset
                 $querySelect .= "LIMIT ? OFFSET ?";
         
@@ -304,7 +314,6 @@
                         $row[DIRECCION_DISTANCIA],
                         $row[DIRECCION_ESTADO]
                     );
-                    // array_push($listaDirecciones, $currentDireccion);
                     $listaDirecciones[] = [
                         'ID' => $currentDireccion->getDireccionID(),
                         'Provincia' => $currentDireccion->getDireccionProvincia(),
@@ -317,7 +326,14 @@
                     ];
                 }
         
-                return ["success" => true, "listaDirecciones" => $listaDirecciones];
+                return [
+                    "success" => true,
+                    "page" => $page,
+                    "size" => $size,
+                    "totalPages" => $totalPages,
+                    "totalRecords" => $totalRecords,
+                    "listaDirecciones" => $listaDirecciones
+                ];
             } catch (Exception $e) {
                 // Devolver el mensaje de error
                 return ["success" => false, "message" => $e->getMessage()];
@@ -326,7 +342,7 @@
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if (isset($conn)) { mysqli_close($conn); }
             }
-        }        
+        }
 
         private function direccionExiste($direccionID) {
             try {
