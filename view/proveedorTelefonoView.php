@@ -18,39 +18,19 @@
     <table>
         <thead>
             <tr>
-                <th data-field="proveedorid">ID Proveedor</th>
+                <th data-field="proveedorid">Proveedor ID</th>
+                <th data-field="proveedor">Nombre Proveedor</th>
                 <th data-field="telefono">Teléfono</th>
-                <th data-field="activo">Activo</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody id="tableBody">
-            <?php
-                $proveedorTelefonoBusiness = new ProveedorTelefonoBusiness();
-                $result = $proveedorTelefonoBusiness->getAllProveedorTelefono();
-
-                if ($result["success"]) {
-                    $listaTelefonos = $result["listaTelefonos"];
-
-                    foreach ($listaTelefonos as $current) {
-                        echo '<tr data-id="' . $current->getProveedorTelefonoID() . '">';
-                        echo '<td data-field="proveedorid">' . $current->getProveedorID() . '</td>';
-                        echo '<td data-field="telefono">' . $current->getTelefono() . '</td>';
-                        echo '<td data-field="activo">' . ($current->getActivo() ? 'Sí' : 'No') . '</td>';
-                        echo '<td>';
-                        echo '<button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>';
-                        echo '<button onclick="deleteRow(' . $current->getProveedorTelefonoID() . ')">Eliminar</button>';
-                        echo '</td>';
-                        echo '</tr>';
-                    }
-                } else {
-                    echo '<tr> <td colspan="4"> <p style="color: red; text-align: center;">' . $result["message"] . '</p> </td> </tr>';
-                }
-            ?>
+            <!-- Las filas se llenan dinámicamente con JavaScript -->
         </tbody>
     </table>
 
     <div class="pagination-container">
+        <!-- Selector de tamaño de página -->
         <div id="paginationSize">
             Mostrando:
             <select id="pageSizeSelector">
@@ -61,6 +41,8 @@
             </select>
             de <span id="totalRecords"></span> registros
         </div>
+
+        <!-- Controles de paginación -->
         <div id="paginationControls">
             <button id="prevPage" onclick="changePage(currentPage - 1)">Anterior</button>
             <span id="pageInfo">Página <span id="currentPage">1</span> de <span id="totalPages">1</span></span>

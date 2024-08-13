@@ -72,12 +72,12 @@
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
         // Obtener parámetros de la solicitud GET
         $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
-        $size = isset($_GET['size']) ? intval($_GET['size']) : 10;
+        $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
         $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
 
         // Validar los parámetros
         if ($page < 1) $page = 1;
-        if ($size < 1) $size = 10;
+        if ($size < 1) $size = 5;
 
         $impuestoBusiness = new ImpuestoBusiness();
         $result = $impuestoBusiness->getPaginatedImpuestos($page, $size, $sort);

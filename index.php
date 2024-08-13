@@ -18,7 +18,7 @@
             <li> <a href="./view/proveedorView.php">Gestión de Proveedores</a> </li>
             <li> <a href="./view/direccionView.php">Gestion de Direcciones</a> </li>
             <li> <a href="./view/productoView.php">Gestión de Productos</a> </li>
-            <li> <a href="./view/proovedorTelefonoView.php">Gestión de Telefonos</a> </li>
+            <li> <a href="./view/proveedorTelefonoView.php">Gestión de Telefonos</a> </li>
         </ul>
     </body>
 </html>

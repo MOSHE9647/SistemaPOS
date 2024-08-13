@@ -1,9 +1,8 @@
 let totalRecords = 0;
 let currentPage = 1;
 let totalPages = 1;
-let pageSize = defaultPageSize;
-
 const defaultPageSize = 5;
+let pageSize = defaultPageSize;
 
 // Función para obtener proveedores telefónicos
 function fetchProveedorTelefonos(page, size) {
@@ -11,7 +10,7 @@ function fetchProveedorTelefonos(page, size) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                renderTable(data.listaProveedorTelefonos);
+                renderTable(data.listaTelefonos);
                 currentPage = data.page;
                 totalPages = data.totalPages;
                 totalRecords = data.totalRecords;
@@ -33,13 +32,13 @@ function renderTable(proveedorTelefonos) {
     tableBody.innerHTML = '';
 
     proveedorTelefonos.forEach(proveedorTelefono => {
-        let row = `<tr data-id="${proveedorTelefono.proveedortelefonoid}">
-            <td data-field="proveedorid">${proveedorTelefono.proveedorid}</td>
-            <td data-field="telefono">${proveedorTelefono.telefono}</td>
-            <td data-field="activo">${proveedorTelefono.activo}</td>
+        let row = `<tr data-id="${proveedorTelefono.ID}">
+            <td data-field="proveedorid">${proveedorTelefono.ProveedorID}</td>
+            <td data-field="proveedor">${proveedorTelefono.Proveedor}</td>
+            <td data-field="telefono">${proveedorTelefono.Telefono}</td>
             <td>
                 <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
-                <button onclick="deleteRow(${proveedorTelefono.proveedortelefonoid})">Eliminar</button>
+                <button onclick="deleteRow(${proveedorTelefono.ID})">Eliminar</button>
             </td>
         </tr>`;
         tableBody.innerHTML += row;
@@ -76,7 +75,12 @@ function makeRowEditable(row) {
     let cells = row.querySelectorAll('td');
     for (let i = 0; i < cells.length - 1; i++) {
         let value = cells[i].innerText;
-        cells[i].innerHTML = `<input type="text" value="${value}" required>`;
+        
+        if (cells[i].dataset.field === 'proveedor') {
+            cells[i].innerHTML = `<input type="text" value="${value}" disabled>`;
+        } else {
+            cells[i].innerHTML = `<input type="text" value="${value}" required>`;
+        }
     }
     let actionCell = cells[cells.length - 1];
     actionCell.innerHTML = `<button onclick="saveRow(${row.dataset.id})">Guardar</button>
@@ -92,8 +96,8 @@ function showCreateRow() {
     newRow.id = 'createRow';
     newRow.innerHTML = `
         <td data-field="proveedorid"><input type="text" required></td>
+        <td data-field="proveedor"><input class="proveedor" type="text" disabled></td>
         <td data-field="telefono"><input type="text" required></td>
-        <td data-field="activo"><input type="text" required></td>
         <td>
             <button onclick="createRow()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>
@@ -115,7 +119,8 @@ function createRow() {
 
     inputs.forEach(input => {
         let fieldName = input.closest('td').dataset.field;
-        data[fieldName] = input.value;
+        let value = input.value;
+        data[fieldName] = value;
     });
 
     fetch('../controller/proveedorTelefonoAction.php', {
@@ -146,7 +151,7 @@ function createRow() {
 function saveRow(id) {
     let row = document.querySelector(`tr[data-id='${id}']`);
     let inputs = row.querySelectorAll('input');
-    let data = { accion: 'actualizar', id: id };
+    let data = { accion: 'actualizar', proveedortelefonoid: id };
 
     if (!validateInputs(inputs)) {
         showMessage('Por favor, complete todos los campos obligatorios.', 'error');
@@ -155,7 +160,8 @@ function saveRow(id) {
 
     inputs.forEach(input => {
         let fieldName = input.closest('td').dataset.field;
-        data[fieldName] = input.value;
+        let value = input.value;
+        data[fieldName] = value;
     });
 
     fetch('../controller/proveedorTelefonoAction.php', {
@@ -185,7 +191,7 @@ function deleteRow(id) {
     if (confirm('¿Está seguro de que desea eliminar este registro?')) {
         fetch('../controller/proveedorTelefonoAction.php', {
             method: 'POST',
-            body: new URLSearchParams({ accion: 'eliminar', id: id }),
+            body: new URLSearchParams({ accion: 'eliminar', proveedortelefonoid: id }),
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
@@ -220,15 +226,21 @@ function cancelCreate() {
 // Función para mostrar mensajes
 function showMessage(message, type) {
     let container = document.getElementById('message');
-    if (container) {
+    if (container != null) {
         container.innerHTML = message;
+        
+        // Primero eliminamos las clases relacionadas con mensajes anteriores
         container.classList.remove('error', 'success');
+        
+        // Agregamos las clases apropiadas según el tipo
         container.classList.add('message');
         if (type === 'error') {
             container.classList.add('error');
         } else if (type === 'success') {
             container.classList.add('success');
         }
+
+        container.style.display = 'flex';
     } else {
         alert('Error al mostrar el mensaje');
     }
@@ -236,7 +248,11 @@ function showMessage(message, type) {
 
 // Función para validar inputs obligatorios
 function validateInputs(inputs) {
-    return Array.from(inputs).every(input => input.value.trim() !== '');
+    // Filtra los inputs para excluir aquellos con la clase 'proveedor'
+    const filteredInputs = Array.from(inputs).filter(input => !input.classList.contains('proveedor'));
+    
+    // Verifica que todos los inputs filtrados tengan un valor no vacío
+    return filteredInputs.every(input => input.value.trim() !== '');
 }
 
 // Función para mostrar mensajes almacenados
@@ -255,9 +271,6 @@ function displayStoredMessage() {
 document.getElementById('prevPage').addEventListener('click', () => changePage(currentPage - 1));
 document.getElementById('nextPage').addEventListener('click', () => changePage(currentPage + 1));
 document.getElementById('pageSizeSelector').addEventListener('change', (event) => changePageSize(event.target.value));
-
-// Evento para el botón de crear nuevo proveedor teléfono
-document.getElementById('createButton').addEventListener('click', showCreateRow);
 
 // Llama a displayStoredMessage al cargar la página
 window.onload = displayStoredMessage;

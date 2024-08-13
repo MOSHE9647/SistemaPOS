@@ -21,6 +21,10 @@ class ProveedorTelefonoBusiness {
         return $this->proveedorTelefonoData->eliminarProveedorTelefono($proveedortelefonoid);
     }
 
+    public function getPaginationProveedorTelefono($page, $size, $sort = null) {
+        return $this->proveedorTelefonoData->getPaginationProveedorTelefono($page, $size, $sort);
+    }
+
     public function obtenerProveedorTelefonoPorId($proveedortelefonoid) {
         return $this->proveedorTelefonoData->obtenerProveedorTelefonoPorId($proveedortelefonoid);
     }
