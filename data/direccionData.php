@@ -304,16 +304,6 @@
                 // Crear la lista con los datos obtenidos
                 $listaDirecciones = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $currentDireccion = new Direccion(
-                        $row[DIRECCION_PROVINCIA],
-                        $row[DIRECCION_CANTON],
-                        $row[DIRECCION_DISTRITO],
-                        $row[DIRECCION_BARRIO],
-                        $row[DIRECCION_ID],
-                        $row[DIRECCION_SENNAS],
-                        $row[DIRECCION_DISTANCIA],
-                        $row[DIRECCION_ESTADO]
-                    );
                     $listaDirecciones[] = [
                         'ID' => $currentDireccion->getDireccionID(),
                         'Provincia' => $currentDireccion->getDireccionProvincia(),

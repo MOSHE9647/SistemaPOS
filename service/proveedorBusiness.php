@@ -18,6 +18,10 @@
             return $this->proveedorData->getAllTBProveedor();
         }
 
+        public function getPaginatedProveedores($page, $size, $sort = null) {
+            return $this->proveedorData->getPaginatedProveedores($page, $size, $sort);
+        }
+
         public function updateTBProveedor($proveedor) {
             return $this->proveedorData->updateProveedor($proveedor);
         }
