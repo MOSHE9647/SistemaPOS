@@ -3,6 +3,10 @@
 	// ARCHIVO QUE CONTIENE EL NOMBRE DE LAS DISTINTAS VARIABLES
 	// ESTÁTICAS QUE SE VAN A ESTAR UTILIZANDO DENTRO DEL PROGRAMA
 
+	// VARIABLES PARA LOG:
+	define('DATA_LOG_FILE', 'database-error.log');
+	define('BUSINESS_LOG_FILE', 'business-error.log');
+
 	// VARIABLES DE LA BD:
 	define('DB_NAME', 'bdpuntoventa');
 	define('DB_PASS', '#SistemaPOS1234');

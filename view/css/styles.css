@@ -13,7 +13,7 @@ h2 {
 }
 
 table {
-    width: 80%;
+    width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
 }
@@ -38,22 +38,49 @@ button {
     cursor: pointer;
 }
 
+input, select {
+    font-size: 14px;
+    align-items: center;
+    text-align: center;
+    width: 140px;
+    margin: 0;
+    padding: 5px;
+}
+
 #createButton {
     align-self: flex-start;
-    margin-left: 184px;
+    margin-right: 0;
     margin-bottom: 10px;
 }
 
-.pagination-container {
+.table-container {
+    width: 80%;
+    margin-bottom: 20px; /* Espacio abajo del contenedor */
+}
+
+.pagination-container, .table-header {
     display: flex;
     justify-content: space-between; /* Alinea los elementos a los extremos del contenedor */
+    margin-bottom: 5px;
     align-items: center;
-    width: 80%; /* Ajusta según el ancho deseado */
-    margin-bottom: 20px; /* Espacio abajo del contenedor */
+    width: 100%; /* Ajusta según el ancho deseado */
+}
+
+#paginationSort {
+    flex: 1;
 }
 
 #paginationSize {
     flex: 1; /* Permite que este elemento ocupe el espacio disponible */
+}
+
+#sortSelector {
+    margin: 5px 10px;
+    background-color: #ffffd6;
+    border: 1px solid #545454;
+    border-radius: 5px;
+    padding: 5px;
+    width: 120px;
 }
 
 #pageSizeSelector {
@@ -75,7 +102,6 @@ button {
 }
 
 #message {
-    display: none;
     max-width: 500px;
     margin: auto;
     padding: 10px;
@@ -83,7 +109,21 @@ button {
     border-radius: 5px;
     text-align: center;
     margin-bottom: 20px;
+
+    transition: max-height 0.5s, opacity 0.5s ease-out; /* Duración y tipo de transición */
+    opacity: 0; /* Inicialmente no visible */
 }
+
+#message.fade-in {
+    max-height: auto;
+    opacity: 1; /* Aparece con una transición suave */
+}
+
+#message.fade-out {
+    max-height: 0;
+    opacity: 0; /* Desaparece con una transición suave */
+}
+
 .error {
     background-color: #f8d7da;
     color: #721c24;

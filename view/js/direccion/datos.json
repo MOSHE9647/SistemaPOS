@@ -1,0 +1,1017 @@
+{
+	"provincias": [
+		{
+			"id": "1",
+			"nombre": "San José",
+			"cantones": [
+				{
+					"id": "01",
+					"nombre": "Central",
+					"distritos": [
+						{"id": "01", "nombre": "Carmen"},
+                        {"id": "02", "nombre": "Merced"},
+                        {"id": "03", "nombre": "Hospital"},
+                        {"id": "04", "nombre": "Catedral"},
+                        {"id": "05", "nombre": "Zapote"},
+                        {"id": "06", "nombre": "San Francisco De Dos Rios"},
+                        {"id": "07", "nombre": "Uruca"},
+                        {"id": "08", "nombre": "Mata Redonda"},
+                        {"id": "09", "nombre": "Pavas"},
+                        {"id": "10", "nombre": "Hatillo"},
+                        {"id": "11", "nombre": "San Sebastián"}
+					]
+				},
+				{
+					"id": "02",
+					"nombre": "Escazú",
+					"distritos": [
+						{"id": "01", "nombre": "Escazú"},
+                        {"id": "02", "nombre": "San Antonio"},
+                        {"id": "03", "nombre": "San Rafael"}
+					]
+				},
+				{
+					"id": "03",
+					"nombre": "Desamparados",
+					"distritos": [
+						{"id": "01", "nombre": "Desamparados"},
+						{"id": "02", "nombre": "San Miguel"},
+						{"id": "03", "nombre": "San Juan De Dios"},
+						{"id": "04", "nombre": "San Rafael Arriba"},
+						{"id": "05", "nombre": "San Rafael Abajo"},
+						{"id": "06", "nombre": "San Antonio"},
+						{"id": "07", "nombre": "Frailes"},
+						{"id": "08", "nombre": "Patarra"},
+						{"id": "09", "nombre": "San Cristobal"},
+						{"id": "10", "nombre": "Rosario"},
+						{"id": "11", "nombre": "Damas"},
+						{"id": "12", "nombre": "Gravilias"},
+						{"id": "13", "nombre": "Los Guido"}
+					]
+				},
+				{
+					"id": "04",
+					"nombre": "Puriscal",
+					"distritos": [
+						{"id": "01", "nombre": "Santiago"},
+						{"id": "02", "nombre": "Mercedes Sur"},
+						{"id": "03", "nombre": "Barbacoas"},
+						{"id": "04", "nombre": "Grifo Alto"},
+						{"id": "05", "nombre": "San Rafael"},
+						{"id": "06", "nombre": "Candelarita"},
+						{"id": "07", "nombre": "Desamparaditos"},
+						{"id": "08", "nombre": "San Antonio"},
+						{"id": "09", "nombre": "Chires"}
+					]
+				},
+				{
+					"id": "05",
+					"nombre": "Tarrazú",
+					"distritos": [
+						{"id": "01", "nombre": "San Marcos"},
+						{"id": "02", "nombre": "San Lorenzo"},
+						{"id": "03", "nombre": "San Carlos"}
+					]
+				},
+				{
+					"id": "06",
+					"nombre": "Aserrí",
+					"distritos": [
+						{"id": "01", "nombre": "Aserrí"},
+						{"id": "02", "nombre": "Tarbaca"},
+						{"id": "03", "nombre": "Vuelta De Jorco"},
+						{"id": "04", "nombre": "San Gabriel"},
+						{"id": "05", "nombre": "Legua"},
+						{"id": "06", "nombre": "Monterrey"},
+						{"id": "07", "nombre": "Salitrillos"}
+					]
+				},
+				{
+					"id": "07",
+					"nombre": "Mora",
+					"distritos": [
+						{"id": "01", "nombre": "Colón"},
+						{"id": "02", "nombre": "Guayabo"},
+						{"id": "03", "nombre": "Tabarcia"},
+						{"id": "04", "nombre": "Piedras Negras"},
+						{"id": "05", "nombre": "Picagres"},
+						{"id": "06", "nombre": "Jaris"}
+					]
+				},
+				{
+					"id": "08",
+					"nombre": "Goicoechea",
+					"distritos": [
+						{"id": "01", "nombre": "Guadalupe"},
+						{"id": "02", "nombre": "San Francisco"},
+						{"id": "03", "nombre": "Calle Blancos"},
+						{"id": "04", "nombre": "Mata De Platano"},
+						{"id": "05", "nombre": "Ipís"},
+						{"id": "06", "nombre": "Rancho Redondo"},
+						{"id": "07", "nombre": "Purral"}
+					]
+				},
+				{
+					"id": "09",
+					"nombre": "Santa Ana",
+					"distritos": [
+						{"id": "01", "nombre": "Santa Ana"},
+						{"id": "02", "nombre": "Salitral"},
+						{"id": "03", "nombre": "Pozos"},
+						{"id": "04", "nombre": "Uruca"},
+						{"id": "05", "nombre": "Piedades"},
+						{"id": "06", "nombre": "Brasil"}
+					]
+				},
+				{
+					"id": "10",
+					"nombre": "Alajuelita",
+					"distritos": [
+						{"id": "01", "nombre": "Alajuelita"},
+						{"id": "02", "nombre": "San Josecito"},
+						{"id": "03", "nombre": "San Antonio"},
+						{"id": "04", "nombre": "Concepción"},
+						{"id": "05", "nombre": "San Felipe"}
+					]
+				},
+				{
+					"id": "11",
+					"nombre": "Vázquez De Coronado",
+					"distritos": [
+						{"id": "01", "nombre": "San Isidro"},
+						{"id": "02", "nombre": "San Rafael"},
+						{"id": "03", "nombre": "Dulce Nombre De Jesus"},
+						{"id": "04", "nombre": "Patalillo"},
+						{"id": "05", "nombre": "Cascajal"}
+					]
+					},
+					{
+					"id": "12",
+					"nombre": "Acosta",
+					"distritos": [
+						{"id": "01", "nombre": "San Ignacio"},
+						{"id": "02", "nombre": "Guaitil"},
+						{"id": "03", "nombre": "Palmichal"},
+						{"id": "04", "nombre": "Cangrejal"},
+						{"id": "05", "nombre": "Sabanillas"}
+					]
+				},
+				{
+					"id": "13",
+					"nombre": "Tibás",
+					"distritos": [
+						{"id": "01", "nombre": "San Juan"},
+						{"id": "02", "nombre": "Cinco Esquinas"},
+						{"id": "03", "nombre": "Anselmo Llorente"},
+						{"id": "04", "nombre": "Leon XII"},
+						{"id": "05", "nombre": "Colima"}
+					]
+				},
+				{
+					"id": "14",
+					"nombre": "Moravia",
+					"distritos": [
+						{"id": "01", "nombre": "San Vicente"},
+						{"id": "02", "nombre": "San Jeronimo"},
+						{"id": "03", "nombre": "La Trinidad"}
+					]
+				},
+				{
+					"id": "15",
+					"nombre": "Montes De Oca",
+					"distritos": [
+						{"id": "01", "nombre": "San Pedro"},
+						{"id": "02", "nombre": "Sabanilla"},
+						{"id": "03", "nombre": "Mercedes"},
+						{"id": "04", "nombre": "San Rafael"}
+					]
+				},
+				{
+					"id": "16",
+					"nombre": "Turrubares",
+					"distritos": [
+						{"id": "01", "nombre": "San Pablo"},
+						{"id": "02", "nombre": "San Pedro"},
+						{"id": "03", "nombre": "San Juan De Mata"},
+						{"id": "04", "nombre": "San Luis"},
+						{"id": "05", "nombre": "Carara"}
+					]
+				},
+				{
+					"id": "17",
+					"nombre": "Dota",
+					"distritos": [
+						{"id": "01", "nombre": "Santa María"},
+						{"id": "02", "nombre": "Jardin"},
+						{"id": "03", "nombre": "Copey"}
+					]
+				},
+				{
+					"id": "18",
+					"nombre": "Curridabat",
+					"distritos": [
+						{"id": "01", "nombre": "Curridabat"},
+						{"id": "02", "nombre": "Granadilla"},
+						{"id": "03", "nombre": "Sanchez"},
+						{"id": "04", "nombre": "Tirrases"}
+					]
+				},
+				{
+					"id": "19",
+					"nombre": "Pérez Zeledón",
+					"distritos": [
+						{"id": "01", "nombre": "San Isidro De El General"},
+						{"id": "02", "nombre": "El General"},
+						{"id": "03", "nombre": "Daniel Flores"},
+						{"id": "04", "nombre": "Rivas"},
+						{"id": "05", "nombre": "San Pedro"},
+						{"id": "06", "nombre": "Platanares"},
+						{"id": "07", "nombre": "Pejibaye"},
+						{"id": "08", "nombre": "Cajon"},
+						{"id": "09", "nombre": "Baru"},
+						{"id": "10", "nombre": "Rio Nuevo"},
+						{"id": "11", "nombre": "Páramo"}
+					]
+				},
+				{
+					"id": "20",
+					"nombre": "León Cortés Castro",
+					"distritos": [
+						{"id": "01", "nombre": "San Pablo"},
+						{"id": "02", "nombre": "San Andres"},
+						{"id": "03", "nombre": "Llano Bonito"},
+						{"id": "04", "nombre": "San Isidro"},
+						{"id": "05", "nombre": "Santa Cruz"},
+						{"id": "06", "nombre": "San Antonio"}
+					]
+				}
+			]
+		},
+		{
+			"id": "2", 
+			"nombre": "Alajuela",
+			"cantones": [
+				{
+					"id": "01",
+					"nombre": "Central",
+					"distritos": [
+						{"id": "01", "nombre": "Alajuela"},
+						{"id": "02", "nombre": "San José"},
+						{"id": "03", "nombre": "Carrizal"},
+						{"id": "04", "nombre": "San Antonio"},
+						{"id": "05", "nombre": "Guácima"},
+						{"id": "06", "nombre": "San Isidro"},
+						{"id": "07", "nombre": "Sabanilla"},
+						{"id": "08", "nombre": "San Rafael"},
+						{"id": "09", "nombre": "Rio Segundo"},
+						{"id": "10", "nombre": "Desamparados"},
+						{"id": "11", "nombre": "Turrucares"},
+						{"id": "12", "nombre": "Tambor"},
+						{"id": "13", "nombre": "Garita"},
+						{"id": "14", "nombre": "Sarapiquí"}
+					]
+				},
+				{
+					"id": "02",
+					"nombre": "San Ramón",
+					"distritos": [
+						{"id": "01", "nombre": "San Ramón"},
+						{"id": "02", "nombre": "Santiago"},
+						{"id": "03", "nombre": "San Juan"},
+						{"id": "04", "nombre": "Piedades Norte"},
+						{"id": "05", "nombre": "Piedades Sur"},
+						{"id": "06", "nombre": "San Rafael"},
+						{"id": "07", "nombre": "San Isidro"},
+						{"id": "08", "nombre": "Angeles"},
+						{"id": "09", "nombre": "Alfaro"},
+						{"id": "10", "nombre": "Volio"},
+						{"id": "11", "nombre": "Concepción"},
+						{"id": "12", "nombre": "Zapotal"},
+						{"id": "13", "nombre": "Peñas Blancas"}
+					]
+				},
+				{
+					"id": "03",
+					"nombre": "Grecia",
+					"distritos": [
+						{"id": "01", "nombre": "Grecia"},
+						{"id": "02", "nombre": "San Isidro"},
+						{"id": "03", "nombre": "San José"},
+						{"id": "04", "nombre": "San Roque"},
+						{"id": "05", "nombre": "Tacares"},
+						{"id": "06", "nombre": "Rio Cuarto"},
+						{"id": "07", "nombre": "Puente De Piedra"},
+						{"id": "08", "nombre": "Bolivar"}
+					]
+				},
+				{
+					"id": "04",
+					"nombre": "San Mateo",
+					"distritos": [
+						{"id": "01", "nombre": "San Mateo"},
+						{"id": "02", "nombre": "Desmonte"},
+						{"id": "03", "nombre": "Jesús María"},
+						{"id": "04", "nombre": "Labrador"}
+					]
+				},
+				{
+					"id": "05",
+					"nombre": "Atenas",
+					"distritos": [
+						{"id": "01", "nombre": "Atenas"},
+						{"id": "02", "nombre": "Jesús"},
+						{"id": "03", "nombre": "Mercedes"},
+						{"id": "04", "nombre": "San Isidro"},
+						{"id": "05", "nombre": "Concepción"},
+						{"id": "06", "nombre": "San José"},
+						{"id": "07", "nombre": "Santa Eulalia"},
+						{"id": "08", "nombre": "Escobal"}
+					]
+				},
+				{
+					"id": "06",
+					"nombre": "Naranjo",
+					"distritos": [
+						{"id": "01", "nombre": "Naranjo"},
+						{"id": "02", "nombre": "San Miguel"},
+						{"id": "03", "nombre": "San José"},
+						{"id": "04", "nombre": "Cirrí Sur"},
+						{"id": "05", "nombre": "San Jerónimo"},
+						{"id": "06", "nombre": "San Juan"},
+						{"id": "07", "nombre": "El Rosario"},
+						{"id": "08", "nombre": "Palmitos"}
+					]
+				},
+				{
+					"id": "07",
+					"nombre": "Palmares",
+					"distritos": [
+						{"id": "01", "nombre": "Palmares"},
+						{"id": "02", "nombre": "Zaragoza"},
+						{"id": "03", "nombre": "Buenos Aires"},
+						{"id": "04", "nombre": "Santiago"},
+						{"id": "05", "nombre": "Candelaria"},
+						{"id": "06", "nombre": "Esquipulas"},
+						{"id": "07", "nombre": "La Granja"}
+					]
+				},
+				{
+					"id": "08",
+					"nombre": "Poás",
+					"distritos": [
+						{"id": "01", "nombre": "San Pedro"},
+						{"id": "02", "nombre": "San Juan"},
+						{"id": "03", "nombre": "San Rafael"},
+						{"id": "04", "nombre": "Carrillos"},
+						{"id": "05", "nombre": "Sabana Redonda"}
+					]
+				},
+				{
+					"id": "09",
+					"nombre": "Orotina",
+					"distritos": [
+						{"id": "01", "nombre": "Orotina"},
+						{"id": "02", "nombre": "El Mastate"},
+						{"id": "03", "nombre": "Hacienda Vieja"},
+						{"id": "04", "nombre": "Coyolar"},
+						{"id": "05", "nombre": "La Ceiba"}
+					]
+				},
+				{
+					"id": "10",
+					"nombre": "San Carlos",
+					"distritos": [
+						{"id": "01", "nombre": "Quesada"},
+						{"id": "02", "nombre": "Florencia"},
+						{"id": "03", "nombre": "Buenavista"},
+						{"id": "04", "nombre": "Aguas Zarcas"},
+						{"id": "05", "nombre": "Venecia"},
+						{"id": "06", "nombre": "Pital"},
+						{"id": "07", "nombre": "La Fortuna"},
+						{"id": "08", "nombre": "La Tigra"},
+						{"id": "09", "nombre": "La Palmera"},
+						{"id": "10", "nombre": "Venado"},
+						{"id": "11", "nombre": "Cutris"},
+						{"id": "12", "nombre": "Monterrey"},
+						{"id": "13", "nombre": "Pocosol"}
+					]
+				},
+				{
+					"id": "11",
+					"nombre": "Zarcero",
+					"distritos": [
+						{"id": "01", "nombre": "Zarcero"},
+						{"id": "02", "nombre": "Laguna"},
+						{"id": "03", "nombre": "Tapesco"},
+						{"id": "04", "nombre": "Guadalupe"},
+						{"id": "05", "nombre": "Palmira"},
+						{"id": "06", "nombre": "Zapote"},
+						{"id": "07", "nombre": "Brisas"}
+					]
+				},
+				{
+					"id": "12",
+					"nombre": "Sarchí",
+					"distritos": [
+						{"id": "01", "nombre": "Sarchí Norte"},
+						{"id": "02", "nombre": "Sarchí Sur"},
+						{"id": "03", "nombre": "Toro Amarillo"},
+						{"id": "04", "nombre": "San Pedro"},
+						{"id": "05", "nombre": "Rodriguez"}
+					]
+				},
+				{
+					"id": "13",
+					"nombre": "Upala",
+					"distritos": [
+						{"id": "01", "nombre": "Upala"},
+						{"id": "02", "nombre": "Aguas Claras"},
+						{"id": "03", "nombre": "San José o Pizote"},
+						{"id": "04", "nombre": "Bijagua"},
+						{"id": "05", "nombre": "Delicias"},
+						{"id": "06", "nombre": "Dos Rios"},
+						{"id": "07", "nombre": "Yolillal"},
+						{"id": "08", "nombre": "Canalete"}
+					]
+				},
+				{
+					"id": "14",
+					"nombre": "Los Chiles",
+					"distritos": [
+						{"id": "01", "nombre": "Los Chiles"},
+						{"id": "02", "nombre": "Caño Negro"},
+						{"id": "03", "nombre": "El Amparo"},
+						{"id": "04", "nombre": "San Jorge"}
+					]
+				},
+				{
+					"id": "15",
+					"nombre": "Guatuso",
+					"distritos": [
+						{"id": "01", "nombre": "San Rafael"},
+						{"id": "02", "nombre": "Buenavista"},
+						{"id": "03", "nombre": "Cote"},
+						{"id": "04", "nombre": "Katira"}
+					]
+				},
+				{
+					"id": "16",
+					"nombre": "Río Cuarto",
+					"distritos": [
+						{"id": "01", "nombre": "Río Cuarto"}
+					]
+				}
+			]
+		},
+		{
+			"id": "3",
+			"nombre": "Cartago",
+			"cantones": [
+				{
+					"id": "01",
+					"nombre": "Central",
+					"distritos": [
+						{"id": "01", "nombre": "Oriental"},
+						{"id": "02", "nombre": "Occidental"},
+						{"id": "03", "nombre": "Carmen"},
+						{"id": "04", "nombre": "San Nicolás"},
+						{"id": "05", "nombre": "Aguacaliente o San Francisco"},
+						{"id": "06", "nombre": "Guadalupe o Arenilla"},
+						{"id": "07", "nombre": "Corralillo"},
+						{"id": "08", "nombre": "Tierra Blanca"},
+						{"id": "09", "nombre": "Dulce Nombre"},
+						{"id": "10", "nombre": "Llano Grande"},
+						{"id": "11", "nombre": "Quebradilla"}
+					]
+				},
+				{
+					"id": "02",
+					"nombre": "Paraíso",
+					"distritos": [
+						{"id": "01", "nombre": "Paraiso"},
+						{"id": "02", "nombre": "Santiago"},
+						{"id": "03", "nombre": "Orosi"},
+						{"id": "04", "nombre": "Cachí"},
+						{"id": "05", "nombre": "Llanos de Santa Lucía"}
+					]
+				},
+				{
+					"id": "03",
+					"nombre": "La Unión",
+					"distritos": [
+						{"id": "01", "nombre": "Tres Rios"},
+						{"id": "02", "nombre": "San Diego"},
+						{"id": "03", "nombre": "San Juan"},
+						{"id": "04", "nombre": "San Rafael"},
+						{"id": "05", "nombre": "Concepción"},
+						{"id": "06", "nombre": "Dulce Nombre"},
+						{"id": "07", "nombre": "San Ramón"},
+						{"id": "08", "nombre": "Rio Azul"}
+					]
+				},
+				{
+					"id": "04",
+					"nombre": "Jiménez",
+					"distritos": [
+						{"id": "01", "nombre": "Juan Viñas"},
+						{"id": "02", "nombre": "Tucurrique"},
+						{"id": "03", "nombre": "Pejibaye"}
+					]
+				},
+				{
+					"id": "05",
+					"nombre": "Turrialba",
+					"distritos": [
+						{"id": "01", "nombre": "Turrialba"},
+						{"id": "02", "nombre": "La Suiza"},
+						{"id": "03", "nombre": "Peralta"},
+						{"id": "04", "nombre": "Santa Cruz"},
+						{"id": "05", "nombre": "Santa Teresita"},
+						{"id": "06", "nombre": "Pavones"},
+						{"id": "07", "nombre": "Tuis"},
+						{"id": "08", "nombre": "Tayutic"},
+						{"id": "09", "nombre": "Santa Rosa"},
+						{"id": "10", "nombre": "Tres Equis"},
+						{"id": "11", "nombre": "La Isabel"},
+						{"id": "12", "nombre": "Chirripó"}
+					]
+				},
+				{
+					"id": "06",
+					"nombre": "Alvarado",
+					"distritos": [
+						{"id": "01", "nombre": "Pacayas"},
+						{"id": "02", "nombre": "Cervantes"},
+						{"id": "03", "nombre": "Capellades"}
+					]
+				},
+				{
+					"id": "07",
+					"nombre": "Oreamuno",
+					"distritos": [
+						{"id": "01", "nombre": "San Rafael"},
+						{"id": "02", "nombre": "Cot"},
+						{"id": "03", "nombre": "Potrero Cerrado"},
+						{"id": "04", "nombre": "Cipreses"},
+						{"id": "05", "nombre": "Santa Rosa"}
+					]
+				},
+				{
+					"id": "08",
+					"nombre": "El Guarco",
+					"distritos": [
+						{"id": "01", "nombre": "El Tejar"},
+						{"id": "02", "nombre": "San Isidro"},
+						{"id": "03", "nombre": "Tobosi"},
+						{"id": "04", "nombre": "Patio De Agua"}
+					]
+				}
+			]
+		},
+		{
+			"id": "4",
+			"nombre": "Heredia",
+			"cantones": [
+				{
+					"id": "01",
+					"nombre": "Central",
+					"distritos": [
+						{"id": "01", "nombre": "Heredia"},
+						{"id": "02", "nombre": "Mercedes"},
+						{"id": "03", "nombre": "San Francisco"},
+						{"id": "04", "nombre": "Ulloa"},
+						{"id": "05", "nombre": "Varablanca"}
+					]
+				},
+				{
+					"id": "02",
+					"nombre": "Barva",
+					"distritos": {
+						"01": "Barva",
+						"02": "San Pedro",
+						"03": "San Pablo",
+						"04": "San Roque",
+						"05": "Santa Lucía",
+						"06": "San José de la Montaña"
+					}
+				},
+				{
+					"id": "03",
+					"nombre": "Santo Domingo",
+					"distritos": [
+						{"id": "01", "nombre": "Santo Domingo"},
+						{"id": "02", "nombre": "San Vicente"},
+						{"id": "03", "nombre": "San Miguel"},
+						{"id": "04", "nombre": "Paracito"},
+						{"id": "05", "nombre": "Santo Tomás"},
+						{"id": "06", "nombre": "Santa Rosa"},
+						{"id": "07", "nombre": "Tures"},
+						{"id": "08", "nombre": "Para"}
+					]
+				},
+				{
+					"id": "04",
+					"nombre": "Santa Barbara",
+					"distritos": [
+						{"id": "01", "nombre": "Santa Bárbara"},
+						{"id": "02", "nombre": "San Pedro"},
+						{"id": "03", "nombre": "San Juan"},
+						{"id": "04", "nombre": "Jesús"},
+						{"id": "05", "nombre": "Santo Domingo"},
+						{"id": "06", "nombre": "Puraba"}
+					]
+				},
+				{
+					"id": "05",
+					"nombre": "San Rafael",
+					"distritos": [
+						{"id": "01", "nombre": "San Rafael"},
+						{"id": "02", "nombre": "San Josecito"},
+						{"id": "03", "nombre": "Santiago"},
+						{"id": "04", "nombre": "Los Ángeles"},
+						{"id": "05", "nombre": "Concepción"}
+					]
+				},
+				{
+					"id": "06",
+					"nombre": "San Isidro",
+					"distritos": [
+						{"id": "01", "nombre": "San Isidro"},
+						{"id": "02", "nombre": "San José"},
+						{"id": "03", "nombre": "Concepción"},
+						{"id": "04", "nombre": "San Francisco"}
+					]
+				},
+				{
+					"id": "07",
+					"nombre": "Belén",
+					"distritos": [
+						{"id": "01", "nombre": "San Antonio"},
+						{"id": "02", "nombre": "La Ribera"},
+						{"id": "03", "nombre": "La Asuncion"}
+					]
+				},
+				{
+					"id": "08",
+					"nombre": "Flores",
+					"distritos": [
+						{"id": "01", "nombre": "San Joaquín"},
+						{"id": "02", "nombre": "Barrantes"},
+						{"id": "03", "nombre": "Llorente"}
+					]
+				},
+				{
+					"id": "09",
+					"nombre": "San Pablo",
+					"distritos": [
+						{"id": "01", "nombre": "San Pablo"},
+						{"id": "02", "nombre": "Rincon De Sabanilla"}
+					]
+				},
+				{
+					"id": "10",
+					"nombre": "Sarapiquí",
+					"distritos": [
+						{"id": "01", "nombre": "Puerto Viejo"},
+						{"id": "02", "nombre": "La Virgen"},
+						{"id": "03", "nombre": "Horquetas"},
+						{"id": "04", "nombre": "Llanuras Del Gaspar"},
+						{"id": "05", "nombre": "Cureña"}
+					]
+				}
+			]
+		},
+		{
+			"id": "5",
+			"nombre": "Guanacaste",
+			"cantones": [
+				{
+					"id": "01",
+					"nombre": "Liberia",
+					"distritos": [
+						{"id": "01", "nombre": "Liberia"},
+						{"id": "02", "nombre": "Cañas Dulces"},
+						{"id": "03", "nombre": "Mayorga"},
+						{"id": "04", "nombre": "Nacascolo"},
+						{"id": "05", "nombre": "Curubande"}
+					]
+				},
+				{
+					"id": "02",
+					"nombre": "Nicoya",
+					"distritos": [
+						{"id": "01", "nombre": "Nicoya"},
+						{"id": "02", "nombre": "Mansión"},
+						{"id": "03", "nombre": "San Antonio"},
+						{"id": "04", "nombre": "Quebrada Honda"},
+						{"id": "05", "nombre": "Sámara"},
+						{"id": "06", "nombre": "Nosara"},
+						{"id": "07", "nombre": "Belén De Nosarita"}
+					]
+				},
+				{
+					"id": "03",
+					"nombre": "Santa Cruz",
+					"distritos": [
+						{"id": "01", "nombre": "Santa Cruz"},
+						{"id": "02", "nombre": "Bolson"},
+						{"id": "03", "nombre": "Veintisiete de Abril"},
+						{"id": "04", "nombre": "Tempate"},
+						{"id": "05", "nombre": "Cartagena"},
+						{"id": "06", "nombre": "Cuajiniquil"},
+						{"id": "07", "nombre": "Diria"},
+						{"id": "08", "nombre": "Cabo Velas"},
+						{"id": "09", "nombre": "Tamarindo"}
+					]
+				},
+				{
+					"id": "04",
+					"nombre": "Bagaces",
+					"distritos": [
+						{"id": "01", "nombre": "Bagaces"},
+						{"id": "02", "nombre": "La Fortuna"},
+						{"id": "03", "nombre": "Mogote"},
+						{"id": "04", "nombre": "Rio Naranjo"}
+					]
+				},
+				{
+					"id": "05",
+					"nombre": "Carrillo",
+					"distritos": [
+						{"id": "01", "nombre": "Filadelfia"},
+						{"id": "02", "nombre": "Palmira"},
+						{"id": "03", "nombre": "Sardinal"},
+						{"id": "04", "nombre": "Belen"}
+					]
+				},
+				{
+					"id": "06",
+					"nombre": "Cañas",
+					"distritos": [
+						{"id": "01", "nombre": "Cañas"},
+						{"id": "02", "nombre": "Palmira"},
+						{"id": "03", "nombre": "San Miguel"},
+						{"id": "04", "nombre": "Bebedero"},
+						{"id": "05", "nombre": "Porozal"}
+					]
+				},
+				{
+					"id": "07",
+					"nombre": "Abangares",
+					"distritos": [
+						{"id": "01", "nombre": "Las Juntas"},
+						{"id": "02", "nombre": "Sierra"},
+						{"id": "03", "nombre": "San Juan"},
+						{"id": "04", "nombre": "Colorado"}
+					]
+				},
+				{
+					"id": "08",
+					"nombre": "Tilarán",
+					"distritos": [
+						{"id": "01", "nombre": "Tilarán"},
+						{"id": "02", "nombre": "Quebrada Grande"},
+						{"id": "03", "nombre": "Tronadora"},
+						{"id": "04", "nombre": "Santa Rosa"},
+						{"id": "05", "nombre": "Líbano"},
+						{"id": "06", "nombre": "Tierras Morenas"},
+						{"id": "07", "nombre": "Arenal"}
+					]
+				},
+				{
+					"id": "09",
+					"nombre": "Nandayure",
+					"distritos": [
+						{"id": "01", "nombre": "Carmona"},
+						{"id": "02", "nombre": "Santa Rita"},
+						{"id": "03", "nombre": "Zapotal"},
+						{"id": "04", "nombre": "San Pablo"},
+						{"id": "05", "nombre": "Porvenir"},
+						{"id": "06", "nombre": "Bejuco"}
+					]
+				},
+				{
+					"id": "10",
+					"nombre": "La Cruz",
+					"distritos": [
+						{"id": "01", "nombre": "La Cruz"},
+						{"id": "02", "nombre": "Santa Cecilia"},
+						{"id": "03", "nombre": "La Garita"},
+						{"id": "04", "nombre": "Santa Elena"}
+					]
+				},
+				{
+					"id": "11",
+					"nombre": "Hojancha",
+					"distritos": [
+						{"id": "01", "nombre": "Hojancha"},
+						{"id": "02", "nombre": "Monte Romo"},
+						{"id": "03", "nombre": "Puerto Carrillo"},
+						{"id": "04", "nombre": "Huacas"}
+					]
+				}
+			]
+		},
+		{
+			"id": "6",
+			"nombre": "Puntarenas",
+			"cantones": [
+				{
+					"id": "01",
+					"nombre": "Central",
+					"distritos": [
+						{"id": "01", "nombre": "Puntarenas"},
+						{"id": "02", "nombre": "Pitahaya"},
+						{"id": "03", "nombre": "Chomes"},
+						{"id": "04", "nombre": "Lepanto"},
+						{"id": "05", "nombre": "Paquera"},
+						{"id": "06", "nombre": "Manzanillo"},
+						{"id": "07", "nombre": "Guacimal"},
+						{"id": "08", "nombre": "Barranca"},
+						{"id": "09", "nombre": "Monte Verde"},
+						{"id": "10", "nombre": "Isla Del Coco"},
+						{"id": "11", "nombre": "Cóbano"},
+						{"id": "12", "nombre": "Chacarita"},
+						{"id": "13", "nombre": "Chira"},
+						{"id": "14", "nombre": "Acapulco"},
+						{"id": "15", "nombre": "El Roble"},
+						{"id": "16", "nombre": "Arancibia"}
+					]
+				},
+				{
+					"id": "02",
+					"nombre": "Esparza",
+					"distritos": [
+						{"id": "01", "nombre": "Espíritu Santo"},
+						{"id": "02", "nombre": "San Juan Grande"},
+						{"id": "03", "nombre": "Macacona"},
+						{"id": "04", "nombre": "San Rafael"},
+						{"id": "05", "nombre": "San Jerónimo"}
+					]
+				},
+				{
+					"id": "03",
+					"nombre": "Buenos Aires",
+					"distritos": [
+						{"id": "01", "nombre": "Buenos Aires"},
+						{"id": "02", "nombre": "Volcán"},
+						{"id": "03", "nombre": "Potrero Grande"},
+						{"id": "04", "nombre": "Boruca"},
+						{"id": "05", "nombre": "Pilas"},
+						{"id": "06", "nombre": "Colinas"},
+						{"id": "07", "nombre": "Changuena"},
+						{"id": "08", "nombre": "Biolley"},
+						{"id": "09", "nombre": "Brunka"}
+					]
+				},
+				{
+					"id": "04",
+					"nombre": "Montes De Oro",
+					"distritos": [
+						{"id": "01", "nombre": "Miramar"},
+						{"id": "02", "nombre": "La Unión"},
+						{"id": "03", "nombre": "San Isidro"}
+					]
+				},
+				{
+					"id": "05",
+					"nombre": "Osa",
+					"distritos": [
+						{"id": "01", "nombre": "Puerto Cortés"},
+						{"id": "02", "nombre": "Palmar"},
+						{"id": "03", "nombre": "Sierpe"},
+						{"id": "04", "nombre": "Bahía Ballena"},
+						{"id": "05", "nombre": "Piedras Blancas"},
+						{"id": "06", "nombre": "Bahía Drake"}
+					]
+				},
+				{
+					"id": "06",
+					"nombre": "Quepos",
+					"distritos": [
+						{"id": "01", "nombre": "Quepos"},
+						{"id": "02", "nombre": "Savegre"},
+						{"id": "03", "nombre": "Naranjito"}
+					]
+				},
+				{
+					"id": "07",
+					"nombre": "Golfito",
+					"distritos": [
+						{"id": "01", "nombre": "Golfito"},
+						{"id": "02", "nombre": "Puerto Jiménez"},
+						{"id": "03", "nombre": "Guaycara"},
+						{"id": "04", "nombre": "Pavón"}
+					]
+				},
+				{
+					"id": "08",
+					"nombre": "Coto Brus",
+					"distritos": [
+						{"id": "01", "nombre": "San Vito"},
+						{"id": "02", "nombre": "Sabalito"},
+						{"id": "03", "nombre": "Aguabuena"},
+						{"id": "04", "nombre": "Limoncito"},
+						{"id": "05", "nombre": "Pittier"}
+					]
+				},
+				{
+					"id": "09",
+					"nombre": "Parrita",
+					"distritos": [
+						{"id": "01", "nombre": "Parrita"}
+					]
+				},
+				{
+					"id": "10",
+					"nombre": "Corredores",
+					"distritos": [
+						{"id": "01", "nombre": "Corredor"},
+						{"id": "02", "nombre": "La Cuesta"},
+						{"id": "03", "nombre": "Canoas"},
+						{"id": "04", "nombre": "Laurel"}
+					]
+				},
+				{
+					"id": "11",
+					"nombre": "Garabito",
+					"distritos": [
+						{"id": "01", "nombre": "Jacó"},
+						{"id": "02", "nombre": "Tárcoles"}
+					]
+				}
+			]
+		},
+		{
+			"id": "7",
+			"nombre": "Limón",
+			"cantones": [
+				{
+					"id": "01",
+					"nombre": "Central",
+					"distritos": [
+						{"id": "01", "nombre": "Limón"},
+						{"id": "02", "nombre": "Valle La Estrella"},
+						{"id": "03", "nombre": "Rio Blanco"},
+						{"id": "04", "nombre": "Matama"}
+					]
+				},
+				{
+					"id": "02",
+					"nombre": "Pococí",
+					"distritos": [
+						{"id": "01", "nombre": "Guapiles"},
+						{"id": "02", "nombre": "Jiménez"},
+						{"id": "03", "nombre": "Rita"},
+						{"id": "04", "nombre": "Roxana"},
+						{"id": "05", "nombre": "Cariari"},
+						{"id": "06", "nombre": "Colorado"},
+						{"id": "07", "nombre": "La Colonia"}
+					]
+				},
+				{
+					"id": "03",
+					"nombre": "Siquirres",
+					"distritos": [
+						{"id": "01", "nombre": "Siquirres"},
+						{"id": "02", "nombre": "Pacuarito"},
+						{"id": "03", "nombre": "Florida"},
+						{"id": "04", "nombre": "Germania"},
+						{"id": "05", "nombre": "El Cairo"},
+						{"id": "06", "nombre": "Alegría"}
+					]
+				},
+				{
+					"id": "04",
+					"nombre": "Talamanca",
+					"distritos": [
+						{"id": "01", "nombre": "Bratsi"},
+						{"id": "02", "nombre": "Sixaola"},
+						{"id": "03", "nombre": "Cahuita"},
+						{"id": "04", "nombre": "Telire"}
+					]
+				},
+				{
+					"id": "05",
+					"nombre": "Matina",
+					"distritos": [
+						{"id": "01", "nombre": "Matina"},
+						{"id": "02", "nombre": "Batán"},
+						{"id": "03", "nombre": "Carrandi"}
+					]
+				},
+				{
+					"id": "06",
+					"nombre": "Guácimo",
+					"distritos": [
+						{"id": "01", "nombre": "Guácimo"},
+						{"id": "02", "nombre": "Mercedes"},
+						{"id": "03", "nombre": "Pocora"},
+						{"id": "04", "nombre": "Rio Jiménez"},
+						{"id": "05", "nombre": "Duacari"}
+					]
+				}
+			]
+		}
+	]
+}
