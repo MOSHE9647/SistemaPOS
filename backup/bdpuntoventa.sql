@@ -187,6 +187,20 @@ INSERT INTO `tbproveedortelefono` (`proveedortelefonoid`, `proveedorid`, `provee
 (3, 8, '+506 6421 2951', 1),
 (4, 8, '+506 6421 2952', 0);
 
+
+
+CREATE TABLE  `tblote`(
+    `loteid` VARCHAR(50) NOT NULL,
+    `lotecodigo` INT NOT NULL,
+    `productoid` INT NOT NULL,
+    `lotecantidad` INT NOT NULL,
+    `loteprecio` Decimal NOT NULL,
+    `proveedorid` INT NOT NULL,
+    `lotefechaingreso` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `lotefechavencimiento` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `loteestado` tinyint(1) NOT NULL 
+    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    
 --
 -- Índices para tablas volcadas
 --
@@ -227,6 +241,14 @@ ALTER TABLE `tbproveedordireccion`
 ALTER TABLE `tbproveedortelefono`
   ADD PRIMARY KEY (`proveedortelefonoid`);
 COMMIT;
+
+--
+-- Indices de la tabla `tblote`
+--
+ALTER TABLE `tblote`
+  ADD PRIMARY KEY (`loteid`);
+
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

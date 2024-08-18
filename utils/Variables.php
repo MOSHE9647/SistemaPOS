@@ -64,4 +64,18 @@
     define('PROVEEDOR_TELEFONO_ID', 'proveedortelefonoid');
     define('PROVEEDOR_TELEFONO', 'proveedortelefono');
 
+
+	// Tabla 'tblote'
+	define('TB_LOTE','tblote'); //<- Nombre de la Tabla
+	define('LOTE_ID','loteid');
+	define('LOTE_CODIGO','lotecodigo');
+	
+	define('LOTE_CANTIDAD','lotecantidad');
+	define('LOTE_PRECIO','loteprecio');
+	
+	define('LOTE_FECHA_INGRESO','lotefechaingreso');
+	define('LOTE_FECHA_VENCIMIENTO','lotefechavencimiento');
+	define('LOTE_ESTADO','loteestado');
+
+
 ?>
