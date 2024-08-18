@@ -224,7 +224,7 @@
                 if(empty($nombre)){
                     throw new Exception("El nombre del producto esta vacio");
                 }
-                if (empty($fechaadquisicionproducto) || !Utils::validar_fecha($fechaadquisicionproducto)) {
+                if (empty($fechaadquisicionproducto) || !Utils::validarFecha($fechaadquisicionproducto)) {
                     throw new Exception("La fecha de adquisicion está vacía o no es válida");
                 }
                 if ($productoestado === null || empty( $productoestado)) {
@@ -304,7 +304,7 @@
                 if(empty($nombre)){
                     throw new Exception("El nombre del producto esta vacio");
                 }
-                if (empty($fechaadquisicionproducto) || !Utils::validar_fecha($fechaadquisicionproducto)) {
+                if (empty($fechaadquisicionproducto) || !Utils::validarFecha($fechaadquisicionproducto)) {
                     throw new Exception("La fecha de adquisicion está vacía o no es válida");
                 }
                 if ($productoestado === null || empty( $productoestado)) {

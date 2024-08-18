@@ -85,7 +85,7 @@
                 if (empty($proveedorEmail) || !filter_var($proveedorEmail, FILTER_VALIDATE_EMAIL)) {
                     throw new Exception("El correo electrónico del proveedor está vacío o no es válido");
                 }
-                  if (empty($proveedorFechaRegistro) || !Utils::validar_fecha($proveedorFechaRegistro)) {
+                  if (empty($proveedorFechaRegistro) || !Utils::validarFecha($proveedorFechaRegistro)) {
                     throw new Exception("La fecha de registro del proveedor está vacía o no es válida");
                 }
                 if ($proveedorEstado === null || empty($proveedorEstado)) {
@@ -318,7 +318,7 @@
                // if (empty($proveedorEmail) || !filter_var($proveedorEmail, FILTER_VALIDATE_EMAIL)) {
                     //throw new Exception("El correo electrónico del proveedor está vacío o no es válido");
                 //}
-                if (empty($proveedorFechaRegistro) || !Utils::validar_fecha($proveedorFechaRegistro)) {
+                if (empty($proveedorFechaRegistro) || !Utils::validarFecha($proveedorFechaRegistro)) {
                     throw new Exception("La fecha de registro del proveedor está vacía o no es válida");
                 }
 

@@ -15,7 +15,7 @@
                 $errors[] = "El precio unitaro debe ser un valor positivo";
             }
         }
-        if (empty($fecha) || !Utils::validar_fecha($fecha)) {
+        if (empty($fecha) || !Utils::validarFecha($fecha)) {
             $errors[] = "El campo 'Fecha de adquisicion' no es válido.";
         }
         if(empty($cantidad) || $cantidad < 0){

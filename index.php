@@ -22,3 +22,20 @@
         </ul>
     </body>
 </html>
+
+<!-- NO TOCAR ESTO -->
+
+<?php
+
+    // include_once "utils/Utils.php";
+    // $code = '200456789012';
+
+    // $barcode = Utils::generateEAN13Barcode($code);
+?>
+
+<!-- <div style="display: flex; flex-direction: column; width: 190px; align-items: center; border: 3px solid black; padding: 20px; border-radius: 5px;">
+    <?php 
+        // echo '<img src="data:image/png;base64,'.base64_encode($barcode['png']).'">';
+        // echo '<span style="font-family: Cascadia Mono; font-size: 18px; letter-spacing: 3px;">' . $barcode['barcode'] . '</span>';            
+    ?>
+</div> -->

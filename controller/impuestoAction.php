@@ -12,7 +12,7 @@
         if (!is_numeric($valor) || $valor <= '0') {
             $errors[] = "El campo 'Valor' tiene que ser mayor a 0.";
         }
-        if (empty($fecha) || !Utils::validar_fecha($fecha)) {
+        if (empty($fecha) || !Utils::validarFecha($fecha)) {
             $errors[] = "El campo 'Fecha Vigencia' no es válido.";
         }
 

@@ -14,7 +14,7 @@
             $errors[] = "El campo 'Correo Electrónico' no es válido.";
         }
         
-        if (empty($fecha) || !Utils::validar_fecha($fecha)) {
+        if (empty($fecha) || !Utils::validarFecha($fecha)) {
             $errors[] = "El campo 'Fecha de Registro' no es válido.";
         }
 

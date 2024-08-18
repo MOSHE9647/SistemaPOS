@@ -83,7 +83,7 @@
 				if (empty($impuestoValor)) {
 					throw new Exception("El valor del impuesto está vacío");
 				}
-				if (empty($impuestoFechaVigencia) || !Utils::validar_fecha($impuestoFechaVigencia)) {
+				if (empty($impuestoFechaVigencia) || !Utils::validarFecha($impuestoFechaVigencia)) {
 					throw new Exception("La fecha de vigencia del impuesto está vacía o no es válida");
 				}
 
@@ -315,7 +315,7 @@
 				if (empty($impuestoValor)) {
 					throw new Exception("El valor del impuesto está vacío");
 				}
-				if (empty($impuestoFechaVigencia) || !Utils::validar_fecha($impuestoFechaVigencia)) {
+				if (empty($impuestoFechaVigencia) || !Utils::validarFecha($impuestoFechaVigencia)) {
 					throw new Exception("La fecha de vigencia del impuesto está vacía o no es válida");
 				}
 
