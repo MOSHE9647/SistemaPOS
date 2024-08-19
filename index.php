@@ -22,4 +22,4 @@
             <li> <a href="./view/categoriaView.php">Gestion de Categorias</a> </li>
         </ul>
     </body>
-</html>
+</html> 
