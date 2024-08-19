@@ -51,6 +51,12 @@
 	define('PRODUCTO_ESTADO','productoestado');
 
 
+	// TABLA 'tbCategoria'
+	define('TB_CATEGORIA', 'tbcategoria'); //<- Nombre de la Tabla
+	define('CATEGORIA_ID', 'categoriaid');
+	define('CATEGORIA_NOMBRE', 'categorianombre');
+	define('CATEGORIA_ESTADO', 'categoriaestado');
+
 	/*************** TABLAS INTERMEDIAS ***************/
 
 	// TABLA INTERMEDIA PARA Proveedor Y Direccion 'tbProveedorDireccion'
