@@ -10,10 +10,10 @@ class Lote {
     private $proveedorID;
     private $loteFechaIngreso;
     private $loteFechaVencimiento;
-    private $loteFechaCreacion;
     private $loteEstado;
 
-    function __construct($loteCodigo, $productoID, $loteCantidad, $lotePrecio, $proveedorID, $loteFechaIngreso, $loteFechaVencimiento, $loteID = 0, $loteFechaCreacion = null, $loteEstado = true) {
+    function __construct($loteID = 0, $loteCodigo = "", $productoID, $loteCantidad, $lotePrecio, $proveedorID,
+     $loteFechaIngreso, $loteFechaVencimiento, $loteEstado = true) {
         $this->loteID = $loteID;
         $this->loteCodigo = $loteCodigo;
         $this->productoID = $productoID;
@@ -22,7 +22,6 @@ class Lote {
         $this->proveedorID = $proveedorID;
         $this->loteFechaIngreso = $loteFechaIngreso;
         $this->loteFechaVencimiento = $loteFechaVencimiento;
-        $this->loteFechaCreacion = $loteFechaCreacion;
         $this->loteEstado = $loteEstado;
     }
 
@@ -34,7 +33,6 @@ class Lote {
     function getProveedorID() { return $this->proveedorID; }
     function getLoteFechaIngreso() { return $this->loteFechaIngreso; }
     function getLoteFechaVencimiento() { return $this->loteFechaVencimiento; }
-    function getLoteFechaCreacion() { return $this->loteFechaCreacion; }
     function getLoteEstado() { return $this->loteEstado; }
 
     function setLoteID($loteID) { $this->loteID = $loteID; }
@@ -45,7 +43,6 @@ class Lote {
     function setProveedorID($proveedorID) { $this->proveedorID = $proveedorID; }
     function setLoteFechaIngreso($loteFechaIngreso) { $this->loteFechaIngreso = $loteFechaIngreso; }
     function setLoteFechaVencimiento($loteFechaVencimiento) { $this->loteFechaVencimiento = $loteFechaVencimiento; }
-    function setLoteFechaCreacion($loteFechaCreacion) { $this->loteFechaCreacion = $loteFechaCreacion; }
     function setLoteEstado($loteEstado) { $this->loteEstado = $loteEstado; }
 
     // Implementación del método __toString
@@ -58,7 +55,6 @@ class Lote {
                "Proveedor ID: " . $this->proveedorID . "\n" .
                "Fecha de Ingreso: " . $this->loteFechaIngreso . "\n" .
                "Fecha de Vencimiento: " . $this->loteFechaVencimiento . "\n" .
-               "Fecha de Creación: " . $this->loteFechaCreacion . "\n" .
                "Estado: " . ($this->loteEstado ? "Activo" : "Inactivo") . "\n";
     }
 }
