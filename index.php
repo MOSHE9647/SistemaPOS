@@ -26,6 +26,7 @@
             <li> <a href="./view/direccionView.php">Gestion de Direcciones</a> </li>
             <li> <a href="./view/productoView.php">Gestión de Productos</a> </li>
             <li> <a href="./view/proveedorTelefonoView.php">Gestión de Telefonos</a> </li>
+            <li> <a href="./view/loteView.php">Gestión de lotes</a> </li>
             <li> <a href="./view/categoriaView.php">Gestion de Categorias</a> </li>
             <li> <a href="" onclick="printBarcodes(10)">Imprimir Códigos de Barras</a> </li>
         </ul>
