@@ -34,7 +34,7 @@
                     $types .= 'i';
                 } elseif ($proveedorNombre !== null && $proveedorEmail !== null) {
                     // Verificar existencia por nombre y email
-                    $queryCheck .= PROVEEDOR_NOMBRE . " = ? AND (" . PROVEEDOR_EMAIL . " = ? AND " . PROVEEDOR_ESTADO . " != false)";
+                    $queryCheck .= PROVEEDOR_NOMBRE . " = ? OR (" . PROVEEDOR_EMAIL . " = ? AND " . PROVEEDOR_ESTADO . " != false)";
                     $params[] = $proveedorNombre;
                     $params[] = $proveedorEmail;
                     $types .= 'ss';
@@ -87,7 +87,7 @@
                     return $check; // Error al verificar la existencia
                 }
                 if ($check["exists"]) {
-                    Utils::writeLog("El proveedor [$proveedorNombre] ya existe en la base de datos.", DATA_LOG_FILE);
+                    Utils::writeLog("El proveedor 'Nombre [$proveedorNombre], Correo [$proveedorEmail]' ya existe en la base de datos.", DATA_LOG_FILE);
 					throw new Exception("Ya existe un proveedor con el mismo nombre o correo electrónico.");
                 }
         
@@ -153,6 +153,14 @@
             try {
                 // Obtener el ID del proveedor
                 $proveedorID = $proveedor->getProveedorID();
+
+                // Obtener el Nombre y el Email del proveedor
+                $proveedorNombre = $proveedor->getProveedorNombre(); 
+                $proveedorEmail = $proveedor->getProveedorEmail();
+
+                // Obtener demás datos del objeto
+                $proveedorTipo = $proveedor->getProveedorTipo();             
+                $proveedorFechaRegistro = $proveedor->getProveedorFechaRegistro();
         
                 // Verifica si el proveedor ya existe
                 $check = $this->proveedorExiste($proveedorID);
@@ -160,8 +168,18 @@
                     return $check; // Error al verificar la existencia
                 }
                 if (!$check["exists"]) {
-                    Utils::writeLog("El proveedor con ID [$proveedorID] no existe en la base de datos.", DATA_LOG_FILE);
+                    Utils::writeLog("El proveedor con 'ID [$proveedorID]' no existe en la base de datos.", DATA_LOG_FILE);
 					throw new Exception("No existe ningún proveedor en la base de datos que coincida con la información proporcionada.");
+                }
+
+                // Verifica que no exista un proveedor con el mismo nombre o email
+                $check = $this->proveedorExiste(null, $proveedorNombre, $proveedorEmail);
+                if (!$check["success"]) {
+                    return $check; // Error al verificar la existencia
+                }
+                if ($check["exists"]) {
+                    Utils::writeLog("El proveedor 'Nombre [$proveedorNombre], Correo [$proveedorEmail]' ya existe en la base de datos.", DATA_LOG_FILE);
+					throw new Exception("Ya existe un proveedor con el mismo nombre o correo electrónico.");
                 }
 
                 // Establece una conexion con la base de datos
@@ -182,12 +200,6 @@
                         PROVEEDOR_FECHA_REGISTRO . " = ? " . 
                     "WHERE " . PROVEEDOR_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
-
-                // Obtener los valores de las propiedades del objeto
-                $proveedorNombre = $proveedor->getProveedorNombre(); 
-                $proveedorEmail = $proveedor->getProveedorEmail();
-                $proveedorTipo = $proveedor->getProveedorTipo();             
-                $proveedorFechaRegistro = $proveedor->getProveedorFechaRegistro();
 
                 mysqli_stmt_bind_param(
                     $stmt,
