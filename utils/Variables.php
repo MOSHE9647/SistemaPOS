@@ -51,13 +51,25 @@
 	define('PRODUCTO_CODIGO_BARRAS','productocodigobarras');
 	define('PRODUCTO_ESTADO','productoestado');
 
-
 	// TABLA 'tbCategoria'
 	define('TB_CATEGORIA', 'tbcategoria'); //<- Nombre de la Tabla
 	define('CATEGORIA_ID', 'categoriaid');
 	define('CATEGORIA_NOMBRE', 'categorianombre');
 	define('CATEGORIA_ESTADO', 'categoriaestado');
 
+	//Tabla 'tbsubcategoria'
+	define('TB_SUBCATEGORIA','tbsubcategoria');
+	define('SUBCATEGORIA_ID','tbsubcategoriaid');
+	define('SUBCATEGORIA_NOMBRE','tbsubcategorianombre');
+	define('SUBCATEGORIA_ESTADO','tbsubcategoriaestado');
+
+	//Tabla 'tbproductosubcategoria'
+	define('TB_PRODUCTO_SUBCATEGORIA','tbproductosubcategoria');
+	define('PRODUCTO_SUBCATEGORIA_ID','productosubcategoriaid');
+	define('PRODUCTO_SUBCATEGORIA_PRODUCTO_ID','productoid');
+	define('PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID','subcategoriaid');
+	define('PRODUCTO_SUBCATEGORIA_ESTADO','productocategoriaestado');
+		
 	/*************** TABLAS INTERMEDIAS ***************/
 
 	// TABLA INTERMEDIA PARA Producto y Categoria 'tbProductoCategoria'
