@@ -52,7 +52,19 @@
 	define('PRODUCTO_ESTADO','productoestado');
 
 
+	// TABLA 'tbCategoria'
+	define('TB_CATEGORIA', 'tbcategoria'); //<- Nombre de la Tabla
+	define('CATEGORIA_ID', 'categoriaid');
+	define('CATEGORIA_NOMBRE', 'categorianombre');
+	define('CATEGORIA_ESTADO', 'categoriaestado');
+
 	/*************** TABLAS INTERMEDIAS ***************/
+
+	// TABLA INTERMEDIA PARA Producto y Categoria 'tbProductoCategoria'
+define('TB_PRODUCTO_CATEGORIA', 'tbproductocategoria'); //<- Nombre de la Tabla
+define('PRODUCTO_ID_FK', 'productoid'); //<- ID del producto
+define('CATEGORIA_ID_FK', 'categoriaid'); //<- ID de la categoría
+define('PRODUCTO_CATEGORIA_ESTADO', 'productocategoriaestado');
 
 	// TABLA INTERMEDIA PARA Proveedor Y Direccion 'tbProveedorDireccion'
 	define('TB_PROVEEDOR_DIRECCION', 'tbproveedordireccion'); //<- Nombre de la Tabla
