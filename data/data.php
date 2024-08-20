@@ -186,8 +186,11 @@
                 case 2002:
                     $userMessage = "No se puede conectar al servidor de la base de datos. Verifique la dirección del servidor.";
                     break;
+                case 0:
+                    $userMessage = $errorMessage;
+                    break;
                 default:
-                    $userMessage = "Ocurrió un error desconocido al intentar conectar a la base de datos.";
+                    $userMessage = "Ocurrió un error desconocido al intentar comunicarse con la base de datos.";
             }
             
             Utils::writeLog("$logMessage (Código: $errorCode): $errorMessage", DATA_LOG_FILE);

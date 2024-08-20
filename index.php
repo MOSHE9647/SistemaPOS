@@ -10,6 +10,13 @@
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }
         </style>
+
+        <script>
+            function printBarcodes(count) {
+                const url = `/test/print_barcodes.php?count=${count}`;
+                window.open(url, '_blank', 'width=800,height=600');
+            }
+        </script>
     </head>
     <body>
         <h2>Administración de CRUDS <?php //echo gethostname() ?></h2>
@@ -19,25 +26,13 @@
             <li> <a href="./view/direccionView.php">Gestion de Direcciones</a> </li>
             <li> <a href="./view/productoView.php">Gestión de Productos</a> </li>
             <li> <a href="./view/proveedorTelefonoView.php">Gestión de Telefonos</a> </li>
+<<<<<<< HEAD
             <li> <a href="./view/proveedorProductoView.php">Gestión Proveedor-Producto</a> </li>
 
+=======
+            <li> <a href="./view/categoriaView.php">Gestion de Categorias</a> </li>
+            <li> <a href="" onclick="printBarcodes(10)">Imprimir Códigos de Barras</a> </li>
+>>>>>>> 92ad0996cbe8ce16a2831d413ee43e86bd26bf84
         </ul>
     </body>
 </html>
-
-<!-- NO TOCAR ESTO -->
-
-<?php
-
-    // include_once "utils/Utils.php";
-    // $code = '200456789012';
-
-    // $barcode = Utils::generateEAN13Barcode($code);
-?>
-
-<!-- <div style="display: flex; flex-direction: column; width: 190px; align-items: center; border: 3px solid black; padding: 20px; border-radius: 5px;">
-    <?php 
-        // echo '<img src="data:image/png;base64,'.base64_encode($barcode['png']).'">';
-        // echo '<span style="font-family: Cascadia Mono; font-size: 18px; letter-spacing: 3px;">' . $barcode['barcode'] . '</span>';            
-    ?>
-</div> -->

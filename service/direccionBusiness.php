@@ -30,19 +30,19 @@
                 if ($validarCamposAdicionales) {
                     if ($provincia === null || empty($provincia) || is_numeric($provincia)) {
                         $errors[] = "El campo 'Provincia' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Provincia [$provincia]' no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("[Direccion] El campo 'Provincia [$provincia]' no es válido.", BUSINESS_LOG_FILE);
                     }
                     if ($canton === null || empty($canton) || is_numeric($canton)) {
                         $errors[] = "El campo 'Cantón' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Cantón [$canton]' no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("[Direccion] El campo 'Cantón [$canton]' no es válido.", BUSINESS_LOG_FILE);
                     }
                     if ($distrito === null || empty($distrito) || is_numeric($distrito)) {
                         $errors[] = "El campo 'Distrito' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Distrito [$distrito]' no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("[Direccion] El campo 'Distrito [$distrito]' no es válido.", BUSINESS_LOG_FILE);
                     }
-                    if ($distancia === null || empty($distancia) || !is_numeric($distancia)) {
-                        $errors[] = "El campo 'Distancia' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Distancia [$distancia]' no es válido.", BUSINESS_LOG_FILE);
+                    if ($distancia === null || empty($distancia) || !is_numeric($distancia) || $distancia <= 0) {
+                        $errors[] = "El campo 'Distancia' está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
+                        Utils::writeLog("[Direccion] El campo 'Distancia [$distancia]' no es válido.", BUSINESS_LOG_FILE);
                     }
                 }
         
@@ -77,7 +77,15 @@
             return $this->direccionData->updateDireccion($direccion);
         }
 
-        public function deleteTBDireccion($direccionID) {
+        public function deleteTBDireccion($direccion) {
+            // Verifica que los datos de la direcion sean validos
+            $check = $this->validarDireccion($direccion, false);
+            if (!$check["is_valid"]) {
+                return ["success" => $check["is_valid"], "message" => $check["message"]];
+            }
+
+            $direccionID = $direccion->getDireccionID(); //<- Obtenemos el ID verificado de la Direccion
+            unset($direccion); //<- Eliminamos el objeto para no ocupar espacio en memoria (en caso de ser necesario)
             return $this->direccionData->deleteDireccion($direccionID);
         }
 

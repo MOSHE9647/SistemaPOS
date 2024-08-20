@@ -48,22 +48,26 @@ function makeRowEditable(row) {
     const cells = row.querySelectorAll('td');
     const lastCellIndex = cells.length - 1;
 
+    const fieldHandlers = {
+        'barrio': (value) => `<input type="text" value="${value}">`,
+        'sennas': (value) => `<input type="text" value="${value}">`,
+        'distancia': (value) => {
+            const formattedValue = parseFloat(value).toFixed(2);
+            return `<input type="number" value="${formattedValue}" min="0" step="0.01" required>`;
+        }
+    };
+
     cells.forEach((cell, index) => {
         const value = cell.innerText.trim();
         const field = cell.dataset.field;
 
         if (index < lastCellIndex) {
-            if (field === 'barrio' || field === 'sennas') {
-                cell.innerHTML = `<input type="text" value="${value}">`;
-            } else if (field === 'distancia') {
-                cell.innerHTML = `<input type="number" value="${parseFloat(value).toFixed(2)}" min="0" step="0.01" required>`;
-            } else {
-                cell.innerHTML = `
-                    <select data-field="${field}" id="${field}-select" required>
-                        <option value="${value}">${value}</option>
-                    </select>
-                `;
-            }
+            const handler = fieldHandlers[field] || ((v) => `
+                <select data-field="${field}" id="${field}-select" required>
+                    <option value="${v}">${v}</option>
+                </select>
+            `);
+            cell.innerHTML = handler(value);
         } else {
             cell.innerHTML = `
                 <button onclick="updateDireccion(${row.dataset.id})">Guardar</button>

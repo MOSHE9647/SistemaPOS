@@ -13,7 +13,7 @@
 		}
 
 		// Función para verificar si un impuesto con el mismo nombre ya existe en la bd
-		public function impuestoExiste($impuestoID = null, $impuestoNombre = null, $impuestoFecha = null) {
+		private function impuestoExiste($impuestoID = null, $impuestoNombre = null, $impuestoFecha = null) {
 			try {
 				// Establece una conexión con la base de datos
 				$result = $this->getConnection();
@@ -39,13 +39,11 @@
 					$params[] = $impuestoFecha;
 					$types .= 'ss';
 				} else {
-					throw new Exception("Se requiere al menos un parámetro: impuestoID o impuestoNombre y impuestoFecha");
+					$message = "No se proporcionaron los parámetros necesarios para verificar la existencia del impuesto";
+					Utils::writeLog("$message. Parámetros: 'impuestoID [$impuestoID]', 'impuestoNombre [$impuestoNombre]', 'impuestoFecha [$impuestoFecha]'", DATA_LOG_FILE);
+					throw new Exception($message);
 				}
-				
 				$stmt = mysqli_prepare($conn, $queryCheck);
-				if (!$stmt) {
-					throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
-				}
 				
 				// Asignar los parámetros y ejecutar la consulta
 				mysqli_stmt_bind_param($stmt, $types, ...$params);
@@ -59,8 +57,15 @@
 		
 				return ["success" => true, "exists" => false];
 			} catch (Exception $e) {
-				// Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
+				// Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al verificar la existencia del impuesto en la base de datos'
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
 			} finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
@@ -76,29 +81,14 @@
 				$impuestoDescripcion = $impuesto->getImpuestoDescripcion();
 				$impuestoFechaVigencia = $impuesto->getImpuestoFechaVigencia();
 		
-				// Verifica que las propiedades no estén vacías
-				if (empty($impuestoNombre)) {
-					throw new Exception("El nombre del impuesto está vacío");
-				}
-				if (empty($impuestoValor)) {
-					throw new Exception("El valor del impuesto está vacío");
-				}
-				if (empty($impuestoFechaVigencia) || !Utils::validarFecha($impuestoFechaVigencia)) {
-					throw new Exception("La fecha de vigencia del impuesto está vacía o no es válida");
-				}
-
-				// Verificar si la fecha de vigencia es menor o igual a la de hoy
-				if (!Utils::fechaMenorOIgualAHoy($impuestoFechaVigencia)) {
-					throw new Exception("La fecha de vigencia debe ser menor o igual a la fecha actual");
-				}
-		
 				// Verifica si el impuesto ya existe
 				$check = $this->impuestoExiste(null, $impuestoNombre, $impuestoFechaVigencia);
 				if (!$check["success"]) {
 					return $check; // Error al verificar la existencia
 				}
 				if ($check["exists"]) {
-					throw new Exception("Ya existe un impuesto con el mismo nombre o fecha de vigencia");
+					Utils::writeLog("El impuesto [$impuestoNombre] ya existe en la base de datos.", DATA_LOG_FILE);
+					throw new Exception("Ya existe un impuesto con el mismo nombre o fecha de vigencia.");
 				}
 		
 				// Establece una conexión con la base de datos
@@ -111,9 +101,6 @@
 				// Obtenemos el último ID de la tabla tbimpuesto
 				$queryGetLastId = "SELECT MAX(" . IMPUESTO_ID . ") AS impuestoID FROM " . TB_IMPUESTO;
 				$idCont = mysqli_query($conn, $queryGetLastId);
-				if (!$idCont) {
-					throw new Exception("Error al ejecutar la consulta");
-				}
 				$nextId = 1;
 		
 				// Calcula el siguiente ID para la nueva entrada
@@ -131,10 +118,8 @@
                     . IMPUESTO_FECHA_VIGENCIA
                     . ") VALUES (?, ?, ?, ?, true, ?)";
 				$stmt = mysqli_prepare($conn, $queryInsert);
-				if (!$stmt) {
-					throw new Exception("Error al preparar la consulta");
-				}
 		
+				// Asigna los valores a cada '?' de la consulta
 				mysqli_stmt_bind_param(
 					$stmt,
 					'issss', // i: Entero, s: Cadena
@@ -147,20 +132,141 @@
 		
 				// Ejecuta la consulta de inserción
 				$result = mysqli_stmt_execute($stmt);
-				if (!$result) {
-					throw new Exception("Error al insertar el impuesto");
-				}
-		
 				return ["success" => true, "message" => "Impuesto insertado exitosamente"];
 			} catch (Exception $e) {
-				// Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
+				// Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al insertar el impuesto en la base de datos'
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
 			} finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
 				if (isset($conn)) { mysqli_close($conn); }
 			}
-		}		
+		}
+
+		public function updateImpuesto($impuesto) {
+			try {
+				// Obtener el ID del impuesto
+				$impuestoID = $impuesto->getImpuestoID();
+
+				// Verifica si el impuesto existe en la base de datos
+				$check = $this->impuestoExiste($impuestoID);
+				if (!$check["success"]) {
+					return $check; // Error al verificar la existencia
+				}
+				if (!$check["exists"]) {
+					Utils::writeLog("El impuesto con ID [$impuestoID] no existe en la base de datos.", DATA_LOG_FILE);
+					throw new Exception("No existe ningún impuesto en la base de datos que coincida con la información proporcionada.");
+				}
+		
+				// Establece una conexion con la base de datos
+				$result = $this->getConnection();
+				if (!$result["success"]) {
+					throw new Exception($result["message"]);
+				}
+				$conn = $result["connection"];
+
+				// Crea una consulta y un statement SQL para actualizar el registro
+				$queryUpdate = 
+					"UPDATE " . TB_IMPUESTO . 
+					" SET " . 
+						IMPUESTO_NOMBRE . " = ?, " . 
+						IMPUESTO_VALOR . " = ?, " .
+						IMPUESTO_DESCRIPCION . " = ?, " .
+						IMPUESTO_ESTADO . " = true, " .
+						IMPUESTO_FECHA_VIGENCIA . " = ? " .
+					"WHERE " . IMPUESTO_ID . " = ?";
+				$stmt = mysqli_prepare($conn, $queryUpdate);
+
+				// Obtener los valores de las propiedades del objeto
+				$impuestoNombre = $impuesto->getImpuestoNombre();
+				$impuestoValor = $impuesto->getImpuestoValor();
+				$impuestoDescripcion = $impuesto->getImpuestoDescripcion();
+				$impuestoFechaVigencia = $impuesto->getImpuestoFechaVigencia();
+
+				mysqli_stmt_bind_param(
+					$stmt,
+					'ssssi', // s: Cadena, i: Entero
+					$impuestoNombre,
+					$impuestoValor,
+					$impuestoDescripcion,
+					$impuestoFechaVigencia,
+					$impuestoID
+				);
+
+				// Ejecuta la consulta de actualización
+				$result = mysqli_stmt_execute($stmt);
+
+				// Devuelve el resultado de la consulta
+				return ["success" => true, "message" => "Impuesto actualizado exitosamente"];
+			} catch (Exception $e) {
+				// Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al actualizar el impuesto en la base de datos'
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+			} finally {
+				// Cierra la conexión y el statement
+				if (isset($stmt)) { mysqli_stmt_close($stmt); }
+				if (isset($conn)) { mysqli_close($conn); }
+			}
+		}
+
+		public function deleteImpuesto($impuestoID) {
+			try {
+				// Verificar si existe el ID y que el Estado no sea false
+				$check = $this->impuestoExiste($impuestoID);
+				if (!$check["success"]) {
+					return $check; // Error al verificar la existencia
+				}
+				if (!$check["exists"]) {
+					Utils::writeLog("El impuesto con ID [$impuestoID] no existe en la base de datos.", DATA_LOG_FILE);
+					throw new Exception("No existe ningún impuesto en la base de datos que coincida con la información proporcionada.");
+				}
+		
+				// Establece una conexion con la base de datos
+				$result = $this->getConnection();
+				if (!$result["success"]) {
+					throw new Exception($result["message"]);
+				}
+				$conn = $result["connection"];
+		
+				// Crea una consulta y un statement SQL para eliminar el registro (borrado logico)
+				$queryDelete = "UPDATE " . TB_IMPUESTO . " SET " . IMPUESTO_ESTADO . " = false WHERE " . IMPUESTO_ID . " = ?";
+				$stmt = mysqli_prepare($conn, $queryDelete);
+				mysqli_stmt_bind_param($stmt, 'i', $impuestoID);
+		
+				// Ejecuta la consulta de eliminación
+				$result = mysqli_stmt_execute($stmt);
+		
+				// Devuelve el resultado de la operación
+				return ["success" => true, "message" => "Impuesto eliminado exitosamente."];
+			} catch (Exception $e) {
+				// Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al eliminar el impuesto de la base de datos'
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+			} finally {
+				// Cierra la conexión y el statement
+				if (isset($stmt)) { mysqli_stmt_close($stmt); }
+				if (isset($conn)) { mysqli_close($conn); }
+			}
+		}
 
 		public function getAllTBImpuesto() {
 			try {
@@ -174,11 +280,6 @@
 				// Obtenemos la lista de Impuestos
 				$querySelect = "SELECT * FROM " . TB_IMPUESTO . " WHERE " . IMPUESTO_ESTADO . " != false ";
 				$result = mysqli_query($conn, $querySelect);
-
-				// Verificamos si ocurrió un error
-				if (!$result) {
-					throw new Exception("Ocurrió un error al obtener la información de la base de datos: " . mysqli_error($conn));
-				}
 
 				// Creamos la lista con los datos obtenidos
 				$listaImpuestos = [];
@@ -195,13 +296,18 @@
 				}
 				return ["success" => true, "listaImpuestos" => $listaImpuestos];
 			} catch (Exception $e) {
-				// Devuleve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
+				// Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al obtener la lista de impuestos desde la base de datos'
+                );
+
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
 			} finally {
 				// Cerramos la conexion
-				if (isset($conn)) {
-					mysqli_close($conn);
-				}
+				if (isset($conn)) { mysqli_close($conn); }
 			}
 		}
 
@@ -226,11 +332,8 @@
 				// Consultar el total de registros
                 $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_IMPUESTO . " WHERE " . IMPUESTO_ESTADO . " != false";
                 $totalResult = mysqli_query($conn, $queryTotalCount);
-                if (!$totalResult) {
-                    throw new Exception("Error al obtener el conteo total de registros: " . mysqli_error($conn));
-                }
                 $totalRow = mysqli_fetch_assoc($totalResult);
-                $totalRecords = (int)$totalRow['total'];
+                $totalRecords = (int) $totalRow['total'];
                 $totalPages = ceil($totalRecords / $size);
 
 				// Construir la consulta SQL para paginación
@@ -244,27 +347,17 @@
 				// Añadir la cláusula de limitación y offset
                 $querySelect .= "LIMIT ? OFFSET ?";
 
-				// Preparar la consulta
+				// Preparar la consulta y vincular los parámetros
                 $stmt = mysqli_prepare($conn, $querySelect);
-                if (!$stmt) {
-                    throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
-                }
-        
-                // Vincular los parámetros
                 mysqli_stmt_bind_param($stmt, "ii", $size, $offset);
 
 				// Ejecutar la consulta
                 $result = mysqli_stmt_execute($stmt);
-                if (!$result) {
-                    throw new Exception("Error al ejecutar la consulta: " . mysqli_error($conn));
-                }
 
 				// Obtener el resultado
                 $result = mysqli_stmt_get_result($stmt);
-                if (!$result) {
-                    throw new Exception("Error al obtener el resultado: " . mysqli_error($conn));
-                }
 
+				// Crear la lista con los datos obtenidos
 				$listaImpuestos = [];
 				while ($row = mysqli_fetch_assoc($result)) {
 					$listaImpuestos[] = [
@@ -287,136 +380,20 @@
                     "listaImpuestos" => $listaImpuestos
                 ];
 			} catch (Exception $e) {
-				// Devolver el mensaje de error
-                return ["success" => false, "message" => $e->getMessage()];
+				// Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al obtener la lista de impuestos desde la base de datos'
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
             } finally {
                 // Cerrar la conexión y el statement
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if (isset($conn)) { mysqli_close($conn); }
             }
-		}
-
-		public function updateImpuesto($impuesto) {
-			try {
-				// Obtener los valores de las propiedades del objeto
-				$impuestoID = $impuesto->getImpuestoID();
-				$impuestoNombre = $impuesto->getImpuestoNombre();
-				$impuestoValor = $impuesto->getImpuestoValor();
-				$impuestoDescripcion = $impuesto->getImpuestoDescripcion();
-				$impuestoFechaVigencia = $impuesto->getImpuestoFechaVigencia();
-		
-				// Verifica que las propiedades no estén vacías
-				if (empty($impuestoID) || !is_numeric($impuestoID)) {
-					throw new Exception("No se encontró el ID del Impuesto o este no es válido");
-				}
-				if (empty($impuestoNombre)) {
-					throw new Exception("El nombre del impuesto está vacío");
-				}
-				if (empty($impuestoValor)) {
-					throw new Exception("El valor del impuesto está vacío");
-				}
-				if (empty($impuestoFechaVigencia) || !Utils::validarFecha($impuestoFechaVigencia)) {
-					throw new Exception("La fecha de vigencia del impuesto está vacía o no es válida");
-				}
-
-				// Establece una conexion con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) {
-					throw new Exception($result["message"]);
-				}
-				$conn = $result["connection"];
-
-				// Crea una consulta y un statement SQL para actualizar el registro
-				$queryUpdate = 
-					"UPDATE " . TB_IMPUESTO . 
-					" SET " . 
-						IMPUESTO_NOMBRE . " = ?, " . 
-						IMPUESTO_VALOR . " = ?, " .
-						IMPUESTO_DESCRIPCION . " = ?, " .
-						IMPUESTO_ESTADO . " = true, " .
-						IMPUESTO_FECHA_VIGENCIA . " = ? " .
-					"WHERE " . IMPUESTO_ID . " = ?";
-				$stmt = mysqli_prepare($conn, $queryUpdate);
-				if (!$stmt) {
-					throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
-				}
-
-				mysqli_stmt_bind_param(
-					$stmt,
-					'ssssi', // s: Cadena, i: Entero
-					$impuestoNombre,
-					$impuestoValor,
-					$impuestoDescripcion,
-					$impuestoFechaVigencia,
-					$impuestoID
-				);
-
-				// Ejecuta la consulta de actualización
-				$result = mysqli_stmt_execute($stmt);
-				if (!$result) {
-					throw new Exception("Error al actualizar el impuesto: " . mysqli_error($conn));
-				}
-
-				// Devuelve el resultado de la consulta
-				return ["success" => true, "message" => "Impuesto actualizado exitosamente"];
-			} catch (Exception $e) {
-				// Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
-			} finally {
-				// Cierra la conexión y el statement
-				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
-			}
-		}
-
-		public function deleteImpuesto($impuestoID) {
-			try {
-				// Verifica que el ID del impuesto no esté vacío y sea numérico
-				if (empty($impuestoID) || !is_numeric($impuestoID)) {
-					throw new Exception("ID de impuesto inválido.");
-				}
-				
-				// Verificar si existe el ID y que el Estado no sea false
-				$check = $this->impuestoExiste($impuestoID);
-				if (!$check["success"]) {
-					return $check; // Error al verificar la existencia
-				}
-				if (!$check["exists"]) {
-					throw new Exception("No se encontró un impuesto con el ID [" . $impuestoID . "]");
-				}
-		
-				// Establece una conexion con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) {
-					throw new Exception($result["message"]);
-				}
-				$conn = $result["connection"];
-		
-				// Crea una consulta y un statement SQL para eliminar el registro (borrado logico)
-				$queryDelete = "UPDATE " . TB_IMPUESTO . " SET " . IMPUESTO_ESTADO . " = false WHERE " . IMPUESTO_ID . " = ?";
-				$stmt = mysqli_prepare($conn, $queryDelete);
-				if (!$stmt) {
-					throw new Exception("Error al preparar la consulta de eliminación: " . mysqli_error($conn));
-				}
-		
-				mysqli_stmt_bind_param($stmt, 'i', $impuestoID);
-		
-				// Ejecuta la consulta de eliminación
-				$result = mysqli_stmt_execute($stmt);
-				if (!$result) {
-					throw new Exception("Error al eliminar el impuesto: " . mysqli_error($conn));
-				}
-		
-				// Devuelve el resultado de la operación
-				return ["success" => true, "message" => "Impuesto eliminado exitosamente."];
-			} catch (Exception $e) {
-				// Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
-			} finally {
-				// Cierra la conexión y el statement
-				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
-			}
 		}
 		
 	}
