@@ -4,7 +4,7 @@
         
         private $proveedorID;
         private $proveedorNombre;
-        private $proveedorEmail; 
+        private $proveedorEmail;
         private $proveedorTipo;
         private $proveedorEstado;
         private $proveedorFechaRegistro;

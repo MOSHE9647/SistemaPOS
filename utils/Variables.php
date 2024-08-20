@@ -64,4 +64,12 @@
     define('PROVEEDOR_TELEFONO_ID', 'proveedortelefonoid');
     define('PROVEEDOR_TELEFONO', 'proveedortelefono');
 
+	//TABLA INTERMEDIA PROVEEDOR-PRODUCTO
+    define('TB_PROVEEDOR_PRODUCTO', 'tbproveedorproducto'); // Nombre de la Tabla
+    define('PROVEEDOR_PRODUCTO_ID', 'proveedorproductoid'); // ID de la tabla proveedor-producto
+    //define('PROVEEDOR_ID', 'proveedorid'); // ID del proveedor
+    //define('PRODUCTO_ID', 'productoid'); // ID del producto
+
+
+
 ?>

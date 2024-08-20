@@ -1,7 +1,7 @@
 <?php
 
-    include_once "libs/barcode/BarcodeGenerator.php";
-    include_once "libs/barcode/BarcodeGeneratorPNG.php";
+    //include_once "libs/barcode/BarcodeGenerator.php";
+    //include_once "libs/barcode/BarcodeGeneratorPNG.php";
 
     class Utils {
 
