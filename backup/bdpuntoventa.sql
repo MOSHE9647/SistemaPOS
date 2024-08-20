@@ -254,3 +254,28 @@ ALTER TABLE `tblote`
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+-- Estructura de tabla para la tabla `tbproveedorproducto`
+--
+
+CREATE TABLE `tbproveedorproducto` (
+  `provedorproductoid` int(11) NOT NULL,
+  `proveedorid` int(11) NOT NULL,
+  `productoid` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Índices para tablas volcadas
+--
+
+--
+-- Indices de la tabla `tbproveedorproducto`
+--
+ALTER TABLE `tbproveedorproducto`
+  ADD PRIMARY KEY (`provedorproductoid`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
