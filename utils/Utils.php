@@ -1,15 +1,19 @@
 <?php
 
-    include_once "libs/barcode/BarcodeGenerator.php";
-    include_once "libs/barcode/BarcodeGeneratorPNG.php";
-
     class Utils {
 
         public static function writeLog($message, $logFile = 'utils-error.log') {
+            $logDir = __DIR__ . '/../logs/';
+            
+            // Verifica si la carpeta existe; si no, la crea
+            if (!is_dir($logDir)) {
+                mkdir($logDir, 0777, true); // Crea la carpeta con permisos 0777 y recursivamente
+            }
+        
             $date = date('Y-m-d H:i:s');
             $formattedMessage = "[$date] $message" . PHP_EOL;
-            file_put_contents(__DIR__ . '/../logs/' . $logFile, $formattedMessage, FILE_APPEND | LOCK_EX);
-        }
+            file_put_contents($logDir . $logFile, $formattedMessage, FILE_APPEND | LOCK_EX);
+        }        
 
         // Método estático para validar fecha
         public static function validarFecha($fecha) {
@@ -71,12 +75,8 @@
         
             // Construir el código EAN-13 completo
             $ean13 = $code . $check_digit;
-        
-            // Generar la representación gráfica del código de barras utilizando php-barcode
-            $barcodePNG = new BarcodeGeneratorPNG();
-            $barPNG = $barcodePNG->getBarcode($ean13, $barcodePNG::TYPE_EAN_13, 2, 60);
 
-            return ['barcode' => $ean13, 'png' => $barPNG];
+            return $ean13;
         }
 
     }

@@ -5,7 +5,7 @@
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Acción que se va a realizar
-        $accion = $_POST['accion'];
+        $accion = isset($_POST['accion']) ? $_POST['accion'] : "";
 
         // Datos recibidos en la solicitud (Form)
         $id = isset($_POST['id']) ? $_POST['id'] : 0;
@@ -14,7 +14,7 @@
         $distrito = isset($_POST['distrito']) ? $_POST['distrito'] : "";
         $barrio = isset($_POST['barrio']) ? $_POST['barrio'] : "";
         $sennas = isset($_POST['sennas']) ? $_POST['sennas'] : "";
-        $distancia = isset($_POST['distancia']) ? $_POST['distancia'] : "";
+        $distancia = isset($_POST['distancia']) ? $_POST['distancia'] : 0;
 
         // Se crea el Service para las operaciones
         $direccionBusiness = new DireccionBusiness();
@@ -35,8 +35,8 @@
                     $response = $direccionBusiness->updateTBDireccion($direccion);
                     break;
                 case 'eliminar':
-                    // Elimina la direccion de la base de datos (ID se verifica en validarDireccion)
-                    $response = $direccionBusiness->deleteTBDireccion($id);
+                    // Elimina la direccion de la base de datos
+                    $response = $direccionBusiness->deleteTBDireccion($direccion);
                     break;
                 default:
                     // Error en caso de que la accion no sea válida
