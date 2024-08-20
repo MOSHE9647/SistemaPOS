@@ -59,6 +59,12 @@
 
 	/*************** TABLAS INTERMEDIAS ***************/
 
+	// TABLA INTERMEDIA PARA Producto y Categoria 'tbProductoCategoria'
+define('TB_PRODUCTO_CATEGORIA', 'tbproductocategoria'); //<- Nombre de la Tabla
+define('PRODUCTO_ID_FK', 'productoid'); //<- ID del producto
+define('CATEGORIA_ID_FK', 'categoriaid'); //<- ID de la categoría
+define('PRODUCTO_CATEGORIA_ESTADO', 'productocategoriaestado');
+
 	// TABLA INTERMEDIA PARA Proveedor Y Direccion 'tbProveedorDireccion'
 	define('TB_PROVEEDOR_DIRECCION', 'tbproveedordireccion'); //<- Nombre de la Tabla
 	define('PROVEEDOR_DIRECCION_ESTADO', 'proveedordireccionestado');
