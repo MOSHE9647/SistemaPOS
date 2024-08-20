@@ -75,11 +75,8 @@
                  * Conexión con la base de datos
                  ************************************/
                 $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
+                if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
-        
                 /************************************
                  * Preparación de query para obtener
                  * los productos
@@ -293,6 +290,7 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
+
         function insertProducto($producto){
             try{
                 /***************************************
@@ -372,6 +370,7 @@
 				if (isset($conn)) { mysqli_close($conn); }
 			}
         }
+
         function deleteProducto($id){
             try {
                 /************************************
@@ -428,9 +427,57 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
-        function getProductoById(){
-
+        
+        function getProductoById($id){
+            try {
+                /************************************
+                 * Conexión con la base de datos
+                 ************************************/
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+                
+                /************************************
+                 * Preparación de query para obtener
+                 * el producto por ID
+                 ************************************/
+                $querySelect = "SELECT * FROM " . TB_PRODUCTO . " WHERE " . PRODUCTO_ID . " = ? AND " . PRODUCTO_ESTADO . " != false;";
+                $stmt = mysqli_prepare($conn, $querySelect);
+                if (!$stmt) { throw new Exception("Error al preparar la consulta");}
+        
+                // Vinculación de parámetros
+                mysqli_stmt_bind_param($stmt, 'i', $id);  // 'i' indica que el parámetro es un entero
+        
+                // Ejecución
+                mysqli_stmt_execute($stmt);
+        
+                // Obtención del resultado
+                $result = mysqli_stmt_get_result($stmt);
+        
+                // Verificación si se encontró algún producto
+                if ($row = mysqli_fetch_assoc($result)) {  // Usamos fetch_assoc para obtener un array asociativo
+                    $producto = new Producto(  
+                        $row[PRODUCTO_NOMBRE],
+                        $row[PRODUCTO_PRECIO_U],
+                        $row[PRODUCTO_CANTIDAD],
+                        $row[PRODUCTO_FECHA_ADQ],
+                        $row[PRODUCTO_ID],
+                        $row[PRODUCTO_DESCRIPCION],
+                        $row[PRODUCTO_ESTADO]
+                    );
+                    return ["success" => true, "producto" => $producto];
+                } else {
+                    return ["success" => false, "message" => "¡Producto no encontrado!"];
+                }
+            } catch (Exception $e) {
+                return ["success" => false, "message" => $e->getMessage()];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn)) { mysqli_close($conn); }
+            }
         }
+        
     }
 
 ?>

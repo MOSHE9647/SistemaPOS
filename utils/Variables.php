@@ -51,6 +51,19 @@
 	define('PRODUCTO_ESTADO','productoestado');
 
 
+	//Tabla 'tbsubcategoria'
+	define('TB_SUBCATEGORIA','tbsubcategoria');
+	define('SUBCATEGORIA_ID','tbsubcategoriaid');
+	define('SUBCATEGORIA_NOMBRE','tbsubcategorianombre');
+	define('SUBCATEGORIA_ESTADO','tbsubcategoriaestado');
+
+	//Tabla 'tbproductosubcategoria'
+	define('TB_PRODUCTO_SUBCATEGORIA','tbproductosubcategoria');
+	define('PRODUCTO_SUBCATEGORIA_ID','productosubcategoriaid');
+	define('PRODUCTO_SUBCATEGORIA_PRODUCTO_ID','productoid');
+	define('PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID','subcategoriaid');
+	define('PRODUCTO_SUBCATEGORIA_ESTADO','productocategoriaestado');
+		
 	/*************** TABLAS INTERMEDIAS ***************/
 
 	// TABLA INTERMEDIA PARA Proveedor Y Direccion 'tbProveedorDireccion'

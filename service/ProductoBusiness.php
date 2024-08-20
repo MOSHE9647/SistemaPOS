@@ -23,8 +23,8 @@
         function updateTBProducto($producto){
             return $this->ProductoData->updateProducto($producto);
         }
-        function getProductoByID(){
-            return $this->ProductoData->getProductoByID();
+        function getProductoByID($id){
+            return $this->ProductoData->getProductoByID($id);
         }
 
    }
