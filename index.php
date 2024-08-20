@@ -14,7 +14,7 @@
         <script>
             function printBarcodes(count) {
                 const url = `/test/print_barcodes.php?count=${count}`;
-                window.open(url, '_blank', 'width=800,height=600');
+                window.open(url, '_blank', 'width=800,height=1300');
             }
         </script>
     </head>

@@ -32,7 +32,7 @@
                     $types .= 'i';
                 } else if ($productoNombre !== null && $productoCodigoBarras !== null) {
                     // Verificar existencia por nombre y codigo de barras
-                    $queryCheck .= PRODUCTO_NOMBRE . " = ? OR (" . PRODUCTO_CODIGO_BARRAS . " = ? AND " . PRODUCTO_ESTADO . " != false) AND " . $productoID ." <> ?";
+                    $queryCheck .= PRODUCTO_NOMBRE . " = ? OR (" . PRODUCTO_CODIGO_BARRAS . " = ? AND " . PRODUCTO_ESTADO . " != false) AND " . PRODUCTO_ID ." <> ?";
                     $params[] = $productoNombre;
                     $params[] = $productoCodigoBarras;
                     $params[] = $productoID;
