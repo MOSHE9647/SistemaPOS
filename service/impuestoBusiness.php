@@ -41,7 +41,7 @@
                         Utils::writeLog("[Impuesto] El campo 'Fecha Vigencia [$fechaVigencia]' está vacío o no es válido.", BUSINESS_LOG_FILE);
                     }
                     if (!Utils::fechaMenorOIgualAHoy($fechaVigencia)) {
-                        $errors[] = "El campo 'Fecha Vigencia' no puede ser mayor a la de hoy. Revise que la fecha sea menor o igual a la de hoy.";
+                        $errors[] = "El campo 'Fecha Vigencia' no puede ser una fecha mayor a la de hoy. Revise que la fecha sea menor o igual a la de hoy.";
                         Utils::writeLog("[Impuesto] El campo 'Fecha Vigencia [$fechaVigencia]' es mayor a la de hoy.", BUSINESS_LOG_FILE);
                     }
                 }
@@ -58,7 +58,7 @@
         }
 
         public function insertTBImpuesto($impuesto) {
-            // Verifica que los datos de la direcion sean validos
+            // Verifica que los datos del impuesto sean validos
             $check = $this->validarImpuesto($impuesto);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
@@ -68,7 +68,7 @@
         }
 
         public function updateTBImpuesto($impuesto) {
-            // Verifica que los datos de la direcion sean validos
+            // Verifica que los datos del impuesto sean validos
             $check = $this->validarImpuesto($impuesto);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
@@ -78,7 +78,7 @@
         }
 
         public function deleteTBImpuesto($impuesto) {
-            // Verifica que los datos de la direcion sean validos
+            // Verifica que los datos del impuesto sean validos
             $check = $this->validarImpuesto($impuesto, false);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];

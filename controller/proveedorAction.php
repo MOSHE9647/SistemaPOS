@@ -1,70 +1,50 @@
 <?php
     include __DIR__ . '/../service/proveedorBusiness.php';
-    require_once __DIR__ . '/../utils/Utils.php';
-
-    // Función para validar los datos del proveedor
-    function validarDatosProveedor($nombre, $email, $fecha) {
-        $errors = [];
-
-        if (empty($nombre) || is_numeric($nombre)) {
-            $errors[] = "El campo 'Nombre' no puede estar vacío o ser numérico.";
-        }
-
-        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = "El campo 'Correo Electrónico' no es válido.";
-        }
-        
-        if (empty($fecha) || !Utils::validarFecha($fecha)) {
-            $errors[] = "El campo 'Fecha de Registro' no es válido.";
-        }
-
-        return $errors;
-    }
 
     $response = [];
-
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $accion = ($_POST['accion']);
-        $id = isset ($_POST['id']) ? $_POST['id'] : null;
-        $nombre = $_POST['nombre'];
-        $email = $_POST['email'];
-        $tipo = $_POST['tipo'];
-        $fecha = $_POST['fecha_registro'];
+        // Acción que se va a realizar
+        $accion = isset($_POST['accion']) ? $_POST['accion'] : "";
 
+        // Datos recibidos en la solicitud (Form)
+        $id = isset($_POST['id']) ? $_POST['id'] : 0;
+        $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : "";
+        $email = isset($_POST['email']) ? $_POST['email'] : "";
+        $tipo = isset($_POST['tipo']) ? $_POST['tipo'] : "";
+        $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : "";
+
+        // Se crea el Service para las operaciones
         $proveedorBusiness = new ProveedorBusiness();
 
-        if ($accion == 'eliminar') {
-            if (empty($id) || !is_numeric($id)) {
-                $response['success'] = false;
-                $response['message'] = "El ID no puede estar vacío.";
-            } else {
-                $result = $proveedorBusiness->deleteTBProveedor($id);
-                $response['success'] = $result["success"];
-                $response['message'] = $result["message"];
-            }
+        // Crea y verifica que los datos del proveedor sean correctos
+        $proveedor = new Proveedor($nombre, $email, $fecha, $id, $tipo);
+        $check = $proveedorBusiness->validarProveedor($proveedor, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
 
-        } else {
-            $validationErrors = validarDatosProveedor($nombre, $email, $fecha);
-
-            if (empty($validationErrors)) {
-                if ($accion == 'insertar') {
-                    $proveedor = new Proveedor($nombre, $email, $fecha, $id, $tipo);
-                    $result = $proveedorBusiness->insertTBProveedor($proveedor);
-                    $response['success'] = $result["success"];
-                    $response['message'] = $result["message"];
-                } elseif ($accion == 'actualizar') {
-                    $proveedor = new Proveedor($nombre, $email, $fecha, $id, $tipo);
-                    $result = $proveedorBusiness->updateTBProveedor($proveedor);
-                    $response['success'] = $result["success"];
-                    $response['message'] = $result["message"];
-                } else {
+        // Si los datos son válidos se realiza acción correspondiente
+        if ($check['is_valid']) {
+            switch ($accion) {
+                case 'insertar':
+                    // Inserta el proveedor en la base de datos
+                    $response = $proveedorBusiness->insertTBProveedor($proveedor);
+                    break;
+                case 'actualizar':
+                    // Actualiza la info del proveedor en la base de datos
+                    $response = $proveedorBusiness->updateTBProveedor($proveedor);
+                    break;
+                case 'eliminar':
+                    // Elimina al proveedor de la base de datos
+                    $response = $proveedorBusiness->deleteTBProveedor($proveedor);
+                    break;
+                default:
+                    // Error en caso de que la accion no sea válida
                     $response['success'] = false;
                     $response['message'] = "Acción no válida.";
-                }
-            } else {
-                $response['success'] = false;
-                $response['message'] = implode(' ', $validationErrors);
+                    break;
             }
+        } else {
+            // Si los datos no son validos, se devuelve un mensaje de error
+            $response['success'] = $check['is_valid'];
+            $response['message'] = $check['message'];
         }
 
         header('Content-Type: application/json');

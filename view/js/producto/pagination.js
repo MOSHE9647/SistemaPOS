@@ -136,10 +136,10 @@ function changePageSize(newSize) {
  * @description Esta función actualiza el orden de la lista y llama a la función fetchProductos
  *              para obtener la lista de productos correspondiente a la página actual con el nuevo orden.
  * 
- * @param {string} newSort - El nuevo orden de la lista (ascendente o descendente)
+ * @param {string} newSort - El nuevo orden de la lista (nombre_del_campo)
  * 
  * @example
- * changePageSort('asc');
+ * changePageSort('nombre');
  * 
  * @returns {void}
  */

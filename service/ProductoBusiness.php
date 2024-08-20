@@ -49,7 +49,7 @@
                         Utils::writeLog("[Producto] El campo 'Fecha Adquisición [$fechaAdquisicion]' está vacío o no es válido.", BUSINESS_LOG_FILE);
                     }
                     if (!Utils::fechaMenorOIgualAHoy($fechaAdquisicion)) {
-                        $errors[] = "El campo 'Fecha Adquisición' no puede ser mayor a la de hoy. Revise que la fecha sea menor o igual a la de hoy.";
+                        $errors[] = "El campo 'Fecha Adquisición' no puede ser una fecha mayor a la de hoy. Revise que la fecha sea menor o igual a la de hoy.";
                         Utils::writeLog("[Impuesto] El campo 'Fecha Adquisición [$fechaAdquisicion]' es mayor a la de hoy.", BUSINESS_LOG_FILE);
                     }
                 }
