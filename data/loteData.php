@@ -19,7 +19,9 @@ class LoteData extends Data {
                 throw new Exception($result["message"]);
             }
             $conn = $result["connection"];
-
+            if ($this->loteExists($lote->getLoteCodigo())) {
+                return ["success" => false, "message" => "Ya existe un lote con el mismo código."];
+            }
             // Obtiene el último ID de la tabla tblote
             $queryGetLastId = "SELECT MAX(" . LOTE_ID . ") FROM " . TB_LOTE;
             $idCont = mysqli_query($conn, $queryGetLastId);
@@ -407,5 +409,46 @@ class LoteData extends Data {
             if (isset($conn)) { mysqli_close($conn); }
         }
     }
+
+    public function loteExists($codigo) {
+    try {
+        // Establece una conexión con la base de datos
+        $result = $this->getConnection();
+        if (!$result["success"]) {
+            throw new Exception($result["message"]);
+        }
+        $conn = $result["connection"];
+
+        // Consulta SQL para verificar si existe un lote con el mismo código
+        $querySelect = "SELECT COUNT(*) FROM " . TB_LOTE . " WHERE " . LOTE_CODIGO . " = ? AND " . LOTE_ESTADO . " = true";
+        $stmt = mysqli_prepare($conn, $querySelect);
+
+        // Asigna el valor al '?' de la consulta
+        mysqli_stmt_bind_param($stmt, 's', $codigo);
+
+        // Ejecuta la consulta
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+
+        // Verifica el número de lotes encontrados
+        $count = mysqli_fetch_row($result)[0];
+        return $count > 0;
+    } catch (Exception $e) {
+        // Manejo del error dentro del bloque catch
+        $userMessage = $this->handleMysqlError(
+            $e->getCode(), 
+            $e->getMessage(),
+            'Error al verificar la existencia del lote'
+        );
+
+        // Devolver mensaje amigable para el usuario
+        return ["success" => false, "message" => $userMessage];
+    } finally {
+        // Cierra el statement y la conexión si están definidos
+        if (isset($stmt)) { mysqli_stmt_close($stmt); }
+        if (isset($conn)) { mysqli_close($conn); }
+    }
+}
+
 }
 ?>

@@ -72,7 +72,14 @@ function updatePaginationControls() {
  * @example
  * changePage(2);
  */
-
+function changePage(newPage) {
+    if (newPage < 1 || newPage > totalPages) {
+        // Evita que la página sea menor que 1 o mayor que el número total de páginas
+        return;
+    }
+    currentPage = newPage;
+    fetchLotes(currentPage, pageSize);
+}
 
 /**
  * Cambia el tamaño de la página.

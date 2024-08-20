@@ -69,6 +69,54 @@ function createLote() {
  * @example
  * updateLote(123);
  */
+/*function updateLote(id) {
+    let row = document.querySelector(`tr[data-id='${id}']`);
+    let inputs = row.querySelectorAll('input, select');
+    let data = { accion: 'actualizar', id: id };
+
+    inputs.forEach(input => {
+        
+        let fieldName = input.closest('td').dataset.field;
+        let value = input.value;
+
+        // Convertir 'Precio' a double
+        if (fieldName === 'loteprecio') {
+            value = parseFloat(value).toFixed(2);
+        }
+
+        // Obtener ID del proveedor y del producto
+        if (fieldName === 'proveedornombre') {
+            value = document.getElementById('proveedorid-select').value;
+        } else if (fieldName === 'productonombre') {
+            value = document.getElementById('productoid-select').value;
+        }
+
+        data[fieldName] = value;
+    });
+    console.log('Datos enviados:', data); // Para depuración
+
+    fetch('../controller/loteAction.php', {
+        method: 'POST',
+        body: new URLSearchParams(data),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage(data.message, 'success');
+            fetchLotes(currentPage, pageSize);
+        } else {
+            showMessage(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showMessage(`Ocurrió un error al actualizar el lote.<br>${error}`, 'error');
+    });
+}
+*/
+
 function updateLote(id) {
     let row = document.querySelector(`tr[data-id='${id}']`);
     let inputs = row.querySelectorAll('input, select');
@@ -90,8 +138,10 @@ function updateLote(id) {
             value = document.getElementById('productoid-select').value;
         }
 
+
         data[fieldName] = value;
     });
+
     console.log('Datos enviados:', data); // Para depuración
 
     fetch('../controller/loteAction.php', {

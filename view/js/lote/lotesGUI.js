@@ -22,13 +22,13 @@ function renderTable(lotes) {
         
         let row = `
             <tr data-id="${lote.ID}">
-                <td data-field="codigo">${lote.Codigo}</td>
-                <td data-field="producto">${lote.Producto}</td>
-                <td data-field="cantidad">${lote.Cantidad}</td>
-                <td data-field="precio">${lote.Precio}</td>
-                <td data-field="proveedor">${lote.Proveedor}</td>
-                <td data-field="fechaIngreso">${lote.FechaIngreso}</td>
-                <td data-field="fechaVencimiento">${lote.FechaVencimiento}</td>
+                <td data-field="lotecodigo">${lote.Codigo}</td>
+                <td data-field="productonombre">${lote.Producto}</td>
+                <td data-field="lotecantidad">${lote.Cantidad}</td>
+                <td data-field="loteprecio">${lote.Precio}</td>
+                <td data-field="proveedornombre">${lote.Proveedor}</td>
+                <td data-field="lotefechaingreso">${lote.FechaIngreso}</td>
+                <td data-field="lotefechavencimiento">${lote.FechaVencimiento}</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
                     <button onclick="deleteLote(${lote.ID})">Eliminar</button>
@@ -73,12 +73,14 @@ function makeRowEditable(row) {
                 cell.innerHTML = `<input type="number" value="${parseInt(value)}" min="0" step="1" required>`;
             } else if (field === 'loteprecio') {
                 cell.innerHTML = `<input type="number" value="${parseFloat(value).toFixed(2)}" min="0" step="0.01" required>`;
-            } else if (field === 'fechaIngreso' || field === 'fechaVencimiento') {
-                const formattedDate = formatDate(value);
-                cell.innerHTML = `<input type="date" value="${formattedDate}" required>`;
-            } else if (field === 'proveedor' || field === 'producto') {
-                cell.innerHTML = `<select id="${field}-select" required></select>`;
-                loadOptions(field, value);
+            } else if (field === 'lotefechaingreso' || field === 'lotefechavencimiento') {
+                cell.innerHTML = `<input type="date" value="${value}" required>`;
+            } else if (field === 'proveedornombre') {
+                cell.innerHTML = `<select id="proveedorid-select" required></select>`;
+                loadOptions('proveedor', value);  // Cargar las opciones para el select de proveedor
+            } else if (field === 'productonombre') {
+                cell.innerHTML = `<select id="productoid-select" required></select>`;
+                loadOptions('producto', value);  // Cargar las opciones para el select de producto
             } else {
                 cell.innerHTML = `<input type="text" value="${value}" required>`;
             }
@@ -219,6 +221,11 @@ function cancelEdit() {
  * cancelCreate();
  */
 function cancelCreate() {
-    document.getElementById('createRow').remove();
+    console.log('Cancelando creación, mostrando botón de crear.');
+    const createRow = document.getElementById('createRow');
+    if (createRow) {
+        createRow.remove();
+    }
+ 
     document.getElementById('createButton').style.display = 'inline-block';
 }

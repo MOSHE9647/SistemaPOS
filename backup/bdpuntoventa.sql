@@ -190,14 +190,14 @@ INSERT INTO `tbproveedortelefono` (`proveedortelefonoid`, `proveedorid`, `provee
 
 
 CREATE TABLE  `tblote`(
-    `loteid` VARCHAR(50) NOT NULL,
-    `lotecodigo` INT NOT NULL,
+    `loteid` INT PRIMARY KEY NOT NULL,
+    `lotecodigo` VARCHAR(50) NOT NULL,
     `productoid` INT NOT NULL,
     `lotecantidad` INT NOT NULL,
     `loteprecio` Decimal NOT NULL,
     `proveedorid` INT NOT NULL,
-    `lotefechaingreso` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `lotefechavencimiento` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `lotefechaingreso` DATE NOT NULL,
+    `lotefechavencimiento` DATE NOT NULL,
     `loteestado` tinyint(1) NOT NULL 
     )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     
