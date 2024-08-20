@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 20-08-2024 a las 10:13:55
+-- Tiempo de generación: 20-08-2024 a las 10:20:21
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -279,6 +279,12 @@ INSERT INTO `tbsubcategoria` (`tbsubcategoriaid`, `tbsubcategorianombre`, `tbsub
 --
 
 --
+-- Indices de la tabla `tbcategoria`
+--
+ALTER TABLE `tbcategoria`
+  ADD PRIMARY KEY (`categoriaid`);
+
+--
 -- Indices de la tabla `tbdireccion`
 --
 ALTER TABLE `tbdireccion`
@@ -302,6 +308,12 @@ ALTER TABLE `tblote`
 ALTER TABLE `tbproducto`
   ADD PRIMARY KEY (`productoid`),
   ADD UNIQUE KEY `productocodigobarras` (`productocodigobarras`);
+
+--
+-- Indices de la tabla `tbproductosubcategoria`
+--
+ALTER TABLE `tbproductosubcategoria`
+  ADD PRIMARY KEY (`productosubcategoriaid`);
 
 --
 -- Indices de la tabla `tbproveedor`
