@@ -30,8 +30,4 @@
             <li> <a href="" onclick="printBarcodes(10)">Imprimir Códigos de Barras</a> </li>
         </ul>
     </body>
-<<<<<<< HEAD
 </html>
-=======
-</html> 
->>>>>>> Jason
