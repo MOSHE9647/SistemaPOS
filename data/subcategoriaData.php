@@ -148,7 +148,7 @@
 
 				// Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) {
-                    $querySelect .= "ORDER BY producto" . $sort . " ";
+                    $querySelect .= "ORDER BY tbsubcategoria" . $sort . " ";
                 }
 
 				// Añadir la cláusula de limitación y offset
