@@ -17,29 +17,29 @@ let pageSize = DEFAULT_PAGE_SIZE;
 // ************************************************************************** //
 
 /**
- * Obtiene la lista de impuestos desde el servidor.
+ * Obtiene la lista de productos desde el servidor.
  * 
- * @description Esta función realiza una solicitud GET al servidor para obtener la lista de impuestos,
- *              procesa la respuesta y actualiza la tabla de impuestos en la página.
+ * @description Esta función realiza una solicitud GET al servidor para obtener la lista de productos,
+ *              procesa la respuesta y actualiza la tabla de productos en la página.
  * 
  * @param {number} page - El número de página a obtener
  * @param {number} size - El tamaño de la página (número de registros por página)
- * @param {string} sort - El campo por el que ordenar la lista de impuestos
+ * @param {string} sort - El campo por el que ordenar la lista de productos
  * 
  * @example
- * fetchImpuestos(1, 10, 'nombre');
+ * fetchProductos(1, 10, 'nombre');
  * 
  * @returns {void}
  */
-function fetchImpuestos(page, size, sort) {
-    // Realizar solicitud GET al servidor para obtener la lista de impuestos
-    fetch(`../controller/impuestoAction.php?page=${page}&size=${size}&sort=${sort}`)
+function fetchProductos(page, size, sort) {
+    // Realizar solicitud GET al servidor para obtener la lista de productos
+    fetch(`../controller/productoAction.php?page=${page}&size=${size}&sort=${sort}`)
         .then(response => response.json())
         .then(data => {
             // Verificar si la respuesta fue exitosa
             if (data.success) {
-                // Renderizar la tabla de impuestos con los datos obtenidos
-                renderTable(data.listaImpuestos);
+                // Renderizar la tabla de productos con los datos obtenidos
+                renderTable(data.listaProductos);
 
                 // Actualizar variables de paginación
                 currentPage = data.page;
@@ -56,7 +56,7 @@ function fetchImpuestos(page, size, sort) {
         })
         .catch(error => {
             // Muestra el mensaje de error detallado
-            showMessage(`Ocurrió un error al obtener la lista de impuestos.<br>${error}`, 'error');
+            showMessage(`Ocurrió un error al obtener la lista de productos.<br>${error}`, 'error');
         });
 }
 
@@ -89,10 +89,10 @@ function updatePaginationControls() {
 }
 
 /**
- * Cambia la página actual en la lista de impuestos.
+ * Cambia la página actual en la lista de productos.
  * 
  * @description Esta función verifica si la nueva página es válida (entre 1 y el total de páginas)
- *              y, si es así, llama a la función fetchImpuestos para obtener la lista de impuestos
+ *              y, si es así, llama a la función fetchProductos para obtener la lista de productos
  *              correspondiente a la nueva página.
  * 
  * @param {number} newPage - El número de la nueva página a mostrar
@@ -105,16 +105,16 @@ function updatePaginationControls() {
 function changePage(newPage) {
     // Verificar si la nueva página es válida (entre 1 y el total de páginas)
     if (newPage >= 1 && newPage <= totalPages) {
-        // Llamar a la función fetchImpuestos para obtener la lista de impuestos de la nueva página
-        fetchImpuestos(newPage, pageSize, sort);
+        // Llamar a la función fetchProductos para obtener la lista de productos de la nueva página
+        fetchProductos(newPage, pageSize, sort);
     }
 }
 
 /**
- * Cambia el tamaño de página actual en la lista de impuestos.
+ * Cambia el tamaño de página actual en la lista de productos.
  * 
- * @description Esta función actualiza el tamaño de página y llama a la función fetchImpuestos
- *              para obtener la lista de impuestos correspondiente a la página actual con el nuevo tamaño.
+ * @description Esta función actualiza el tamaño de página y llama a la función fetchProductos
+ *              para obtener la lista de productos correspondiente a la página actual con el nuevo tamaño.
  * 
  * @param {number} newSize - El nuevo tamaño de página
  * 
@@ -126,15 +126,15 @@ function changePage(newPage) {
 function changePageSize(newSize) {
     // Actualizar el tamaño de página
     pageSize = newSize;
-    // Llamar a la función fetchImpuestos para obtener la lista de impuestos con el nuevo tamaño
-    fetchImpuestos(currentPage, pageSize, sort);
+    // Llamar a la función fetchProductos para obtener la lista de productos con el nuevo tamaño
+    fetchProductos(currentPage, pageSize, sort);
 }
 
 /**
- * Cambia el orden de la lista de impuestos.
+ * Cambia el orden de la lista de productos.
  * 
- * @description Esta función actualiza el orden de la lista y llama a la función fetchImpuestos
- *              para obtener la lista de impuestos correspondiente a la página actual con el nuevo orden.
+ * @description Esta función actualiza el orden de la lista y llama a la función fetchProductos
+ *              para obtener la lista de productos correspondiente a la página actual con el nuevo orden.
  * 
  * @param {string} newSort - El nuevo orden de la lista (nombre_del_campo)
  * 
@@ -146,8 +146,8 @@ function changePageSize(newSize) {
 function changePageSort(newSort) {
     // Actualizar el orden de la lista
     sort = newSort;
-    // Llamar a la función fetchImpuestos para obtener la lista de impuestos con el nuevo orden
-    fetchImpuestos(currentPage, pageSize, sort);
+    // Llamar a la función fetchproductos para obtener la lista de productos con el nuevo orden
+    fetchProductos(currentPage, pageSize, sort);
 }
 
 // Agregar evento de cambio al selector de tamaño de página
@@ -166,4 +166,4 @@ document.getElementById('sortSelector').addEventListener('change', (event) => {
 // ************* Llamada inicial para cargar la primera página ************* //
 // ************************************************************************* //
 
-fetchImpuestos(currentPage, pageSize, sort);
+fetchProductos(currentPage, pageSize, sort);

@@ -40,7 +40,7 @@
 					$types .= 'ss';
 				} else {
 					$message = "No se proporcionaron los parámetros necesarios para verificar la existencia del impuesto";
-					Utils::writeLog("$message. Parámetros: impuestoID [$impuestoID], impuestoNombre [$impuestoNombre], impuestoFecha [$impuestoFecha]", DATA_LOG_FILE);
+					Utils::writeLog("$message. Parámetros: 'impuestoID [$impuestoID]', 'impuestoNombre [$impuestoNombre]', 'impuestoFecha [$impuestoFecha]'", DATA_LOG_FILE);
 					throw new Exception($message);
 				}
 				$stmt = mysqli_prepare($conn, $queryCheck);

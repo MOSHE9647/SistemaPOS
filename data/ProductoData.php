@@ -157,7 +157,7 @@
         public function updateProducto($producto){
             try {
                 // Obtener el ID del Producto
-                $productoId = $producto->getProductoID();
+                $productoID = $producto->getProductoID();
 
                 // Verifica si el producto ya existe
 				$check = $this->productoExiste($productoID);
