@@ -79,7 +79,7 @@
             if(!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
-
+            
             return $this->productoData->updateProducto($producto);
         }
 
