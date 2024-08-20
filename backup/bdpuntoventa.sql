@@ -1,7 +1,9 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.1.1deb5ubuntu1
 -- https://www.phpmyadmin.net/
 --
+-- Servidor: 127.0.0.1:3306
+-- Tiempo de generación: 20-08-2024 a las 06:14:14
 -- Servidor: localhost
 -- Tiempo de generación: 19-08-2024 a las 21:19:55
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
@@ -86,8 +88,8 @@ INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impu
 
 CREATE TABLE `tbproducto` (
   `productoid` int NOT NULL,
-  `productonombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `productopreciounitario` decimal(10,2) NOT NULL,
+  `productonombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `productopreciounitario` double NOT NULL,
   `productocantidad` int NOT NULL,
   `productofechaadquisicion` datetime NOT NULL,
   `productodescripcion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
@@ -124,16 +126,11 @@ CREATE TABLE `tbproveedor` (
 --
 
 INSERT INTO `tbproveedor` (`proveedorid`, `proveedornombre`, `proveedoremail`, `proveedortipo`, `proveedorestado`, `proveedorfecharegistro`) VALUES
-(1, 'Proveedor A', 'proveedora@example.com', 'Tipo 1', 1, '2024-01-01 10:00:00'),
+(1, 'PROVEEDOR A', 'proveedora@example.com', 'Tipo 1', 1, '2024-01-01 06:00:00'),
 (2, 'Proveedor B', 'proveedorb@example.com', 'Tipo 2', 1, '2024-02-01 11:00:00'),
 (3, 'Proveedor C', 'proveedorc@example.com', 'Tipo 1', 0, '2024-03-01 12:00:00'),
-(4, 'Proveedor D', 'proveedord@example.com', 'Tipo 3', 1, '2024-04-01 13:00:00'),
-(5, 'Proveedor E', 'proveedore@example.com', 'Tipo 2', 0, '2024-05-01 14:00:00'),
-(6, 'Proveedor F', 'proveedorf@example.com', 'Tipo 4', 1, '2024-08-12 06:00:00'),
-(7, 'Proveedor G', 'proveedorg@example.com', 'Tipo 5', 1, '2024-08-12 06:00:00'),
-(8, 'Proveedor H', 'proveedorh@example.com', 'Tipo 6', 1, '2024-08-12 06:00:00'),
-(9, 'Proveedor I', 'proveedori@example.com', 'Tipo 7', 1, '2024-08-12 06:00:00'),
-(10, 'Proveedor J', 'proveedorj@example.com', 'Tipo 9', 0, '2024-08-12 06:00:00');
+(4, 'PROVEEDOR D', 'proveedord@example.com', 'Tipo 3', 1, '2024-04-01 06:00:00'),
+(5, 'Proveedor E', 'proveedore@example.com', 'Tipo 2', 0, '2024-05-01 14:00:00');
 
 -- --------------------------------------------------------
 
@@ -153,25 +150,20 @@ CREATE TABLE `tbproveedordireccion` (
 --
 
 INSERT INTO `tbproveedordireccion` (`proveedordireccionid`, `proveedorid`, `direccionid`, `proveedordireccionestado`) VALUES
-(1, 1, 1, 0),
+(1, 1, 1, 1),
 (2, 2, 2, 1),
 (3, 3, 3, 0),
 (4, 4, 4, 1),
-(5, 5, 5, 0),
-(6, 1, 6, 0),
-(7, 1, 6, 1),
-(8, 1, 1, 0),
-(9, 1, 1, 0),
-(10, 1, 1, 1);
+(5, 5, 5, 0);
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `tbproveedortelefono`
+-- Estructura de tabla para la tabla `tbproveedorproducto`
 --
 
-CREATE TABLE `tbproveedortelefono` (
-  `proveedortelefonoid` int NOT NULL,
+CREATE TABLE `tbproveedorproducto` (
+  `tbproveedorproducto` int NOT NULL,
   `proveedorid` int NOT NULL,
   `proveedortelefono` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `proveedortelefonoestado` tinyint(1) NOT NULL
@@ -181,11 +173,10 @@ CREATE TABLE `tbproveedortelefono` (
 -- Volcado de datos para la tabla `tbproveedortelefono`
 --
 
-INSERT INTO `tbproveedortelefono` (`proveedortelefonoid`, `proveedorid`, `proveedortelefono`, `proveedortelefonoestado`) VALUES
-(1, 9, '+506 6421 2950', 0),
-(2, 9, '+506 6397 3487', 1),
-(3, 8, '+506 6421 2951', 1),
-(4, 8, '+506 6421 2952', 0);
+INSERT INTO `tbsubcategoria` (`tbsubcategoriaid`, `tbsubcategorianombre`, `tbsubcategoriaestado`) VALUES
+(1, 'Libros', 1),
+(2, 'Hojas', 1),
+(3, 'Helados', 1);
 
 
 
