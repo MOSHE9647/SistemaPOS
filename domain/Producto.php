@@ -14,7 +14,7 @@
         public function __construct($productoNombre, $productoPrecio, $productoCantidad, $productoFecha, $productoCodigoBarras,
                 $productoID = 0, $productoDescripcion = "", $productoEstado = true) {
             $this->productoID = $productoID;
-            $this->productoNombre = $productoNombre;
+            $this->productoNombre = strtoupper($productoNombre);
             $this->productoPrecio = $productoPrecio;
             $this->productoCantidad = $productoCantidad;
             $this->productoFecha = $productoFecha;

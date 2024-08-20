@@ -11,7 +11,7 @@
 			parent::__construct();
         }
 
-        private function productoExiste($productoID = null, $productoNombre = null, $productoCodigoBarras = null){
+        private function productoExiste($productoID = null, $productoNombre = null, $productoCodigoBarras = null, $update = false){
             try {
 				// Establece una conexión con la base de datos
                 $result = $this->getConnection();
@@ -25,20 +25,21 @@
                 $params = [];
                 $types = "";
                 
-                if ($productoID !== null) {
+                if ($productoID !== null && !$update) {
                     // Verificar existencia por ID
                     $queryCheck .= PRODUCTO_ID . " = ? AND " . PRODUCTO_ESTADO . " != false";
                     $params[] = $productoID;
                     $types .= 'i';
                 } else if ($productoNombre !== null && $productoCodigoBarras !== null) {
                     // Verificar existencia por nombre y codigo de barras
-                    $queryCheck .= PRODUCTO_CODIGO_BARRAS . " = ? AND (" . PRODUCTO_NOMBRE . " = ? AND " . PRODUCTO_ESTADO . " != false)";
+                    $queryCheck .= PRODUCTO_NOMBRE . " = ? OR (" . PRODUCTO_CODIGO_BARRAS . " = ? AND " . PRODUCTO_ESTADO . " != false) AND " . $productoID ." <> ?";
                     $params[] = $productoNombre;
                     $params[] = $productoCodigoBarras;
-                    $types .= 'ss';
+                    $params[] = $productoID;
+                    $types .= 'ssi';
                 } else {
                     $message = "No se proporcionaron los parámetros necesarios para verificar la existencia del producto";
-					Utils::writeLog("$message. Parámetros: productoID [$productoID], productoNombre [$productoNombre], productoCodigoBarras [$productoCodigoBarras]", DATA_LOG_FILE);
+					Utils::writeLog("$message. Parámetros: 'productoID [$productoID]', 'productoNombre [$productoNombre]', 'productoCodigoBarras [$productoCodigoBarras]'", DATA_LOG_FILE);
 					throw new Exception($message);
                 }
                 $stmt = mysqli_prepare($conn, $queryCheck);
@@ -156,8 +157,10 @@
 
         public function updateProducto($producto){
             try {
-                // Obtener el ID del Producto
+                // Obtener el ID, Nombre y Código de Barras del Producto
                 $productoID = $producto->getProductoID();
+                $productoNombre = $producto->getProductoNombre();
+                $productoCodigoBarras = $producto->getProductoCodigoBarras();
 
                 // Verifica si el producto ya existe
 				$check = $this->productoExiste($productoID);
@@ -167,6 +170,16 @@
 				if (!$check["exists"]) {
 					Utils::writeLog("El producto con ID [$productoID] no existe en la base de datos.", DATA_LOG_FILE);
 					throw new Exception("No existe ningún producto en la base de datos que coincida con la información proporcionada.");
+				}
+
+                // Verifica si ya existe un producto con el mismo nombre o código de barras
+				$check = $this->productoExiste($productoID, $productoNombre, $productoCodigoBarras, true);
+				if (!$check["success"]) {
+					return $check; // Error al verificar la existencia
+				}
+				if ($check["exists"]) {
+					Utils::writeLog("El producto [Nombre: $productoNombre, Código: $productoCodigoBarras] ya existe en la base de datos.", DATA_LOG_FILE);
+					throw new Exception("Ya existe un producto con el mismo nombre o código de barras.");
 				}
 
                 // Establece una conexion con la base de datos
@@ -192,12 +205,10 @@
                 $stmt = mysqli_prepare($conn, $queryUpdate);
 
                 // Obtener los valores de las propiedades del objeto
-                $productoNombre = $producto->getProductoNombre();
                 $productoPrecio = $producto->getProductoPrecio();
                 $productoCantidad = $producto->getProductoCantidad();
                 $productoFechaAdquisicion = $producto->getProductoFechaAdquisicion();
                 $productoDescripcion = $producto->getProductoDescripcion();
-                $productoCodigoBarras = $producto->getProductoCodigoBarras();
 
                 mysqli_stmt_bind_param(
                     $stmt,
