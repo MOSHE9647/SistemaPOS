@@ -28,14 +28,10 @@
             <li> <a href="./view/proveedorTelefonoView.php">Gestión de Telefonos</a> </li>
             <li> <a href="./view/subcategoriaView.php">Gestión de Subcategorias</a> </li>
             <li> <a href="./view/productoSubcategoriaView.php">Gestión de Producto-Subcategorias</a> </li>
-<<<<<<< HEAD
             <li> <a href="./view/proveedorProductoView.php">Gestión Proveedor-Producto</a> </li>
-
-=======
             <li> <a href="./view/loteView.php">Gestión de lotes</a> </li>
             <li> <a href="./view/categoriaView.php">Gestion de Categorias</a> </li>
             <li> <a href="" onclick="printBarcodes(10)">Imprimir Códigos de Barras</a> </li>
->>>>>>> 92ad0996cbe8ce16a2831d413ee43e86bd26bf84
         </ul>
     </body>
 </html>
