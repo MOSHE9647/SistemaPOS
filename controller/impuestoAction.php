@@ -32,7 +32,7 @@
                     $response = $impuestoBusiness->updateTBImpuesto($impuesto);
                     break;
                 case 'eliminar':
-                    // Elimina la direccion de la base de datos
+                    // Elimina el impuesto de la base de datos
                     $response = $impuestoBusiness->deleteTBImpuesto($impuesto);
                     break;
                 default:

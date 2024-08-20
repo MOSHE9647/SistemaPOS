@@ -40,7 +40,6 @@
                         $errors[] = "El campo 'Fecha Vigencia' está vacío o no es válido.";
                         Utils::writeLog("[Impuesto] El campo 'Fecha Vigencia [$fechaVigencia]' está vacío o no es válido.", BUSINESS_LOG_FILE);
                     }
-                    // Verificar si la fecha de vigencia es menor o igual a la de hoy
                     if (!Utils::fechaMenorOIgualAHoy($fechaVigencia)) {
                         $errors[] = "El campo 'Fecha Vigencia' no puede ser mayor a la de hoy. Revise que la fecha sea menor o igual a la de hoy.";
                         Utils::writeLog("[Impuesto] El campo 'Fecha Vigencia [$fechaVigencia]' es mayor a la de hoy.", BUSINESS_LOG_FILE);

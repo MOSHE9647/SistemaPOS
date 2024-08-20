@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 13-08-2024 a las 11:55:56
+-- Tiempo de generación: 19-08-2024 a las 21:19:55
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -48,7 +48,8 @@ INSERT INTO `tbdireccion` (`direccionid`, `direccionprovincia`, `direccioncanton
 (3, 'Provincia C', 'Canton C', 'Distrito C', 'Barrio C', 'Señas C', 3.75, 1),
 (4, 'Provincia D', 'Canton D', 'Distrito D', 'Barrio D', 'Señas D', 1.26, 1),
 (5, 'Provincia E', 'Canton E', 'Distrito E', 'Barrio E', 'Señas E', 2.00, 1),
-(6, 'Provincia 6', 'Canton 6', 'Distrito 6', 'Barrio 6', 'Señas 6', 16.00, 1);
+(6, 'San José', 'Goicoechea', 'Purral', 'Kurú', 'Alameda 6', 6.50, 0),
+(7, 'Heredia', 'Sarapiquí', 'Horquetas', 'Urb. Miraflores', 'Casa #37, detrás del Bar Kikes', 4.00, 0);
 
 -- --------------------------------------------------------
 
@@ -62,7 +63,7 @@ CREATE TABLE `tbimpuesto` (
   `impuestovalor` decimal(5,2) NOT NULL,
   `impuestodescripcion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `impuestoestado` tinyint(1) NOT NULL,
-  `impuestofechavigencia` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `impuestofechavigencia` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -71,13 +72,11 @@ CREATE TABLE `tbimpuesto` (
 
 INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impuestodescripcion`, `impuestoestado`, `impuestofechavigencia`) VALUES
 (1, 'IVA', 13.00, 'Impuesto al Valor Agregado', 1, '2024-08-01 06:00:00'),
-(2, 'IRF', 12.00, 'q', 0, '2024-08-01 06:00:00'),
-(3, 'IRF', 12.00, 'qw', 0, '2024-08-02 06:00:00'),
-(4, 'IRF', 12.00, 'Prueba', 0, '2024-08-02 06:00:00'),
 (5, 'IRF', 12.00, 'Impuesto al Regalo Fraterno', 1, '2024-07-15 06:00:00'),
 (6, 'IMP', 33.00, 'Impuesto al Mejor Personaje', 1, '2024-08-10 06:00:00'),
-(7, 'IJP', 20.00, 'Impuesto al Jugador Preferido', 0, '2024-08-12 06:00:00'),
-(8, 'IJK', 12.00, 'SDFG', 0, '2024-08-13 06:00:00');
+(7, 'IJP', 20.00, 'Impuesto al Jugador Preferido', 1, '2024-08-20 00:25:30'),
+(8, 'ILP', 13.00, 'prueba2', 0, '2024-08-20 01:27:42'),
+(9, 'PKF', 15.00, 'prueba3', 0, '2024-08-20 01:27:38');
 
 -- --------------------------------------------------------
 
@@ -92,6 +91,7 @@ CREATE TABLE `tbproducto` (
   `productocantidad` int NOT NULL,
   `productofechaadquisicion` datetime NOT NULL,
   `productodescripcion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `productocodigobarras` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `productoestado` tinyint NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -99,10 +99,10 @@ CREATE TABLE `tbproducto` (
 -- Volcado de datos para la tabla `tbproducto`
 --
 
-INSERT INTO `tbproducto` (`productoid`, `productonombre`, `productopreciounitario`, `productocantidad`, `productofechaadquisicion`, `productodescripcion`, `productoestado`) VALUES
-(1, 'coca-cola', 1200.00, 30, '2024-08-11 21:46:52', 'coca-cola de 2.5L', 1),
-(2, 'pepsi', 1500.00, 40, '2023-08-10 00:00:00', 'refresco de 3L sin azucar', 1),
-(3, 'Ginger Ale', 1300.00, 20, '2024-08-13 00:00:00', 'Refresco de 3L', 0);
+INSERT INTO `tbproducto` (`productoid`, `productonombre`, `productopreciounitario`, `productocantidad`, `productofechaadquisicion`, `productodescripcion`, `productocodigobarras`, `productoestado`) VALUES
+(1, 'coca-cola', 1200.00, 30, '2024-08-11 21:46:52', 'coca-cola de 2.5L', '1234567890123', 1),
+(2, 'pepsi', 1500.00, 40, '2023-08-10 00:00:00', 'refresco de 3L sin azucar', '1234567890124', 1),
+(3, 'Ginger Ale', 1300.00, 20, '2024-08-13 00:00:00', 'Refresco de 3L', '1234567890125', 0);
 
 -- --------------------------------------------------------
 
@@ -207,7 +207,8 @@ ALTER TABLE `tbimpuesto`
 -- Indices de la tabla `tbproducto`
 --
 ALTER TABLE `tbproducto`
-  ADD PRIMARY KEY (`productoid`);
+  ADD PRIMARY KEY (`productoid`),
+  ADD UNIQUE KEY `productocodigobarras` (`productocodigobarras`);
 
 --
 -- Indices de la tabla `tbproveedor`

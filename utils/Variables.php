@@ -48,6 +48,7 @@
 	define('PRODUCTO_CANTIDAD','productocantidad');
 	define('PRODUCTO_FECHA_ADQ', 'productofechaadquisicion');
 	define('PRODUCTO_DESCRIPCION','productodescripcion');
+	define('PRODUCTO_CODIGO_BARRAS','productocodigobarras');
 	define('PRODUCTO_ESTADO','productoestado');
 
 
