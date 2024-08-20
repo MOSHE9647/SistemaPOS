@@ -4,6 +4,8 @@
 --
 -- Servidor: 127.0.0.1:3306
 -- Tiempo de generación: 20-08-2024 a las 06:14:14
+-- Servidor: localhost
+-- Tiempo de generación: 19-08-2024 a las 21:19:55
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -43,11 +45,13 @@ CREATE TABLE `tbdireccion` (
 --
 
 INSERT INTO `tbdireccion` (`direccionid`, `direccionprovincia`, `direccioncanton`, `direcciondistrito`, `direccionbarrio`, `direccionsennas`, `direcciondistancia`, `direccionestado`) VALUES
-(1, 'Provincia A', 'Canton A', 'Distrito A', 'Barrio A', 'Señas A', '1.00', 1),
-(2, 'Provincia B', 'Canton B', 'Distrito B', 'Barrio B', 'Señas B', '2.50', 1),
-(3, 'Provincia C', 'Canton C', 'Distrito C', 'Barrio C', 'Señas C', '3.75', 1),
-(4, 'Provincia D', 'Canton D', 'Distrito D', 'Barrio D', 'Señas D', '1.25', 1),
-(5, 'Provincia E', 'Canton E', 'Distrito E', 'Barrio E', 'Señas E', '2.00', 1);
+(1, 'Provincia A', 'Canton A', 'Distrito A', 'Barrio A', 'Señas A', 1.00, 1),
+(2, 'Provincia B', 'Canton B', 'Distrito B', 'Barrio B', 'Señas B', 2.50, 1),
+(3, 'Provincia C', 'Canton C', 'Distrito C', 'Barrio C', 'Señas C', 3.75, 1),
+(4, 'Provincia D', 'Canton D', 'Distrito D', 'Barrio D', 'Señas D', 1.26, 1),
+(5, 'Provincia E', 'Canton E', 'Distrito E', 'Barrio E', 'Señas E', 2.00, 1),
+(6, 'San José', 'Goicoechea', 'Purral', 'Kurú', 'Alameda 6', 6.50, 0),
+(7, 'Heredia', 'Sarapiquí', 'Horquetas', 'Urb. Miraflores', 'Casa #37, detrás del Bar Kikes', 4.00, 0);
 
 -- --------------------------------------------------------
 
@@ -61,7 +65,7 @@ CREATE TABLE `tbimpuesto` (
   `impuestovalor` decimal(5,2) NOT NULL,
   `impuestodescripcion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `impuestoestado` tinyint(1) NOT NULL,
-  `impuestofechavigencia` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `impuestofechavigencia` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -69,11 +73,12 @@ CREATE TABLE `tbimpuesto` (
 --
 
 INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impuestodescripcion`, `impuestoestado`, `impuestofechavigencia`) VALUES
-(1, 'IVA', '13.00', 'Impuesto al Valor Agregado', 1, '2024-07-31 06:00:00'),
-(2, 'IRF', '12.00', 'q', 0, '2024-08-01 06:00:00'),
-(3, 'IRF', '12.00', 'qw', 0, '2024-08-02 06:00:00'),
-(4, 'IRF', '12.00', 'Prueba', 0, '2024-08-02 06:00:00'),
-(5, 'IRF', '12.00', 'Impuesto al Regalo Fraterno', 1, '2024-07-15 06:00:00');
+(1, 'IVA', 13.00, 'Impuesto al Valor Agregado', 1, '2024-08-01 06:00:00'),
+(5, 'IRF', 12.00, 'Impuesto al Regalo Fraterno', 1, '2024-07-15 06:00:00'),
+(6, 'IMP', 33.00, 'Impuesto al Mejor Personaje', 1, '2024-08-10 06:00:00'),
+(7, 'IJP', 20.00, 'Impuesto al Jugador Preferido', 1, '2024-08-20 00:25:30'),
+(8, 'ILP', 13.00, 'prueba2', 0, '2024-08-20 01:27:42'),
+(9, 'PKF', 15.00, 'prueba3', 0, '2024-08-20 01:27:38');
 
 -- --------------------------------------------------------
 
@@ -87,7 +92,8 @@ CREATE TABLE `tbproducto` (
   `productopreciounitario` double NOT NULL,
   `productocantidad` int NOT NULL,
   `productofechaadquisicion` datetime NOT NULL,
-  `productodescripcion` text COLLATE utf8mb4_unicode_ci,
+  `productodescripcion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `productocodigobarras` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `productoestado` tinyint NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -95,35 +101,10 @@ CREATE TABLE `tbproducto` (
 -- Volcado de datos para la tabla `tbproducto`
 --
 
-INSERT INTO `tbproducto` (`productoid`, `productonombre`, `productopreciounitario`, `productocantidad`, `productofechaadquisicion`, `productodescripcion`, `productoestado`) VALUES
-(1, 'Coca-Cola', 1200, 30, '2024-08-10 00:00:00', 'coca-cola de 2.5L', 1),
-(2, 'pepsi', 1500, 40, '2023-08-10 00:00:00', 'refresco de 3L sin azucar', 1),
-(3, 'Helado', 500, 100, '2024-08-13 00:00:00', 'helado 2 pinos, peso 350g', 1),
-(4, 'Platanitos fritos', 350, 100, '2024-08-12 00:00:00', 'platanitos picantes, peso 250g', 1),
-(5, 'Fajitas tostadas', 200, 100, '2024-08-12 00:00:00', 'Peso 250g', 1),
-(6, 'Chicharron', 100, 100, '2024-08-12 00:00:00', 'Peso 150g', 1),
-(7, 'Chicharron', 100, 100, '2024-08-11 00:00:00', 'Peso 100', 1);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `tbproductosubcategoria`
---
-
-CREATE TABLE `tbproductosubcategoria` (
-  `productosubcategoriaid` int NOT NULL,
-  `productoid` int NOT NULL,
-  `subcategoriaid` int NOT NULL,
-  `productocategoriaestado` tinyint NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `tbproductosubcategoria`
---
-
-INSERT INTO `tbproductosubcategoria` (`productosubcategoriaid`, `productoid`, `subcategoriaid`, `productocategoriaestado`) VALUES
-(1, 1, 2, 1),
-(2, 1, 1, 1);
+INSERT INTO `tbproducto` (`productoid`, `productonombre`, `productopreciounitario`, `productocantidad`, `productofechaadquisicion`, `productodescripcion`, `productocodigobarras`, `productoestado`) VALUES
+(1, 'coca-cola', 1200.00, 30, '2024-08-11 21:46:52', 'coca-cola de 2.5L', '1234567890123', 1),
+(2, 'pepsi', 1500.00, 40, '2023-08-10 00:00:00', 'refresco de 3L sin azucar', '1234567890124', 1),
+(3, 'Ginger Ale', 1300.00, 20, '2024-08-13 00:00:00', 'Refresco de 3L', '1234567890125', 0);
 
 -- --------------------------------------------------------
 
@@ -184,25 +165,12 @@ INSERT INTO `tbproveedordireccion` (`proveedordireccionid`, `proveedorid`, `dire
 CREATE TABLE `tbproveedorproducto` (
   `tbproveedorproducto` int NOT NULL,
   `proveedorid` int NOT NULL,
-  `productoid` int NOT NULL,
-  `stockproducto` int NOT NULL,
-  `tbproveedorproductoestado` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
+  `proveedortelefono` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `proveedortelefonoestado` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Estructura de tabla para la tabla `tbsubcategoria`
---
-
-CREATE TABLE `tbsubcategoria` (
-  `tbsubcategoriaid` int NOT NULL,
-  `tbsubcategorianombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tbsubcategoriaestado` tinyint NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `tbsubcategoria`
+-- Volcado de datos para la tabla `tbproveedortelefono`
 --
 
 INSERT INTO `tbsubcategoria` (`tbsubcategoriaid`, `tbsubcategorianombre`, `tbsubcategoriaestado`) VALUES
@@ -210,6 +178,20 @@ INSERT INTO `tbsubcategoria` (`tbsubcategoriaid`, `tbsubcategorianombre`, `tbsub
 (2, 'Hojas', 1),
 (3, 'Helados', 1);
 
+
+
+CREATE TABLE  `tblote`(
+    `loteid` INT PRIMARY KEY NOT NULL,
+    `lotecodigo` VARCHAR(50) NOT NULL,
+    `productoid` INT NOT NULL,
+    `lotecantidad` INT NOT NULL,
+    `loteprecio` Decimal NOT NULL,
+    `proveedorid` INT NOT NULL,
+    `lotefechaingreso` DATE NOT NULL,
+    `lotefechavencimiento` DATE NOT NULL,
+    `loteestado` tinyint(1) NOT NULL 
+    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    
 --
 -- Índices para tablas volcadas
 --
@@ -230,13 +212,8 @@ ALTER TABLE `tbimpuesto`
 -- Indices de la tabla `tbproducto`
 --
 ALTER TABLE `tbproducto`
-  ADD PRIMARY KEY (`productoid`);
-
---
--- Indices de la tabla `tbproductosubcategoria`
---
-ALTER TABLE `tbproductosubcategoria`
-  ADD PRIMARY KEY (`productosubcategoriaid`);
+  ADD PRIMARY KEY (`productoid`),
+  ADD UNIQUE KEY `productocodigobarras` (`productocodigobarras`);
 
 --
 -- Indices de la tabla `tbproveedor`
@@ -251,16 +228,43 @@ ALTER TABLE `tbproveedordireccion`
   ADD PRIMARY KEY (`proveedordireccionid`);
 
 --
+-- Indices de la tabla `tbproveedortelefono`
+--
+ALTER TABLE `tbproveedortelefono`
+  ADD PRIMARY KEY (`proveedortelefonoid`);
+COMMIT;
+
+--
+-- Indices de la tabla `tblote`
+--
+ALTER TABLE `tblote`
+  ADD PRIMARY KEY (`loteid`);
+
+
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+-- Estructura de tabla para la tabla `tbproveedorproducto`
+--
+
+CREATE TABLE `tbproveedorproducto` (
+  `provedorproductoid` int(11) NOT NULL,
+  `proveedorid` int(11) NOT NULL,
+  `productoid` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Índices para tablas volcadas
+--
+
+--
 -- Indices de la tabla `tbproveedorproducto`
 --
 ALTER TABLE `tbproveedorproducto`
-  ADD PRIMARY KEY (`tbproveedorproducto`);
-
---
--- Indices de la tabla `tbsubcategoria`
---
-ALTER TABLE `tbsubcategoria`
-  ADD PRIMARY KEY (`tbsubcategoriaid`);
+  ADD PRIMARY KEY (`provedorproductoid`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

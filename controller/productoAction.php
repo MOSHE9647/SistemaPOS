@@ -1,72 +1,50 @@
 <?php
-    include __DIR__ . '/../service/ProductoBusiness.php';
-    require_once __DIR__ . '/../utils/Utils.php';
-
-    // Función para validar los datos del impuesto
-    function validarDatos($nombre, $preciounitarioproducto, $fecha, $cantidad) {
-        $errors = [];
-        if(empty($nombre) || is_numeric($nombre) || $nombre == null){
-            $errors[] = "El campo 'Nombre' no puede estar vacío o ser numérico.";
-        }    
-        if(empty($preciounitarioproducto) || $preciounitarioproducto == null){
-            $errors[] = "El precio unitario no puede estar vacio o tener caracteres no numericos";
-        }else{
-            if($preciounitarioproducto < 0){
-                $errors[] = "El precio unitaro debe ser un valor positivo";
-            }
-        }
-        if (empty($fecha) || !Utils::validar_fecha($fecha)) {
-            $errors[] = "El campo 'Fecha de adquisicion' no es válido.";
-        }
-        if(empty($cantidad) || $cantidad < 0){
-            $errors[] = "La cantidad es obigatoria, debes ser numero positivo.";
-        }
-        return $errors;
-    }
-
+    include __DIR__ . '/../service/productoBusiness.php';
 
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $accion = $_POST['accion'];
+        // Acción que se va a realizar
+        $accion = isset($_POST['accion']) ? $_POST['accion'] : "";
 
-        $idproducto = isset($_POST['id']) ? $_POST['id'] : null;
-        $nombreproducto = $_POST['nombre'];
-        $preciounitarioproducto = $_POST['precio'];
-        $cantidadproducto = $_POST['cantidad'];
-        $fechaadquisicionproducto = $_POST['fecha'];
-        $descripcionproducto = isset($_POST['descripcion']) ? $_POST['descripcion'] : "";
+        $id = isset($_POST['id']) ? $_POST['id'] : 0;
+        $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : "";
+        $precio = isset($_POST['precio']) ? $_POST['precio'] : 0;
+        $cantidad = isset($_POST['cantidad']) ? $_POST['cantidad'] : 0;
+        $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : "";
+        $descripcion = isset($_POST['descripcion']) ? $_POST['descripcion'] : "";
+        $codigo = isset($_POST['codigo']) ? $_POST['codigo'] : "";
 
-        $ProductoBusiness = new ProductoBusiness();
+        // Se crea el Service para las operaciones
+        $productoBusiness = new ProductoBusiness();
 
-        if ($accion == 'eliminar') {
-            if (empty($idproducto) || !is_numeric($idproducto)) {
-                $response['success'] = false;
-                $response['message'] = "El ID no puede estar vacío.";
-            } else {
-                $result = $ProductoBusiness->deleteTBProducto($idproducto);
-                $response['success'] = $result["success"];
-                $response['message'] = $result["message"];
-            }
-        } else {
-            $validationErrors = validarDatos($nombreproducto, $preciounitarioproducto, $fechaadquisicionproducto, $cantidadproducto);
-            if (empty($validationErrors)) {
-                $producto = new Producto($nombreproducto,$preciounitarioproducto,$cantidadproducto,$fechaadquisicionproducto,$idproducto,$descripcionproducto);
-                if ($accion == 'insertar') {
-                    $result = $ProductoBusiness->insertTBProducto($producto);
-                    $response['success'] = $result["success"];
-                    $response['message'] = $result["message"];
-                } elseif ($accion == 'actualizar') {
-                    $result = $ProductoBusiness->updateTBProducto($producto);
-                    $response['success'] = $result["success"];
-                    $response['message'] = $result["message"];
-                } else {
+        // Crea y verifica que los datos del producto sean correctos
+        $producto = new Producto($nombre, $precio, $cantidad, $fecha, $codigo, $id, $descripcion);
+        $check = $productoBusiness->validarProducto($producto, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
+
+        if ($check['is_valid']) {
+            switch ($accion) {
+                case 'insertar':
+                    // Inserta el producto en la base de datos
+                    $response = $productoBusiness->insertTBProducto($producto);
+                    break;
+                case 'actualizar':
+                    // Actualiza la info del producto en la base de datos
+                    $response = $productoBusiness->updateTBProducto($producto);
+                    break;
+                case 'eliminar':
+                    $response = $productoBusiness->deleteTBProducto($producto);
+                    // Elimina el producto de la base de datos
+                    break;
+                default:
+                    // Error en caso de que la accion no sea válida
                     $response['success'] = false;
                     $response['message'] = "Acción no válida.";
-                }
-            } else {
-                $response['success'] = false;
-                $response['message'] = implode(' ', $validationErrors);
+                    break;
             }
+        } else {
+            // Si los datos no son validos, se devuelve un mensaje de error
+            $response['success'] = $check['is_valid'];
+            $response['message'] = $check['message'];
         }
 
         header('Content-Type: application/json');
@@ -75,6 +53,15 @@
     }
 
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
+
+        if (isset($_GET['accion']) && $_GET['accion'] === 'listarProductos') {
+            $productoBusiness = new ProductoBusiness();
+            $result = $productoBusiness->getAllProductos();
+            header('Content-Type: application/json');
+            echo json_encode($result);
+            exit();
+        }
+        
         // Obtener parámetros de la solicitud GET
         $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
         $size = isset($_GET['size']) ? intval($_GET['size']) : 5;

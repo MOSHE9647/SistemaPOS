@@ -1,50 +1,57 @@
 <?php
 
-class Producto{
-    private $idproducto;
-    private $nombreproducto;
-    private $preciounitarioproducto;
-    private $cantidadproducto;
-    private $fechaadquisicionproducto;
-    private $descripcionproducto;
-    private $estadoproducto;
+    class Producto {
 
-    function __construct($nombreproducto,$preciounitarioproducto,$cantidadproducto,$fechaadquisicionproducto,$idproducto=0,$descripcionproducto="",$estadoproducto = true){
-        $this->idproducto = $idproducto;
-        $this->nombreproducto = $nombreproducto;
-        $this->preciounitarioproducto = $preciounitarioproducto;
-        $this->cantidadproducto = $cantidadproducto;
-        $this->fechaadquisicionproducto = $fechaadquisicionproducto;
-        $this->descripcionproducto = $descripcionproducto;
-        $this->estadoproducto = $estadoproducto;
-    }
-    //getters
-    function getIdProducto(){return $this->idproducto;}
-    function getNombreProducto(){return $this->nombreproducto;}
-    function getDescripcionProducto(){return $this->descripcionproducto;}
-    function getEstadoProducto(){return $this->estadoproducto;}
-    function getPrecioUnitarioProducto(){ return $this->preciounitarioproducto;}
-    function getCantidadProducto(){return $this->cantidadproducto;}
-    function getFechaAdquisicion(){return $this->fechaadquisicionproducto;}
-    //setters
-    function setIdProducto($idproducto){$this->idproducto = $idproducto;}
-    function setNombreProducto($nombreproducto){$this->nombreproducto =$nombreproducto;}
-    function setDescripcionProducto( $descripcionproducto){$this->descripcionproducto = $descripcionproducto;}
-    function setEstadoProducto($estadoproducto){$this->estadoproducto = $estadoproducto;}
-    function setPrecioUnitarioProducto($preciounitarioproducto){$this->preciounitarioproducto = $preciounitarioproducto;}
-    function setCantidadProducto($cantidadproducto){$this->cantidadproducto = $cantidadproducto;}
-    function setFechaAdquisicion($fechaadquisicionproducto){$this->fechaadquisicionproducto = $fechaadquisicionproducto;}
+        private $productoID;
+        private $productoNombre;
+        private $productoPrecio;
+        private $productoCantidad;
+        private $productoFecha;
+        private $productoDescripcion;
+        private $productoCodigoBarras;
+        private $productoEstado;
 
-    //
-    function __toString() {
-        return 
-            "Producto ID:". $this->idproducto."\n" .
-            "Nombre:". $this->nombreproducto."\n" .
-            "Precio Unitario:". $this->preciounitarioproducto."\n" .
-            "Cantidad:". $this->cantidadproducto."\n" .
-            "Fecha de Adquisición:". $this->fechaadquisicionproducto."\n" .
-            "Descripción:". $this->descripcionproducto."\n" .
-            "Estado: " . ($this->estadoproducto ? "Activo" : "Inactivo") . "\n";
+        public function __construct($productoNombre, $productoPrecio, $productoCantidad, $productoFecha, $productoCodigoBarras,
+                $productoID = 0, $productoDescripcion = "", $productoEstado = true) {
+            $this->productoID = $productoID;
+            $this->productoNombre = $productoNombre;
+            $this->productoPrecio = $productoPrecio;
+            $this->productoCantidad = $productoCantidad;
+            $this->productoFecha = $productoFecha;
+            $this->productoDescripcion = $productoDescripcion;
+            $this->productoCodigoBarras = $productoCodigoBarras;
+            $this->productoEstado = $productoEstado;
+        }
+
+        public function getProductoID() { return $this->productoID; }
+        public function getProductoNombre() { return $this->productoNombre; }
+        public function getProductoPrecio() {  return $this->productoPrecio; }
+        public function getProductoCantidad() { return $this->productoCantidad; }
+        public function getProductoFechaAdquisicion() { return $this->productoFecha; }
+        public function getProductoDescripcion() { return $this->productoDescripcion; }
+        public function getProductoCodigoBarras() { return $this->productoCodigoBarras; }
+        public function getProductoEstado() { return $this->productoEstado; }
+
+        public function setProductoID($productoID) { $this->productoID = $productoID; }
+        public function setProductoNombre($productoNombre) { $this->productoNombre =$productoNombre; }
+        public function setProductoPrecio($productoPrecio) { $this->productoPrecio = $productoPrecio; }
+        public function setProductoCantidad($productoCantidad) { $this->productoCantidad = $productoCantidad; }
+        public function setProductoFechaAdquisicion($productoFecha) { $this->productoFecha = $productoFecha; }
+        public function setProductoDescripcion($productoDescripcion) { $this->productoDescripcion = $productoDescripcion; }
+        public function setProductoCodigoBarras($productoCodigoBarras) { $this->productoCodigoBarras = $productoCodigoBarras; }
+        public function setProductoEstado($productoEstado) { $this->productoEstado = $productoEstado; }
+
+        public function __toString() {
+            return 
+                "Producto ID:". $this->productoID."\n" .
+                "Nombre:". $this->productoNombre."\n" .
+                "Precio Unitario:". $this->productoPrecio."\n" .
+                "Cantidad:". $this->productoCantidad."\n" .
+                "Fecha de Adquisición:". $this->productoFecha."\n" .
+                "Descripción:". $this->productoDescripcion."\n" .
+                "Estado: " . ($this->productoEstado ? "Activo" : "Inactivo") . "\n";
+        }
+
     }
-}
+
 ?>

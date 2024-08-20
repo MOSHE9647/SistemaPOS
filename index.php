@@ -10,6 +10,13 @@
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }
         </style>
+
+        <script>
+            function printBarcodes(count) {
+                const url = `/test/print_barcodes.php?count=${count}`;
+                window.open(url, '_blank', 'width=800,height=600');
+            }
+        </script>
     </head>
     <body>
         <h2>Administración de CRUDS <?php //echo gethostname() ?></h2>
@@ -21,6 +28,10 @@
             <li> <a href="./view/proveedorTelefonoView.php">Gestión de Telefonos</a> </li>
             <li> <a href="./view/subcategoriaView.php">Gestión de Subcategorias</a> </li>
             <li> <a href="./view/productoSubcategoriaView.php">Gestión de Producto-Subcategorias</a> </li>
+            <li> <a href="./view/proveedorProductoView.php">Gestión Proveedor-Producto</a> </li>
+            <li> <a href="./view/loteView.php">Gestión de lotes</a> </li>
+            <li> <a href="./view/categoriaView.php">Gestion de Categorias</a> </li>
+            <li> <a href="" onclick="printBarcodes(10)">Imprimir Códigos de Barras</a> </li>
         </ul>
     </body>
 </html>

@@ -331,18 +331,13 @@
 
         public function deleteDireccion($direccionID) {
             try {
-                // Verifica que el ID de la dirección no esté vacío y sea numérico
-				if (empty($direccionID) || !is_numeric($direccionID) || $direccionID <= 0) {
-					throw new Exception("El ID no puede estar vacío o ser menor a 0.");
-				}
-
                 // Verificar si existe el ID y que el Estado no sea false
                 $check = $this->direccionExiste($direccionID);
                 if (!$check["success"]) {
 					return $check; // Error al verificar la existencia
 				}
 				if (!$check["exists"]) {
-					throw new Exception("No se encontró una dirección con el ID [" . $direccionID . "]");
+					throw new Exception("No existe ninguna direccion en la base de datos que coincida con la información proporcionada.");
 				}
 
                 // Establece una conexion con la base de datos
@@ -363,8 +358,15 @@
 				// Devuelve el resultado de la operación
 				return ["success" => true, "message" => "Dirección eliminada exitosamente."];
             } catch (Exception $e) {
-                // Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al eliminar la direccion de la base de datos'
+                );
+
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
 			} finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
