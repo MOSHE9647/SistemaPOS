@@ -70,7 +70,8 @@ Cada quien se encarga del punto 1 en sus respectivos códigos ('INCLUYENDO LOS D
 
     3. Tipo Compra (De este la verdad no tengo idea, supongo que es así):
         - tipoCompraID                  | INT        NOT NULL                 | 
-        - tipoCompraFechaCreacion       | DATETIME   NOT NULL                 |   ['Debe crearse de forma automática']
+        - tipoCompraFechaCreacion       | DATETIME   NOT NULL  DEFAULT        |   ['Debe crearse de forma automática']
+        - tipoCompraFechaModificacion   | DATETIME   NOT NULL  DEFAULT        |   ['Debe crearse de forma automática']
         - tipoCompraCompraProductoID    | INT        NOT NULL              FK |   ['El ID de CompraProducto (Factura)']
         - tipoCompraDescripcion         | TEXT                                |   ['Detalles del tipo de compra (si es necesario)']
         - tipoCompraNombre              | VARCHAR    NOT NULL                 |   ['Tipo: Contado, Pagos, etc...']
