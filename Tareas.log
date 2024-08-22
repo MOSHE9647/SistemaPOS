@@ -10,15 +10,15 @@ El trabajo se distribuirá de la siguiente manera:
 Cada quien se encarga del punto 1 en sus respectivos códigos ('INCLUYENDO LOS DE LA ENTREGA ANTERIOR').
 'LOS PUNTOS' 1.2.2 'Y' 1.1 'SON LOS MÁS IMPORTANTES'
 
-1- Manejo de 'Errores' y 'Re-Estructuración' del Código (Faltan algunos Data, Service y Controller de los que copiaron lo viejo y no los cambios nuevos, esto tanto en el 'Back' como en el 'Front'):
+1- Manejo de 'Errores' y 'Re-Estructuración' del Código (Faltan algunos 'Data', 'Service' y 'Controller' de los que copiaron lo viejo y no los cambios nuevos, esto tanto en el 'Back' como en el 'Front'):
 	1. 'Errores':
         1. Personalizar mensajes de Error.      [Uso de 'handleMysqlError()' y de 'Utils::writeLog()']
 	    2. Especificación del porqué del Error. [Uso de mensajes amigables y entendibles para el usuario]
         3. Validación de Variables.             [Validar y devolver mensajes exactos en caso de Error]
 
     2. 'Re-Estructuración':
-        1. Eliminar del Domain las clases 'ProductoCategoria', 'ProductoSubcategoria', 'ProveedorProducto' y 'ProveedorTelefono', y modificar los respectivos Data, Service y Controller. Estas clases no deben existir ya que la info que tienen se jala por medio de un InnerJoin.
-	    2. Ajustar el código de todos los Data, Service y Controller para que coincidan con el de Impuesto y Dirección (ajustándolos con sus respectivas validaciones, querys, comentarios y demás cosas).
+        1. Eliminar del Domain las clases 'ProductoCategoria', 'ProductoSubcategoria', 'ProveedorProducto' y 'ProveedorTelefono', y modificar los respectivos 'Data', 'Service' y 'Controller'. Estas clases no deben existir ya que la info que tienen se jala por medio de un InnerJoin.
+	    2. Ajustar el código de todos los 'Data', 'Service' y 'Controller' para que coincidan con el de Impuesto y Dirección (ajustándolos con sus respectivas validaciones, querys, comentarios y demás cosas).
 
 2- Producto:
 	1. ['Codigo'] -> Agregar a la clase el atributo 'productoFoto' / 'productoFotografía' / 'productoImagen' (Cualquiera de las 3, este va a contener la ruta de la imagen).
@@ -28,53 +28,63 @@ Cada quien se encarga del punto 1 en sus respectivos códigos ('INCLUYENDO LOS D
 	5. ['Codigo'] -> Agregar a la clase los atributos 'Categoria' y 'Subcategoria' (Deben obtenerse por medio de un InnerJoin de sus respectivas tablas).
 	6. ['BD']     -> Eliminar columna 'productofechaadquisicion'.
 	7. ['BD']     -> Eliminar columna 'productocantidad'.
-    8. ['Codigo'] -> Modificar el código de Data, Service y Controller según corresponda.
+    8. ['Codigo'] -> Modificar el código de 'Data', 'Service' y 'Controller' según corresponda haciendo sus respectivas validaciones.
+    9. ['BD']     -> Modificar columna 'productocodigobarras' (VARCHAR) por 'productocodigobarrasid' (INT), ya que este va a tener el id de la tabla 'tbcodigobarras'. Además, esta columna debe tener la propiedad UNIQUE para que no se repitan los códigos.
 
 3- Proveedor:
 	1. ['Codigo'] -> Agregar el atributo 'Dirección' y 'Telefono' a la clase 'Proveedor' ambos como listas de su respectivo tipo (de igual forma se obtiene la info mediante InnerJoin al momento de jalar al proveedor de la 'BD'). 
-    2. ['Codigo'] -> Modificar el código de Data, Service y Controller según corresponda.
+    2. ['Codigo'] -> Modificar el código de 'Data', 'Service' y 'Controller' según corresponda.
 
 4- Proveedor-Telefono:
-    1. ['BD']     -> Eliminar tabla, ya que un teléfono solo puede pertenecer a un proveedor, pero un proveedor puede tener varios teléfonos.
-    2. ['Codigo'] -> Modificar el código de Data, Service y Controller según corresponda.
+    1. ['BD']     -> Eliminar tabla, ya que un teléfono solo puede pertenecer a un proveedor, pero un proveedor puede tener varios teléfonos. ['COMPLETADO']
+    2. ['Codigo'] -> Modificar el código de 'Data', 'Service' y 'Controller' según corresponda.
 
 5- Lote:
 	1. ['BD']     -> Agregar columna 'lotecompraid' (el id de la factura).
 	2. ['BD']     -> Eliminar columna 'lotefechaingreso' ya que este ya viene desde la factura.
 	3. ['BD']     -> Eliminar columna 'lotecantidad' y 'loteprecio'.
-    4. ['Codigo'] -> Modificar el código de Data, Service y Controller según corresponda.
+    4. ['Codigo'] -> Modificar el código de 'Data', 'Service' y 'Controller' según corresponda.
 
-6- CRUD's (Todos los 'NOT NULL' deben verificarse, además, 'FK' indica que es el ID de otra tabla, no usar ForeignKey):
-	1. Código de Barras.
-        - codigoBarrasID                | INT        NOT NULL                |
-        - codigoBarrasNumero            | INT        NOT NULL   UNIQUE       |
-        - codigoBarrasEstado            | TINYINT    NOT NULL                |
+6- CRUD's:
+    *. RECUERDEN:
+        1. 'TODOS LOS NOMBRES DE LAS COLUMNAS Y LAS TABLAS VAN EN MINÚSCULAS'.
+        2. 'LOS NOMBRES DE LAS TABLAS VAN EN MINÚSCULAS, SIN GUIONES, SIN ESPACIOS Y EMPIEZAN CON tb'.
+        3. Todos los 'NOT NULL' y 'UNIQUE' tienen y 'DEBEN' verificarse.
+        4. 'FK' indica que es el ID de otra tabla, no usar ForeignKey
 
-	2. Compra Producto (Factura).
-        - compraProductoID              | INT        NOT NULL                |
-        - compraProductoCantidad        | INT        NOT NULL                |
-        - compraProductoLoteID          | INT        NOT NULL   UNIQUE    FK |
-        - compraProductoProductoID      | INT        NOT NULL   UNIQUE    FK |
-        - compraProductoProveedorID     | INT        NOT NULL   UNIQUE    FK |
-        - compraProductoEstado          | TINYINT    NOT NULL                |
+	1. Código de Barras ['COMPLETADO']:
+        - codigoBarrasID                | INT        NOT NULL                 |
+        - codigoBarrasNumero            | INT        NOT NULL   UNIQUE        |   ['El código de barras en sí']
+        - codigoBarrasFechaCreacion     | DATETIME   NOT NULL   DEFAULT       |   ['Debe crearse de forma automática']
+        - codigoBarrasFechaModificacion | DATETIME   NOT NULL   DEFAULT       |   ['Debe crearse de forma automática']
+        - codigoBarrasEstado            | TINYINT    NOT NULL   DEFAULT 1     |
 
-    3. Tipo Compra (De este la verdad no tengo idea, supongo que es así).
-        - tipoCompraID                  | INT        NOT NULL                | 
-        - tipoCompraFechaCreacion       | DATETIME   NOT NULL                |   ['Debe crearse de forma automática']
-        - tipoCompraCompraProductoID    | INT        NOT NULL   UNIQUE    FK |   ['El ID de CompraProducto (Factura)']
-        - tipoCompraDescripcion         | TEXT                               |   ['Detalles del tipo de compra (si es necesario)']
-        - tipoCompraNombre              | VARCHAR    NOT NULL                |   ['Tipo: Contado, Pagos, etc...']
-        - tipoCompraTasaInteres         | DOUBLE     NOT NULL                |   ['Porcentaje: 3, 0.3, 12, ...']
-        - tipoCompraPlazos              | INT        NOT NULL                |   ['Cuantos pagos se deben realizar']
-        - tipoCompraMeses               | INT        NOT NULL                |   ['A cuantos meses.']
-        - tipoCompraEstado              | TINYINT    NOT NULL                | 
+	2. Compra Producto (Factura):
+        - compraProductoID              | INT        NOT NULL                 |
+        - compraProductoCantidad        | INT        NOT NULL                 |
+        - compraProductoLoteID          | INT        NOT NULL              FK |
+        - compraProductoProductoID      | INT        NOT NULL              FK |
+        - compraProductoProveedorID     | INT        NOT NULL              FK |
+        - compraProductoFechaCreacion   | DATETIME   NOT NULL  DEFAULT        |   ['Debe crearse de forma automática']
+        - compraProductoEstado          | TINYINT    NOT NULL  DEFAULT 1      |
 
-    4. Telefono:
-        - telefonoID                    | INT        NOT NULL                |
-        - telefonoProveedorID           | INT        NOT NULL   UNIQUE    FK |   ['Debe ser único']
-        - telefonoFechaCreacion         | DATETIME   NOT NULL                |   ['Debe crearse automáticamente'].
-        - telefonoTipo                  | VARCHAR    NOT NULL                |   ['Móvil, Fax, Fijo'].
-        - telefonoExtension             | VARCHAR                            |   ['En caso de tener'].
-        - telefonoCodigoPais            | VARCHAR    NOT NULL   UNIQUE       |   [506, 1, 52].
-        - telefonoNumero                | VARCHAR    NOT NULL                |   [8888 8888 o 642 245566 98].
-        - telefonoEstado                | TINYINT    NOT NULL                |
+    3. Tipo Compra (De este la verdad no tengo idea, supongo que es así):
+        - tipoCompraID                  | INT        NOT NULL                 | 
+        - tipoCompraFechaCreacion       | DATETIME   NOT NULL                 |   ['Debe crearse de forma automática']
+        - tipoCompraCompraProductoID    | INT        NOT NULL              FK |   ['El ID de CompraProducto (Factura)']
+        - tipoCompraDescripcion         | TEXT                                |   ['Detalles del tipo de compra (si es necesario)']
+        - tipoCompraNombre              | VARCHAR    NOT NULL                 |   ['Tipo: Contado, Pagos, etc...']
+        - tipoCompraTasaInteres         | DOUBLE     NOT NULL                 |   ['Porcentaje: 3, 0.3, 12, ...']
+        - tipoCompraPlazos              | INT        NOT NULL                 |   ['Cuantos pagos se deben realizar']
+        - tipoCompraMeses               | INT        NOT NULL                 |   ['A cuantos meses.']
+        - tipoCompraEstado              | TINYINT    NOT NULL  DEFAULT 1      | 
+
+    4. Telefono ['COMPLETADO']:
+        - telefonoID                    | INT        NOT NULL                 |
+        - telefonoProveedorID           | INT        NOT NULL              FK |
+        - telefonoFechaCreacion         | DATETIME   NOT NULL                 |   ['Debe crearse automáticamente'].
+        - telefonoTipo                  | VARCHAR    NOT NULL                 |   ['Móvil, Fax, Fijo'].
+        - telefonoExtension             | VARCHAR                             |   ['En caso de tener'].
+        - telefonoCodigoPais            | VARCHAR    NOT NULL                 |   [506, 1, 52].
+        - telefonoNumero                | VARCHAR    NOT NULL                 |   [8888 8888 o 642 245566 98].
+        - telefonoEstado                | TINYINT    NOT NULL  DEFAULT 1      |
