@@ -1,0 +1,63 @@
+1- Producto:
+	1. ['BD']     -> Agregar columna 'productofoto' con la fotografía del Producto (String con la dirección donde se encuentra la imagen. Ej: "C:\ruta\a\la\imagen") y crear nombre de la fotografía (el nombre de la foto es el 'Código de Barras').
+	2. ['Codigo'] -> Agregar a la clase el atributo 'Foto' / 'Fotografía' / 'Imagen' (Cualquiera de las 3, este va a contener la ruta de la imagen).
+	3. ['BD']     -> Modificar Columna 'productopreciounitario' y cambiarla por 'productopreciocompra'.
+	4. ['BD']     -> Agregar columna 'productoporcentajeganancia' (DECIMAL).
+	5. ['Codigo'] -> Agregar a la clase los atributos 'Categoria' y 'Subcategoria' (Deben obtenerse por medio de un InnerJoin de sus respectivas tablas).
+	6. ['BD']     -> Eliminar columna 'productofechaadquisicion'.
+	7. ['BD']     -> Eliminar columna 'productocantidad'.
+
+2- Proveedor:
+	1. ['Codigo'] -> Agregar el atributo 'Dirección' a la clase 'Proveedor' (de igual forma se obtiene la info mediante InnerJoin al momento de jalar al proveedor de la 'BD').
+
+3- Proveedor-Telefono:
+    1. ['BD']     -> Eliminar tabla y cambiar por tabla 'Telefono', ya que un teléfono solo puede pertenecer a un proveedor, pero un proveedor puede tener varios teléfonos.
+
+4- Lote:
+	1. ['BD']     -> Agregar columna 'lotecompraid' (el id de la factura).
+	2. ['BD']     -> Eliminar columna 'lotefechaingreso' ya que este ya viene desde la factura.
+	3. ['BD']     -> Eliminar columna 'lotecantidad' y 'loteprecio'
+
+5- CRUD's (Todos los 'NOT NULL' deben verificarse, además, 'FK' indica que es el ID de otra tabla, no usar ForeignKey):
+	1. Código de Barras.
+        - codigoBarrasID                | INT        NOT NULL                |
+        - codigoBarrasNumero            | INT        NOT NULL   UNIQUE       |
+        - codigoBarrasEstado            | TINYINT    NOT NULL                |
+
+	2. Compra Producto (Factura).
+        - compraProductoID              | INT        NOT NULL                |
+        - compraProductoCantidad        | INT        NOT NULL                |
+        - compraProductoLoteID          | INT        NOT NULL   UNIQUE    FK |
+        - compraProductoProductoID      | INT        NOT NULL   UNIQUE    FK |
+        - compraProductoProveedorID     | INT        NOT NULL   UNIQUE    FK |
+        - compraProductoEstado          | TINYINT    NOT NULL                |
+
+    4. Tipo Compra (De este la verdad no tengo idea, supongo que es así).
+        - tipoCompraID                  | INT        NOT NULL                | 
+        - tipoCompraFechaCreacion       | DATETIME   NOT NULL                |   ['Debe crearse de forma automática']
+        - tipoCompraCompraProductoID    | INT        NOT NULL   UNIQUE  FK   |   ['El ID de CompraProducto (Factura)']
+        - tipoCompraDescripcion         | TEXT                               |   ['Detalles del tipo de compra (si es necesario)']
+        - tipoCompraNombre              | VARCHAR    NOT NULL                |   ['Tipo: Contado, Pagos, etc...']
+        - tipoCompraTasaInteres         | DOUBLE     NOT NULL                |   ['Porcentaje: 3, 0.3, 12, ...']
+        - tipoCompraPlazos              | INT        NOT NULL                |   ['Cuantos pagos se deben realizar']
+        - tipoCompraMeses               | INT        NOT NULL                |   ['A cuantos meses.']
+        - tipoCompraEstado              | TINYINT    NOT NULL                | 
+
+    5. Telefono:
+        - telefonoID                    | INT        NOT NULL                |
+        - telefonoProveedorID           | INT        NOT NULL   UNIQUE  FK   |   ['Debe ser único']
+        - telefonoFechaCreacion         | DATETIME   NOT NULL                |   ['Debe crearse automáticamente'].
+        - telefonoTipo                  | VARCHAR    NOT NULL                |   ['Móvil, Fax, Fijo'].
+        - telefonoExtension             | VARCHAR                            |   ['En caso de tener'].
+        - telefonoCodigoPais            | VARCHAR    NOT NULL   UNIQUE       |   [506, 1, 52].
+        - telefonoNumero                | VARCHAR    NOT NULL                |   [8888 8888 o 642 245566 98].
+        - telefonoEstado                | TINYINT    NOT NULL                |
+
+6- Manejo de 'Errores' y 'Re-Estructuración' del Código (Faltan algunos Data, Service y Controller de los que copiaron lo viejo y no los cambios nuevos tanto en el 'Back' como en el 'Front'):
+	- 'Errores':
+    1. Personalizar mensajes de Error.      [Uso de 'handleMysqlError()' y de 'Utils::writeLog()']
+	2. Especificación del porqué del Error. [Uso de mensajes amigables y entendibles para el usuario]
+
+    - 'Re-Estructuración':
+    1. Eliminar del Domain las clases ProductoCategoria, ProductoSubcategoria, ProveedorProducto y ProveedorTelefono, y modificar los respectivos Data, Service y Controller para que no los utilicen. Estas clases no deben existir ya que la info que tienen se jala por medio de un InnerJoin.
+	2. Ajustar el código de todos los Data, Service y Controller para que coincidan con el de Impuesto y Dirección (ajustándolos con sus respectivas validaciones, querys y comentarios).

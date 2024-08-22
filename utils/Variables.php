@@ -7,8 +7,16 @@
 	define('DATA_LOG_FILE', 'database-error.log');
 	define('BUSINESS_LOG_FILE', 'business-error.log');
 
-	// VARIABLES DE LA BD:
+	// VARIABLES CLEVER-CLOUD (BD EN LA NUBE)
+	define('CLOUD_DB_HOST', 'bdpbhgi0jbzwpoftwisg-mysql.services.clever-cloud.com');
+	define('CLOUD_DB_NAME', 'bdpbhgi0jbzwpoftwisg');
+	define('CLOUD_DB_USER', 'ucbd34lboyoad3gt');
+	define('CLOUD_DB_PASS', 'EleYfGcbzdD9q1DJ11GQ');
+
+	// VARIABLES DE MYSQL (LOCAL):
+	define('DB_HOST', 'localhost');
 	define('DB_NAME', 'bdpuntoventa');
+	define('DB_USER', 'root');
 	define('DB_PASS', '#SistemaPOS1234');
 
 	// TABLA 'tbImpuesto'

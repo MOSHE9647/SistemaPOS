@@ -11,6 +11,13 @@
         public $dbname;
 
         public function __construct() {
+            // CONEXION A BD EN LA NUBE (Comentar para usar la BD Local)
+            $this->servername = CLOUD_DB_HOST;
+            $this->username = CLOUD_DB_USER;
+            $this->password = CLOUD_DB_PASS;
+            $this->dbname = CLOUD_DB_NAME;
+
+            /*
             // Obtiene el nombre del equipo
             $hostName = gethostname();
             
@@ -18,33 +25,34 @@
             switch ($hostName) {
                 // PC de Isaac (Ubuntu WSL2 - Win11)
                 case "Moshe9647-PC":
-                    $this->servername = "localhost";
-                    $this->username = "root";
+                    $this->servername = DB_HOST;
+                    $this->username = DB_USER;
                     $this->password = DB_PASS;
                     $this->dbname = DB_NAME;
                     break;
                 // PC de Gonzalo (Ubuntu WSL2 - Win10)
                 case "DESKTOP-G544DN0":
-                    $this->servername = "localhost";
+                    $this->servername = DB_HOST;
                     $this->username = "gonzalo";
                     $this->password = DB_PASS;
                     $this->dbname = DB_NAME;
                     break;
                 // PC de Jason (Ubuntu 24.04)
                 case "jasonmadrigalo-123":
-                    $this->servername = "localhost";
-                    $this->username = "root";
+                    $this->servername = DB_HOST;
+                    $this->username = DB_USER;
                     $this->password = "";
                     $this->dbname = DB_NAME;
                     break;
                 // Otras PC's
                 default:
-                    $this->servername = "localhost";
-                    $this->username = "root";
+                    $this->servername = DB_HOST;
+                    $this->username = DB_USER;
                     $this->password = "";
                     $this->dbname = DB_NAME;
                     break;
             }
+            */
         }
 
         /**
