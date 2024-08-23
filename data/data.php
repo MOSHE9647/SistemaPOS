@@ -198,7 +198,7 @@
                     $userMessage = $errorMessage;
                     break;
                 default:
-                    $userMessage = "Ocurrió un error desconocido al intentar comunicarse con la base de datos.";
+                    $userMessage = "Error al acceder a los datos. Por favor, inténtelo de nuevo más tarde. Si el problema persiste, póngase en contacto con nosotros.";
             }
             
             Utils::writeLog("$logMessage (Código: $errorCode): $errorMessage", DATA_LOG_FILE);

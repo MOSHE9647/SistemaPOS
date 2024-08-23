@@ -56,6 +56,10 @@
             }
         }
 
+        public function existeProveedor($proveedorID) {
+            return $this->proveedorData->proveedorExiste($proveedorID);
+        }
+
         public function insertTBProveedor($proveedor) {
             // Verifica que los datos del proveedor sean validos
             $check = $this->validarProveedor($proveedor);

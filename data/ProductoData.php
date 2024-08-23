@@ -32,17 +32,23 @@
                     $types .= 'i';
                 } else if ($productoNombre !== null && $productoCodigoBarras !== null) {
                     // Verificar existencia por nombre y codigo de barras
-                    $queryCheck .= PRODUCTO_NOMBRE . " = ? OR (" . PRODUCTO_CODIGO_BARRAS . " = ? AND " . PRODUCTO_ESTADO . " != false) AND " . PRODUCTO_ID ." <> ?";
+                    $queryCheck .= PRODUCTO_NOMBRE . " = ? OR (" . PRODUCTO_CODIGO_BARRAS . " = ? AND " . PRODUCTO_ESTADO . " != false)";
                     $params[] = $productoNombre;
                     $params[] = $productoCodigoBarras;
-                    $params[] = $productoID;
-                    $types .= 'ssi';
+                    $types .= 'ss';
+
+                    if ($productoID !== null) {
+                        $queryCheck .= " AND " . PRODUCTO_ID . " <> ?";
+                        $params[] = $productoID ;
+                        $types .= 'i';
+                    }
                 } else {
                     $message = "No se proporcionaron los parámetros necesarios para verificar la existencia del producto";
 					Utils::writeLog("$message. Parámetros: 'productoID [$productoID]', 'productoNombre [$productoNombre]', 'productoCodigoBarras [$productoCodigoBarras]'", DATA_LOG_FILE);
 					throw new Exception($message);
                 }
                 $stmt = mysqli_prepare($conn, $queryCheck);
+                Utils::writeLog("Update: " . ($update ? 'true. ' : 'false. ') . $queryCheck);
                 
                 // Asignar los parámetros y ejecutar la consulta
                 mysqli_stmt_bind_param($stmt, $types, ...$params);
