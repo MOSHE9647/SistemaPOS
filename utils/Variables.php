@@ -48,6 +48,17 @@
 	define('DIRECCION_DISTANCIA', 'direcciondistancia');
 	define('DIRECCION_ESTADO', 'direccionestado');
 
+	// TABLA 'tbTelefono'
+	define('TB_TELEFONO', 'tbtelefono'); //<- Nombre de la Tabla
+	define('TELEFONO_ID', 'telefonoid');
+	define('TELEFONO_PROVEEDOR_ID', 'telefonoproveedorid');
+	define('TELEFONO_FECHA_CREACION', 'telefonofechacreacion');
+	define('TELEFONO_TIPO', 'telefonotipo');
+	define('TELEFONO_EXTENSION', 'telefonoextension');
+	define('TELEFONO_CODIGO_PAIS', 'telefonocodigopais');
+	define('TELEFONO_NUMERO', 'telefononumero');
+	define('TELEFONO_ESTADO', 'telefonoestado');
+
 	// Tabla 'tbproducto'
 	define('TB_PRODUCTO','tbproducto'); //<- Nombre de la Tabla
 	define('PRODUCTO_ID','productoid');
@@ -90,13 +101,6 @@
 	define('TB_PROVEEDOR_DIRECCION', 'tbproveedordireccion'); //<- Nombre de la Tabla
 	define('PROVEEDOR_DIRECCION_ESTADO', 'proveedordireccionestado');
 	define('PROVEEDOR_DIRECCION_ID', 'proveedordireccionid');
-
-	// TABLA INTERMEDIA PARA Proveedor Y Telefono 'tbProveedorTelefono'
-    define('TB_PROVEEDOR_TELEFONO', 'tbproveedortelefono'); //<- Nombre de la Tabla
-    define('PROVEEDOR_TELEFONO_ESTADO', 'proveedortelefonoestado');
-    define('PROVEEDOR_TELEFONO_ID', 'proveedortelefonoid');
-    define('PROVEEDOR_TELEFONO', 'proveedortelefono');
-
 
 	// Tabla 'tblote'
 	define('TB_LOTE','tblote'); //<- Nombre de la Tabla

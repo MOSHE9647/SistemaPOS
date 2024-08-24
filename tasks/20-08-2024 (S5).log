@@ -17,7 +17,7 @@ Cada quien se encarga del punto 1 en sus respectivos códigos ('INCLUYENDO LOS D
         3. Validación de Variables.             [Validar y devolver mensajes exactos en caso de Error]
 
     2. 'Re-Estructuración':
-        1. Eliminar del Domain las clases 'ProductoCategoria', 'ProductoSubcategoria', 'ProveedorProducto' y 'ProveedorTelefono', y modificar los respectivos 'Data', 'Service' y 'Controller'. Estas clases no deben existir ya que la info que tienen se jala por medio de un InnerJoin.
+        1. Eliminar del Domain las clases 'ProductoCategoria', 'ProductoSubcategoria', 'ProveedorProducto', y modificar los respectivos 'Data', 'Service' y 'Controller'. Estas clases no deben existir ya que la info que tienen se jala por medio de un InnerJoin.
 	    2. Ajustar el código de todos los 'Data', 'Service' y 'Controller' para que coincidan con el de Impuesto y Dirección (ajustándolos con sus respectivas validaciones, querys, comentarios y demás cosas).
 
 2- Producto:
@@ -52,7 +52,7 @@ Cada quien se encarga del punto 1 en sus respectivos códigos ('INCLUYENDO LOS D
         3. Todos los 'NOT NULL' y 'UNIQUE' tienen y 'DEBEN' verificarse.
         4. 'FK' indica que es el ID de otra tabla, no usar ForeignKey
 
-	1. Código de Barras ['COMPLETADO']:
+	1. Código de Barras ['COMPLETADO' (Falta el Código)]:
         - codigoBarrasID                | INT        NOT NULL                 |
         - codigoBarrasNumero            | INT        NOT NULL   UNIQUE        |   ['El código de barras en sí']
         - codigoBarrasFechaCreacion     | DATETIME   NOT NULL   DEFAULT       |   ['Debe crearse de forma automática']
@@ -86,6 +86,6 @@ Cada quien se encarga del punto 1 en sus respectivos códigos ('INCLUYENDO LOS D
         - telefonoFechaCreacion         | DATETIME   NOT NULL                 |   ['Debe crearse automáticamente'].
         - telefonoTipo                  | VARCHAR    NOT NULL                 |   ['Móvil, Fax, Fijo'].
         - telefonoExtension             | VARCHAR                             |   ['En caso de tener'].
-        - telefonoCodigoPais            | VARCHAR    NOT NULL                 |   [506, 1, 52].
-        - telefonoNumero                | VARCHAR    NOT NULL                 |   [8888 8888 o 642 245566 98].
+        - telefonoCodigoPais            | VARCHAR    NOT NULL  UNIQUE         |   [+506, +1, +52].
+        - telefonoNumero                | VARCHAR    NOT NULL  UNIQUE         |   [8888 8888 o 642 245566 98].
         - telefonoEstado                | TINYINT    NOT NULL  DEFAULT 1      |
