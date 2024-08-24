@@ -36,36 +36,30 @@ class LoteData extends Data {
             $queryInsert = "INSERT INTO " . TB_LOTE . " ("
                 . LOTE_ID . ", "
                 . LOTE_CODIGO . ", "
+                . COMPRALOTE_ID . ", "
                 . PRODUCTOLOTE_ID . ", "
-                . LOTE_CANTIDAD . ", "
-                . LOTE_PRECIO . ", "
                 . PROVEEDORLOTE_ID . ", "
-                . LOTE_FECHA_INGRESO . ", "
                 . LOTE_FECHA_VENCIMIENTO . ", "
                 . LOTE_ESTADO
-                . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, true)";
+                . ") VALUES (?, ?, ?, ?, ?, ?, true)";
             $stmt = mysqli_prepare($conn, $queryInsert);
 
             // Obtener los valores de las propiedades del objeto $lote
             $loteCodigo = $lote->getLoteCodigo();
+            $compraID = $lote->getCompraID();
             $productoID = $lote->getProductoID();
-            $loteCantidad = $lote->getLoteCantidad();
-            $lotePrecio = $lote->getLotePrecio();
             $proveedorID = $lote->getProveedorID();
-            $loteFechaIngreso = $lote->getLoteFechaIngreso();
             $loteFechaVencimiento = $lote->getLoteFechaVencimiento();
 
             // Asigna los valores a cada '?' de la consulta
             mysqli_stmt_bind_param(
                 $stmt,
-                'isiidiss', // i: Entero, d: Doble, s: Cadena
+                'isiiis', // i: Entero, d: Doble, s: Cadena
                 $nextId,
                 $loteCodigo,
+                $compraID,
                 $productoID,
-                $loteCantidad,
-                $lotePrecio,
                 $proveedorID,
-                $loteFechaIngreso,
                 $loteFechaVencimiento
             );
 
@@ -102,12 +96,10 @@ class LoteData extends Data {
             $queryUpdate = 
                 "UPDATE " . TB_LOTE . 
                 " SET " . 
-                    LOTE_CODIGO . " = ?, " . 
+                    LOTE_CODIGO . " = ?, " .
+                    COMPRALOTE_ID . " = ?, " .
                     PRODUCTOLOTE_ID . " = ?, " .
-                    LOTE_CANTIDAD . " = ?, " .
-                    LOTE_PRECIO . " = ?, " .
                     PROVEEDORLOTE_ID . " = ?, " .
-                    LOTE_FECHA_INGRESO . " = ?, " .
                     LOTE_FECHA_VENCIMIENTO . " = ?, " .
                     LOTE_ESTADO . " = true " .
                 "WHERE " . LOTE_ID . " = ?";
@@ -116,23 +108,19 @@ class LoteData extends Data {
             // Obtener los valores de las propiedades del objeto $lote
             $loteID = $lote->getLoteID();
             $loteCodigo = $lote->getLoteCodigo();
+            $compraID = $lote->getcompraID();
             $productoID = $lote->getProductoID();
-            $loteCantidad = $lote->getLoteCantidad();
-            $lotePrecio = $lote->getLotePrecio();
             $proveedorID = $lote->getProveedorID();
-            $loteFechaIngreso = $lote->getLoteFechaIngreso();
             $loteFechaVencimiento = $lote->getLoteFechaVencimiento();
 
             // Asigna los valores a cada '?' de la consulta
             mysqli_stmt_bind_param(
                 $stmt,
-                'siidissi', // i: Entero, d: Decimal, s: Cadena
+                'siiisi', // i: Entero, d: Decimal, s: Cadena
                 $loteCodigo,
+                $compraID,
                 $productoID,
-                $loteCantidad,
-                $lotePrecio,
                 $proveedorID,
-                $loteFechaIngreso,
                 $loteFechaVencimiento,
                 $loteID
             );
@@ -173,11 +161,9 @@ class LoteData extends Data {
         SELECT 
             l." . LOTE_ID . ", 
             l." . LOTE_CODIGO . ", 
+            l." . COMPRALOTE_ID . ", 
             p.productonombre AS productoNombre,
-            l." . LOTE_CANTIDAD . ", 
-            l." . LOTE_PRECIO . ", 
             pr.proveedornombre AS proveedorNombre,
-            l." . LOTE_FECHA_INGRESO . ", 
             l." . LOTE_FECHA_VENCIMIENTO . ", 
             l." . LOTE_ESTADO . "
         FROM " . TB_LOTE . " l
@@ -194,11 +180,9 @@ class LoteData extends Data {
             $currentLote = new Lote(
                 $row[LOTE_ID],
                 $row[LOTE_CODIGO],
+                $row[COMPRALOTE_ID],
                 $row['productoNombre'],  // Usar el nombre del producto
-                $row[LOTE_CANTIDAD],
-                $row[LOTE_PRECIO],
                 $row['proveedorNombre'], // Usar el nombre del proveedor
-                $row[LOTE_FECHA_INGRESO],
                 $row[LOTE_FECHA_VENCIMIENTO],
                 $row[LOTE_ESTADO]
             );
@@ -255,11 +239,9 @@ class LoteData extends Data {
               SELECT 
                   l." . LOTE_ID . ", 
                   l." . LOTE_CODIGO . ", 
+                  l." . COMPRALOTE_ID . ", 
                   p.productonombre AS productoNombre,
-                  l." . LOTE_CANTIDAD . ", 
-                  l." . LOTE_PRECIO . ", 
                   pr.proveedornombre AS proveedorNombre,
-                  l." . LOTE_FECHA_INGRESO . ", 
                   l." . LOTE_FECHA_VENCIMIENTO . ", 
                   l." . LOTE_ESTADO . "
               FROM " . TB_LOTE . " l
@@ -288,11 +270,9 @@ class LoteData extends Data {
                 $listaLotes [] = [
 					'ID' => $row[LOTE_ID],
                     'Codigo' => $row[LOTE_CODIGO],
+                    'Compra' => $row[COMPRALOTE_ID],
                     'Producto' => $row['productoNombre'],
-					'Cantidad' => $row[LOTE_CANTIDAD],
-                    'Precio' =>  $row[LOTE_PRECIO],
 					'Proveedor' => $row['proveedorNombre'],
-					'FechaIngreso' => $row[LOTE_FECHA_INGRESO],
 					'FechaVencimiento' => $row[LOTE_FECHA_VENCIMIENTO],
 					'Estado' => $row[LOTE_ESTADO]
 				];
