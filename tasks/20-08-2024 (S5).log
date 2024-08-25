@@ -21,15 +21,15 @@ Cada quien se encarga del punto 1 en sus respectivos códigos ('INCLUYENDO LOS D
 	    2. Ajustar el código de todos los 'Data', 'Service' y 'Controller' para que coincidan con el de Impuesto y Dirección (ajustándolos con sus respectivas validaciones, querys, comentarios y demás cosas).
 
 2- Producto:
-	1. ['Codigo'] -> Agregar a la clase el atributo 'productoFoto' / 'productoFotografía' / 'productoImagen' (Cualquiera de las 3, este va a contener la ruta de la imagen).
-    2. ['BD']     -> Agregar columna 'productofoto' (o el nombre del atributo) con la fotografía del Producto (String con la dirección donde se encuentra la imagen. Ej: "__DIR__ . 'ruta/a/la/imagen'"; el nombre de la foto es el 'Código de Barras').
-	3. ['BD']     -> Modificar Columna 'productopreciounitario' y cambiarla por 'productopreciocompra'.
-	4. ['BD']     -> Agregar columna 'productoporcentajeganancia' (DECIMAL).
-	5. ['Codigo'] -> Agregar a la clase los atributos 'Categoria' y 'Subcategoria' (Deben obtenerse por medio de un InnerJoin de sus respectivas tablas).
-	6. ['BD']     -> Eliminar columna 'productofechaadquisicion'.
-	7. ['BD']     -> Eliminar columna 'productocantidad'.
+	1.<x> ['Codigo'] -> Agregar a la clase el atributo 'productoFoto' / 'productoFotografía' / 'productoImagen' (Cualquiera de las 3, este va a contener la ruta de la imagen).
+    2.<x> ['BD']     -> Agregar columna 'productofoto' (o el nombre del atributo) con la fotografía del Producto (String con la dirección donde se encuentra la imagen. Ej: "__DIR__ . 'ruta/a/la/imagen'"; el nombre de la foto es el 'Código de Barras').
+	3.<x> ['BD']     -> Modificar Columna 'productopreciounitario' y cambiarla por 'productopreciocompra'.
+	4.<x> ['BD']     -> Agregar columna 'productoporcentajeganancia' (DECIMAL).
+	5.<x> ['Codigo'] -> Agregar a la clase los atributos 'Categoria' y 'Subcategoria' (Deben obtenerse por medio de un InnerJoin de sus respectivas tablas).
+	6.<x> ['BD']     -> Eliminar columna 'productofechaadquisicion'.
+	7.<x> ['BD']     -> Eliminar columna 'productocantidad'.
     8. ['Codigo'] -> Modificar el código de 'Data', 'Service' y 'Controller' según corresponda haciendo sus respectivas validaciones.
-    9. ['BD']     -> Modificar columna 'productocodigobarras' (VARCHAR) por 'productocodigobarrasid' (INT), ya que este va a tener el id de la tabla 'tbcodigobarras'. Además, esta columna debe tener la propiedad UNIQUE para que no se repitan los códigos.
+    9.<x> ['BD']     -> Modificar columna 'productocodigobarras' (VARCHAR) por 'productocodigobarrasid' (INT), ya que este va a tener el id de la tabla 'tbcodigobarras'. Además, esta columna debe tener la propiedad UNIQUE para que no se repitan los códigos.
 
 3- Proveedor:
 	1. ['Codigo'] -> Agregar el atributo 'Dirección' y 'Telefono' a la clase 'Proveedor' ambos como listas de su respectivo tipo (de igual forma se obtiene la info mediante InnerJoin al momento de jalar al proveedor de la 'BD'). 

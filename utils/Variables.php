@@ -63,12 +63,12 @@
 	define('TB_PRODUCTO','tbproducto'); //<- Nombre de la Tabla
 	define('PRODUCTO_ID','productoid');
 	define('PRODUCTO_NOMBRE','productonombre');
-	define('PRODUCTO_PRECIO_U','productopreciounitario');
-	define('PRODUCTO_CANTIDAD','productocantidad');
-	define('PRODUCTO_FECHA_ADQ', 'productofechaadquisicion');
+	define('PRODUCTO_PRECIO_U','productopreciocompra');
 	define('PRODUCTO_DESCRIPCION','productodescripcion');
-	define('PRODUCTO_CODIGO_BARRAS','productocodigobarras');
+	define('PRODUCTO_CODIGO_BARRAS','productocodigobarrasid');
 	define('PRODUCTO_ESTADO','productoestado');
+	define('PRODUCTO_FOTO', 'productofoto');
+	define('PRODUCTO_PORCENTAJE_GANANCIA','productoporcentajeganancia');
 
 	// TABLA 'tbCategoria'
 	define('TB_CATEGORIA', 'tbcategoria'); //<- Nombre de la Tabla

@@ -12,12 +12,12 @@
 
         public function __construct() {
             // CONEXION A BD EN LA NUBE (Comentar para usar la BD Local)
-            $this->servername = CLOUD_DB_HOST;
-            $this->username = CLOUD_DB_USER;
-            $this->password = CLOUD_DB_PASS;
-            $this->dbname = CLOUD_DB_NAME;
+            // $this->servername = CLOUD_DB_HOST;
+            // $this->username = CLOUD_DB_USER;
+            // $this->password = CLOUD_DB_PASS;
+            // $this->dbname = CLOUD_DB_NAME;
 
-            /*
+            
             // Obtiene el nombre del equipo
             $hostName = gethostname();
             
@@ -52,7 +52,7 @@
                     $this->dbname = DB_NAME;
                     break;
             }
-            */
+            
         }
 
         /**

@@ -83,10 +83,10 @@
                 $productoID = $producto->getProductoID();
                 $productoNombre = $producto->getProductoNombre();
                 $productoPrecio = $producto->getProductoPrecio();
-                $productoCantidad = $producto->getProductoCantidad();
-                $productoFechaAdquisicion = $producto->getProductoFechaAdquisicion();
                 $productoDescripcion = $producto->getProductoDescripcion();
                 $productoCodigoBarras = $producto->getProductoCodigoBarras();
+                $productoFoto = $producto->getProductoFoto();
+                $productoPorcentaje = $producto->getPorcentajeGanancia();
 
                 // Verifica si el producto ya existe
 				$check = $this->productoExiste(null, $productoNombre, $productoCodigoBarras);
@@ -120,10 +120,10 @@
                     . PRODUCTO_ID . ", "
                     . PRODUCTO_NOMBRE . ", "
                     . PRODUCTO_PRECIO_U . ", "
-                    . PRODUCTO_CANTIDAD . ", "
-                    . PRODUCTO_FECHA_ADQ . ", "
                     . PRODUCTO_DESCRIPCION . ", "
                     . PRODUCTO_CODIGO_BARRAS . ", "
+                    . PRODUCTO_FOTO.", "
+                    . PRODUCTO_PORCENTAJE_GANANCIA.", "
                     . PRODUCTO_ESTADO
                     . ") VALUES (?, ?, ?, ?, ?, ?, ?, true)";
 				$stmt = mysqli_prepare($conn, $queryInsert);
@@ -135,10 +135,10 @@
                     $nextId,
                     $productoNombre,
                     $productoPrecio,
-                    $productoCantidad,
-                    $productoFechaAdquisicion,
                     $productoDescripcion,
-                    $productoCodigoBarras
+                    $productoCodigoBarras,
+                    $productoFoto,
+                    $productoPorcentaje
                 );
                 
                 // Ejecuta la consulta de inserción
@@ -151,7 +151,6 @@
                     $e->getMessage(),
                     'Error al insertar el producto en la base de datos'
                 );
-        
                 // Devolver mensaje amigable para el usuario
                 return ["success" => false, "message" => $userMessage];
 			} finally {
@@ -167,6 +166,7 @@
                 $productoID = $producto->getProductoID();
                 $productoNombre = $producto->getProductoNombre();
                 $productoCodigoBarras = $producto->getProductoCodigoBarras();
+
 
                 // Verifica si el producto ya existe
 				$check = $this->productoExiste($productoID);
@@ -200,11 +200,11 @@
                     "UPDATE " . TB_PRODUCTO . 
                     " SET " . 
                         PRODUCTO_NOMBRE . " = ?, " . 
-                        PRODUCTO_PRECIO_U . " = ?, " .
-                        PRODUCTO_CANTIDAD . " = ?, " .
-                        PRODUCTO_FECHA_ADQ . " = ?, " .                      
+                        PRODUCTO_PRECIO_U . " = ?, " .                     
                         PRODUCTO_DESCRIPCION . " = ?, " .
                         PRODUCTO_CODIGO_BARRAS . " = ?, " .
+                        PRODUCTO_FOTO. " = ?, ".
+                        PRODUCTO_PORCENTAJE_GANANCIA." = ?, ".
                         PRODUCTO_ESTADO . " = true ". 
                     "WHERE " . PRODUCTO_ID . " = ?";
 
@@ -212,19 +212,19 @@
 
                 // Obtener los valores de las propiedades del objeto
                 $productoPrecio = $producto->getProductoPrecio();
-                $productoCantidad = $producto->getProductoCantidad();
-                $productoFechaAdquisicion = $producto->getProductoFechaAdquisicion();
                 $productoDescripcion = $producto->getProductoDescripcion();
+                $productoFoto = $producto->getProductoFoto();
+                $productoPorcentaje = $producto->getPorcentajeGanancia();
 
                 mysqli_stmt_bind_param(
                     $stmt,
                     'ssssssi', // s: Cadena, i: Entero
                     $productoNombre,
                     $productoPrecio,
-                    $productoCantidad,
-                    $productoFechaAdquisicion,
                     $productoDescripcion,
                     $productoCodigoBarras,
+                    $productoFoto,
+                    $productoPorcentaje,
                     $productoID
                 );
 
@@ -258,7 +258,6 @@
 					return $check; // Error al verificar la existencia
 				}
 				if (!$check["exists"]) {
-					Utils::writeLog("El producto con ID [$productoID] no existe en la base de datos.", DATA_LOG_FILE);
 					throw new Exception("No existe ningún producto en la base de datos que coincida con la información proporcionada.");
 				}
 
@@ -373,8 +372,6 @@
                     $currentProducto = new Producto(  
                         $row[PRODUCTO_NOMBRE],
                         $row[PRODUCTO_PRECIO_U],
-                        $row[PRODUCTO_CANTIDAD],
-                        $row[PRODUCTO_FECHA_ADQ],
                         $row[PRODUCTO_ID],
                         $row[PRODUCTO_DESCRIPCION],
                         $row[PRODUCTO_ESTADO]
@@ -425,7 +422,29 @@
                 $totalPages = ceil($totalRecords / $size);
 
 				// Construir la consulta SQL para paginación
-                $querySelect = "SELECT * FROM " . TB_PRODUCTO . " WHERE " . PRODUCTO_ESTADO . " != false ";
+                $querySelect = "SELECT "
+                . "P." . PRODUCTO_ID . ","
+                . "P." . PRODUCTO_NOMBRE . ","
+                . "P." . PRODUCTO_DESCRIPCION . ","
+                . "P." . PRODUCTO_PRECIO_U . ","
+                . "P." . PRODUCTO_CODIGO_BARRAS . ","
+                . "P." . PRODUCTO_FOTO . ","
+                . "P." . PRODUCTO_PORCENTAJE_GANANCIA . ","
+                . "P." . PRODUCTO_ESTADO . ","
+
+                . "S." . SUBCATEGORIA_ID . ","
+                . "S." . SUBCATEGORIA_NOMBRE . ","
+                . "S." . SUBCATEGORIA_ESTADO . ","
+
+                . "C." . CATEGORIA_ID . ","
+                . "C." . CATEGORIA_NOMBRE . ","
+                . "C." . CATEGORIA_ESTADO . " "
+
+                . " INNER JOIN " . TB_PRODUCTO_SUBCATEGORIA . " PS ON PS." . PRODUCTO_SUBCATEGORIA_PRODUCTO_ID . " = P." . PRODUCTO_ID
+                . " INNER JOIN " . TB_SUBCATEGORIA . " S  ON S." . SUBCATEGORIA_ID . " = PS." . PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID
+                . " INNER JOIN " . TB_PRODUCTO_CATEGORIA . " PC ON PC." . PRODUCTO_ID_FK . " = P." . PRODUCTO_ID  
+                . " INNER JOIN " . TB_CATEGORIA . " C ON C." . CATEGORIA_ID . " = PC." . CATEGORIA_ID_FK
+                . " FROM " . TB_PRODUCTO . " P WHERE P" . PRODUCTO_ESTADO . " != false ";
 
 				// Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) {
@@ -450,12 +469,21 @@
 					$listaProductos[] = [
                         'ID' => $row[PRODUCTO_ID],
                         'Nombre' => $row[PRODUCTO_NOMBRE],
-                        'Precio' => $row[PRODUCTO_PRECIO_U],
-                        'Cantidad' => $row[PRODUCTO_CANTIDAD],
-                        'FechaISO' => Utils::formatearFecha($row[PRODUCTO_FECHA_ADQ], 'Y-MM-dd'),
-						'Fecha' => Utils::formatearFecha($row[PRODUCTO_FECHA_ADQ]),
                         'Descripcion' => $row[PRODUCTO_DESCRIPCION],
+                        'Precio' => $row[PRODUCTO_PRECIO_U],
                         'CodigoBarras' => $row[PRODUCTO_CODIGO_BARRAS],
+                        'ProductoFoto' => $row[PRODUCTO_FOTO],
+                        'ProductoPorcentaje' => $row[PRODUCTO_PORCENTAJE_GANANCIA],
+                        'Categoria' => [
+                            'ID' => $row[CATEGORIA_ID],
+                            'Nombre' => $row[CATEGORIA_NOMBREO],
+                            'Estado' => $row[CATEGORIA_ESTADO]
+                        ],
+                        'Subcategoria' =>[
+                            'ID' => $row[SUBCATEGORIA_ID],
+                            'Nombre' => $row[SUBCATEGORIA_NOMBRE],
+                            'Estado' => $row[SUBCATEGORIA_ESTADO]
+                        ],
                         'Estado' => $row[PRODUCTO_ESTADO]
 					];
 				}
