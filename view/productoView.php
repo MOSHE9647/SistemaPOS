@@ -19,8 +19,6 @@
                     <select id="sortSelector">
                         <option value="nombre">Nombre</option>
                         <option value="preciounitario">Precio</option>
-                        <option value="cantidad">Cantidad</option>
-                        <option value="fechaadquisicion">Fecha</option>
                     </select>
                 </div>
 
@@ -33,10 +31,12 @@
                     <tr>
                         <th data-field="nombre">Nombre</th>
                         <th data-field="precio">Precio</th>
-                        <th data-field="cantidad">Cantidad</th>
-                        <th data-field="fecha">Fecha Adquisición</th>
+                        <th data-field="ganancia">Porcentaje de ganancia</th>
                         <th data-field="descripcion">Descripción</th>
                         <th data-field="codigo">Código de Barras</th>
+                        <th data-field="foto">Imagen</th>
+                        <th data-field="categoria">Categoria</th>
+                        <th data-field="subcategoria">Subcategoria</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
