@@ -23,11 +23,9 @@ function renderTable(lotes) {
         let row = `
             <tr data-id="${lote.ID}">
                 <td data-field="lotecodigo">${lote.Codigo}</td>
+                <td data-field="compraid">${lote.Compra}</td>
                 <td data-field="productonombre">${lote.Producto}</td>
-                <td data-field="lotecantidad">${lote.Cantidad}</td>
-                <td data-field="loteprecio">${lote.Precio}</td>
                 <td data-field="proveedornombre">${lote.Proveedor}</td>
-                <td data-field="lotefechaingreso">${lote.FechaIngreso}</td>
                 <td data-field="lotefechavencimiento">${lote.FechaVencimiento}</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
@@ -64,23 +62,39 @@ function makeRowEditable(row) {
     const cells = row.querySelectorAll('td');
     const lastCellIndex = cells.length - 1;
 
+     // Obtener la fecha actual en formato 'YYYY-MM-DD'
+     //const today = new Date().toISOString().split('T')[0];
+
+
+    // Obtener la fecha actual en formato 'YYYY-MM-DD'
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript empiezan desde 0
+    const dd = String(today.getDate()).padStart(2, '0');
+    const formattedToday = `${yyyy}-${mm}-${dd}`;
+
     cells.forEach((cell, index) => {
         const value = cell.innerText.trim();
         const field = cell.dataset.field;
 
         if (index < lastCellIndex) {
-            if (field === 'lotecantidad') {
-                cell.innerHTML = `<input type="number" value="${parseInt(value)}" min="0" step="1" required>`;
-            } else if (field === 'loteprecio') {
-                cell.innerHTML = `<input type="number" value="${parseFloat(value).toFixed(2)}" min="0" step="0.01" required>`;
-            } else if (field === 'lotefechaingreso' || field === 'lotefechavencimiento') {
-                cell.innerHTML = `<input type="date" value="${value}" required>`;
-            } else if (field === 'proveedornombre') {
+           
+            if (field === 'proveedornombre') {
                 cell.innerHTML = `<select id="proveedorid-select" required></select>`;
                 loadOptions('proveedor', value);  // Cargar las opciones para el select de proveedor
+
             } else if (field === 'productonombre') {
                 cell.innerHTML = `<select id="productoid-select" required></select>`;
                 loadOptions('producto', value);  // Cargar las opciones para el select de producto
+
+            } else if (field === 'compraid') { // Añadir el campo para el ID de la compra
+                cell.innerHTML = `<select id="compraid-select" required></select>`;
+                loadOptions('compra', value);  // Cargar las opciones para el select de ID de compra
+
+            } else if (field === 'lotefechavencimiento') { 
+                // Asegurarse de que el input es de tipo 'date'
+               // cell.innerHTML = `<input type="date" value="${value}" min= "${today}" required>`;
+               cell.innerHTML = `<input type="date" value="${value}" min="${formattedToday}" required>`;
             } else {
                 cell.innerHTML = `<input type="text" value="${value}" required>`;
             }
@@ -99,17 +113,31 @@ function makeRowEditable(row) {
  * @param {string} selectedValue - El valor seleccionado actualmente.
  */
 function loadOptions(field, selectedValue) {
-    const url = field === 'producto' ? '../controller/productoAction.php' : '../controller/proveedorAction.php';
+    const url = field === 'producto' 
+    ? '../controller/productoAction.php'
+    : field == 'proveedor'
+    ? '../controller/proveedorAction.php'
+    : '../controller/compraAction.php';
+
     //const selectElement = document.getElementById(`${field}-select`);
     const selectElement = document.getElementById(`${field}id-select`);
+
+    
     fetch(url)
         .then(response => response.json()) // Lee la respuesta como JSON
         .then(data => {
             console.log('Respuesta cruda:', data); // Muestra la respuesta cruda
 
             // Extrae el array correcto basado en el campo
-            const items = field === 'producto' ? data.listaProductos : data.listaProveedores;
-
+            //const items = field === 'producto' ? data.listaProductos : data.listaProveedores;
+            let items;
+            if (field === 'producto') {
+                items = data.listaProductos;
+            } else if (field === 'proveedor') {
+                items = data.listaProveedores;
+            } else if (field === 'compra') {
+                items = data.listaCompras;
+            }
             if (!Array.isArray(items)) {
                 throw new Error('Datos recibidos no son un array');
             }
@@ -140,18 +168,30 @@ function showCreateRow() {
     let tableBody = document.getElementById('tableBody');
     let newRow = document.createElement('tr');
     newRow.id = 'createRow';
+
+    // Obtener la fecha actual en formato 'YYYY-MM-DD'
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript empiezan desde 0
+    const dd = String(today.getDate()).padStart(2, '0');
+    const formattedToday = `${yyyy}-${mm}-${dd}`;
+
     newRow.innerHTML = `
+
+    
+
         <td data-field="lotecodigo"><input type="text" required></td>
+        <td data-field="compraid">
+             <select id="compraid-select" required></select>
+        </td>
         <td data-field="productonombre">
             <select id="productoid-select" required></select>
         </td>
-        <td data-field="lotecantidad"><input type="number" min="0" step="1" required></td>
-        <td data-field="loteprecio"><input type="number" min="0" step="0.01" required></td>
         <td data-field="proveedornombre">
             <select id="proveedorid-select" required></select>
         </td>
-        <td data-field="lotefechaingreso"><input type="date" required></td>
-        <td data-field="lotefechavencimiento"><input type="date" required></td>
+        <td data-field="lotefechavencimiento">
+            <input type="date" min="${formattedToday}" required>
         <td>
             <button onclick="createLote()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>
@@ -163,6 +203,7 @@ function showCreateRow() {
       // Cargar opciones para los comboboxes
       loadOptions('producto', null);
       loadOptions('proveedor', null);
+      loadOptions('compra', null);
 }
 
 /**

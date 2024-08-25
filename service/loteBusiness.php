@@ -15,11 +15,9 @@
                 // Obtener los valores de las propiedades del objeto
                 $loteID = $lote->getLoteID();
                 $lotecodigo = $lote->getLoteCodigo();
+                $compraid = $lote->getCompraID();
                 $productoid = $lote->getProductoID();
-                $lotecantidad = $lote->getLoteCantidad();
-                $loteprecio = $lote->getLotePrecio();
                 $proveedorid = $lote->getProveedorID();
-                $lotefechaingreso = $lote->getLoteFechaIngreso();
                 $lotefechavencimiento = $lote->getLoteFechaVencimiento();
                 $errors = [];
 
@@ -33,7 +31,8 @@
 
                 // Si la validación de campos adicionales está activada, valida los otros campos
                 if ($validarCamposAdicionales) {
-                    if ($lotecodigo === null ) {
+                    
+                    if ($lotecodigo === null ||empty($lotecodigo) ) {
                         $errors[] = "El campo 'Código del lote' está vacío o no es válido.";
                         Utils::writeLog("El campo 'Código del lote [$lotecodigo]' no es válido.", BUSINESS_LOG_FILE);
                     }
@@ -41,22 +40,16 @@
                         $errors[] = "El campo 'Producto ID' está vacío o no es válido.";
                         Utils::writeLog("El campo 'Producto ID [$productoid]' no es válido.", BUSINESS_LOG_FILE);
                     }
-                    if ($lotecantidad === null || !is_numeric($lotecantidad) || $lotecantidad < 0) {
-                        $errors[] = "El campo 'Cantidad del lote' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Cantidad del lote [$lotecantidad]' no es válido.", BUSINESS_LOG_FILE);
+                    if ($compraid === null || !is_numeric($compraid)) {
+                        $errors[] = "El campo 'Compra ID' está vacío o no es válido.";
+                        Utils::writeLog("El campo 'Compra ID [$compraid]' no es válido.", BUSINESS_LOG_FILE);
                     }
-                    if ($loteprecio === null || !is_numeric($loteprecio) || $loteprecio < 0) {
-                        $errors[] = "El campo 'Precio del lote' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Precio del lote [$loteprecio]' no es válido.", BUSINESS_LOG_FILE);
-                    }
+                
                     if ($proveedorid === null || !is_numeric($proveedorid)) {
                         $errors[] = "El campo 'Proveedor ID' está vacío o no es válido.";
                         Utils::writeLog("El campo 'Proveedor ID [$proveedorid]' no es válido.", BUSINESS_LOG_FILE);
                     }
-                    if ($lotefechaingreso === null || empty($lotefechaingreso)) {
-                        $errors[] = "El campo 'Fecha de ingreso del lote' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Fecha de ingreso del lote [$lotefechaingreso]' no es válido.", BUSINESS_LOG_FILE);
-                    }
+                  
                     if ($lotefechavencimiento === null || empty($lotefechavencimiento)) {
                         $errors[] = "El campo 'Fecha de vencimiento del lote' está vacío o no es válido.";
                         Utils::writeLog("El campo 'Fecha de vencimiento del lote [$lotefechavencimiento]' no es válido.", BUSINESS_LOG_FILE);
