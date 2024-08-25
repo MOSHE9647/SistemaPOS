@@ -18,16 +18,13 @@ function createLote() {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
 
-        // Convertir 'Precio' a double
-        if (fieldName === 'loteprecio') {
-            value = parseFloat(value).toFixed(2);
-        }
-
         // Obtener ID del proveedor y del producto
         if (fieldName === 'proveedornombre') {
             value = document.getElementById('proveedorid-select').value;
         } else if (fieldName === 'productonombre') {
             value = document.getElementById('productoid-select').value;
+        }  else if (fieldName === 'compraid') {
+            value = document.getElementById('compraid-select').value;
         }
 
        
@@ -126,17 +123,16 @@ function updateLote(id) {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
 
-        // Convertir 'Precio' a double
-        if (fieldName === 'loteprecio') {
-            value = parseFloat(value).toFixed(2);
-        }
-
         // Obtener ID del proveedor y del producto
         if (fieldName === 'proveedornombre') {
             value = document.getElementById('proveedorid-select').value;
         } else if (fieldName === 'productonombre') {
             value = document.getElementById('productoid-select').value;
         }
+     else if (fieldName === 'compraid') {
+        value = document.getElementById('compraid-select').value;
+    }
+
 
 
         data[fieldName] = value;

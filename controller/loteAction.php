@@ -10,18 +10,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Datos recibidos en la solicitud (Form)
     $id = isset($_POST['id']) ? $_POST['id'] : 0;
     $lotecodigo = isset($_POST['lotecodigo']) ? $_POST['lotecodigo'] : "";
+    $compraid = isset($_POST['compraid']) ? $_POST['compraid'] : 0;
     $productoid = isset($_POST['productonombre']) ? $_POST['productonombre'] : 0;
-    $lotecantidad = isset($_POST['lotecantidad']) ? $_POST['lotecantidad'] : 0;
-    $loteprecio = isset($_POST['loteprecio']) ? $_POST['loteprecio'] : 0.0;
-    $proveedorid = isset($_POST['productonombre']) ? $_POST['productonombre'] : 0;
-    $lotefechaingreso = isset($_POST['lotefechaingreso']) ? $_POST['lotefechaingreso'] : '';
+    $proveedorid = isset($_POST['proveedornombre']) ? $_POST['proveedornombre'] : 0;
     $lotefechavencimiento = isset($_POST['lotefechavencimiento']) ? $_POST['lotefechavencimiento'] : '';
 
     // Se crea el Service para las operaciones
     $loteBusiness = new LoteBusiness();
 
     // Crea y verifica que los datos del lote sean correctos
-    $lote = new Lote($id, $lotecodigo, $productoid, $lotecantidad, $loteprecio, $proveedorid, $lotefechaingreso, $lotefechavencimiento);
+    $lote = new Lote($id, $lotecodigo, $compraid, $productoid, $proveedorid, $lotefechavencimiento);
     $check = $loteBusiness->validarLote($lote, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
 
     // Si los datos son válidos se realiza acción correspondiente

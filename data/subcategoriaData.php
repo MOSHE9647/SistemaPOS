@@ -382,8 +382,6 @@
                 /************************************
                  * Conexión con la base de datos
                  ************************************/
-
-
                 $result = $this->getConnection();
                 if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
@@ -414,7 +412,6 @@
                         $row[SUBCATEGORIA_ID],
                         $row[SUBCATEGORIA_ESTADO]
                     );
-
                     return ["success" => true, "subcategoria" => $Subcategoria];
                 } else {
                     return ["success" => false, "message" => "¡Subcategoria no encontrada.!"];

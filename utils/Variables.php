@@ -71,12 +71,12 @@
 	define('TB_PRODUCTO','tbproducto'); //<- Nombre de la Tabla
 	define('PRODUCTO_ID','productoid');
 	define('PRODUCTO_NOMBRE','productonombre');
-	define('PRODUCTO_PRECIO_U','productopreciounitario');
-	define('PRODUCTO_CANTIDAD','productocantidad');
-	define('PRODUCTO_FECHA_ADQ', 'productofechaadquisicion');
+	define('PRODUCTO_PRECIO_U','productopreciocompra');
 	define('PRODUCTO_DESCRIPCION','productodescripcion');
-	define('PRODUCTO_CODIGO_BARRAS','productocodigobarras');
+	define('PRODUCTO_CODIGO_BARRAS','productocodigobarrasid');
 	define('PRODUCTO_ESTADO','productoestado');
+	define('PRODUCTO_FOTO', 'productofoto');
+	define('PRODUCTO_PORCENTAJE_GANANCIA','productoporcentajeganancia');
 
 	// TABLA 'tbCategoria'
 	define('TB_CATEGORIA', 'tbcategoria'); //<- Nombre de la Tabla
@@ -114,11 +114,9 @@
 	define('TB_LOTE','tblote'); //<- Nombre de la Tabla
 	define('LOTE_ID','loteid');
 	define('LOTE_CODIGO','lotecodigo');
+	define('COMPRALOTE_ID', 'compraid');
 	define('PRODUCTOLOTE_ID', 'productoid');
-	define('LOTE_CANTIDAD','lotecantidad');
-	define('LOTE_PRECIO','loteprecio');
 	define('PROVEEDORLOTE_ID', 'proveedorid');
-	define('LOTE_FECHA_INGRESO','lotefechaingreso');
 	define('LOTE_FECHA_VENCIMIENTO','lotefechavencimiento');
 	define('LOTE_ESTADO','loteestado');
 
