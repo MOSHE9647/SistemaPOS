@@ -53,8 +53,9 @@
     </div>
 
     <a href="../index.php" class="menu-button">Regresar al Menú</a>
+    <script src="./js/utils.js"></script>                   <!-- Utiles para mostrar notificaciones y demás           -->
     <script src="./js/lote/lotesGUI.js"></script>           <!-- Manejo dinámico de la página                         -->
     <script src="./js/lote/lotesPagination.js"></script>    <!-- Métodos para Paginación                              -->
-    <script src="./js/lote/lotesCrud.js"></script>          <!-- Creación, Actualización y Eliminación de Lotes      -->
+    <script src="./js/lote/lotesCrud.js"></script>          <!-- Creación, Actualización y Eliminación de Lotes       -->
 </body>
 </html>

@@ -45,27 +45,6 @@ function renderTable(proveedores) {
 }
 
 /**
- * Obtiene la fecha actual en formato YYYY-MM-DD.
- * 
- * @description Esta función devuelve la fecha actual en formato de cadena, con el año en cuatro dígitos,
- *              el mes en dos dígitos (con cero a la izquierda si es necesario) y el día en dos dígitos
- *              (con cero a la izquierda si es necesario).
- * 
- * @returns {string} La fecha actual en formato YYYY-MM-DD
- * 
- * @example
- * let currentDate = getCurrentDate();
- * console.log(currentDate); // Imprime la fecha actual, por ejemplo: "2023-07-25"
- */
-function getCurrentDate() {
-    let today = new Date();
-    let year = today.getFullYear();
-    let month = (today.getMonth() + 1).toString().padStart(2, '0');
-    let day = today.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-/**
  * Hace editable una fila de la tabla de proveedores.
  * 
  * @description Esta función selecciona todas las celdas de la fila y, para cada una,
@@ -159,56 +138,6 @@ function showCreateRow() {
 
     // Insertar la nueva fila al principio del cuerpo de la tabla
     tableBody.insertBefore(newRow, tableBody.firstChild);
-}
-
-/**
- * Muestra un mensaje en la pantalla con un tipo específico (error o éxito).
- * 
- * @description Esta función busca un contenedor con el id "message" y muestra el mensaje proporcionado
- *              con un estilo adecuado según el tipo de mensaje (error o éxito). El mensaje se muestra
- *              durante 5 segundos y luego se oculta con un efecto de fade out.
- * 
- * @param {string} message - El texto del mensaje a mostrar
- * @param {string} type - El tipo de mensaje (error o success)
- * 
- * @example
- * showMessage('El proveedor se creó correctamente', 'success');
- * 
- * @returns {void}
- */
-function showMessage(message, type) {
-    // Buscar el contenedor de mensajes
-    let container = document.getElementById('message');
-
-    // Si el contenedor existe, mostrar el mensaje
-    if (container != null) {
-        // Establecer el texto del mensaje
-        container.innerHTML = message;
-
-        // Eliminar clases de mensajes anteriores
-        container.classList.remove('error', 'success', 'fade-out');
-
-        // Agregar clases para el tipo de mensaje actual
-        container.classList.add('message');
-        if (type === 'error') {
-            // Agregar clase para mensaje de error
-            container.classList.add('error');
-        } else if (type === 'success') {
-            // Agregar clase para mensaje de éxito
-            container.classList.add('success');
-        }
-
-        // Agregar clase para mostrar el mensaje con un efecto de fade in
-        container.classList.add('fade-in');
-
-        // Ocultar el mensaje después de 5 segundos con un efecto de fade out
-        setTimeout(() => {
-            container.classList.replace('fade-in', 'fade-out');
-        }, 5000); // Tiempo durante el cual el mensaje es visible
-    } else {
-        // Si no hay contenedor, mostrar el mensaje con un alert
-        alert(message);
-    }
 }
 
 /**

@@ -11,7 +11,7 @@
         private $telefonoNumero;
         private $telefonoEstado;
 
-        public function __construct($telefonoCodigoPais, $telefonoNumero, $telefonoTipo, $telefonoProveedorID, 
+        public function __construct($telefonoCodigoPais = '', $telefonoNumero = '', $telefonoTipo = '', $telefonoProveedorID = 0, 
                 $telefonoID = 0, $telefonoExtension = null, $telefonoFechaCreacion = null, $telefonoEstado = true) {
             $this->telefonoID = $telefonoID;
             $this->telefonoProveedorID = $telefonoProveedorID;

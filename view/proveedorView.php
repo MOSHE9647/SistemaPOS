@@ -63,6 +63,7 @@
         </div>
 
         <a href="../index.php" class="menu-button">Regresar al Menú</a>
+        <script src="./js/utils.js"></script>                   <!-- Utiles para mostrar notificaciones y demás           -->
         <script src="./js/proveedor/gui.js"></script>           <!-- Manejo dinámico de la página                         -->
         <script src="./js/proveedor/pagination.js"></script>    <!-- Métodos para Paginación                              -->
         <script src="./js/proveedor/crud.js"></script>          <!-- Creación, Actualización y Eliminación de Proveedores -->

@@ -11,7 +11,7 @@
             $this->telefonoData = new TelefonoData();
         }
 
-        public function validarTelefono($telefono, $validarCamposAdicionales = true, $insertar = true) {
+        public function validarTelefono($telefono, $validarCamposAdicionales = true, $insertar = true, $obtenerByProveedor = false) {
             try {
                 // Obtener los valores de las propiedades del objeto
                 $telefonoID = $telefono->getTelefonoID();
@@ -27,8 +27,7 @@
                     Utils::writeLog("El ID [$telefonoID] del teléfono no es válido.", BUSINESS_LOG_FILE);
                 }
 
-                // Si la validación de campos adicionales está activada, valida los otros campos
-                if ($validarCamposAdicionales) {
+                if ($validarCamposAdicionales || $obtenerByProveedor) {
                     if ($proveedorID === null || !is_numeric($proveedorID) || $proveedorID < 0) {
                         $errors[] = "El ID del proveedor está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
                         Utils::writeLog("[Telefono] El ID [$proveedorID] del proveedor no es válido.", BUSINESS_LOG_FILE);
@@ -43,6 +42,10 @@
                         $errors[] = "El proveedor seleccionado no existe en la base de datos.";
                         Utils::writeLog("[Telefono] El proveedor con ID [$proveedorID] no existe en la base de datos.", BUSINESS_LOG_FILE);
                     }
+                }
+
+                // Si la validación de campos adicionales está activada, valida los otros campos
+                if ($validarCamposAdicionales) {
                     if ($tipo === null || empty($tipo) || is_numeric($tipo)) {
                         $errors[] = "El campo 'Tipo' está vacío o no es válido.";
                         Utils::writeLog("[Telefono] El campo 'Tipo [$tipo]' no es válido.", BUSINESS_LOG_FILE);
@@ -102,6 +105,20 @@
 
         public function getPaginatedTelefonos($page, $size, $sort = null) {
             return $this->telefonoData->getPaginatedTelefonos($page, $size, $sort);
+        }
+
+        public function getTelefonosByProveedorID($proveedorID) {
+            $telefono = new Telefono();
+            $telefono->setTelefonoProveedorID($proveedorID);
+
+            // Verifica que los datos del telefono sean validos
+            $check = $this->validarTelefono($telefono, false, false, true);
+            if (!$check["is_valid"]) {
+                return ["success" => $check["is_valid"], "message" => $check["message"]];
+            }
+
+            unset($telefono);
+            return $this->telefonoData->getTelefonosByProveedorID($proveedorID);
         }
 
     }

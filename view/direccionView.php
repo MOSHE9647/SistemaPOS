@@ -65,6 +65,7 @@
         </div>
 
         <a href="../index.php" class="menu-button">Regresar al Menú</a>
+        <script src="./js/utils.js"></script>                   <!-- Utiles para mostrar notificaciones y demás           -->
         <script src="./js/direccion/gui.js"></script>           <!-- Manejo dinámico de la página                         -->
         <script src="./js/direccion/pagination.js"></script>    <!-- Métodos para Paginación                              -->
         <script src="./js/direccion/selects.js"></script>       <!-- Carga de Provincias, Cantones y Distritos            -->

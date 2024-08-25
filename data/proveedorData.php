@@ -294,16 +294,16 @@
 
                 // Creamos la lista con los datos obtenidos
                 $listaProveedores = [];
-                while ($row = mysqli_fetch_array($result)) {
-                    $currentProveedor = new Proveedor(
-                        $row[PROVEEDOR_NOMBRE],
-                        $row[PROVEEDOR_EMAIL],
-                        $row[PROVEEDOR_FECHA_REGISTRO],
-                        $row[PROVEEDOR_ID],
-                        $row[PROVEEDOR_TIPO],                                             
-                        $row[PROVEEDOR_ESTADO]
-                    );
-                    array_push($listaProveedores, $currentProveedor);
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $listaProveedores[] = [
+                        'ID' => $row[PROVEEDOR_ID],
+                        'Nombre' => $row[PROVEEDOR_NOMBRE],
+                        'Email' => $row[PROVEEDOR_EMAIL],
+                        'Tipo' => $row[PROVEEDOR_TIPO],                 
+                        'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO], 'Y-MM-dd'),
+						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO]),
+                        'Estado' => $row[PROVEEDOR_ESTADO]
+                    ];
                 }
 
                 return ["success" => true, "listaProveedores" => $listaProveedores];

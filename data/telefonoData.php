@@ -12,7 +12,7 @@
 			parent::__construct();
 		}
 
-        public function existeTelefono($telefonoID = null, $telefonoCodigoPais = null, $telefonoNumero = null) {
+        public function existeTelefono($telefonoID = null, $telefonoCodigoPais = null, $telefonoNumero = null, $update = false) {
             try {
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
@@ -26,17 +26,23 @@
                 $params = [];
                 $types = "";
         
-                if ($telefonoID !== null) {
+                if ($telefonoID !== null && !$update) {
                     // Verificar existencia por ID
                     $queryCheck .= TELEFONO_ID . " = ? AND " . TELEFONO_ESTADO . " != false";
                     $params[] = $telefonoID;
                     $types .= 'i';
-                } elseif ($telefonoCodigoPais !== null && $telefonoNumero !== null) {
+                } else if ($telefonoCodigoPais !== null && $telefonoNumero !== null) {
                     // Verificar existencia por código de país y número de teléfono
                     $queryCheck .= TELEFONO_CODIGO_PAIS . " = ? AND " . TELEFONO_NUMERO . " = ? AND " . TELEFONO_ESTADO . " != false";
                     $params[] = $telefonoCodigoPais;
                     $params[] = $telefonoNumero;
                     $types .= 'ss';
+
+                    if ($update && $telefonoID !== null) {
+                        $queryCheck .= " AND " . TELEFONO_ID . " <> ?;";
+                        $params[] = $telefonoID;
+                        $types .= 'i';
+                    }
                 } else {
                     $message = "No se proporcionaron los parámetros necesarios para verificar la existencia del telefono";
                     Utils::writeLog("$message. Parámetros: 'telefonoID [$telefonoID]', 'telefonoCodigoPais [$telefonoCodigoPais]', 'telefonoNumero [$telefonoNumero]'", DATA_LOG_FILE);
@@ -162,7 +168,7 @@
                 $checkID = $this->existeTelefono($telefonoID);
                 if ($checkID['success']) {
 					if ($checkID['exists']) {
-                        $checkPhone = $this->existeTelefono(null, $telefonoCodigoPais, $telefonoNumero);
+                        $checkPhone = $this->existeTelefono($telefonoID, $telefonoCodigoPais, $telefonoNumero, true);
                         if (!$checkPhone['success']) { return $checkPhone; }
                         if ($checkPhone['exists']) {
                             Utils::writeLog("El telefono con 'Codigo [$telefonoCodigoPais]' y 'Numero [$telefonoNumero]' ya existe en la base de datos.", DATA_LOG_FILE);
@@ -379,6 +385,74 @@
                     "totalRecords" => $totalRecords,
                     "listaTelefonos" => $listaTelefonos
                 ];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al obtener la lista de telefonos desde la base de datos'
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cerrar la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn)) { mysqli_close($conn); }
+            }
+        }
+
+        public function getTelefonosByProveedorID($proveedorID) {
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
+                }
+                $conn = $result["connection"];
+
+                // Construir la consulta SQL para obtener los datos
+                $querySelect = "
+                    SELECT
+                        T." . TELEFONO_ID . ",
+                        T." . TELEFONO_FECHA_CREACION . ",
+                        T." . TELEFONO_TIPO . ",
+                        T." . TELEFONO_EXTENSION . ",
+                        T." . TELEFONO_CODIGO_PAIS . ",
+                        T." . TELEFONO_NUMERO . ",
+                        T." . TELEFONO_ESTADO . "
+                    FROM
+                        " . TB_TELEFONO . " T
+                    WHERE
+                        T." . TELEFONO_ESTADO . " != FALSE AND 
+                        T." . TELEFONO_PROVEEDOR_ID . " = ?
+                ";
+
+                // Preparar la consulta y vincular los parámetros
+                $stmt = mysqli_prepare($conn, $querySelect);
+                mysqli_stmt_bind_param($stmt, "i", $proveedorID);
+
+                // Ejecutar la consulta
+                $result = mysqli_stmt_execute($stmt);
+
+				// Obtener el resultado
+                $result = mysqli_stmt_get_result($stmt);
+
+                $listaTelefonos = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $listaTelefonos[] = [
+                        'ID' => $row[TELEFONO_ID],
+						'FechaISO' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION], 'Y-MM-dd'),
+						'Fecha' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION]),
+						'Tipo' => $row[TELEFONO_TIPO],
+						'Extension' => $row[TELEFONO_EXTENSION],
+						'CodigoPais' => $row[TELEFONO_CODIGO_PAIS],
+						'Numero' => $row[TELEFONO_NUMERO],
+						'Estado' => $row[TELEFONO_ESTADO]
+                    ];
+                }
+
+                return ["success" => true, "listaTelefonos" => $listaTelefonos];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
