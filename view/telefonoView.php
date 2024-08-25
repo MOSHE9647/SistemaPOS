@@ -3,12 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Gestión de Impuestos | POSFusion</title>
+        <title>Gestión de Teléfonos de Proveedores | POSFusion</title>
         <link rel="stylesheet" href="./css/styles.css">
     </head>
     <body>
-
-        <h2>Lista de Impuestos</h2>
+        <h2>Lista de Teléfonos</h2>
 
         <div id="message"></div>
 
@@ -17,28 +16,30 @@
                 <div id="paginationSort">
                     Ordenar por:
                     <select id="sortSelector">
-                        <option value="nombre">Nombre</option>
-                        <option value="valor">Valor</option>
-                        <option value="fechavigencia">Fecha</option>
+                        <option value="tipo">Tipo</option>
+                        <option value="extension">Extension</option>
+                        <option value="codigopais">Código de País</option>
+                        <option value="numero">Número</option>
                     </select>
                 </div>
 
-                <!-- Botón para crear nuevo impuesto -->
+                <!-- Botón para crear nuevo Teléfono -->
                 <button id="createButton" onclick="showCreateRow()">Crear</button>
             </div>
 
             <table>
                 <thead>
                     <tr>
-                        <th data-field="nombre">Nombre</th>
-                        <th data-field="valor">Valor</th>
-                        <th data-field="descripcion">Descripción</th>
-                        <th data-field="fecha">Fecha Vigencia</th>
+                        <th data-field="proveedor">Nombre Proveedor</th>
+                        <th data-field="tipo">Tipo de Número</th>
+                        <th data-field="codigo">Código de País</th>
+                        <th data-field="numero">Número</th>
+                        <th data-field="extension">Extensión</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- Las filas se llenarán con JavaScript -->
+                    <!-- Las filas se llenan dinámicamente con JavaScript -->
                 </tbody>
             </table>
 
@@ -65,9 +66,10 @@
         </div>
 
         <a href="../index.php" class="menu-button">Regresar al Menú</a>
-        <script src="./js/utils.js"></script>                  <!-- Utiles para mostrar notificaciones y demás         -->
-        <script src="./js/impuesto/gui.js"></script>           <!-- Manejo dinámico de la página                       -->
-        <script src="./js/impuesto/pagination.js"></script>    <!-- Métodos para Paginación                            -->
-        <script src="./js/impuesto/crud.js"></script>          <!-- Creación, Actualización y Eliminación de Impuestos -->
+        <script src="./js/utils.js"></script>
+        <script src="./js/telefono/gui.js"></script>
+        <script src="./js/telefono/pagination.js"></script>
+        <script src="./js/telefono/selects.js"></script>
+        <script src="./js/telefono/crud.js"></script>
     </body>
 </html>

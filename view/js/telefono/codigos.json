@@ -1,0 +1,22 @@
+{
+    "codigos": [
+        { "pais": "Argentina", "codigo": "+54" },
+        { "pais": "Bolivia", "codigo": "+591" },
+        { "pais": "Chile", "codigo": "+56" },
+        { "pais": "Colombia", "codigo": "+57" },
+        { "pais": "Costa Rica", "codigo": "+506" },
+        { "pais": "Cuba", "codigo": "+53" },
+        { "pais": "Ecuador", "codigo": "+593" },
+        { "pais": "El Salvador", "codigo": "+503" },
+        { "pais": "Guatemala", "codigo": "+502" },
+        { "pais": "Honduras", "codigo": "+504" },
+        { "pais": "México", "codigo": "+52" },
+        { "pais": "Nicaragua", "codigo": "+505" },
+        { "pais": "Panamá", "codigo": "+507" },
+        { "pais": "Paraguay", "codigo": "+595" },
+        { "pais": "Perú", "codigo": "+51" },
+        { "pais": "Rep. Dominicana", "codigo": "+1-809" },
+        { "pais": "Uruguay", "codigo": "+598" },
+        { "pais": "Venezuela", "codigo": "+58" }
+    ]
+}

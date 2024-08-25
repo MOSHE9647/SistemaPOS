@@ -123,42 +123,6 @@ function showCreateRow() {
 }
 
 /**
- * Muestra un mensaje al usuario.
- * 
- * @param {string} message - El texto del mensaje que se desea mostrar.
- * @param {string} type - El tipo de mensaje (error o success).
- * @description Muestra un mensaje en la pantalla con el texto y tipo especificados, y lo oculta después de unos segundos.
- * @example
- * showMessage('Dirección creada con éxito', 'success');
- */
-function showMessage(message, type) {
-    let container = document.getElementById('message');
-    if (container != null) {
-        container.innerHTML = message;
-        
-        // Primero eliminamos las clases relacionadas con mensajes anteriores
-        container.classList.remove('error', 'success', 'fade-out');
-        
-        // Agregamos las clases apropiadas según el tipo
-        container.classList.add('message');
-        if (type === 'error') {
-            container.classList.add('error');
-        } else if (type === 'success') {
-            container.classList.add('success');
-        }
-
-        container.classList.add('fade-in');
-        
-        // Oculta el mensaje después de unos segundos
-        setTimeout(() => {
-            container.classList.replace('fade-in', 'fade-out');
-        }, 5000); // Tiempo durante el cual el mensaje es visible
-    } else {
-        alert(message);
-    }
-}
-
-/**
  * Cancela la edición de una dirección.
  * 
  * @description Recarga los datos de direcciones para cancelar la edición en curso.
