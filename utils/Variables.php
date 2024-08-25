@@ -59,6 +59,14 @@
 	define('TELEFONO_NUMERO', 'telefononumero');
 	define('TELEFONO_ESTADO', 'telefonoestado');
 
+	// TABLA 'tbCodigoBarras'
+	define('TB_CODIGO_BARRAS', 'tbcodigobarras'); //<- Nombre de la Tabla
+	define('CODIGO_BARRAS_ID', 'codigobarrasid');
+	define('CODIGO_BARRAS_NUMERO', 'codigobarrasnumero');
+	define('CODIGO_BARRAS_FECHA_CREACION', 'codigobarrasfechacreacion');
+	define('CODIGO_BARRAS_FECHA_MODIFICACION', 'codigobarrasfechamodificacion');
+	define('CODIGO_BARRAS_ESTADO', 'codigobarrasestado');
+
 	// Tabla 'tbproducto'
 	define('TB_PRODUCTO','tbproducto'); //<- Nombre de la Tabla
 	define('PRODUCTO_ID','productoid');
