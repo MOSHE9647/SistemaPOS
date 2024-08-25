@@ -114,13 +114,8 @@
 	define('LOTE_FECHA_VENCIMIENTO','lotefechavencimiento');
 	define('LOTE_ESTADO','loteestado');
 
-
 	//TABLA INTERMEDIA PROVEEDOR-PRODUCTO
     define('TB_PROVEEDOR_PRODUCTO', 'tbproveedorproducto'); // Nombre de la Tabla
     define('PROVEEDOR_PRODUCTO_ID', 'proveedorproductoid'); // ID de la tabla proveedor-producto
-    //define('PROVEEDOR_ID', 'proveedorid'); // ID del proveedor
-    //define('PRODUCTO_ID', 'productoid'); // ID del producto
-
-
 
 ?>
