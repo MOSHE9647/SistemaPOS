@@ -395,7 +395,7 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
-
+        
         public function getPaginatedProductos($page, $size, $sort = null) {
             try {
 				// Validar los parámetros de paginación
