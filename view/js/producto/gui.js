@@ -29,10 +29,12 @@ function renderTable(productos) {
             <tr data-id="${producto.ID}">
                 <td data-field="nombre">${producto.Nombre}</td>
                 <td data-field="precio">${producto.Precio}</td>
-                <td data-field="cantidad">${producto.Cantidad}</td>
-                <td data-field="fecha" data-iso="${producto.FechaISO}">${producto.Fecha}</td>
+                <td data-field="ganancia">${producto.ProductoPorcentaje}</td>
                 <td data-field="descripcion">${producto.Descripcion}</td>
                 <td data-field="codigo">${producto.CodigoBarras}</td>
+                <td data-field="foto">${producto.ProductoFoto}</td>
+                <td data-field="categoria">${producto.Categoria.Nombre}</td>
+                <td data-field="subcategoria">${producto.Subcategoria.Nombre}</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
                     <button onclick="deleteProducto(${producto.ID})">Eliminar</button>
@@ -83,6 +85,12 @@ function makeRowEditable(row) {
             return `<input type="number" value="${value}" min="0" required>`;
         },
         'precio': (value) => {
+            // Convertir el precio a double y limitar a 2 decimales
+            const formattedValue = parseFloat(value).toFixed(2);
+            // Crear un campo numérico con el precio formateado y restricciones de mínimo y paso
+            return `<input type="number" value="${formattedValue}" min="0" step="0.01" required>`;
+        },
+        'ganancia': (value) => {
             // Convertir el precio a double y limitar a 2 decimales
             const formattedValue = parseFloat(value).toFixed(2);
             // Crear un campo numérico con el precio formateado y restricciones de mínimo y paso
@@ -139,10 +147,13 @@ function showCreateRow() {
     newRow.innerHTML = `
         <td data-field="nombre"><input type="text" required></td>
         <td data-field="precio"><input type="number" min="0" step="0.01" required></td>
-        <td data-field="cantidad"><input type="number" min="0" required></td>
-        <td data-field="fecha"><input type="date" required max="${getCurrentDate()}"></td>
+        <td data-field="ganancia"><input type="number", min="0" required></td>
         <td data-field="descripcion"><input type="text"></td>
         <td data-field="codigo"><input type="number", min="0"></td>
+        <td data-field="foto"><input type="text"></td>
+        <td data-field="categoria"><input type="number" min="0" step="1"></td>
+        <td data-field="subcategoria"><input type="number" min="0" step="1"></td>
+        
         <td>
             <button onclick="createProducto()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>

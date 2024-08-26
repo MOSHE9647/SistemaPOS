@@ -228,7 +228,7 @@
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), 
                     $e->getMessage(),
-                    'Error al actualizar el impuesto en la base de datos'
+                    'Error al actualizar el teléfono en la base de datos'
                 );
         
                 // Devolver mensaje amigable para el usuario
@@ -274,7 +274,7 @@
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), 
                     $e->getMessage(),
-                    'Error al eliminar el impuesto de la base de datos'
+                    'Error al eliminar el teléfono de la base de datos'
                 );
         
                 // Devolver mensaje amigable para el usuario

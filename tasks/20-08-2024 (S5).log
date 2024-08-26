@@ -35,7 +35,7 @@ Cada quien se encarga del punto 1 en sus respectivos códigos ('INCLUYENDO LOS D
 	1. ['Codigo'] -> Agregar el atributo 'Dirección' y 'Telefono' a la clase 'Proveedor' ambos como listas de su respectivo tipo (de igual forma se obtiene la info mediante InnerJoin al momento de jalar al proveedor de la 'BD'). 
     2. ['Codigo'] -> Modificar el código de 'Data', 'Service' y 'Controller' según corresponda.
 
-4- Proveedor-Telefono:
+4- Proveedor-Telefono ['COMPLETADO']:
     1. ['BD']     -> Eliminar tabla, ya que un teléfono solo puede pertenecer a un proveedor, pero un proveedor puede tener varios teléfonos. ['COMPLETADO']
     2. ['Codigo'] -> Modificar el código de 'Data', 'Service' y 'Controller' según corresponda.
 
@@ -49,8 +49,9 @@ Cada quien se encarga del punto 1 en sus respectivos códigos ('INCLUYENDO LOS D
     *. RECUERDEN:
         1. 'TODOS LOS NOMBRES DE LAS COLUMNAS Y LAS TABLAS VAN EN MINÚSCULAS'.
         2. 'LOS NOMBRES DE LAS TABLAS VAN EN MINÚSCULAS, SIN GUIONES, SIN ESPACIOS Y EMPIEZAN CON tb'.
-        3. Todos los 'NOT NULL' y 'UNIQUE' tienen y 'DEBEN' verificarse.
-        4. 'FK' indica que es el ID de otra tabla, no usar ForeignKey
+        3. El 'UNIQUE' unicamente indica que el campo debe verificarse para que no se repita, 'NO LO USEN AL CREAR LA TABLA'.
+        4. Todos los 'NOT NULL' y 'UNIQUE' tienen y 'DEBEN' verificarse.
+        5. 'FK' indica que es el ID de otra tabla, no usar ForeignKey
 
 	1. Código de Barras ['COMPLETADO' (Falta el Código)]:
         - codigoBarrasID                | INT        NOT NULL                 |
@@ -62,8 +63,6 @@ Cada quien se encarga del punto 1 en sus respectivos códigos ('INCLUYENDO LOS D
 	2. Compra Producto (Factura):
         - compraProductoID              | INT        NOT NULL                 |
         - compraProductoCantidad        | INT        NOT NULL                 |
-        - compraProductoLoteID          | INT        NOT NULL              FK |
-        - compraProductoProductoID      | INT        NOT NULL              FK |
         - compraProductoProveedorID     | INT        NOT NULL              FK |
         - compraProductoFechaCreacion   | DATETIME   NOT NULL  DEFAULT        |   ['Debe crearse de forma automática']
         - compraProductoEstado          | TINYINT    NOT NULL  DEFAULT 1      |
@@ -89,3 +88,13 @@ Cada quien se encarga del punto 1 en sus respectivos códigos ('INCLUYENDO LOS D
         - telefonoCodigoPais            | VARCHAR    NOT NULL  UNIQUE         |   [+506, +1, +52].
         - telefonoNumero                | VARCHAR    NOT NULL  UNIQUE         |   [8888 8888 o 642 245566 98].
         - telefonoEstado                | TINYINT    NOT NULL  DEFAULT 1      |
+
+'EXTRA':
+    Estructura del 'Código de Barras':
+        1001: LoteID,       '<- En este caso también podría ser el Código del Lote'
+        1002: ProveedorID, 
+        1003: ProductoID,
+        1: Verificación.
+
+        Resultado: 0101100010001
+    Esto da como resultado un 'Código de Barras' completo e irrepetible.
