@@ -276,7 +276,33 @@ INSERT INTO `tbsubcategoria` (`tbsubcategoriaid`, `tbsubcategorianombre`, `tbsub
 
 --
 -- Índices para tablas volcadas
+-- --------------------------------------------------------
+
 --
+-- Estructura de tabla para la tabla `tbtipocompra`
+--
+
+CREATE TABLE `tbtipocompra` (
+  `tipocompraid` int NOT NULL,
+  `tipocomprafechacreacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `tipocomprafechamodificacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `tipocompracompraProductoID` int NOT NULL,
+  `tipocompradescripcion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `tipocompranombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipocompratasainteres` decimal(5,2) NOT NULL,
+  `tipocompraplagos` int NOT NULL,
+  `tipocomprameses` int NOT NULL,
+  `tipocompraestado` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+
+--
+-- Índices para la tabla `tbtipocompra`
+--
+
+ALTER TABLE `tbtipocompra`
+  ADD PRIMARY KEY (`tipocompraid`);
 
 --
 -- Indices de la tabla `tbcategoria`
