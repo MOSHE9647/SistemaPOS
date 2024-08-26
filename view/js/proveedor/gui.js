@@ -31,6 +31,7 @@ function renderTable(proveedores) {
                 <td data-field="nombre">${proveedor.Nombre}</td>
                 <td data-field="email">${proveedor.Email}</td>
                 <td data-field="tipo">${proveedor.Tipo}</td>
+               <td data-field="telefono">${proveedor.Telefono}</td>
                 <td data-field="fecha" data-iso="${proveedor.FechaISO}">${proveedor.Fecha}</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
@@ -76,7 +77,11 @@ function makeRowEditable(row) {
         'email': (value) => {
             // Crear un campo de tipo email con el valor actual y restricciones de tipo de email
             return `<input type="email" value="${value}" required>`;
+        },
+        'telefono': (value) =>{
+            return `<input type="text" value="${value}" required>` ;
         }
+        
     };
 
     // Recorrer cada celda de la fila

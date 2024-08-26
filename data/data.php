@@ -45,6 +45,13 @@
                     $this->dbname = DB_NAME;
                     break;
                 // Otras PC's
+                case "Javier":
+                $this->servername = CLOUD_DB_HOST;
+                $this->username = CLOUD_DB_USER;
+                $this->password =  CLOUD_DB_PASS;
+                $this->dbname = CLOUD_DB_NAME;
+                break;
+
                 default:
                     $this->servername = DB_HOST;
                     $this->username = DB_USER;

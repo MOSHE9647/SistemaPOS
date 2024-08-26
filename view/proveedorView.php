@@ -33,7 +33,8 @@
                     <tr>
                         <th data-field="nombre">Nombre</th> 
                         <th data-field="email">Email</th>
-                        <th data-field="tipo">Tipo</th>                  
+                        <th data-field="tipo">Tipo</th>  
+                        <th data-field="telefono">Telefono</th> <!-- Nuevo encabezado para el teléfono -->                
                         <th data-field="fecha">Fecha de Registro</th>
                         <th>Acciones</th>
                     </tr>
