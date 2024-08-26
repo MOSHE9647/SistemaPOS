@@ -30,6 +30,7 @@
             <li> <a href="./view/productoSubcategoriaView.php">Gestión de Producto-Subcategorias</a> </li>
             <li> <a href="./view/proveedorProductoView.php">Gestión Proveedor-Producto</a> </li>
             <li> <a href="./view/loteView.php">Gestión de lotes</a> </li>
+            <li> <a href="./view/tipoCompraView.php">Gestión de TipoCompra</a> </li>
             <li> <a href="./view/categoriaView.php">Gestion de Categorias</a> </li>
             <li> <a href="" onclick="printBarcodes(10)">Imprimir Códigos de Barras</a> </li>
         </ul>
