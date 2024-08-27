@@ -73,8 +73,8 @@
 
     <a href="../index.php" class="menu-button">Regresar al Menú</a>
     <script src="./js/utils.js"></script>                 <!-- Utiles para mostrar notificaciones y demás         -->
-    <script src="./js/tipocompra/gui.js"></script>        <!-- Manejo dinámico de la página                       -->
-    <script src="./js/tipocompra/pagination.js"></script> <!-- Métodos para Paginación                            -->
-    <script src="./js/tipocompra/crud.js"></script>       <!-- Creación, Actualización y Eliminación de Tipos de Compra -->
+    <script src="./js/tipoCompra/gui.js"></script>        <!-- Manejo dinámico de la página                       -->
+    <script src="./js/tipoCompra/pagination.js"></script> <!-- Métodos para Paginación                            -->
+    <script src="./js/tipoCompra/crud.js"></script>       <!-- Creación, Actualización y Eliminación de Tipos de Compra -->
 </body>
 </html>
