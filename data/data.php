@@ -12,14 +12,14 @@
 
         public function __construct() {
             // CONEXION A BD EN LA NUBE (Comentar para usar la BD Local)
-            $this->servername = CLOUD_DB_HOST;
-            $this->username = CLOUD_DB_USER;
-            $this->password = CLOUD_DB_PASS;
-            $this->dbname = CLOUD_DB_NAME;
+            // $this->servername = CLOUD_DB_HOST;
+            // $this->username = CLOUD_DB_USER;
+            // $this->password = CLOUD_DB_PASS;
+            // $this->dbname = CLOUD_DB_NAME;
 
             
-            // // Obtiene el nombre del equipo
-             $hostName = gethostname();
+            // Obtiene el nombre del equipo
+            $hostName = gethostname();
             
             // Configuracion del acceso a la bd
             switch ($hostName) {
@@ -45,12 +45,6 @@
                     $this->dbname = DB_NAME;
                     break;
                 // Otras PC's
-                case "Javier":
-                    $this->servername = CLOUD_DB_HOST;
-                    $this->username = CLOUD_DB_USER;
-                    $this->password = CLOUD_DB_PASS;
-                    $this->dbname = CLOUD_DB_NAME;
-                    break;
                 default:
                     $this->servername = DB_HOST;
                     $this->username = DB_USER;
@@ -126,7 +120,7 @@
             try {
                 // Verificar si MySQL está en ejecución
                 if (!$this->isMysqlRunning()) {
-                    $userMessage = "El servidor de la base de datos no está disponible en este momento. Por favor, inténtelo más tarde.";
+                    $userMessage = "El servidor de la base de datos [MySQL] no está disponible en este momento. Por favor, inténtelo más tarde.";
                     Utils::writeLog($userMessage, DATA_LOG_FILE);
                     throw new Exception($userMessage);
                 }

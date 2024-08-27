@@ -52,7 +52,7 @@
                     //     Utils::writeLog("[Impuesto] El campo 'Fecha Adquisición [$fechaAdquisicion]' es mayor a la de hoy.", BUSINESS_LOG_FILE);
                     // }
                     if ($ganancia === null || empty($ganancia) || !is_numeric($ganancia) || $ganancia <= 0) {
-                        $errors[] = "El campo 'Precio' está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
+                        $errors[] = "El campo 'Ganancia' está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
                         Utils::writeLog("[Producto] El campo 'Porcentaje de ganancia [$ganancia]' no es válido.", BUSINESS_LOG_FILE);
                     }
                 }
