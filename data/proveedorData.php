@@ -80,6 +80,7 @@
                 $proveedorEmail = $proveedor->getProveedorEmail();
                 $proveedorTipo = $proveedor->getProveedorTipo(); 
                 $proveedorFechaRegistro = $proveedor->getProveedorFechaRegistro();
+                $telefonoNumero = $proveedor->getProveedorTelefono(); // Obtener teléfono
 
                 // Verifica si el proveedor ya existe
                 $check = $this->proveedorExiste(null, $proveedorNombre, $proveedorEmail);
@@ -288,8 +289,15 @@
                 }
                 $conn = $result["connection"];
 
-                // Obtenemos la lista de Proveedores
-                $querySelect = "SELECT * FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false ";
+               // Obtenemos la lista de Proveedores
+               // $querySelect = "SELECT * FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false ";
+               $querySelect = "
+               SELECT p.*, t.telefononumero 
+               FROM " . TB_PROVEEDOR . " p
+               LEFT JOIN " . TB_TELEFONO . " t ON p." . PROVEEDOR_ID . " = t." . TELEFONO_PROVEEDOR_ID . "
+               AND t." . TELEFONO_ESTADO . " = != false
+               WHERE p." . PROVEEDOR_ESTADO . " != false
+           ";
                 $result = mysqli_query($conn, $querySelect);
 
                 // Creamos la lista con los datos obtenidos
@@ -299,7 +307,8 @@
                         'ID' => $row[PROVEEDOR_ID],
                         'Nombre' => $row[PROVEEDOR_NOMBRE],
                         'Email' => $row[PROVEEDOR_EMAIL],
-                        'Tipo' => $row[PROVEEDOR_TIPO],                 
+                        'Tipo' => $row[PROVEEDOR_TIPO],    
+                        'Telefono' => $row['telefononumero'], // Agregar el teléfono             
                         'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO], 'Y-MM-dd'),
 						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO]),
                         'Estado' => $row[PROVEEDOR_ESTADO]
@@ -349,7 +358,14 @@
                 $totalPages = ceil($totalRecords / $size);
 
 				// Construir la consulta SQL para paginación
-                $querySelect = "SELECT * FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false ";
+                $querySelect = "
+                SELECT p.*, t.telefononumero 
+                FROM " . TB_PROVEEDOR . " p
+                LEFT JOIN " . TB_TELEFONO . " t ON p." . PROVEEDOR_ID . " = t." . TELEFONO_PROVEEDOR_ID . "
+                 AND t." . TELEFONO_ESTADO . " = true
+                WHERE p." . PROVEEDOR_ESTADO . " != false
+            ";
+               // $querySelect = "SELECT * FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false ";
 
 				// Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) {
@@ -375,7 +391,8 @@
 						'ID' => $row[PROVEEDOR_ID],
 						'Nombre' => $row[PROVEEDOR_NOMBRE],
 						'Email' => $row[PROVEEDOR_EMAIL],
-						'Tipo' => $row[PROVEEDOR_TIPO],                                             
+						'Tipo' => $row[PROVEEDOR_TIPO],   
+                        'Telefono' => $row['telefononumero'], // Agregar el teléfono                                          
 						'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO], 'Y-MM-dd'),
 						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO]),
 						'Estado' => $row[PROVEEDOR_ESTADO]
@@ -407,7 +424,7 @@
             }
         }
 
-        public function getTelefonosPorProveedor($proveedorID) {
+       /* public function getTelefonoByProveedorID($proveedorID) {
             try {
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
@@ -416,30 +433,91 @@
                 }
                 $conn = $result["connection"];
         
-                // Crea una consulta para obtener los teléfonos del proveedor
-                $querySelect = "SELECT telefonoid, telefono FROM tbtelefono WHERE proveedorid = ?";
-                $stmt = mysqli_prepare($conn, $querySelect);
-                mysqli_stmt_bind_param($stmt, 'i', $proveedorID);
-                mysqli_stmt_execute($stmt);
-                $result = mysqli_stmt_get_result($stmt);
+                // Consulta para obtener el teléfono del proveedor
+                $querySelect = "
+                    SELECT
+                        T." . TELEFONO_NUMERO . "
+                    FROM
+                        " . TB_TELEFONO . " T
+                    WHERE
+                        T." . TELEFONO_ESTADO . " != FALSE AND 
+                        T." . TELEFONO_PROVEEDOR_ID . " = ?
+                ";
         
-                // Crea una lista con los números de teléfono obtenidos
-                $telefonos = [];
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $telefonos[] = [
-                        'telefonoid' => $row['telefonoid'],
-                        'telefono' => $row['telefono']
-                    ];
+                // Preparar la consulta y vincular los parámetros
+                $stmt = mysqli_prepare($conn, $querySelect);
+                mysqli_stmt_bind_param($stmt, "i", $proveedorID);
+        
+                // Ejecutar la consulta
+                mysqli_stmt_execute($stmt);
+        
+                // Obtener el resultado
+                $result = mysqli_stmt_get_result($stmt);
+                $telefono = null;
+        
+                if ($row = mysqli_fetch_assoc($result)) {
+                    $telefono = $row[TELEFONO_NUMERO];
                 }
         
-                return ["success" => true, "telefonos" => $telefonos];
+                return ["success" => true, "telefono" => $telefono];
             } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
-                    $e->getCode(),
+                    $e->getCode(), 
                     $e->getMessage(),
-                    'Error al obtener los teléfonos del proveedor'
+                    'Error al obtener el teléfono del proveedor'
                 );
         
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cerrar la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn)) { mysqli_close($conn); }
+            }
+        }
+        */
+        public function getTelefonosPorProveedor($proveedorID) {
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
+                }
+                $conn = $result["connection"];
+                
+                // Prepara la consulta para obtener los números de teléfono
+                $query = "
+                    SELECT t.telefononumero 
+                    FROM " . TB_TELEFONO . " t
+                    WHERE t.telefonoproveedorid = ? AND t.telefonoestado != false
+                ";
+                
+                // Prepara la consulta y vincula los parámetros
+                $stmt = mysqli_prepare($conn, $query);
+                mysqli_stmt_bind_param($stmt, "i", $proveedorID);
+                
+                // Ejecuta la consulta
+                mysqli_stmt_execute($stmt);
+                
+                // Obtiene el resultado
+                $result = mysqli_stmt_get_result($stmt);
+                $telefonos = [];
+                
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $telefonos[] = $row['telefononumero'];
+                }
+                
+                return ["success" => true, "telefonos" => $telefonos];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al obtener los números de teléfono del proveedor'
+                );
+                
+                // Devolver mensaje amigable para el usuario
                 return ["success" => false, "message" => $userMessage];
             } finally {
                 // Cierra la conexión y el statement
@@ -447,7 +525,6 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
-        
         
     }
 

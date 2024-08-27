@@ -17,9 +17,14 @@
  * @returns {void}
  */
 function renderTable(proveedores) {
+    console.log("Proveedores a renderizar:", proveedores); // Verifica la lista de proveedores
+    console.log("Proveedor actual:", proveedores); // Verifica los datos del proveedor
+    console.log("tele actual:", proveedores.telefono); // Verifica los datos del proveedor
+
+
     // Obtener el cuerpo de la tabla
     let tableBody = document.getElementById('tableBody');
-    
+    console.log("Elemento tableBody:", tableBody);
     // Vaciar el cuerpo de la tabla
     tableBody.innerHTML = '';
 
@@ -31,7 +36,7 @@ function renderTable(proveedores) {
                 <td data-field="nombre">${proveedor.Nombre}</td>
                 <td data-field="email">${proveedor.Email}</td>
                 <td data-field="tipo">${proveedor.Tipo}</td>
-               <td data-field="telefono">${proveedor.Telefono}</td>
+               <td data-field="telefono">${proveedor.Telefono || 'No disponible'}</td> 
                 <td data-field="fecha" data-iso="${proveedor.FechaISO}">${proveedor.Fecha}</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
@@ -42,6 +47,7 @@ function renderTable(proveedores) {
         
         // Agregar la fila al cuerpo de la tabla
         tableBody.innerHTML += row;
+        console.log("Fila agregada:", row); // Verifica la fila agregada
     });
 }
 
@@ -63,6 +69,7 @@ function renderTable(proveedores) {
 function makeRowEditable(row) {
     // Seleccionar todas las celdas de la fila
     const cells = row.querySelectorAll('td');
+    const proveedorId = row.dataset.id; // Obtener el ID del proveedor
     
     // Definir funciones para manejar cada tipo de campo
     const fieldHandlers = {
@@ -78,8 +85,12 @@ function makeRowEditable(row) {
             // Crear un campo de tipo email con el valor actual y restricciones de tipo de email
             return `<input type="email" value="${value}" required>`;
         },
-        'telefono': (value) =>{
-            return `<input type="text" value="${value}" required>` ;
+       'telefono': (value) => {
+            // Crear un campo de combobox para los teléfonos
+            return `
+                <select id="telefonoSelect">
+                    <option value="">Selecciona un teléfono</option>
+                </select>`;
         }
         
     };
@@ -91,6 +102,8 @@ function makeRowEditable(row) {
             // Obtener el campo y valor de la celda
             const field = cell.dataset.field;
             const value = field === 'fecha' ? cell.dataset.iso : cell.innerText;
+
+            
             // Obtener la función de manejo para el campo o una función default
             const handler = fieldHandlers[field] || ((v) => `<input type="text" value="${v}">`);
             // Reemplazar el contenido de la celda con el campo editable
@@ -134,6 +147,7 @@ function showCreateRow() {
         <td data-field="nombre"><input type="text" required></td>
         <td data-field="email"><input type="email" required></td>
         <td data-field="tipo"><input type="text"></td>
+         <td data-field="telefono"><input type="text" required></td>
         <td data-field="fecha"><input type="date" required max="${getCurrentDate()}"></td>
         <td>
             <button onclick="createProveedor()">Crear</button>
