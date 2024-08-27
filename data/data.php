@@ -11,13 +11,6 @@
         public $dbname;
 
         public function __construct() {
-            // CONEXION A BD EN LA NUBE (Comentar para usar la BD Local)
-             $this->servername = CLOUD_DB_HOST;
-             $this->username = CLOUD_DB_USER;
-             $this->password = CLOUD_DB_PASS;
-             $this->dbname = CLOUD_DB_NAME;
-
-            
             // Obtiene el nombre del equipo
             $hostName = gethostname();
             
@@ -25,10 +18,10 @@
             switch ($hostName) {
                 // PC de Isaac (Ubuntu WSL2 - Win11)
                 case "Moshe9647-PC":
-                    $this->servername = DB_HOST;
-                    $this->username = DB_USER;
-                    $this->password = DB_PASS;
-                    $this->dbname = DB_NAME;
+                    $this->servername = CLOUD_DB_HOST;
+                    $this->username = CLOUD_DB_USER;
+                    $this->password = CLOUD_DB_PASS;
+                    $this->dbname = CLOUD_DB_NAME;
                     break;
                 // PC de Gonzalo (Ubuntu WSL2 - Win10)
                 case "DESKTOP-G544DN0":
@@ -44,16 +37,15 @@
                     $this->password = CLOUD_DB_PASS;
                     $this->dbname = CLOUD_DB_NAME;
                     break;
-
+                // PC de Javier (Windows)
                 case "Javier":
-                        $this->servername = CLOUD_DB_HOST;
-                        $this->username = CLOUD_DB_USER;
-                        $this->password = CLOUD_DB_PASS;
-                        $this->dbname = CLOUD_DB_NAME;
-                        break;
+                    $this->servername = CLOUD_DB_HOST;
+                    $this->username = CLOUD_DB_USER;
+                    $this->password = CLOUD_DB_PASS;
+                    $this->dbname = CLOUD_DB_NAME;
+                    break;
                 // Otras PC's
                 default:
-                
                     $this->servername = DB_HOST;
                     $this->username = DB_USER;
                     $this->password = "";
@@ -126,8 +118,8 @@
          */
         public function getConnection() {
             try {
-                // Verificar si MySQL está en ejecución
-                if (!$this->isMysqlRunning()) {
+                // Verificar si MySQL está en ejecución (solo en caso de no estar usando la DB en la nube)
+                if ($this->servername !== CLOUD_DB_HOST && !$this->isMysqlRunning()) {
                     $userMessage = "El servidor de la base de datos [MySQL] no está disponible en este momento. Por favor, inténtelo más tarde.";
                     Utils::writeLog($userMessage, DATA_LOG_FILE);
                     throw new Exception($userMessage);

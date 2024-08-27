@@ -89,12 +89,12 @@ Cada quien se encarga del punto 1 en sus respectivos códigos ('INCLUYENDO LOS D
         - telefonoNumero                | VARCHAR    NOT NULL  UNIQUE         |   [8888 8888 o 642 245566 98].
         - telefonoEstado                | TINYINT    NOT NULL  DEFAULT 1      |
 
-'EXTRA':
+[INFO]:
     Estructura del 'Código de Barras':
-        1001: LoteID,       '<- En este caso también podría ser el Código del Lote'
+        1001: LoteID,       '<- En este caso también podría ser el Código del Lote o la Categoría y Subcategoría'
         1002: ProveedorID, 
         1003: ProductoID,
         1: Verificación.
 
-        Resultado: 0101100010001
+        Resultado: 1001100210031
     Esto da como resultado un 'Código de Barras' completo e irrepetible.
