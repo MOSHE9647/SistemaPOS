@@ -391,44 +391,103 @@ class LoteData extends Data {
     }
 
     public function loteExists($codigo) {
-    try {
-        // Establece una conexión con la base de datos
-        $result = $this->getConnection();
-        if (!$result["success"]) {
-            throw new Exception($result["message"]);
+        try {
+            // Establece una conexión con la base de datos
+            $result = $this->getConnection();
+            if (!$result["success"]) {
+                throw new Exception($result["message"]);
+            }
+            $conn = $result["connection"];
+
+            // Consulta SQL para verificar si existe un lote con el mismo código
+            $querySelect = "SELECT COUNT(*) FROM " . TB_LOTE . " WHERE " . LOTE_CODIGO . " = ? AND " . LOTE_ESTADO . " = true";
+            $stmt = mysqli_prepare($conn, $querySelect);
+
+            // Asigna el valor al '?' de la consulta
+            mysqli_stmt_bind_param($stmt, 's', $codigo);
+
+            // Ejecuta la consulta
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+
+            // Verifica el número de lotes encontrados
+            $count = mysqli_fetch_row($result)[0];
+            return $count > 0;
+        } catch (Exception $e) {
+            // Manejo del error dentro del bloque catch
+            $userMessage = $this->handleMysqlError(
+                $e->getCode(), 
+                $e->getMessage(),
+                'Error al verificar la existencia del lote'
+            );
+
+            // Devolver mensaje amigable para el usuario
+            return ["success" => false, "message" => $userMessage];
+        } finally {
+            // Cierra el statement y la conexión si están definidos
+            if (isset($stmt)) { mysqli_stmt_close($stmt); }
+            if (isset($conn)) { mysqli_close($conn); }
         }
-        $conn = $result["connection"];
-
-        // Consulta SQL para verificar si existe un lote con el mismo código
-        $querySelect = "SELECT COUNT(*) FROM " . TB_LOTE . " WHERE " . LOTE_CODIGO . " = ? AND " . LOTE_ESTADO . " = true";
-        $stmt = mysqli_prepare($conn, $querySelect);
-
-        // Asigna el valor al '?' de la consulta
-        mysqli_stmt_bind_param($stmt, 's', $codigo);
-
-        // Ejecuta la consulta
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-
-        // Verifica el número de lotes encontrados
-        $count = mysqli_fetch_row($result)[0];
-        return $count > 0;
-    } catch (Exception $e) {
-        // Manejo del error dentro del bloque catch
-        $userMessage = $this->handleMysqlError(
-            $e->getCode(), 
-            $e->getMessage(),
-            'Error al verificar la existencia del lote'
-        );
-
-        // Devolver mensaje amigable para el usuario
-        return ["success" => false, "message" => $userMessage];
-    } finally {
-        // Cierra el statement y la conexión si están definidos
-        if (isset($stmt)) { mysqli_stmt_close($stmt); }
-        if (isset($conn)) { mysqli_close($conn); }
     }
-}
+
+    public function getLoteByID($loteID) {
+        try {
+            $check = $this->loteExiste($loteID);
+            if (!$check['success']) {
+                return $check;
+            }
+            if (!$check['exists']) {
+                Utils::writeLog("El lote con 'ID [$loteID]' no existe en la base de datos.", DATA_LOG_FILE);
+                throw new Exception("No existe ningún lote en la base de datos que coincida con la información proporcionada.");
+            }
+
+            // Establece una conexion con la base de datos
+            $result = $this->getConnection();
+            if (!$result["success"]) {
+                throw new Exception($result["message"]);
+            }
+            $conn = $result["connection"];
+
+            // Obtenemos la información del lote
+            $querySelect = "SELECT * FROM " . TB_LOTE . " WHERE " . LOTE_ID . " = ? AND " . LOTE_ESTADO . " != false";
+            $stmt = mysqli_prepare($conn, $querySelect);
+
+            // Asignar los parámetros y ejecutar la consulta
+            mysqli_stmt_bind_param($stmt, 'i', $loteID);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+
+            // Verifica si existe algún registro con los criterios dados
+            $lote = null;
+            if ($row = mysqli_fetch_assoc($result)) {
+                $lote = new Lote(
+                    $row[LOTE_ID],
+                    $row[LOTE_CODIGO],
+                    $row[COMPRALOTE_ID],
+                    $row[PRODUCTO_ID],
+                    $row[PROVEEDOR_ID],
+                    $row[LOTE_FECHA_VENCIMIENTO],
+                    $row[LOTE_ESTADO]
+                );
+            }
+    
+            return ["success" => true, "lote" => $lote];
+        } catch (Exception $e) {
+            // Manejo del error dentro del bloque catch
+            $userMessage = $this->handleMysqlError(
+                $e->getCode(), 
+                $e->getMessage(),
+                'Error al obtener el lote desde la base de datos'
+            );
+    
+            // Devolver mensaje amigable para el usuario
+            return ["success" => false, "message" => $userMessage];
+        } finally {
+            // Cerrar la conexión y el statement
+            if (isset($stmt)) { mysqli_stmt_close($stmt); }
+            if (isset($conn)) { mysqli_close($conn); }
+        }
+    }
 
 }
 ?>

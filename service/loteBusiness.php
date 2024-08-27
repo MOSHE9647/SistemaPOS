@@ -99,7 +99,9 @@
             return $this->loteData->getPaginatedLotes($page, $size);
         }
 
-        
+        public function getLoteByID($loteID) {
+            return $this->loteData->getLoteByID($loteID);
+        }
 
     }
 

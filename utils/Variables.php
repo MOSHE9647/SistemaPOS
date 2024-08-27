@@ -96,6 +96,19 @@
 	define('PRODUCTO_SUBCATEGORIA_PRODUCTO_ID','productoid');
 	define('PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID','subcategoriaid');
 	define('PRODUCTO_SUBCATEGORIA_ESTADO','productocategoriaestado');
+		// TABLA 'tbTipoCompra'
+	define('TB_TIPO_COMPRA', 'tbtipocompra'); //<- Nombre de la Tabla
+	define('TIPO_COMPRA_ID', 'tipocompraid');
+	define('TIPO_COMPRA_FECHA_CREACION', 'tipocomprafechacreacion');
+	define('TIPO_COMPRA_FECHA_MODIFICACION', 'tipocomprafechamodificacion');
+	define('TIPO_COMPRA_COMPRA_PRODUCTO_ID', 'tipocompracompraid');
+	define('TIPO_COMPRA_DESCRIPCION', 'tipocompradescripcion');
+	define('TIPO_COMPRA_NOMBRE', 'tipocompranombre');
+	define('TIPO_COMPRA_TASA_INTERES', 'tipocompratasainteres');
+	define('TIPO_COMPRA_PLAZOS', 'tipocompraplazos');
+	define('TIPO_COMPRA_MESES', 'tipocomprameses');
+	define('TIPO_COMPRA_ESTADO', 'tipocompraestado');
+
 		
 	/*************** TABLAS INTERMEDIAS ***************/
 

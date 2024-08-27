@@ -167,7 +167,6 @@
                 $productoNombre = $producto->getProductoNombre();
                 $productoCodigoBarras = $producto->getProductoCodigoBarras();
 
-
                 // Verifica si el producto ya existe
 				$check = $this->productoExiste($productoID);
 				if (!$check["success"]) {
@@ -179,14 +178,14 @@
 				}
 
                 // Verifica si ya existe un producto con el mismo nombre o código de barras
-				$check = $this->productoExiste($productoID, $productoNombre, $productoCodigoBarras, true);
-				if (!$check["success"]) {
-					return $check; // Error al verificar la existencia
-				}
-				if ($check["exists"]) {
-					Utils::writeLog("El producto [Nombre: $productoNombre, Código: $productoCodigoBarras] ya existe en la base de datos.", DATA_LOG_FILE);
-					throw new Exception("Ya existe un producto con el mismo nombre o código de barras.");
-				}
+				// $check = $this->productoExiste($productoID, $productoNombre, $productoCodigoBarras, true);
+				// if (!$check["success"]) {
+				// 	return $check; // Error al verificar la existencia
+				// }
+				// if ($check["exists"]) {
+				// 	Utils::writeLog("El producto [Nombre: $productoNombre, Código: $productoCodigoBarras] ya existe en la base de datos.", DATA_LOG_FILE);
+				// 	throw new Exception("Ya existe un producto con el mismo nombre o código de barras.");
+				// }
 
                 // Establece una conexion con la base de datos
                 $result = $this->getConnection();
@@ -303,6 +302,15 @@
                     throw new Exception("El ID del producto está vacío o no es válido. Revise que este sea un número y que sea mayor a 0");
                 }
 
+                // Verifica si el producto ya existe
+				$check = $this->productoExiste($productoID);
+				if (!$check["success"]) {
+					return $check; // Error al verificar la existencia
+				}
+				if (!$check["exists"]) {
+					throw new Exception("No existe ningún producto en la base de datos que coincida con la información proporcionada.");
+				}
+
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) {
@@ -323,17 +331,16 @@
                 $producto = null;
                 if ($row = mysqli_fetch_assoc($result)) {
                     $producto = new Producto(
-                        $row[PRODUCTO_ID],
                         $row[PRODUCTO_NOMBRE],
                         $row[PRODUCTO_PRECIO_U],
-                        $row[PRODUCTO_CANTIDAD],
-                        $row[PRODUCTO_FECHA_ADQ],
-                        $row[PRODUCTO_DESCRIPCION],
                         $row[PRODUCTO_CODIGO_BARRAS],
+                        $row[PRODUCTO_FOTO],
+                        $row[PRODUCTO_PORCENTAJE_GANANCIA],
+                        $row[PRODUCTO_ID],
+                        $row[PRODUCTO_DESCRIPCION],
                         $row[PRODUCTO_ESTADO]
                     );
                 }
-        
                 return ["success" => true, "producto" => $producto];
         
             } catch (Exception $e) {
