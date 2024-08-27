@@ -59,7 +59,7 @@
 
         if (isset($_GET['accion']) && $_GET['accion'] === 'listarProductos') {
             $productoBusiness = new ProductoBusiness();
-            $result = $productoBusiness->getAllProductos();
+            $result = $productoBusiness->getAllTBProducto();
             header('Content-Type: application/json');
             echo json_encode($result);
             exit();
