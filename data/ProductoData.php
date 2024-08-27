@@ -439,12 +439,13 @@
                 . "C." . CATEGORIA_ID . ","
                 . "C." . CATEGORIA_NOMBRE . ","
                 . "C." . CATEGORIA_ESTADO . " "
+                . " FROM " . TB_PRODUCTO . " P "
 
                 . " INNER JOIN " . TB_PRODUCTO_SUBCATEGORIA . " PS ON PS." . PRODUCTO_SUBCATEGORIA_PRODUCTO_ID . " = P." . PRODUCTO_ID
                 . " INNER JOIN " . TB_SUBCATEGORIA . " S  ON S." . SUBCATEGORIA_ID . " = PS." . PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID
                 . " INNER JOIN " . TB_PRODUCTO_CATEGORIA . " PC ON PC." . PRODUCTO_ID_FK . " = P." . PRODUCTO_ID  
                 . " INNER JOIN " . TB_CATEGORIA . " C ON C." . CATEGORIA_ID . " = PC." . CATEGORIA_ID_FK
-                . " FROM " . TB_PRODUCTO . " P WHERE P" . PRODUCTO_ESTADO . " != false ";
+                . " WHERE P." . PRODUCTO_ESTADO . " != false ";
 
 				// Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) {
@@ -476,7 +477,7 @@
                         'ProductoPorcentaje' => $row[PRODUCTO_PORCENTAJE_GANANCIA],
                         'Categoria' => [
                             'ID' => $row[CATEGORIA_ID],
-                            'Nombre' => $row[CATEGORIA_NOMBREO],
+                            'Nombre' => $row[CATEGORIA_NOMBRE],
                             'Estado' => $row[CATEGORIA_ESTADO]
                         ],
                         'Subcategoria' =>[
