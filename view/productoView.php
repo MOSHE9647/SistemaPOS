@@ -18,7 +18,7 @@
                     Ordenar por:
                     <select id="sortSelector">
                         <option value="nombre">Nombre</option>
-                        <option value="preciounitario">Precio</option>
+                        <option value="preciocompra">Precio</option>
                     </select>
                 </div>
 

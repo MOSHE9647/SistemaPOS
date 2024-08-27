@@ -33,8 +33,8 @@ function renderTable(productos) {
                 <td data-field="descripcion">${producto.Descripcion}</td>
                 <td data-field="codigo">${producto.CodigoBarras}</td>
                 <td data-field="foto">${producto.ProductoFoto}</td>
-                <td data-field="categoria">${producto.Categoria.Nombre}</td>
-                <td data-field="subcategoria">${producto.Subcategoria.Nombre}</td>
+                <td data-field="categoria">${producto.Categoria.Nombre || '-'}</td>
+                <td data-field="subcategoria">${producto.Subcategoria.Nombre || '-'}</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
                     <button onclick="deleteProducto(${producto.ID})">Eliminar</button>
