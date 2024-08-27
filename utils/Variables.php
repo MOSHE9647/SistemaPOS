@@ -137,4 +137,13 @@
     define('TB_PROVEEDOR_PRODUCTO', 'tbproveedorproducto'); // Nombre de la Tabla
     define('PROVEEDOR_PRODUCTO_ID', 'proveedorproductoid'); // ID de la tabla proveedor-producto
 
+	// TABLA 'tbcompraproducto'
+   define('TB_COMPRA_PRODUCTO', 'tbcompraproducto'); // <- Nombre de la Tabla
+   define('COMPRA_PRODUCTO_ID', 'compraproductoid');
+   define('COMPRA_PRODUCTO_CANTIDAD', 'compraproductocantidad');
+   define('COMPRA_PRODUCTO_PROVEEDOR_ID', 'compraproductoproveedorid'); //ID de PROVEEDOR
+   define('COMPRA_PRODUCTO_FECHA_CREACION', 'compraproductofechacreacion');
+   define('COMPRA_PRODUCTO_ESTADO', 'compraproductoestado');
+
+
 ?>
