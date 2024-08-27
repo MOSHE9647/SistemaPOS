@@ -226,10 +226,8 @@
                     $productoPorcentaje,
                     $productoID
                 );
-
                 // Ejecuta la consulta de actualización
 				$result = mysqli_stmt_execute($stmt);
-
                 // Devuelve el resultado de la consulta
                 return ["success" => true, "message" => "Producto actualizado exitosamente"];
             } catch (Exception $e) {
@@ -456,7 +454,7 @@
 
 				// Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) {
-                    $querySelect .= "ORDER BY producto" . $sort . " ";
+                    $querySelect .= "ORDER BY P.producto" . $sort . " ";
                 }
 
 				// Añadir la cláusula de limitación y offset

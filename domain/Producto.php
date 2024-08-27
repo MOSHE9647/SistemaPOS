@@ -3,20 +3,23 @@
     class Producto {
 
         private $productoID;
-        private $productoFoto;
+
         private $productoNombre;
         private $productoPrecio;
         private $productoDescripcion;
         private $productoCodigoBarras;
         private $productoEstado;
-        private $productoPorcentajeGanancia;
 
-        private $subcategoria; //objeto Subcategoria;
-        private $categoria; // objeto categoria
+        private $productoPorcentajeGanancia;
+        private $productoFoto;
+
+        private $subcategoria;
+        private $categoria;
 
 
         public function __construct($productoNombre, $productoPrecio, $productoCodigoBarras,$productoFoto = null, $productoPorcentajeGanancia = null,
-                $productoID = 0, $productoDescripcion = "", $productoEstado = true) {
+                $productoID = 0, $productoDescripcion = "", $productoEstado = true, $categoria = null, $subcategoria= null){
+           
             $this->productoID = $productoID;
             $this->productoNombre = strtoupper($productoNombre);
             $this->productoPrecio = $productoPrecio;
@@ -25,6 +28,8 @@
             $this->productoEstado = $productoEstado;
             $this->productoFoto = $productoFoto;
             $this->productoPorcentajeGanancia = $productoPorcentajeGanancia;
+            $this->categoria = $categoria;
+            $this->subcategoria = $subcategoria;
         }
 
         public function getProductoID() { return $this->productoID; }
@@ -47,7 +52,7 @@
         public function setProductoFoto($productoFoto){  $this->productoFoto = $productoFoto; }
         public function setCategoria($categoria){ $this->categoria = $categoria; }
         public function setSubcategoria($subcategoria){ $this->subcategoria = $subcategoria; }
-        public function setPorcentajeGanancia($productoPorcentajeGanancia){ return $this->productoPorcentajeGanancia = $productoPorcentajeGanancia; }
+        public function setPorcentajeGanancia($productoPorcentajeGanancia){ $this->productoPorcentajeGanancia = $productoPorcentajeGanancia; }
 
         public function __toString() {
             return 

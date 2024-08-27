@@ -9,18 +9,21 @@
         $id = isset($_POST['id']) ? $_POST['id'] : 0;
         $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : "";
         $precio = isset($_POST['precio']) ? $_POST['precio'] : 0;
-        $cantidad = isset($_POST['cantidad']) ? $_POST['cantidad'] : 0;
-        $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : "";
         $descripcion = isset($_POST['descripcion']) ? $_POST['descripcion'] : "";
         $codigo = isset($_POST['codigo']) ? $_POST['codigo'] : "";
+
+        $foto = isset($_POST['foto']) ? $_POST['foto'] : '';
+        $ganancia = isset($_POST['ganancia']) ? $_POST['ganancia'] :'';
+
+        $categoria = isset($_POST['categoria']) ? $_POST['categoria']:'';
+        $subcategoria = isset($_POST['subcategoria']) ? $_POST['subcategoria'] : '';
 
         // Se crea el Service para las operaciones
         $productoBusiness = new ProductoBusiness();
 
         // Crea y verifica que los datos del producto sean correctos
-        $producto = new Producto($nombre, $precio, $cantidad, $fecha, $codigo, $id, $descripcion);
+        $producto = new Producto($nombre, $precio, $codigo,$foto,$ganancia, $id, $descripcion);
         $check = $productoBusiness->validarProducto($producto, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
-
         if ($check['is_valid']) {
             switch ($accion) {
                 case 'insertar':
