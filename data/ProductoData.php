@@ -446,10 +446,10 @@
                 . "C." . CATEGORIA_ESTADO . " "
                 . " FROM " . TB_PRODUCTO . " P "
 
-                . " INNER JOIN " . TB_PRODUCTO_SUBCATEGORIA . " PS ON PS." . PRODUCTO_SUBCATEGORIA_PRODUCTO_ID . " = P." . PRODUCTO_ID
-                . " INNER JOIN " . TB_SUBCATEGORIA . " S  ON S." . SUBCATEGORIA_ID . " = PS." . PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID
-                . " INNER JOIN " . TB_PRODUCTO_CATEGORIA . " PC ON PC." . PRODUCTO_ID_FK . " = P." . PRODUCTO_ID  
-                . " INNER JOIN " . TB_CATEGORIA . " C ON C." . CATEGORIA_ID . " = PC." . CATEGORIA_ID_FK
+                . " LEFT JOIN " . TB_PRODUCTO_SUBCATEGORIA . " PS ON PS." . PRODUCTO_SUBCATEGORIA_PRODUCTO_ID . " = P." . PRODUCTO_ID
+                . " LEFT JOIN " . TB_SUBCATEGORIA . " S  ON S." . SUBCATEGORIA_ID . " = PS." . PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID
+                . " LEFT JOIN " . TB_PRODUCTO_CATEGORIA . " PC ON PC." . PRODUCTO_ID_FK . " = P." . PRODUCTO_ID  
+                . " LEFT JOIN " . TB_CATEGORIA . " C ON C." . CATEGORIA_ID . " = PC." . CATEGORIA_ID_FK
                 . " WHERE P." . PRODUCTO_ESTADO . " != false ";
 
 				// Añadir la cláusula de ordenamiento si se proporciona
