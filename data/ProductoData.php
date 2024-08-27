@@ -443,13 +443,15 @@
 
                 . "C." . CATEGORIA_ID . ","
                 . "C." . CATEGORIA_NOMBRE . ","
-                . "C." . CATEGORIA_ESTADO . " "
+                . "C." . CATEGORIA_ESTADO . ","
+                . "B." . CODIGO_BARRAS_NUMERO . " "
                 . " FROM " . TB_PRODUCTO . " P "
 
                 . " LEFT JOIN " . TB_PRODUCTO_SUBCATEGORIA . " PS ON PS." . PRODUCTO_SUBCATEGORIA_PRODUCTO_ID . " = P." . PRODUCTO_ID
                 . " LEFT JOIN " . TB_SUBCATEGORIA . " S  ON S." . SUBCATEGORIA_ID . " = PS." . PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID
                 . " LEFT JOIN " . TB_PRODUCTO_CATEGORIA . " PC ON PC." . PRODUCTO_ID_FK . " = P." . PRODUCTO_ID  
                 . " LEFT JOIN " . TB_CATEGORIA . " C ON C." . CATEGORIA_ID . " = PC." . CATEGORIA_ID_FK
+                . " LEFT JOIN " . TB_CODIGO_BARRAS . " B ON B." . CODIGO_BARRAS_ID . " = P." . PRODUCTO_CODIGO_BARRAS
                 . " WHERE P." . PRODUCTO_ESTADO . " != false ";
 
 				// Añadir la cláusula de ordenamiento si se proporciona
@@ -477,7 +479,7 @@
                         'Nombre' => $row[PRODUCTO_NOMBRE],
                         'Descripcion' => $row[PRODUCTO_DESCRIPCION],
                         'Precio' => $row[PRODUCTO_PRECIO_U],
-                        'CodigoBarras' => $row[PRODUCTO_CODIGO_BARRAS],
+                        'CodigoBarras' => $row[CODIGO_BARRAS_NUMERO],
                         'ProductoFoto' => $row[PRODUCTO_FOTO],
                         'ProductoPorcentaje' => $row[PRODUCTO_PORCENTAJE_GANANCIA],
                         'Categoria' => [
