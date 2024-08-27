@@ -36,6 +36,7 @@ function fetchProveedores(page, size, sort) {
     fetch(`../controller/proveedorAction.php?page=${page}&size=${size}&sort=${sort}`)
         .then(response => response.json())
         .then(data => {
+            console.log("Datos obtenidos del servidor:", data); // Verifica la respuesta completa
             // Verificar si la respuesta fue exitosa
             if (data.success) {
                 // Renderizar la tabla de proveedores con los datos obtenidos
@@ -51,10 +52,13 @@ function fetchProveedores(page, size, sort) {
                 updatePaginationControls();
             } else {
                 // Muestra el mensaje de error específico enviado desde el servidor
+                console.log("Error desde el servidor:", data.message);
                 showMessage(data.message, 'error');
             }
         })
         .catch(error => {
+              // Muestra el mensaje de error detallado
+        console.log("Error al obtener la lista de proveedores:", error);
             // Muestra el mensaje de error detallado
             showMessage(`Ocurrió un error al obtener la lista de proveedores.<br>${error}`, 'error');
         });

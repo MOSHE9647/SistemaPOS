@@ -12,12 +12,15 @@
         $email = isset($_POST['email']) ? $_POST['email'] : "";
         $tipo = isset($_POST['tipo']) ? $_POST['tipo'] : "";
         $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : "";
+        $telefono = isset($_POST['telefono']) ? $_POST['telefono'] : "";
+
+       
 
         // Se crea el Service para las operaciones
         $proveedorBusiness = new ProveedorBusiness();
 
         // Crea y verifica que los datos del proveedor sean correctos
-        $proveedor = new Proveedor($nombre, $email, $fecha, $id, $tipo);
+        $proveedor = new Proveedor($nombre, $email, $fecha, $id, $tipo,  $telefono);
         $check = $proveedorBusiness->validarProveedor($proveedor, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
 
         // Si los datos son válidos se realiza acción correspondiente

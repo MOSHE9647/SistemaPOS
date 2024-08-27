@@ -184,4 +184,6 @@ function deleteProveedor(id) {
             showMessage(`Ocurrió un error al eliminar el proveedor.<br>${error}`, 'error');
         });
     }
+
+    
 }
