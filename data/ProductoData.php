@@ -48,7 +48,6 @@
 					throw new Exception($message);
                 }
                 $stmt = mysqli_prepare($conn, $queryCheck);
-                Utils::writeLog("Update: " . ($update ? 'true. ' : 'false. ') . $queryCheck);
                 
                 // Asignar los parámetros y ejecutar la consulta
                 mysqli_stmt_bind_param($stmt, $types, ...$params);
