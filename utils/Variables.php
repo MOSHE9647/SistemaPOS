@@ -127,9 +127,7 @@
 	define('TB_LOTE','tblote'); //<- Nombre de la Tabla
 	define('LOTE_ID','loteid');
 	define('LOTE_CODIGO','lotecodigo');
-	define('COMPRALOTE_ID', 'compraid');
 	define('PRODUCTOLOTE_ID', 'productoid');
-	define('PROVEEDORLOTE_ID', 'proveedorid');
 	define('LOTE_FECHA_VENCIMIENTO','lotefechavencimiento');
 	define('LOTE_ESTADO','loteestado');
 

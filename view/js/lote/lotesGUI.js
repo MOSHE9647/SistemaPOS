@@ -23,9 +23,7 @@ function renderTable(lotes) {
         let row = `
             <tr data-id="${lote.ID}">
                 <td data-field="lotecodigo">${lote.Codigo}</td>
-                <td data-field="compraid">${lote.Compra}</td>
                 <td data-field="productonombre">${lote.Producto}</td>
-                <td data-field="proveedornombre">${lote.Proveedor}</td>
                 <td data-field="lotefechavencimiento">${lote.FechaVencimiento}</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
@@ -79,17 +77,9 @@ function makeRowEditable(row) {
 
         if (index < lastCellIndex) {
            
-            if (field === 'proveedornombre') {
-                cell.innerHTML = `<select id="proveedorid-select" required></select>`;
-                loadOptions('proveedor', value);  // Cargar las opciones para el select de proveedor
-
-            } else if (field === 'productonombre') {
+            if (field === 'productonombre') {
                 cell.innerHTML = `<select id="productoid-select" required></select>`;
                 loadOptions('producto', value);  // Cargar las opciones para el select de producto
-
-            } else if (field === 'compraid') { // Añadir el campo para el ID de la compra
-                cell.innerHTML = `<select id="compraid-select" required></select>`;
-                loadOptions('compra', value);  // Cargar las opciones para el select de ID de compra
 
             } else if (field === 'lotefechavencimiento') { 
                 // Asegurarse de que el input es de tipo 'date'
@@ -133,11 +123,7 @@ function loadOptions(field, selectedValue) {
             let items;
             if (field === 'producto') {
                 items = data.listaProductos;
-            } else if (field === 'proveedor') {
-                items = data.listaProveedores;
-            } else if (field === 'compra') {
-                items = data.listaCompras;
-            }
+            } 
             if (!Array.isArray(items)) {
                 throw new Error('Datos recibidos no son un array');
             }
@@ -181,14 +167,8 @@ function showCreateRow() {
     
 
         <td data-field="lotecodigo"><input type="text" required></td>
-        <td data-field="compraid">
-             <select id="compraid-select" required></select>
-        </td>
         <td data-field="productonombre">
             <select id="productoid-select" required></select>
-        </td>
-        <td data-field="proveedornombre">
-            <select id="proveedorid-select" required></select>
         </td>
         <td data-field="lotefechavencimiento">
             <input type="date" min="${formattedToday}" required>
@@ -202,8 +182,6 @@ function showCreateRow() {
    tableBody.insertBefore(newRow, tableBody.firstChild);
       // Cargar opciones para los comboboxes
       loadOptions('producto', null);
-      loadOptions('proveedor', null);
-      loadOptions('compra', null);
 }
 
 /**

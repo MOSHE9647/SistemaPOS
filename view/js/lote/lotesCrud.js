@@ -19,13 +19,9 @@ function createLote() {
         let value = input.value;
 
         // Obtener ID del proveedor y del producto
-        if (fieldName === 'proveedornombre') {
-            value = document.getElementById('proveedorid-select').value;
-        } else if (fieldName === 'productonombre') {
+        if (fieldName === 'productonombre') {
             value = document.getElementById('productoid-select').value;
-        }  else if (fieldName === 'compraid') {
-            value = document.getElementById('compraid-select').value;
-        }
+        } 
 
        
 
@@ -124,14 +120,10 @@ function updateLote(id) {
         let value = input.value;
 
         // Obtener ID del proveedor y del producto
-        if (fieldName === 'proveedornombre') {
-            value = document.getElementById('proveedorid-select').value;
-        } else if (fieldName === 'productonombre') {
+        if (fieldName === 'productonombre') {
             value = document.getElementById('productoid-select').value;
         }
-     else if (fieldName === 'compraid') {
-        value = document.getElementById('compraid-select').value;
-    }
+    
 
 
 

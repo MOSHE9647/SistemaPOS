@@ -21,9 +21,7 @@
             <thead>
                 <tr>
                     <th data-field="lotecodigo">Código del Lote</th>
-                    <th data-field="compraid">Compra</th>
                     <th data-field="productonombre">Nombre del Producto</th>
-                    <th data-field="proveedornombre">Nombre del Proveedor</th>
                     <th data-field="lotefechavencimiento">Fecha de Vencimiento</th>
                     <th>Acciones</th>
                 </tr>
