@@ -78,7 +78,7 @@
             <?php for ($i = 0; $i < $count; $i++): ?>
                 <div class="barcode">
                     <?php
-                        $ean13Code = Utils::generateEAN13Barcode('200642129501');
+                        $ean13Code = Utils::generateEAN13Barcode('000100010001');
                         $fontPath = __DIR__ . '/../libs/barcode-1d/font/CascadiaMono.ttf';
                         $font = new BCGFontFile($fontPath, $fontsize * $scale);
                         $colorBlack = new BCGColor(0, 0, 0);

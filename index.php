@@ -13,7 +13,7 @@
 
         <script>
             function printBarcodes(count) {
-                const url = `/pdf/print_barcodes.php?count=${count}`;
+                const url = `/pdf/printBarcodes.php?count=${count}`;
                 window.open(url, '_blank', 'width=800,height=1300');
             }
         </script>

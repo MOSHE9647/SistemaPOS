@@ -1,8 +1,10 @@
 <?php
 
+    include_once 'Variables.php';
+
     class Utils {
 
-        public static function writeLog($message, $logFile = 'utils-error.log') {
+        public static function writeLog($message, $logFile = UTILS_LOG_FILE) {
             $logDir = __DIR__ . '/../logs/';
             
             // Verifica si la carpeta existe; si no, la crea
