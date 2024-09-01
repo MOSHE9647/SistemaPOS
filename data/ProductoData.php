@@ -446,11 +446,11 @@
                 . "B." . CODIGO_BARRAS_NUMERO . " "
                 . " FROM " . TB_PRODUCTO . " P "
 
-                . " LEFT JOIN " . TB_PRODUCTO_SUBCATEGORIA . " PS ON PS." . PRODUCTO_SUBCATEGORIA_PRODUCTO_ID . " = P." . PRODUCTO_ID
-                . " LEFT JOIN " . TB_SUBCATEGORIA . " S  ON S." . SUBCATEGORIA_ID . " = PS." . PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID
-                . " LEFT JOIN " . TB_PRODUCTO_CATEGORIA . " PC ON PC." . PRODUCTO_ID_FK . " = P." . PRODUCTO_ID  
-                . " LEFT JOIN " . TB_CATEGORIA . " C ON C." . CATEGORIA_ID . " = PC." . CATEGORIA_ID_FK
-                . " LEFT JOIN " . TB_CODIGO_BARRAS . " B ON B." . CODIGO_BARRAS_ID . " = P." . PRODUCTO_CODIGO_BARRAS
+                . " LEFT JOIN " . TB_PRODUCTO_SUBCATEGORIA . " PS ON PS." . PRODUCTO_ID . " = P." . PRODUCTO_ID
+                . " LEFT JOIN " . TB_SUBCATEGORIA . " S  ON S." . SUBCATEGORIA_ID . " = PS." . SUBCATEGORIA_ID
+                . " LEFT JOIN " . TB_PRODUCTO_CATEGORIA . " PC ON PC." . PRODUCTO_ID . " = P." . PRODUCTO_ID  
+                . " LEFT JOIN " . TB_CATEGORIA . " C ON C." . CATEGORIA_ID . " = PC." . CATEGORIA_ID
+                . " LEFT JOIN " . TB_CODIGO_BARRAS . " B ON B." . CODIGO_BARRAS_ID . " = P." . PRODUCTO_CODIGO_BARRAS_ID
                 . " WHERE P." . PRODUCTO_ESTADO . " != false ";
 
 				// Añadir la cláusula de ordenamiento si se proporciona
@@ -472,6 +472,7 @@
                 $result = mysqli_stmt_get_result($stmt);
 
 				$listaProductos = [];
+                Utils::writeLog($result);
 				while ($row = mysqli_fetch_assoc($result)) {
 					$listaProductos[] = [
                         'ID' => $row[PRODUCTO_ID],
