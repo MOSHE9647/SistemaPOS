@@ -21,7 +21,7 @@ function renderTable(productos) {
     
     // Vaciar el cuerpo de la tabla
     tableBody.innerHTML = '';
-
+    console.log(productos);
     // Recorrer cada producto en el arreglo
     productos.forEach(producto => {
         // Crear una fila para el producto

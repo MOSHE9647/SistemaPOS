@@ -65,6 +65,7 @@
     }
 
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
+        
         // Obtener parámetros de la solicitud GET
         $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
         $size = isset($_GET['size']) ? intval($_GET['size']) : 5;

@@ -32,7 +32,7 @@
                     $types .= 'i';
                 } else if ($productoNombre !== null && $productoCodigoBarras !== null) {
                     // Verificar existencia por nombre y codigo de barras
-                    $queryCheck .= PRODUCTO_NOMBRE . " = ? OR (" . PRODUCTO_CODIGO_BARRAS . " = ? AND " . PRODUCTO_ESTADO . " != false)";
+                    $queryCheck .= PRODUCTO_NOMBRE . " = ? OR (" . PRODUCTO_CODIGO_BARRAS_ID . " = ? AND " . PRODUCTO_ESTADO . " != false)";
                     $params[] = $productoNombre;
                     $params[] = $productoCodigoBarras;
                     $types .= 'ss';
@@ -118,10 +118,10 @@
                 $queryInsert = "INSERT INTO " . TB_PRODUCTO . " ("
                     . PRODUCTO_ID . ", "
                     . PRODUCTO_NOMBRE . ", "
-                    . PRODUCTO_PRECIO_U . ", "
+                    . PRODUCTO_PRECIO_COMPRA . ", "
                     . PRODUCTO_DESCRIPCION . ", "
-                    . PRODUCTO_CODIGO_BARRAS . ", "
-                    . PRODUCTO_FOTO.", "
+                    . PRODUCTO_CODIGO_BARRAS_ID . ", "
+                    . PRODUCTO_IMAGEN.", "
                     . PRODUCTO_PORCENTAJE_GANANCIA.", "
                     . PRODUCTO_ESTADO
                     . ") VALUES (?, ?, ?, ?, ?, ?, ?, true)";
@@ -201,7 +201,7 @@
                         PRODUCTO_PRECIO_U . " = ?, " .                     
                         PRODUCTO_DESCRIPCION . " = ?, " .
                         PRODUCTO_CODIGO_BARRAS . " = ?, " .
-                        PRODUCTO_FOTO. " = ?, ".
+                        PRODUCTO_IMAGEN . " = ?, ".
                         PRODUCTO_PORCENTAJE_GANANCIA." = ?, ".
                         PRODUCTO_ESTADO . " = true ". 
                     "WHERE " . PRODUCTO_ID . " = ?";
@@ -330,8 +330,8 @@
                     $producto = new Producto(
                         $row[PRODUCTO_NOMBRE],
                         $row[PRODUCTO_PRECIO_U],
-                        $row[PRODUCTO_CODIGO_BARRAS],
-                        $row[PRODUCTO_FOTO],
+                        $row[PRODUCTO_CODIGO_BARRAS_ID],
+                        $row[PRODUCTO_IMAGEN],
                         $row[PRODUCTO_PORCENTAJE_GANANCIA],
                         $row[PRODUCTO_ID],
                         $row[PRODUCTO_DESCRIPCION],
@@ -375,7 +375,7 @@
                 while ($row = mysqli_fetch_assoc($result)) {  // Usamos fetch_assoc para obtener un array asociativo
                     $currentProducto = new Producto(  
                         $row[PRODUCTO_NOMBRE],
-                        $row[PRODUCTO_PRECIO_U],
+                        $row[PRODUCTO_PRECIO_COMPRA],
                         $row[PRODUCTO_ID],
                         $row[PRODUCTO_DESCRIPCION],
                         $row[PRODUCTO_ESTADO]
@@ -430,9 +430,9 @@
                 . "P." . PRODUCTO_ID . ","
                 . "P." . PRODUCTO_NOMBRE . ","
                 . "P." . PRODUCTO_DESCRIPCION . ","
-                . "P." . PRODUCTO_PRECIO_U . ","
-                . "P." . PRODUCTO_CODIGO_BARRAS . ","
-                . "P." . PRODUCTO_FOTO . ","
+                . "P." . PRODUCTO_PRECIO_COMPRA. ","
+                . "P." . PRODUCTO_CODIGO_BARRAS_ID . ","
+                . "P." . PRODUCTO_IMAGEN . ","
                 . "P." . PRODUCTO_PORCENTAJE_GANANCIA . ","
                 . "P." . PRODUCTO_ESTADO . ","
 
@@ -479,7 +479,7 @@
                         'Descripcion' => $row[PRODUCTO_DESCRIPCION],
                         'Precio' => $row[PRODUCTO_PRECIO_U],
                         'CodigoBarras' => $row[CODIGO_BARRAS_NUMERO],
-                        'ProductoFoto' => $row[PRODUCTO_FOTO],
+                        'ProductoFoto' => $row[PRODUCTO_IMAGEN],
                         'ProductoPorcentaje' => $row[PRODUCTO_PORCENTAJE_GANANCIA],
                         'Categoria' => [
                             'ID' => $row[CATEGORIA_ID],
