@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.7.1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: bdpbhgi0jbzwpoftwisg-mysql.services.clever-cloud.com
--- Tiempo de generación: 01-09-2024 a las 00:31:31
--- Versión del servidor: 8.0.22-13
--- Versión de PHP: 7.0.33-0ubuntu0.16.04.16
+-- Servidor: localhost
+-- Tiempo de generación: 01-09-2024 a las 17:04:34
+-- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
+-- Versión de PHP: 8.1.2-1ubuntu2.18
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -19,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `bdpbhgi0jbzwpoftwisg`
+-- Base de datos: `bdpuntoventa`
 --
 
 -- --------------------------------------------------------
@@ -33,7 +32,7 @@ CREATE TABLE `tbcategoria` (
   `categorianombre` varchar(100) NOT NULL,
   `categoriadescripcion` text,
   `categoriaestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -47,7 +46,7 @@ CREATE TABLE `tbcodigobarras` (
   `codigobarrasfechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `codigobarrasfechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `codigobarrasestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -65,7 +64,7 @@ CREATE TABLE `tbcompra` (
   `comprafechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `comprafechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `compraestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -83,7 +82,7 @@ CREATE TABLE `tbcompradetalle` (
   `compradetallefechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `compradetallefechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `compradetalleestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -101,7 +100,7 @@ CREATE TABLE `tbcuentaporpagar` (
   `cuentaporpagarnotas` text,
   `cuentaporpagarestadocuenta` varchar(255) NOT NULL DEFAULT 'Pendiente',
   `cuentaporpagarestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -118,7 +117,7 @@ CREATE TABLE `tbdireccion` (
   `direccionsennas` text,
   `direcciondistancia` decimal(5,2) NOT NULL,
   `direccionestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -133,7 +132,14 @@ CREATE TABLE `tbimpuesto` (
   `impuestodescripcion` text,
   `impuestofechavigencia` date NOT NULL,
   `impuestoestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+--
+-- Volcado de datos para la tabla `tbimpuesto`
+--
+
+INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impuestodescripcion`, `impuestofechavigencia`, `impuestoestado`) VALUES
+(1, 'IVA', 13.00, NULL, '2024-09-11', 1);
 
 -- --------------------------------------------------------
 
@@ -146,7 +152,7 @@ CREATE TABLE `tblote` (
   `lotecodigo` varchar(50) NOT NULL,
   `lotefechavencimiento` date NOT NULL,
   `loteestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -163,7 +169,7 @@ CREATE TABLE `tbproducto` (
   `productocodigobarrasid` int NOT NULL,
   `productoimagen` text,
   `productoestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -176,7 +182,7 @@ CREATE TABLE `tbproductocategoria` (
   `productoid` int NOT NULL,
   `categoriaid` int NOT NULL,
   `productocategoriaestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -189,7 +195,7 @@ CREATE TABLE `tbproductosubcategoria` (
   `productoid` int NOT NULL,
   `subcategoriaid` int NOT NULL,
   `productosubcategoriaestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -203,7 +209,7 @@ CREATE TABLE `tbproveedor` (
   `proveedoremail` varchar(100) NOT NULL,
   `proveedorfecharegistro` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `proveedorestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -216,7 +222,7 @@ CREATE TABLE `tbproveedorcategoria` (
   `proveedorid` int NOT NULL,
   `categoriaid` int NOT NULL,
   `proveedorcategoriaestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -229,7 +235,7 @@ CREATE TABLE `tbproveedordireccion` (
   `proveedorid` int NOT NULL,
   `direccionid` int NOT NULL,
   `proveedordireccionestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -242,7 +248,7 @@ CREATE TABLE `tbproveedorproducto` (
   `proveedorid` int NOT NULL,
   `productoid` int NOT NULL,
   `proveedorproductoestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -255,7 +261,7 @@ CREATE TABLE `tbrol` (
   `rolnombre` varchar(255) NOT NULL,
   `roldescripcion` varchar(255) DEFAULT NULL,
   `rolestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -268,7 +274,7 @@ CREATE TABLE `tbsubcategoria` (
   `subcategorianombre` varchar(100) NOT NULL,
   `subcategoriadescripcion` text,
   `subcategoriaestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -286,25 +292,7 @@ CREATE TABLE `tbtelefono` (
   `telefonofechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `telefonofechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `telefonoestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `tbtipocompra`
---
-
-CREATE TABLE `tbtipocompra` (
-  `tipocompraid` int NOT NULL,
-  `tipocompradescripcion` text,
-  `tipocompranombre` varchar(100) NOT NULL,
-  `tipocompratasainteres` decimal(10,2) NOT NULL,
-  `tipocompraplazos` int NOT NULL,
-  `tipocomprameses` int NOT NULL,
-  `tipocomprafechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `tipocomprafechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `tipocompraestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 -- --------------------------------------------------------
 
@@ -324,7 +312,7 @@ CREATE TABLE `tbusuario` (
   `usuariofechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `usuariofechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `usuarioestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Índices para tablas volcadas
@@ -437,12 +425,6 @@ ALTER TABLE `tbsubcategoria`
 --
 ALTER TABLE `tbtelefono`
   ADD PRIMARY KEY (`telefonoid`);
-
---
--- Indices de la tabla `tbtipocompra`
---
-ALTER TABLE `tbtipocompra`
-  ADD PRIMARY KEY (`tipocompraid`);
 
 --
 -- Indices de la tabla `tbusuario`
