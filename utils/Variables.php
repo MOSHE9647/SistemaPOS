@@ -143,19 +143,6 @@
 	define('TELEFONO_FECHA_MODIFICACION', 'telefonofechamodificacion');
 	define('TELEFONO_ESTADO', 'telefonoestado');
 
-	// TABLA 'tbTipoCompra'
-	define('TB_TIPO_COMPRA', 'tbtipocompra'); //<- Nombre de la Tabla
-	define('TIPO_COMPRA_ID', 'tipocompraid');
-	define('TIPO_COMPRA_COMPRA_PRODUCTO_ID', 'tipocompracompraid'); //<- Hay que verificar si se va a utilizar la tabla
-	define('TIPO_COMPRA_DESCRIPCION', 'tipocompradescripcion');
-	define('TIPO_COMPRA_NOMBRE', 'tipocompranombre');
-	define('TIPO_COMPRA_TASA_INTERES', 'tipocompratasainteres');
-	define('TIPO_COMPRA_PLAZOS', 'tipocompraplazos');
-	define('TIPO_COMPRA_MESES', 'tipocomprameses');
-	define('TIPO_COMPRA_FECHA_CREACION', 'tipocomprafechacreacion');
-	define('TIPO_COMPRA_FECHA_MODIFICACION', 'tipocomprafechamodificacion');
-	define('TIPO_COMPRA_ESTADO', 'tipocompraestado');
-
 	// TABLA 'tbUsuario'
 	define('TB_USUARIO', 'tbusuario'); //<- Nombre de la Tabla
 	define('USUARIO_ID', 'usuarioid');
