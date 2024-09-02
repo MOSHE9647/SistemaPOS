@@ -126,10 +126,10 @@
 
 	//Tabla 'tbSubCategoria'
 	define('TB_SUBCATEGORIA','tbsubcategoria');
-	define('SUBCATEGORIA_ID','subcategoriaid');
-	define('SUBCATEGORIA_NOMBRE','subcategorianombre');
-	define('SUBCATEGORIA_DESCRIPCION','subcategoriadescripcion');
-	define('SUBCATEGORIA_ESTADO','subcategoriaestado');
+	define('SUBCATEGORIA_ID','tbsubcategoriaid');
+	define('SUBCATEGORIA_NOMBRE','tbsubcategorianombre');
+	define('SUBCATEGORIA_DESCRIPCION','tbsubcategoriadescripcion');
+	define('SUBCATEGORIA_ESTADO','tbsubcategoriaestado');
 
 	// TABLA 'tbTelefono'
 	define('TB_TELEFONO', 'tbtelefono'); //<- Nombre de la Tabla

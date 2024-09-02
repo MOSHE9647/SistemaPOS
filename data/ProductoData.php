@@ -447,7 +447,7 @@
                 . " FROM " . TB_PRODUCTO . " P "
 
                 . " LEFT JOIN " . TB_PRODUCTO_SUBCATEGORIA . " PS ON PS." . PRODUCTO_ID . " = P." . PRODUCTO_ID
-                . " LEFT JOIN " . TB_SUBCATEGORIA . " S  ON S." . SUBCATEGORIA_ID . " = PS." . SUBCATEGORIA_ID
+                . " LEFT JOIN " . TB_SUBCATEGORIA . " S  ON S." . SUBCATEGORIA_ID . " = PS." . PRODUCTO_SUBCATEGORIA_ID
                 . " LEFT JOIN " . TB_PRODUCTO_CATEGORIA . " PC ON PC." . PRODUCTO_ID . " = P." . PRODUCTO_ID  
                 . " LEFT JOIN " . TB_CATEGORIA . " C ON C." . CATEGORIA_ID . " = PC." . CATEGORIA_ID
                 . " LEFT JOIN " . TB_CODIGO_BARRAS . " B ON B." . CODIGO_BARRAS_ID . " = P." . PRODUCTO_CODIGO_BARRAS_ID
@@ -472,13 +472,12 @@
                 $result = mysqli_stmt_get_result($stmt);
 
 				$listaProductos = [];
-                Utils::writeLog($result);
 				while ($row = mysqli_fetch_assoc($result)) {
 					$listaProductos[] = [
                         'ID' => $row[PRODUCTO_ID],
                         'Nombre' => $row[PRODUCTO_NOMBRE],
                         'Descripcion' => $row[PRODUCTO_DESCRIPCION],
-                        'Precio' => $row[PRODUCTO_PRECIO_U],
+                        'Precio' => $row[PRODUCTO_PRECIO_COMPRA],
                         'CodigoBarras' => $row[CODIGO_BARRAS_NUMERO],
                         'ProductoFoto' => $row[PRODUCTO_IMAGEN],
                         'ProductoPorcentaje' => $row[PRODUCTO_PORCENTAJE_GANANCIA],
