@@ -19,11 +19,10 @@ function renderTable(lotes) {
 
     lotes.forEach(lote => {
 
-        
+        //<td data-field="productonombre">${lote.Producto}</td>
         let row = `
             <tr data-id="${lote.ID}">
-                <td data-field="lotecodigo">${lote.Codigo}</td>
-                <td data-field="productonombre">${lote.Producto}</td>
+                <td data-field="lotecodigo">${lote.Codigo}</td> 
                 <td data-field="lotefechavencimiento">${lote.FechaVencimiento}</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
@@ -77,11 +76,12 @@ function makeRowEditable(row) {
 
         if (index < lastCellIndex) {
            
-            if (field === 'productonombre') {
-                cell.innerHTML = `<select id="productoid-select" required></select>`;
-                loadOptions('producto', value);  // Cargar las opciones para el select de producto
+           // if (field === 'productonombre') {
+             //   cell.innerHTML = `<select id="productoid-select" required></select>`;
+               // loadOptions('producto', value);  // Cargar las opciones para el select de producto
 
-            } else if (field === 'lotefechavencimiento') { 
+            //} else
+             if (field === 'lotefechavencimiento') { 
                 // Asegurarse de que el input es de tipo 'date'
                // cell.innerHTML = `<input type="date" value="${value}" min= "${today}" required>`;
                cell.innerHTML = `<input type="date" value="${value}" min="${formattedToday}" required>`;
@@ -121,9 +121,9 @@ function loadOptions(field, selectedValue) {
             // Extrae el array correcto basado en el campo
             //const items = field === 'producto' ? data.listaProductos : data.listaProveedores;
             let items;
-            if (field === 'producto') {
-                items = data.listaProductos;
-            } 
+            //if (field === 'producto') {
+              //  items = data.listaProductos;
+            //} 
             if (!Array.isArray(items)) {
                 throw new Error('Datos recibidos no son un array');
             }
@@ -161,15 +161,14 @@ function showCreateRow() {
     const mm = String(today.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript empiezan desde 0
     const dd = String(today.getDate()).padStart(2, '0');
     const formattedToday = `${yyyy}-${mm}-${dd}`;
-
+    //<td data-field="productonombre">
+    //<select id="productoid-select" required></select>
+//</td>
     newRow.innerHTML = `
 
     
 
         <td data-field="lotecodigo"><input type="text" required></td>
-        <td data-field="productonombre">
-            <select id="productoid-select" required></select>
-        </td>
         <td data-field="lotefechavencimiento">
             <input type="date" min="${formattedToday}" required>
         <td>

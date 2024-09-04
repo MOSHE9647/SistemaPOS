@@ -19,9 +19,9 @@ function createLote() {
         let value = input.value;
 
         // Obtener ID del proveedor y del producto
-        if (fieldName === 'productonombre') {
-            value = document.getElementById('productoid-select').value;
-        } 
+       // if (fieldName === 'productonombre') {
+         //   value = document.getElementById('productoid-select').value;
+        //} 
 
        
 
@@ -120,9 +120,9 @@ function updateLote(id) {
         let value = input.value;
 
         // Obtener ID del proveedor y del producto
-        if (fieldName === 'productonombre') {
-            value = document.getElementById('productoid-select').value;
-        }
+     //   if (fieldName === 'productonombre') {
+       //     value = document.getElementById('productoid-select').value;
+        //}
     
 
 
