@@ -10,14 +10,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Datos recibidos en la solicitud (Form)
     $id = isset($_POST['id']) ? $_POST['id'] : 0;
     $lotecodigo = isset($_POST['lotecodigo']) ? $_POST['lotecodigo'] : "";
-    $productoid = isset($_POST['productonombre']) ? $_POST['productonombre'] : 0;
+   
     $lotefechavencimiento = isset($_POST['lotefechavencimiento']) ? $_POST['lotefechavencimiento'] : '';
 
     // Se crea el Service para las operaciones
     $loteBusiness = new LoteBusiness();
 
     // Crea y verifica que los datos del lote sean correctos
-    $lote = new Lote($id, $lotecodigo, $productoid, $lotefechavencimiento);
+    $lote = new Lote($id, $lotecodigo, $lotefechavencimiento);
     $check = $loteBusiness->validarLote($lote, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
 
     // Si los datos son válidos se realiza acción correspondiente
