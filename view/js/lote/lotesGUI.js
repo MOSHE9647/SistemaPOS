@@ -2,6 +2,45 @@
 // ************* Métodos para el manejo de la GUI ************* //
 // ************************************************************ //
 
+
+/**
+ * Formatea una fecha en el formato "DD de MMMM de YYYY".
+ * 
+ * @param {string} date - La fecha en formato 'YYYY-MM-DD'.
+ * @returns {string} La fecha formateada en el formato 'DD de MMMM de YYYY'.
+ */
+function formatDateToLong(date) {
+    const months = [
+        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+    ];
+
+    const [year, month, day] = date.split('-');
+    const monthName = months[parseInt(month, 10) - 1];
+
+    return `${parseInt(day, 10)} de ${monthName} de ${year}`;
+}
+
+/**
+ * Convierte una fecha en formato 'DD de MMMM de YYYY' a 'YYYY-MM-DD'.
+ * 
+ * @param {string} date - La fecha en formato 'DD de MMMM de YYYY'.
+ * @returns {string} La fecha en formato 'YYYY-MM-DD'.
+ */
+function convertLongDateToISO(date) {
+    const months = [
+        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+    ];
+
+    const [day, monthName, year] = date.split(' de ');
+    const monthIndex = months.indexOf(monthName) + 1;
+    const formattedMonth = String(monthIndex).padStart(2, '0');
+    const formattedDay = String(parseInt(day, 10)).padStart(2, '0');
+
+    return `${year}-${formattedMonth}-${formattedDay}`;
+}
+
 /**
  * Renderiza una tabla con los lotes proporcionados.
  * 
@@ -23,7 +62,7 @@ function renderTable(lotes) {
         let row = `
             <tr data-id="${lote.ID}">
                 <td data-field="lotecodigo">${lote.Codigo}</td> 
-                <td data-field="lotefechavencimiento">${lote.FechaVencimiento}</td>
+                <td data-field="lotefechavencimiento">${formatDateToLong(lote.FechaVencimiento)}</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
                     <button onclick="deleteLote(${lote.ID})">Eliminar</button>
@@ -84,7 +123,9 @@ function makeRowEditable(row) {
              if (field === 'lotefechavencimiento') { 
                 // Asegurarse de que el input es de tipo 'date'
                // cell.innerHTML = `<input type="date" value="${value}" min= "${today}" required>`;
-               cell.innerHTML = `<input type="date" value="${value}" min="${formattedToday}" required>`;
+               //cell.innerHTML = `<input type="date" value="${value}" min="${formattedToday}" required>`;
+               const isoValue = convertLongDateToISO(value);
+               cell.innerHTML = `<input type="date" value="${isoValue}" min="${formattedToday}" required>`;
             } else {
                 cell.innerHTML = `<input type="text" value="${value}" required>`;
             }
@@ -180,7 +221,7 @@ function showCreateRow() {
    // Inserta la nueva fila al principio del cuerpo de la tabla
    tableBody.insertBefore(newRow, tableBody.firstChild);
       // Cargar opciones para los comboboxes
-      loadOptions('producto', null);
+      //loadOptions('producto', null);
 }
 
 /**
