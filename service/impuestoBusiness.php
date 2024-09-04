@@ -11,7 +11,16 @@
             $this->impuestoData = new ImpuestoData();
         }
 
-        public function validarImpuesto($impuesto, $validarCamposAdicionales = true) {
+        public function validarImpuestoID($impuestoID) {
+            if ($impuestoID === null || !is_numeric($impuestoID) || $impuestoID < 0) {
+                Utils::writeLog("El ID [$impuestoID] del impuesto no es válido.", BUSINESS_LOG_FILE);
+                return ["is_valid" => false, "message" => "El ID del impuesto está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
+            }
+
+            return ["is_valid" => true];
+        }
+
+        public function validarImpuesto($impuesto, $validarCamposAdicionales = true, $insert = false) {
             try {
                 // Obtener los valores de las propiedades del objeto
                 $impuestoID = $impuesto->getImpuestoID();
@@ -21,8 +30,9 @@
                 $errors = [];
 
                 // Verifica que el ID del impuesto sea válido
-                if ($impuestoID === null || !is_numeric($impuestoID) || $impuestoID < 0) {
-                    $errors[] = "El ID del impuesto está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
+                $checkID = $this->validarImpuestoID($impuestoID);
+                if (!$insert && !$checkID['is_valid']) {
+                    $errors[] = $checkID['message'];
                     Utils::writeLog("El ID [$impuestoID] del impuesto no es válido.", BUSINESS_LOG_FILE);
                 }
 
@@ -59,7 +69,7 @@
 
         public function insertTBImpuesto($impuesto) {
             // Verifica que los datos del impuesto sean validos
-            $check = $this->validarImpuesto($impuesto);
+            $check = $this->validarImpuesto($impuesto, true, true);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
@@ -77,24 +87,32 @@
             return $this->impuestoData->updateImpuesto($impuesto);
         }
 
-        public function deleteTBImpuesto($impuesto) {
-            // Verifica que los datos del impuesto sean validos
-            $check = $this->validarImpuesto($impuesto, false);
-            if (!$check["is_valid"]) {
-                return ["success" => $check["is_valid"], "message" => $check["message"]];
+        public function deleteTBImpuesto($impuestoID) {
+            // Verifica que el ID del impuesto sea valido
+            $checkID = $this->validarImpuestoID($impuestoID);
+            if (!$checkID["is_valid"]) {
+                return ["success" => $checkID["is_valid"], "message" => $checkID["message"]];
             }
 
-            $impuestoID = $impuesto->getImpuestoID(); //<- Obtenemos el ID verificado del Impuesto
-            unset($impuesto); //<- Eliminamos el objeto para no ocupar espacio en memoria (en caso de ser necesario)
             return $this->impuestoData->deleteImpuesto($impuestoID);
         }
 
-        public function getAllTBImpuesto() {
-            return $this->impuestoData->getAllTBImpuesto();
+        public function getAllTBImpuesto($onlyActiveOrInactive = false, $deleted = false) {
+            return $this->impuestoData->getAllTBImpuesto($onlyActiveOrInactive, $deleted);
         }
 
-        public function getPaginatedImpuestos($page, $size, $sort = null) {
-            return $this->impuestoData->getPaginatedImpuestos($page, $size, $sort);
+        public function getPaginatedImpuestos($page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
+            return $this->impuestoData->getPaginatedImpuestos($page, $size, $sort, $onlyActiveOrInactive, $deleted);
+        }
+
+        public function getImpuestoByID($impuestoID, $json = true) {
+            // Verifica que el ID del impuesto sea valido
+            $checkID = $this->validarImpuestoID($impuestoID);
+            if (!$checkID["is_valid"]) {
+                return ["success" => $checkID["is_valid"], "message" => $checkID["message"]];
+            }
+
+            return $this->impuestoData->getImpuestoByID($impuestoID, $json);
         }
 
     }

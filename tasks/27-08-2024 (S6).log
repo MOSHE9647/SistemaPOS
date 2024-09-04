@@ -33,20 +33,20 @@ Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos
 
     [INFO] El punto 3 de 'Re-estructuración' todavía está en consideración, ya que todavía se están probando las librerías.
 
-2. Distribución de 'TABLAS' por Grupos:
+2. Distribución de 'TABLAS' por Grupos ['Marcar los que ya tengan listos']:
 
-    |----------------------------|------------------------------|-----------------------------|
-    | Grupo 1 ('Jason y Javier') | Grupo 2 ('Gonzalo y Maikel') | Grupo 3 ('Isaac')           |
-    |----------------------------|------------------------------|-----------------------------|
-    | tbcompra                   | tbproveedor                  | tbrol                       |
-    | tbcompradetalle            | tbcategoria                  | tbusuario                   |
-    | tbcuentaporpagar           | tbsubcategoria               | tbimpuesto                  |
-    | tblote                     | tbproveedorproducto          | tbtelefono                  |
-    | tbproducto                 | tbproveedorcategoria         | tbdireccion                 |
-    |                            |                              | tbcodigobarras              |
-    |                            |                              | tbproductocategoria         |
-    |                            |                              | tbproductosubcategoria      |
-    |----------------------------|------------------------------|-----------------------------|
+    |--------------------------------|----------------------------------|---------------------------------|
+    | Grupo 1 ('Jason y Javier')     | Grupo 2 ('Gonzalo y Maikel')     | Grupo 3 ('Isaac')               |
+    |--------------------------------|----------------------------------|---------------------------------|
+    | [ ] tbcompra                   | [ ] tbproveedor                  | [ ] tbrol                       |
+    | [ ] tbcompradetalle            | [ ] tbcategoria                  | [ ] tbusuario                   |
+    | [ ] tbcuentaporpagar           | [ ] tbsubcategoria               | [1] tbimpuesto                  |
+    | [ ] tblote                     | [ ] tbproveedorproducto          | [ ] tbtelefono                  |
+    | [ ] tbproducto                 | [ ] tbproveedorcategoria         | [ ] tbdireccion                 |
+    |                                |                                  | [ ] tbcodigobarras              |
+    |                                |                                  | [ ] tbproductocategoria         |
+    |                                |                                  | [ ] tbproductosubcategoria      |
+    |--------------------------------|----------------------------------|---------------------------------|
 
 [INFO] 
     1. No es necesario agregar nada al archivo 'Variables'. Ya todas las variables están actualizadas.

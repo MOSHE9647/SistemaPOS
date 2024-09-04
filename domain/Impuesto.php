@@ -9,7 +9,8 @@ class Impuesto {
     private $impuestoDescripcion;
     private $impuestoFechaVigencia;
 
-    function __construct($impuestoNombre, $impuestoValor, $impuestoFechaVigencia, $impuestoID = 0, $impuestoDescripcion = "", $impuestoEstado = true) {
+    function __construct($impuestoNombre = "", $impuestoValor = 0.0, $impuestoFechaVigencia = null, 
+            $impuestoID = 0, $impuestoDescripcion = "", $impuestoEstado = true) {
         $this->impuestoID = $impuestoID;
         $this->impuestoNombre = strtoupper($impuestoNombre);
         $this->impuestoValor = $impuestoValor;
@@ -34,12 +35,14 @@ class Impuesto {
     
     // Implementación del método __toString
     public function __toString() {
-        return "ID: " . $this->impuestoID . "\n" .
-               "Nombre: " . $this->impuestoNombre . "\n" .
-               "Valor: " . $this->impuestoValor . "\n" .
-               "Estado: " . ($this->impuestoEstado ? "Activo" : "Inactivo") . "\n" .
-               "Descripción: " . $this->impuestoDescripcion . "\n" .
-               "Fecha de Vigencia: " . $this->impuestoFechaVigencia . "\n";
+        return 
+            "ID: " . $this->impuestoID . "\n" .
+            "Nombre: " . $this->impuestoNombre . "\n" .
+            "Valor: " . $this->impuestoValor . "\n" .
+            "Estado: " . ($this->impuestoEstado ? "Activo" : "Inactivo") . "\n" .
+            "Descripción: " . $this->impuestoDescripcion . "\n" .
+            "Fecha de Vigencia: " . $this->impuestoFechaVigencia . "\n"
+        ;
     }
 
 }

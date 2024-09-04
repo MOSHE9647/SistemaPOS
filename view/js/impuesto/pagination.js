@@ -39,7 +39,7 @@ function fetchImpuestos(page, size, sort) {
             // Verificar si la respuesta fue exitosa
             if (data.success) {
                 // Renderizar la tabla de impuestos con los datos obtenidos
-                renderTable(data.listaImpuestos);
+                renderTable(data.impuestos);
 
                 // Actualizar variables de paginación
                 currentPage = data.page;
