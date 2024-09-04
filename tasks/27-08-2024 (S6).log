@@ -69,3 +69,5 @@ Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos
 [ERROR]
     1. Hay que rehacer la función que crea los códigos de barras, ya que esta guarda la imagen del código de barras en la columna
        'productoimagen' de la tabla 'tbproducto', cuando esto no debería ser así.
+    2. Hay que verificar que al ingresar o actualizar un registro que lleve decimales la cantidad de dígitos que tenga no supere
+       el límite que se le puso a la BD. Y, si es porcentaje, que no supere el 100%
