@@ -30,10 +30,9 @@
                 $errors = [];
 
                 // Verifica que el ID del impuesto sea válido
-                $checkID = $this->validarImpuestoID($impuestoID);
-                if (!$insert && !$checkID['is_valid']) {
-                    $errors[] = $checkID['message'];
-                    Utils::writeLog("El ID [$impuestoID] del impuesto no es válido.", BUSINESS_LOG_FILE);
+                if (!$insert) {
+                    $checkID = $this->validarImpuestoID($impuestoID);
+                    if (!$checkID['is_valid']) { $errors[] = $checkID['message']; }
                 }
 
                 // Si la validación de campos adicionales está activada, valida los otros campos
@@ -42,8 +41,8 @@
                         $errors[] = "El campo 'Nombre' está vacío o no es válido.";
                         Utils::writeLog("[Impuesto] El campo 'Nombre [$nombre]' no es válido.", BUSINESS_LOG_FILE);
                     }
-                    if ($valor === null || empty($valor) || !is_numeric($valor) || $valor <= 0) {
-                        $errors[] = "El campo 'Valor' está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
+                    if ($valor === null || empty($valor) || !is_numeric($valor) || $valor <= 0 || $valor > 100) {
+                        $errors[] = "El campo 'Valor' está vacío o no es válido. Revise que este sea un número y que sea mayor a 0 y menor o igual a 100";
                         Utils::writeLog("[Impuesto] El campo 'Valor [$valor]' no es válido.", BUSINESS_LOG_FILE);
                     }
                     if (empty($fechaVigencia) || !Utils::validarFecha($fechaVigencia)) {

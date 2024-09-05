@@ -167,17 +167,17 @@
                 $impuestoFechaVigencia = $impuesto->getImpuestoFechaVigencia();
 
                 // Verifica si el impuesto existe en la base de datos
-                $check = $this->existeImpuesto($impuestoID, null, null, false, false);
-                if (!$check["success"]) { return $check; } //<- Error al verificar la existencia
-                if (!$check["exists"]) { //<- El impuesto no existe
+                $checkID = $this->existeImpuesto($impuestoID);
+                if (!$checkID["success"]) { return $checkID; } //<- Error al verificar la existencia
+                if (!$checkID["exists"]) { //<- El impuesto no existe
 					throw new Exception("El impuesto con ID [$impuestoID] no existe en la base de datos.");
                 }
 
                 // Verifica que no exista otro impuesto con la misma información
-                $check = $this->existeImpuesto($impuestoID, $impuestoNombre, $impuestoFechaVigencia, true, false);
+                $check = $this->existeImpuesto($impuestoID, $impuestoNombre, $impuestoFechaVigencia, true);
                 if (!$check["success"]) { return $check; } //<- Error al verificar la existencia
                 if ($check["exists"]) { //<- El impuesto existe
-					throw new Exception("Ya existe un impuesto con el mismo nombre o fecha de vigencia.");
+					throw new Exception("Ya existe un impuesto con el mismo nombre y fecha de vigencia.");
                 }
 
                 // Establece una conexion con la base de datos
@@ -234,7 +234,7 @@
         public function deleteImpuesto($impuestoID) {
             try {
                 // Verifica si el impuesto existe en la base de datos
-                $check = $this->existeImpuesto($impuestoID, null, null, false, false);
+                $check = $this->existeImpuesto($impuestoID);
                 if (!$check["success"]) { return $check; } //<- Error al verificar la existencia
                 if (!$check["exists"]) { //<- El impuesto no existe
 					throw new Exception("El impuesto con ID [$impuestoID] no existe en la base de datos.");
@@ -347,8 +347,6 @@
 				// Añadir la cláusula de limitación y offset
                 $querySelect .= "LIMIT ? OFFSET ?";
 
-                Utils::writeLog($querySelect);
-
 				// Preparar la consulta y vincular los parámetros
                 $stmt = mysqli_prepare($conn, $querySelect);
                 mysqli_stmt_bind_param($stmt, "ii", $size, $offset);
@@ -401,9 +399,9 @@
         public function getImpuestoByID($impuestoID, $json = true) {
             try {
                 // Verifica si el impuesto existe en la base de datos
-                $check = $this->existeImpuesto($impuestoID, null, null, false, false);
-                if (!$check["success"]) { return $check; } //<- Error al verificar la existencia
-                if (!$check["exists"]) { //<- El impuesto no existe
+                $checkID = $this->existeImpuesto($impuestoID);
+                if (!$checkID["success"]) { return $checkID; } //<- Error al verificar la existencia
+                if (!$checkID["exists"]) { //<- El impuesto no existe
 					throw new Exception("El impuesto con ID [$impuestoID] no existe en la base de datos.");
                 }
 

@@ -10,17 +10,16 @@
 
         // Datos recibidos en la solicitud (Form)
         $id = isset($_POST['id']) ? $_POST['id'] : -1;
-        $proveedorID = isset($_POST['proveedor']) ? $_POST['proveedor'] : 0;
-        $extension = isset($_POST['extension']) ? $_POST['extension'] : "";
+        $tipo = isset($_POST['tipo']) ? $_POST['tipo'] : "";
         $codigo = isset($_POST['codigo']) ? $_POST['codigo'] : "";
         $numero = isset($_POST['numero']) ? $_POST['numero'] : "";
-        $tipo = isset($_POST['tipo']) ? $_POST['tipo'] : "";
+        $extension = isset($_POST['extension']) ? $_POST['extension'] : "";
 
         // Se crea el Service para las operaciones
         $telefonoBusiness = new TelefonoBusiness();
 
         // Crea y verifica que los datos de la direccion sean correctos
-        $telefono = new Telefono($codigo, $numero, $tipo, $proveedorID, $id, $extension);
+        $telefono = new Telefono($id, $tipo, $codigo, $numero, $extension);
         $check = $telefonoBusiness->validarTelefono($telefono, $accion != 'eliminar', $accion == 'insertar'); //<- Indica si se validan (o no) los campos además del ID
 
         // Si los datos son válidos se realiza acción correspondiente
@@ -36,7 +35,7 @@
                     break;
                 case 'eliminar':
                     // Elimina al telefono de la base de datos
-                    $response = $telefonoBusiness->deleteTBTelefono($telefono);
+                    $response = $telefonoBusiness->deleteTBTelefono($id);
                     break;
                 default:
                     // Error en caso de que la accion no sea válida
@@ -57,29 +56,18 @@
 
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
         $accion = isset($_GET['accion']) ? $_GET['accion'] : "";
+        $deleted = isset($_GET['deleted']) ? boolval($_GET['deleted']) : false;
+        $onlyActiveOrInactive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
 
+        $telefonoBusiness = new TelefonoBusiness();
         switch ($accion) {
-            case 'get-by-proveedor-id':
-                $proveedorID = $proveedorID = isset($_GET['proveedor']) ? $_GET['proveedor'] : 0;
-
-                // Crea y verifica que los datos de la direccion sean correctos
-                $telefono = new Telefono();
-                $telefono->setTelefonoProveedorID($proveedorID);
-
-                $telefonoBusiness = new TelefonoBusiness();                
-                $check = $telefonoBusiness->validarTelefono($telefono, false, false, true); //<- Indica si se validan (o no) los campos además del ID
-
-                // Si los datos son válidos se intenta obtener la lista de telefonos
-                if ($check['is_valid']) {
-                    $response = $telefonoBusiness->getTelefonosByProveedorID($proveedorID);
-                } else {
-                    // Si los datos no son validos, se devuelve un mensaje de error
-                    $response['success'] = $check['is_valid'];
-                    $response['message'] = $check['message'];
-                }
-
+            case 'todos':
+                $response = $telefonoBusiness->getAllTBTelefono($onlyActiveOrInactive, $deleted);
                 break;
-            
+            case 'id':
+                $telefonoID = $telefonoID = isset($_GET['id']) ? $_GET['id'] : -1;
+                $response = $telefonoBusiness->getTelefonoByID($telefonoID);
+                break;
             default:
                 // Obtener parámetros de la solicitud GET
                 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
@@ -90,9 +78,7 @@
                 if ($page < 1) $page = 1;
                 if ($size < 1) $size = 5;
 
-                // Crea el Service y obtiene la lista (paginada) de telefonos
-                $telefonoBusiness = new TelefonoBusiness();
-                $response = $telefonoBusiness->getPaginatedTelefonos($page, $size, $sort);
+                $response = $telefonoBusiness->getPaginatedTelefonos($page, $size, $sort, $onlyActiveOrInactive, $deleted);
                 break;
         }
 
