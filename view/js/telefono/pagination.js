@@ -39,7 +39,7 @@ function fetchTelefonos(page, size, sort) {
             // Verificar si la respuesta fue exitosa
             if (data.success) {
                 // Renderizar la tabla de telefonos con los datos obtenidos
-                renderTable(data.listaTelefonos);
+                renderTable(data.telefonos);
 
                 // Actualizar variables de paginación
                 currentPage = data.page;

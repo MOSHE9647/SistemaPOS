@@ -30,11 +30,11 @@
             <table>
                 <thead>
                     <tr>
-                        <th data-field="proveedor">Nombre Proveedor</th>
                         <th data-field="tipo">Tipo de Número</th>
                         <th data-field="codigo">Código de País</th>
                         <th data-field="numero">Número</th>
                         <th data-field="extension">Extensión</th>
+                        <th data-field="creacion">Fecha de Creación</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>

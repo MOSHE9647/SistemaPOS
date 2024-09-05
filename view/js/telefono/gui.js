@@ -28,11 +28,11 @@ function renderTable(telefonos) {
         // Crear una fila para el telefono
         let row = `
             <tr data-id="${telefono.ID}">
-                <td data-field="proveedor" data-value="${telefono.Proveedor.ID}" >${telefono.Proveedor.Nombre}</td>
                 <td data-field="tipo">${telefono.Tipo}</td>
                 <td data-field="codigo">${telefono.CodigoPais}</td>
                 <td data-field="numero">${telefono.Numero}</td>
                 <td data-field="extension">${telefono.Extension}</td>
+                <td data-field="creacion" data-iso="${telefono.CreacionISO}">${telefono.Creacion}</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
                     <button onclick="deleteTelefono(${telefono.ID})">Eliminar</button>
@@ -66,13 +66,14 @@ function makeRowEditable(row) {
 
     const fieldHandlers = {
         'numero': (value) => `<input type="text" id="numero" value="${value}" required>`,
+        'creacion': (value) => `<input type="date" value="${value}" disabled>`,
         'extension': (value) => `<input type="text" value="${value}">`
     };
 
     cells.forEach((cell, index) => {
-        const text = cell.innerText.trim();
         const value = cell.dataset.value;
         const field = cell.dataset.field;
+        const text = field === 'creacion' ? cell.dataset.iso : cell.innerText.trim();
 
         if (index < lastCellIndex) {
             const handler = fieldHandlers[field] || ((v, t) => `
@@ -121,11 +122,6 @@ function showCreateRow() {
 
     // Definir el contenido de la fila con campos editables
     newRow.innerHTML = `
-        <td data-field="proveedor">
-            <select id="proveedor-select" required>
-                <option value="">-- Seleccionar --</option>
-            </select>
-        </td>
         <td data-field="tipo">
             <select id="tipo-select" required>
                 <option value="">-- Seleccionar --</option>
@@ -138,6 +134,7 @@ function showCreateRow() {
         </td>
         <td data-field="numero"><input type="text" id="numero" required></td>
         <td data-field="extension"><input type="text"></td>
+        <td data-field="creacion"><input type="date" value="${getCurrentDate()}" disabled></td>
         <td>
             <button onclick="createTelefono()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>
