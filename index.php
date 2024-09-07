@@ -33,6 +33,7 @@
 
             <h3>Tablas Intermedias</h3>
             <li> <a href="./view/productoSubcategoriaView.php">Gestión de Producto-Subcategorias</a> </li>
+            <li> <a href="./view/proveedorTelefonoView.php">Gestión de Proveedor-Telefonos</a> </li>
             <li> <a href="./view/proveedorProductoView.php">Gestión de Proveedor-Productos</a> </li>
 
             <h3>Extras</h3>

@@ -3,18 +3,54 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Gestión de Teléfonos | POSFusion</title>
+        <title>Gestión de Teléfonos de Proveedores | POSFusion</title>
         <link rel="stylesheet" href="./css/styles.css">
+
+        <style>
+            .proveedores-container {
+                margin-bottom: 20px;
+            }
+
+            .proveedores-container label {
+                margin-right: 10px;
+            }
+
+            #proveedor-select {
+                width: 320px;
+                height: 30px;
+                margin: 5px 10px;
+                background-color: #ffffd6;
+                border: 1px solid #545454;
+                border-radius: 5px;
+                padding: 5px;
+            }
+
+            hr {
+                width: 80%;
+                border: 1px solid #7f848e;
+                border-radius: 5px;
+                margin-bottom: 20px;
+            }
+        </style>
     </head>
     <body>
-        <h2>Lista de Teléfonos</h2>
+        <h2>Lista de Teléfonos según Proveedor</h2>
 
         <div id="message"></div>
 
-        <div class="table-container">
+        <div class="proveedores-container">
+            <label for="proveedor-select">Seleccione un Proveedor:</label>
+            <select id="proveedor-select" onchange="loadTelefonos()">
+                <!-- Las opciones se llenan dinámicamente con JavaScript -->
+            </select>
+        </div>
+
+        <hr>
+
+        <div class="table-container" id="telefonos-table" style="display: none;">
             <div class="table-header">
                 <div id="paginationSort">
-                    Ordenar por:
+                    <label for="sortSelector">Ordenar por:</label>
                     <select id="sortSelector">
                         <option value="tipo">Tipo</option>
                         <option value="extension">Extension</option>
@@ -66,10 +102,27 @@
         </div>
 
         <a href="../index.php" class="menu-button">Regresar al Menú</a>
+
+        <script>
+            function loadTelefonos() {
+                const proveedor = document.getElementById('proveedor-select').value;
+                const table = document.getElementById('telefonos-table');
+                if (table) {
+                    table.style.display = 'inline';
+                    cancelCreate();
+                    cancelEdit();
+                    fetchTelefonos(proveedor, currentPage, pageSize, sort);
+                } else {
+                    showMessage('No se encontró la tabla de teléfonos', 'error');
+                }
+            }
+        </script>
+
         <script src="./js/utils.js"></script>
-        <script src="./js/telefono/gui.js"></script>
-        <script src="./js/telefono/pagination.js"></script>
         <script src="./js/telefono/selects.js"></script>
-        <script src="./js/telefono/crud.js"></script>
+        <script src="./js/proveedorTelefono/gui.js"></script>
+        <script src="./js/proveedorTelefono/selects.js"></script>
+        <script src="./js/proveedorTelefono/pagination.js"></script>
+        <script src="./js/proveedorTelefono/crud.js"></script>
     </body>
 </html>

@@ -1,19 +1,20 @@
 <?php
 
     include __DIR__ . '/../data/telefonoData.php';
-    // include __DIR__ . '/../service/proveedorBusiness.php';
 
     class TelefonoBusiness {
 
+        private $className;
         private $telefonoData;
 
         public function __construct() {
+            $this->className = get_class($this);
             $this->telefonoData = new TelefonoData();
         }
 
         public function validarTelefonoID($telefonoID) {
             if ($telefonoID === null || !is_numeric($telefonoID) || $telefonoID < 0) {
-                Utils::writeLog("El ID [$telefonoID] del teléfono no es válido.", BUSINESS_LOG_FILE);
+                Utils::writeLog("El ID [$telefonoID] del teléfono no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                 return ["is_valid" => false, "message" => "El ID del teléfono está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
             }
 
@@ -35,36 +36,19 @@
                     if (!$checkID['is_valid']) { $errors[] = $checkID['message']; }
                 }
 
-                // if ($validarCamposAdicionales || $obtenerByProveedor) {
-                //     if ($proveedorID === null || !is_numeric($proveedorID) || $proveedorID < 0) {
-                //         $errors[] = "El ID del proveedor está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
-                //         Utils::writeLog("[Telefono] El ID [$proveedorID] del proveedor no es válido.", BUSINESS_LOG_FILE);
-                //     }
-                //     $proveedorBusiness = new ProveedorBusiness();
-                //     $check = $proveedorBusiness->existeProveedor($proveedorID);
-                //     if (!$check["success"]) { 
-                //         $errors[] = $check['message'];
-                //         Utils::writeLog("[Telefono] No se pudo verificar la existencia del Proveedor.", BUSINESS_LOG_FILE);
-                //     }
-                //     if (!$check['exists']) {
-                //         $errors[] = "El proveedor seleccionado no existe en la base de datos.";
-                //         Utils::writeLog("[Telefono] El proveedor con ID [$proveedorID] no existe en la base de datos.", BUSINESS_LOG_FILE);
-                //     }
-                // }
-
                 // Si la validación de campos adicionales está activada, valida los otros campos
                 if ($validarCamposAdicionales) {
                     if ($tipo === null || empty($tipo) || is_numeric($tipo)) {
                         $errors[] = "El campo 'Tipo' está vacío o no es válido.";
-                        Utils::writeLog("[Telefono] El campo 'Tipo [$tipo]' no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("El campo 'Tipo [$tipo]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
-                    if ($codigoPais === null || empty($codigoPais) || !is_numeric($codigoPais)) {
+                    if ($codigoPais === null || empty($codigoPais)) {
                         $errors[] = "El campo 'Código de País' está vacío o no es válido.";
-                        Utils::writeLog("[Telefono] El campo 'Código de País [$codigoPais]' no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("El campo 'Código de País [$codigoPais]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
                     if ($numero === null || empty($numero) || is_numeric($numero)) {
                         $errors[] = "El campo 'Número de Teléfono' está vacío o no es válido.";
-                        Utils::writeLog("[Telefono] El campo 'Número de Teléfono [$numero]' no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("El campo 'Número de Teléfono [$numero]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
                 }
 
@@ -126,20 +110,6 @@
 
             return $this->telefonoData->getTelefonoByID($telefonoID, $json);
         }
-
-        // public function getTelefonosByProveedorID($proveedorID) {
-        //     $telefono = new Telefono();
-        //     $telefono->setTelefonoProveedorID($proveedorID);
-
-        //     // Verifica que los datos del telefono sean validos
-        //     $check = $this->validarTelefono($telefono, false, false, true);
-        //     if (!$check["is_valid"]) {
-        //         return ["success" => $check["is_valid"], "message" => $check["message"]];
-        //     }
-
-        //     unset($telefono);
-        //     return $this->telefonoData->getTelefonosByProveedorID($proveedorID);
-        // }
 
     }
 

@@ -7,9 +7,12 @@
 
     class TelefonoData extends Data {
 
+        private $className;
+
         // Constructor
 		public function __construct() {
-			parent::__construct();
+			$this->className = get_class($this);
+            parent::__construct();
 		}
 
         public function existeTelefono($telefonoID = null, $telefonoCodigoPais = null, $telefonoNumero = null, $update = false, $insert = false) {
@@ -50,7 +53,7 @@
                 
                 else {
                     $message = "No se proporcionaron los parámetros necesarios para verificar la existencia del telefono";
-                    Utils::writeLog("$message. Parámetros: 'telefonoID [$telefonoID]', 'telefonoCodigoPais [$telefonoCodigoPais]', 'telefonoNumero [$telefonoNumero]'", DATA_LOG_FILE);
+                    Utils::writeLog("$message. Parámetros: 'telefonoID [$telefonoID]', 'telefonoCodigoPais [$telefonoCodigoPais]', 'telefonoNumero [$telefonoNumero]'", DATA_LOG_FILE, WARN_MESSAGE, $this->className);
                     return ["success" => false, "message" => "Ocurrió un error al verificar la existencia del teléfono en la base de datos"];
                 }
         
@@ -66,7 +69,7 @@
                 }
         
                 // Retorna false si no se encontraron resultados
-                Utils::writeLog("No se encontró ningún telefono con el ID [$telefonoID] en la base de datos.", DATA_LOG_FILE);
+                Utils::writeLog("No se encontró ningún telefono con el ID [$telefonoID] en la base de datos.", DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
                 return ["success" => true, "exists" => false, "message" => "No se encontró el telefono en la base de datos"];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -95,7 +98,7 @@
                 
                 // En caso de ya existir el telefono
                 if ($check['exists']) {
-                    Utils::writeLog("El telefono con 'Código [$telefonoCodigoPais]' y 'Número [$telefonoNumero]' ya existe en la base de datos.", DATA_LOG_FILE);
+                    Utils::writeLog("El telefono con 'Código [$telefonoCodigoPais]' y 'Número [$telefonoNumero]' ya existe en la base de datos.", DATA_LOG_FILE, WARN_MESSAGE, $this->className);
 					throw new Exception("Ya existe un telefono con el mismo número y código de país.");
                 }
 
@@ -141,7 +144,7 @@
 
                 // Ejecuta la consulta de inserción
 				$result = mysqli_stmt_execute($stmt);
-				return ["success" => true, "message" => "Telefono insertado exitosamente"];
+				return ["success" => true, "message" => "Telefono insertado exitosamente", "id" => $nextId];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError($e->getCode(), $e->getMessage(),
@@ -451,7 +454,7 @@
                     return ["success" => true, "telefono" => $telefono];
                 }
                 // Retorna false si no se encontraron resultados
-                Utils::writeLog("No se encontró ningún teléfono con el ID [$telefonoID] en la base de datos.", DATA_LOG_FILE);
+                Utils::writeLog("No se encontró ningún teléfono con el ID [$telefonoID] en la base de datos.", DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
                 return ["success" => false, "message" => "No se encontró el teléfono en la base de datos"];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch

@@ -9,7 +9,7 @@
         $accion = isset($_POST['accion']) ? $_POST['accion'] : "";
 
         // Datos recibidos en la solicitud (Form)
-        $id = isset($_POST['id']) ? $_POST['id'] : -1;
+        $id = isset($_POST['id']) ? intval($_POST['id']) : -1;
         $tipo = isset($_POST['tipo']) ? $_POST['tipo'] : "";
         $codigo = isset($_POST['codigo']) ? $_POST['codigo'] : "";
         $numero = isset($_POST['numero']) ? $_POST['numero'] : "";

@@ -290,14 +290,14 @@
                 $conn = $result["connection"];
 
                // Obtenemos la lista de Proveedores
-               // $querySelect = "SELECT * FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false ";
-               $querySelect = "
-               SELECT p.*, t.telefononumero 
-               FROM " . TB_PROVEEDOR . " p
-               LEFT JOIN " . TB_TELEFONO . " t ON p." . PROVEEDOR_ID . " = t." . TELEFONO_PROVEEDOR_ID . "
-               AND t." . TELEFONO_ESTADO . " = != false
-               WHERE p." . PROVEEDOR_ESTADO . " != false
-           ";
+               $querySelect = "SELECT * FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false ";
+                //        $querySelect = "
+                //        SELECT p.*, t.telefononumero 
+                //        FROM " . TB_PROVEEDOR . " p
+                //        LEFT JOIN " . TB_TELEFONO . " t ON p." . PROVEEDOR_ID . " = t." . TELEFONO_PROVEEDOR_ID . "
+                //        AND t." . TELEFONO_ESTADO . " = != false
+                //        WHERE p." . PROVEEDOR_ESTADO . " != false
+                //    ";
                 $result = mysqli_query($conn, $querySelect);
 
                 // Creamos la lista con los datos obtenidos
@@ -307,8 +307,7 @@
                         'ID' => $row[PROVEEDOR_ID],
                         'Nombre' => $row[PROVEEDOR_NOMBRE],
                         'Email' => $row[PROVEEDOR_EMAIL],
-                        'Tipo' => $row[PROVEEDOR_TIPO],    
-                        'Telefono' => $row['telefononumero'], // Agregar el teléfono             
+                        // 'Telefono' => $row['telefononumero'], // Agregar el teléfono             
                         'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO], 'Y-MM-dd'),
 						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO]),
                         'Estado' => $row[PROVEEDOR_ESTADO]
@@ -358,14 +357,14 @@
                 $totalPages = ceil($totalRecords / $size);
 
 				// Construir la consulta SQL para paginación
-                $querySelect = "
-                SELECT p.*, t.telefononumero 
-                FROM " . TB_PROVEEDOR . " p
-                LEFT JOIN " . TB_TELEFONO . " t ON p." . PROVEEDOR_ID . " = t." . TELEFONO_PROVEEDOR_ID . "
-                 AND t." . TELEFONO_ESTADO . " = true
-                WHERE p." . PROVEEDOR_ESTADO . " != false
-            ";
-               // $querySelect = "SELECT * FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false ";
+            //     $querySelect = "
+            //     SELECT p.*, t.telefononumero 
+            //     FROM " . TB_PROVEEDOR . " p
+            //     LEFT JOIN " . TB_TELEFONO . " t ON p." . PROVEEDOR_ID . " = t." . TELEFONO_PROVEEDOR_ID . "
+            //      AND t." . TELEFONO_ESTADO . " = true
+            //     WHERE p." . PROVEEDOR_ESTADO . " != false
+            // ";
+                $querySelect = "SELECT * FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false ";
 
 				// Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) {
@@ -391,8 +390,7 @@
 						'ID' => $row[PROVEEDOR_ID],
 						'Nombre' => $row[PROVEEDOR_NOMBRE],
 						'Email' => $row[PROVEEDOR_EMAIL],
-						'Tipo' => $row[PROVEEDOR_TIPO],   
-                        'Telefono' => $row['telefononumero'], // Agregar el teléfono                                          
+						'Tipo' => $row[PROVEEDOR_TIPO],                                        
 						'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO], 'Y-MM-dd'),
 						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO]),
 						'Estado' => $row[PROVEEDOR_ESTADO]
