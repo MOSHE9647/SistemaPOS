@@ -41,6 +41,7 @@
         <div class="proveedores-container">
             <label for="proveedor-select">Seleccione un Proveedor:</label>
             <select id="proveedor-select" onchange="loadTelefonos()">
+                <option value="">-- Seleccionar --</option>
                 <!-- Las opciones se llenan dinámicamente con JavaScript -->
             </select>
         </div>
@@ -106,6 +107,11 @@
         <script>
             function loadTelefonos() {
                 const proveedor = document.getElementById('proveedor-select').value;
+                if (proveedor === '') {
+                    showMessage('Debe seleccionar un Proveedor', 'error');
+                    return;
+                }
+                
                 const table = document.getElementById('telefonos-table');
                 if (table) {
                     table.style.display = 'inline';
