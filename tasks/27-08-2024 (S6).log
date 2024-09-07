@@ -38,7 +38,7 @@ Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos
     |--------------------------------|----------------------------------|---------------------------------|
     | Grupo 1 ('Jason y Javier')     | Grupo 2 ('Gonzalo y Maikel')     | Grupo 3 ('Isaac')               |
     |--------------------------------|----------------------------------|---------------------------------|
-    | [ ] tbcompra                   | [ ] tbproveedor                  | [ ] tbrol                       |
+    | [ ] tbcompra                   | [0] tbproveedor                  | [ ] tbrol                       |
     | [ ] tbcompradetalle            | [ ] tbcategoria                  | [ ] tbusuario                   |
     | [ ] tbcuentaporpagar           | [ ] tbsubcategoria               | [1] tbimpuesto                  |
     | [1] tblote                     | [ ] tbproveedorproducto          | [1] tbtelefono                  |
