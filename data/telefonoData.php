@@ -362,9 +362,9 @@
                     $telefonos[] = [
                         'ID' => $row[TELEFONO_ID],
 						'Tipo' => $row[TELEFONO_TIPO],
-						'Extension' => $row[TELEFONO_EXTENSION],
 						'CodigoPais' => $row[TELEFONO_CODIGO_PAIS],
 						'Numero' => $row[TELEFONO_NUMERO],
+						'Extension' => $row[TELEFONO_EXTENSION],
 						'CreacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION], 'Y-MM-dd'),
 						'Creacion' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION]),
                         'ModificacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_MODIFICACION], 'Y-MM-dd'),
@@ -427,9 +427,9 @@
                         $telefono = [
                             'ID' => $row[TELEFONO_ID],
                             'Tipo' => $row[TELEFONO_TIPO],
-                            'Extension' => $row[TELEFONO_EXTENSION],
                             'CodigoPais' => $row[TELEFONO_CODIGO_PAIS],
                             'Numero' => $row[TELEFONO_NUMERO],
+                            'Extension' => $row[TELEFONO_EXTENSION],
                             'CreacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION], 'Y-MM-dd'),
                             'Creacion' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION]),
                             'ModificacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_MODIFICACION], 'Y-MM-dd'),
@@ -467,74 +467,6 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
-
-        // public function getTelefonosByProveedorID($proveedorID) {
-        //     try {
-        //         // Establece una conexión con la base de datos
-        //         $result = $this->getConnection();
-        //         if (!$result["success"]) {
-        //             throw new Exception($result["message"]);
-        //         }
-        //         $conn = $result["connection"];
-
-        //         // Construir la consulta SQL para obtener los datos
-        //         $querySelect = "
-        //             SELECT
-        //                 T." . TELEFONO_ID . ",
-        //                 T." . TELEFONO_FECHA_CREACION . ",
-        //                 T." . TELEFONO_TIPO . ",
-        //                 T." . TELEFONO_EXTENSION . ",
-        //                 T." . TELEFONO_CODIGO_PAIS . ",
-        //                 T." . TELEFONO_NUMERO . ",
-        //                 T." . TELEFONO_ESTADO . "
-        //             FROM
-        //                 " . TB_TELEFONO . " T
-        //             WHERE
-        //                 T." . TELEFONO_ESTADO . " != FALSE AND 
-        //                 T." . TELEFONO_PROVEEDOR_ID . " = ?
-        //         ";
-
-        //         // Preparar la consulta y vincular los parámetros
-        //         $stmt = mysqli_prepare($conn, $querySelect);
-        //         mysqli_stmt_bind_param($stmt, "i", $proveedorID);
-
-        //         // Ejecutar la consulta
-        //         $result = mysqli_stmt_execute($stmt);
-
-		// 		// Obtener el resultado
-        //         $result = mysqli_stmt_get_result($stmt);
-
-        //         $telefonos = [];
-        //         while ($row = mysqli_fetch_assoc($result)) {
-        //             $telefonos[] = [
-        //                 'ID' => $row[TELEFONO_ID],
-		// 				'FechaISO' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION], 'Y-MM-dd'),
-		// 				'Fecha' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION]),
-		// 				'Tipo' => $row[TELEFONO_TIPO],
-		// 				'Extension' => $row[TELEFONO_EXTENSION],
-		// 				'CodigoPais' => $row[TELEFONO_CODIGO_PAIS],
-		// 				'Numero' => $row[TELEFONO_NUMERO],
-		// 				'Estado' => $row[TELEFONO_ESTADO]
-        //             ];
-        //         }
-
-        //         return ["success" => true, "telefonos" => $telefonos];
-        //     } catch (Exception $e) {
-        //         // Manejo del error dentro del bloque catch
-        //         $userMessage = $this->handleMysqlError(
-        //             $e->getCode(), 
-        //             $e->getMessage(),
-        //             'Error al obtener la lista de telefonos desde la base de datos'
-        //         );
-        
-        //         // Devolver mensaje amigable para el usuario
-        //         return ["success" => false, "message" => $userMessage];
-        //     } finally {
-        //         // Cerrar la conexión y el statement
-        //         if (isset($stmt)) { mysqli_stmt_close($stmt); }
-        //         if (isset($conn)) { mysqli_close($conn); }
-        //     }
-        // }
 
     }
 

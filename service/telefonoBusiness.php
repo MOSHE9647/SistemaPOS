@@ -1,7 +1,7 @@
 <?php
 
     include __DIR__ . '/../data/telefonoData.php';
-    include __DIR__ . '/../service/proveedorBusiness.php';
+    // include __DIR__ . '/../service/proveedorBusiness.php';
 
     class TelefonoBusiness {
 

@@ -4,7 +4,7 @@
 
     class Utils {
 
-        public static function writeLog($message, $logFile = UTILS_LOG_FILE) {
+        public static function writeLog($message, $logFile = UTILS_LOG_FILE, $type = ERROR_MESSAGE, $class = null) {
             $logDir = __DIR__ . '/../logs/';
             
             // Verifica si la carpeta existe; si no, la crea
@@ -12,8 +12,13 @@
                 mkdir($logDir, 0777, true); // Crea la carpeta con permisos 0777 y recursivamente
             }
         
+            // Formatear el mensaje de log
             $date = date('Y-m-d H:i:s');
-            $formattedMessage = "[$date] $message" . PHP_EOL;
+            $class = $class ? "['$class']" : '';
+            $type = $type == INFO_MESSAGE || $type == WARN_MESSAGE ? "[$type] " : "[$type]";
+
+            // Formatear el mensaje con la fecha, tipo, clase y mensaje
+            $formattedMessage = "[$date] $type $class $message" . PHP_EOL;
             file_put_contents($logDir . $logFile, $formattedMessage, FILE_APPEND | LOCK_EX);
         }        
 

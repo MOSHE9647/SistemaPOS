@@ -7,6 +7,9 @@
 	define('UTILS_LOG_FILE', 'utils-error.log');
 	define('DATA_LOG_FILE', 'database-error.log');
 	define('BUSINESS_LOG_FILE', 'business-error.log');
+	define('ERROR_MESSAGE', 'ERROR');
+	define('INFO_MESSAGE', 'INFO');
+	define('WARN_MESSAGE', 'WARN');
 
 	// VARIABLES CLEVER-CLOUD (BD EN LA NUBE)
 	define('CLOUD_DB_HOST', 'bdpbhgi0jbzwpoftwisg-mysql.services.clever-cloud.com');
@@ -183,5 +186,10 @@
     define('TB_PROVEEDOR_PRODUCTO', 'tbproveedorproducto'); // Nombre de la Tabla
     define('PROVEEDOR_PRODUCTO_ID', 'proveedorproductoid'); // ID de la tabla proveedor-producto
 	define('PROVEEDOR_PRODUCTO_ESTADO', 'proveedorproductoestado');
+
+	//TABLA INTERMEDIA PARA Proveedor Y Telefono 'tbProveedorTelefono'
+    define('TB_PROVEEDOR_TELEFONO', 'tbproveedortelefono'); // Nombre de la Tabla
+    define('PROVEEDOR_TELEFONO_ID', 'proveedortelefonoid'); // ID de la tabla proveedor-telefono
+	define('PROVEEDOR_TELEFONO_ESTADO', 'proveedortelefonoestado');
 
 ?>
