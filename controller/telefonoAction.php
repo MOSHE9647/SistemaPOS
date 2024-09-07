@@ -1,7 +1,6 @@
 <?php
 
     include __DIR__ . '/../service/telefonoBusiness.php';
-    include_once __DIR__ . '/../utils/Utils.php';
 
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {

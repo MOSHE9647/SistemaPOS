@@ -6,14 +6,16 @@
     class ImpuestoBusiness {
 
         private $impuestoData;
+        private $className;
 
         public function __construct() {
             $this->impuestoData = new ImpuestoData();
+            $this->className = get_class($this);
         }
 
         public function validarImpuestoID($impuestoID) {
             if ($impuestoID === null || !is_numeric($impuestoID) || $impuestoID < 0) {
-                Utils::writeLog("El ID [$impuestoID] del impuesto no es válido.", BUSINESS_LOG_FILE);
+                Utils::writeLog("El ID [$impuestoID] del impuesto no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                 return ["is_valid" => false, "message" => "El ID del impuesto está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
             }
 
@@ -39,19 +41,19 @@
                 if ($validarCamposAdicionales) {
                     if ($nombre === null || empty($nombre) || is_numeric($nombre)) {
                         $errors[] = "El campo 'Nombre' está vacío o no es válido.";
-                        Utils::writeLog("[Impuesto] El campo 'Nombre [$nombre]' no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("El campo 'Nombre [$nombre]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
                     if ($valor === null || empty($valor) || !is_numeric($valor) || $valor <= 0 || $valor > 100) {
                         $errors[] = "El campo 'Valor' está vacío o no es válido. Revise que este sea un número y que sea mayor a 0 y menor o igual a 100";
-                        Utils::writeLog("[Impuesto] El campo 'Valor [$valor]' no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("El campo 'Valor [$valor]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
                     if (empty($fechaVigencia) || !Utils::validarFecha($fechaVigencia)) {
                         $errors[] = "El campo 'Fecha Vigencia' está vacío o no es válido.";
-                        Utils::writeLog("[Impuesto] El campo 'Fecha Vigencia [$fechaVigencia]' está vacío o no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("El campo 'Fecha Vigencia [$fechaVigencia]' está vacío o no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
                     if (!Utils::fechaMenorOIgualAHoy($fechaVigencia)) {
                         $errors[] = "El campo 'Fecha Vigencia' no puede ser una fecha mayor a la de hoy. Revise que la fecha sea menor o igual a la de hoy.";
-                        Utils::writeLog("[Impuesto] El campo 'Fecha Vigencia [$fechaVigencia]' es mayor a la de hoy.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("El campo 'Fecha Vigencia [$fechaVigencia]' es mayor a la de hoy.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
                 }
 

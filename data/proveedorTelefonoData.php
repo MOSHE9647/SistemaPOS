@@ -57,12 +57,11 @@
                     $types = "i";
                 } else {
                     // Registrar parámetros faltantes y lanzar excepción
-                    $missingParamsLog = "Faltan parámetros para verificar la existencia:";
+                    $missingParamsLog = "Faltan parámetros para verificar la existencia del proveedor y/o telefono:";
                     if (!$proveedorID) $missingParamsLog .= " proveedorID [" . ($proveedorID ?? 'null') . "]";
                     if (!$telefonoID) $missingParamsLog .= " telefonoID [" . ($telefonoID ?? 'null') . "]";
                     Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
-        
-                    throw new Exception("No se proporcionaron los parámetros necesarios para verificar la existencia.");
+                    throw new Exception("Faltan parámetros para verificar la existencia del proveedor y/o telefono.");
                 }
         
                 // Preparar y ejecutar la consulta
