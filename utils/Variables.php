@@ -45,7 +45,7 @@
 	define('COMPRA_MONTO_BRUTO', 'compramontobruto');
 	define('COMPRA_MONTO_NETO', 'compramontoneto');
 	define('COMPRA_TIPO_PAGO', 'compratipopago');
-	define('COMPRA_PROVEEDOR_ID', 'compraproveedorid');
+	define('COMPRA_PROVEEDOR_ID', 'proveedorid');
 	define('COMPRA_FECHA_CREACION', 'comprafechacreacion');
 	define('COMPRA_FECHA_MODIFICACION', 'comprafechamodificacion');
 	define('COMPRA_ESTADO', 'compraestado');
