@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 05-09-2024 a las 02:01:04
+-- Tiempo de generación: 07-09-2024 a las 15:36:46
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -27,6 +27,7 @@ SET time_zone = "+00:00";
 -- Estructura de tabla para la tabla `tbcategoria`
 --
 
+DROP TABLE IF EXISTS `tbcategoria`;
 CREATE TABLE `tbcategoria` (
   `categoriaid` int NOT NULL,
   `categorianombre` varchar(100) NOT NULL,
@@ -40,6 +41,7 @@ CREATE TABLE `tbcategoria` (
 -- Estructura de tabla para la tabla `tbcodigobarras`
 --
 
+DROP TABLE IF EXISTS `tbcodigobarras`;
 CREATE TABLE `tbcodigobarras` (
   `codigobarrasid` int NOT NULL,
   `codigobarrasnumero` int NOT NULL,
@@ -54,6 +56,7 @@ CREATE TABLE `tbcodigobarras` (
 -- Estructura de tabla para la tabla `tbcompra`
 --
 
+DROP TABLE IF EXISTS `tbcompra`;
 CREATE TABLE `tbcompra` (
   `compraid` int NOT NULL,
   `compranumerofactura` varchar(255) NOT NULL,
@@ -72,6 +75,7 @@ CREATE TABLE `tbcompra` (
 -- Estructura de tabla para la tabla `tbcompradetalle`
 --
 
+DROP TABLE IF EXISTS `tbcompradetalle`;
 CREATE TABLE `tbcompradetalle` (
   `compradetalleid` int NOT NULL,
   `compradetallecompraid` int NOT NULL,
@@ -90,6 +94,7 @@ CREATE TABLE `tbcompradetalle` (
 -- Estructura de tabla para la tabla `tbcuentaporpagar`
 --
 
+DROP TABLE IF EXISTS `tbcuentaporpagar`;
 CREATE TABLE `tbcuentaporpagar` (
   `cuentaporpagarid` int NOT NULL,
   `cuentaporpagarcompradetalleid` int NOT NULL,
@@ -108,6 +113,7 @@ CREATE TABLE `tbcuentaporpagar` (
 -- Estructura de tabla para la tabla `tbdireccion`
 --
 
+DROP TABLE IF EXISTS `tbdireccion`;
 CREATE TABLE `tbdireccion` (
   `direccionid` int NOT NULL,
   `direccionprovincia` varchar(100) NOT NULL,
@@ -125,6 +131,7 @@ CREATE TABLE `tbdireccion` (
 -- Estructura de tabla para la tabla `tbimpuesto`
 --
 
+DROP TABLE IF EXISTS `tbimpuesto`;
 CREATE TABLE `tbimpuesto` (
   `impuestoid` int NOT NULL,
   `impuestonombre` varchar(100) NOT NULL,
@@ -151,6 +158,7 @@ INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impu
 -- Estructura de tabla para la tabla `tblote`
 --
 
+DROP TABLE IF EXISTS `tblote`;
 CREATE TABLE `tblote` (
   `loteid` int NOT NULL,
   `lotecodigo` varchar(50) NOT NULL,
@@ -165,12 +173,13 @@ CREATE TABLE `tblote` (
 INSERT INTO `tblote` (`loteid`, `lotecodigo`, `lotefechavencimiento`, `loteestado`) VALUES
 (1, 'prueba123', '2024-09-15', 1),
 (2, 'comoarroz', '2024-09-14', 0),
-(3, '1111', '2024-09-14', 1),
+(3, '1111', '2024-09-14', 0),
 (4, '11111', '2024-09-05', 1),
 (5, 'qwe', '2024-09-06', 1),
 (6, 'viaje', '2024-09-28', 1),
 (7, 'hola', '2024-09-06', 1),
-(8, 'holhola', '2024-09-06', 1);
+(8, 'holhola', '2024-09-06', 1),
+(9, 'FKJ123', '2024-09-30', 1);
 
 -- --------------------------------------------------------
 
@@ -178,6 +187,7 @@ INSERT INTO `tblote` (`loteid`, `lotecodigo`, `lotefechavencimiento`, `loteestad
 -- Estructura de tabla para la tabla `tbproducto`
 --
 
+DROP TABLE IF EXISTS `tbproducto`;
 CREATE TABLE `tbproducto` (
   `productoid` int NOT NULL,
   `productonombre` varchar(100) NOT NULL,
@@ -195,6 +205,7 @@ CREATE TABLE `tbproducto` (
 -- Estructura de tabla para la tabla `tbproductocategoria`
 --
 
+DROP TABLE IF EXISTS `tbproductocategoria`;
 CREATE TABLE `tbproductocategoria` (
   `productocategoriaid` int NOT NULL,
   `productoid` int NOT NULL,
@@ -208,6 +219,7 @@ CREATE TABLE `tbproductocategoria` (
 -- Estructura de tabla para la tabla `tbproductosubcategoria`
 --
 
+DROP TABLE IF EXISTS `tbproductosubcategoria`;
 CREATE TABLE `tbproductosubcategoria` (
   `productosubcategoriaid` int NOT NULL,
   `productoid` int NOT NULL,
@@ -221,6 +233,7 @@ CREATE TABLE `tbproductosubcategoria` (
 -- Estructura de tabla para la tabla `tbproveedor`
 --
 
+DROP TABLE IF EXISTS `tbproveedor`;
 CREATE TABLE `tbproveedor` (
   `proveedorid` int NOT NULL,
   `proveedornombre` varchar(100) NOT NULL,
@@ -229,12 +242,29 @@ CREATE TABLE `tbproveedor` (
   `proveedorestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
+--
+-- Volcado de datos para la tabla `tbproveedor`
+--
+
+INSERT INTO `tbproveedor` (`proveedorid`, `proveedornombre`, `proveedoremail`, `proveedorfecharegistro`, `proveedorestado`) VALUES
+(1, 'Proveedor A', 'proveedorA@example.com', '2024-09-06 18:11:45', 1),
+(2, 'Proveedor B', 'proveedorB@example.com', '2024-09-06 18:11:45', 1),
+(3, 'Proveedor C', 'proveedorC@example.com', '2024-09-06 18:11:45', 1),
+(4, 'Proveedor D', 'proveedorD@example.com', '2024-09-06 18:11:45', 1),
+(5, 'Proveedor E', 'proveedorE@example.com', '2024-09-06 18:11:45', 1),
+(6, 'Proveedor F', 'proveedorF@example.com', '2024-09-06 18:11:45', 1),
+(7, 'Proveedor G', 'proveedorG@example.com', '2024-09-06 18:11:45', 1),
+(8, 'Proveedor H', 'proveedorH@example.com', '2024-09-06 18:11:45', 1),
+(9, 'Proveedor I', 'proveedorI@example.com', '2024-09-06 18:11:45', 1),
+(10, 'Proveedor J', 'proveedorJ@example.com', '2024-09-06 18:11:45', 1);
+
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `tbproveedorcategoria`
 --
 
+DROP TABLE IF EXISTS `tbproveedorcategoria`;
 CREATE TABLE `tbproveedorcategoria` (
   `proveedorcategoriaid` int NOT NULL,
   `proveedorid` int NOT NULL,
@@ -248,6 +278,7 @@ CREATE TABLE `tbproveedorcategoria` (
 -- Estructura de tabla para la tabla `tbproveedordireccion`
 --
 
+DROP TABLE IF EXISTS `tbproveedordireccion`;
 CREATE TABLE `tbproveedordireccion` (
   `proveedordireccionid` int NOT NULL,
   `proveedorid` int NOT NULL,
@@ -261,6 +292,7 @@ CREATE TABLE `tbproveedordireccion` (
 -- Estructura de tabla para la tabla `tbproveedorproducto`
 --
 
+DROP TABLE IF EXISTS `tbproveedorproducto`;
 CREATE TABLE `tbproveedorproducto` (
   `provedorproductoid` int NOT NULL,
   `proveedorid` int NOT NULL,
@@ -274,6 +306,7 @@ CREATE TABLE `tbproveedorproducto` (
 -- Estructura de tabla para la tabla `tbproveedortelefono`
 --
 
+DROP TABLE IF EXISTS `tbproveedortelefono`;
 CREATE TABLE `tbproveedortelefono` (
   `proveedortelefonoid` int NOT NULL,
   `proveedorid` int NOT NULL,
@@ -281,12 +314,33 @@ CREATE TABLE `tbproveedortelefono` (
   `proveedortelefonoestado` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
+--
+-- Volcado de datos para la tabla `tbproveedortelefono`
+--
+
+INSERT INTO `tbproveedortelefono` (`proveedortelefonoid`, `proveedorid`, `telefonoid`, `proveedortelefonoestado`) VALUES
+(1, 1, 1, 0),
+(2, 2, 2, 0),
+(3, 2, 3, 0),
+(4, 2, 4, 1),
+(5, 5, 5, 1),
+(6, 6, 6, 1),
+(7, 7, 7, 1),
+(8, 8, 8, 1),
+(9, 9, 9, 1),
+(10, 10, 10, 1),
+(11, 10, 11, 0),
+(12, 10, 12, 1),
+(13, 10, 13, 0),
+(14, 4, 13, 1);
+
 -- --------------------------------------------------------
 
 --
 -- Estructura de tabla para la tabla `tbrol`
 --
 
+DROP TABLE IF EXISTS `tbrol`;
 CREATE TABLE `tbrol` (
   `rolid` int NOT NULL,
   `rolnombre` varchar(255) NOT NULL,
@@ -300,6 +354,7 @@ CREATE TABLE `tbrol` (
 -- Estructura de tabla para la tabla `tbsubcategoria`
 --
 
+DROP TABLE IF EXISTS `tbsubcategoria`;
 CREATE TABLE `tbsubcategoria` (
   `subcategoriaid` int NOT NULL,
   `subcategorianombre` varchar(100) NOT NULL,
@@ -313,10 +368,11 @@ CREATE TABLE `tbsubcategoria` (
 -- Estructura de tabla para la tabla `tbtelefono`
 --
 
+DROP TABLE IF EXISTS `tbtelefono`;
 CREATE TABLE `tbtelefono` (
   `telefonoid` int NOT NULL,
   `telefonotipo` varchar(50) NOT NULL,
-  `telefonocodigopais` varchar(5) NOT NULL,
+  `telefonocodigopais` varchar(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `telefononumero` varchar(20) NOT NULL,
   `telefonoextension` varchar(10) DEFAULT NULL,
   `telefonofechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -329,8 +385,19 @@ CREATE TABLE `tbtelefono` (
 --
 
 INSERT INTO `tbtelefono` (`telefonoid`, `telefonotipo`, `telefonocodigopais`, `telefononumero`, `telefonoextension`, `telefonofechacreacion`, `telefonofechamodificacion`, `telefonoestado`) VALUES
-(1, 'Fax', '+506', '6421 2950', '', '2024-09-05 00:32:16', '2024-09-05 00:40:21', 1),
-(2, 'Móvil', '+506', '2764 4311', '', '2024-09-05 00:41:25', '2024-09-05 00:42:33', 0);
+(1, 'Fax', '+505', '6421 2950', '', '2024-09-05 00:32:16', '2024-09-05 01:31:35', 0),
+(2, 'Móvil', '+506', '2764 4311', '', '2024-09-05 00:41:25', '2024-09-05 00:42:33', 0),
+(3, 'Móvil', '+506', '6397 3489', '', '2024-09-05 01:31:05', '2024-09-06 19:34:23', 0),
+(4, 'Fijo', '+502', '5550 1039', '124', '2024-09-06 18:12:58', '2024-09-07 03:21:39', 1),
+(5, 'Móvil', '+1-809', '555 010 4972', '', '2024-09-06 18:12:58', '2024-09-07 03:25:09', 1),
+(6, 'Fijo', '+53', '555 0105 9657', '125', '2024-09-06 18:12:58', '2024-09-07 03:30:08', 1),
+(7, 'Móvil', '+57', '555 010 6974', '', '2024-09-06 18:12:58', '2024-09-07 03:30:24', 1),
+(8, 'Fijo', '+52', '55 5010 7973', '126', '2024-09-06 18:12:58', '2024-09-07 03:30:44', 1),
+(9, 'Móvil', '+58', '5550 1087', '', '2024-09-06 18:12:58', '2024-09-07 03:31:03', 1),
+(10, 'Fijo', '+506', '5550 1099', '127', '2024-09-06 18:12:58', '2024-09-07 03:21:13', 1),
+(11, 'Móvil', '+506', '6397 3489', '', '2024-09-06 19:33:30', '2024-09-06 23:19:12', 0),
+(12, 'Móvil', '+506', '8888 8888', '', '2024-09-07 02:35:16', '2024-09-07 02:35:16', 1),
+(13, 'Móvil', '+506', '8881 8881', '', '2024-09-07 02:55:59', '2024-09-07 03:31:35', 1);
 
 -- --------------------------------------------------------
 
@@ -338,6 +405,7 @@ INSERT INTO `tbtelefono` (`telefonoid`, `telefonotipo`, `telefonocodigopais`, `t
 -- Estructura de tabla para la tabla `tbusuario`
 --
 
+DROP TABLE IF EXISTS `tbusuario`;
 CREATE TABLE `tbusuario` (
   `usuarioid` int NOT NULL,
   `usuarionombre` varchar(255) NOT NULL,
