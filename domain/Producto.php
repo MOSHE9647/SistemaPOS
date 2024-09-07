@@ -3,62 +3,52 @@
     class Producto {
 
         private $productoID;
-
         private $productoNombre;
-        private $productoPrecio;
+        private $productoPrecioCompra;
+        private $productoPorcentajeGanancia;
         private $productoDescripcion;
-        private $productoCodigoBarras;
+        private $productoCodigoBarrasID;
+        private $productoImagen;
         private $productoEstado;
 
-        private $productoPorcentajeGanancia;
-        private $productoFoto;
-
-        private $subcategoria;
-        private $categoria;
-
-
-        public function __construct($productoNombre, $productoPrecio, $productoCodigoBarras,$productoFoto = null, $productoPorcentajeGanancia = null,
-                $productoID = 0, $productoDescripcion = "", $productoEstado = true, $categoria = null, $subcategoria= null){
+        public function __construct($productoNombre, $productoPrecioCompra, $productoCodigoBarrasID, $productoImagen = null, 
+                $productoPorcentajeGanancia = null, $productoID = 0, $productoDescripcion = "", $productoEstado = true){
            
             $this->productoID = $productoID;
             $this->productoNombre = strtoupper($productoNombre);
-            $this->productoPrecio = $productoPrecio;
+            $this->productoPrecioCompra = $productoPrecioCompra;
             $this->productoDescripcion = $productoDescripcion;
-            $this->productoCodigoBarras = $productoCodigoBarras;
+            $this->productoCodigoBarrasID = $productoCodigoBarrasID;
             $this->productoEstado = $productoEstado;
-            $this->productoFoto = $productoFoto;
+            $this->productoImagen = $productoImagen;
             $this->productoPorcentajeGanancia = $productoPorcentajeGanancia;
-            $this->categoria = $categoria;
-            $this->subcategoria = $subcategoria;
         }
 
+        // Getters
         public function getProductoID() { return $this->productoID; }
         public function getProductoNombre() { return $this->productoNombre; }
-        public function getProductoPrecio() {  return $this->productoPrecio; }
+        public function getProductoPrecioCompra() { return $this->productoPrecioCompra; }
         public function getProductoDescripcion() { return $this->productoDescripcion; }
-        public function getProductoCodigoBarras() { return $this->productoCodigoBarras; }
+        public function getProductoCodigoBarrasID() { return $this->productoCodigoBarrasID; }
         public function getProductoEstado() { return $this->productoEstado; }
-        public function getProductoFoto(){ return $this->productoFoto; } 
-        public function getCategoria(){ return $this->categoria; }
-        public function getSubcategoria(){ return $this->subcategoria; }
+        public function getProductoImagen(){ return $this->productoImagen; } 
         public function getPorcentajeGanancia(){ return $this->productoPorcentajeGanancia; }
 
+        // Setters
         public function setProductoID($productoID) { $this->productoID = $productoID; }
-        public function setProductoNombre($productoNombre) { $this->productoNombre =$productoNombre; }
-        public function setProductoPrecio($productoPrecio) { $this->productoPrecio = $productoPrecio; }
+        public function setProductoNombre($productoNombre) { $this->productoNombre = $productoNombre; }
+        public function setProductoPrecioCompra($productoPrecioCompra) { $this->productoPrecioCompra = $productoPrecioCompra; }
         public function setProductoDescripcion($productoDescripcion) { $this->productoDescripcion = $productoDescripcion; }
-        public function setProductoCodigoBarras($productoCodigoBarras) { $this->productoCodigoBarras = $productoCodigoBarras; }
+        public function setProductoCodigoBarrasID($productoCodigoBarrasID) { $this->productoCodigoBarrasID = $productoCodigoBarrasID; }
         public function setProductoEstado($productoEstado) { $this->productoEstado = $productoEstado; }
-        public function setProductoFoto($productoFoto){  $this->productoFoto = $productoFoto; }
-        public function setCategoria($categoria){ $this->categoria = $categoria; }
-        public function setSubcategoria($subcategoria){ $this->subcategoria = $subcategoria; }
+        public function setProductoImagen($productoImagen){  $this->productoImagen = $productoImagen; }
         public function setPorcentajeGanancia($productoPorcentajeGanancia){ $this->productoPorcentajeGanancia = $productoPorcentajeGanancia; }
 
         public function __toString() {
             return 
                 "Producto ID:". $this->productoID."\n" .
                 "Nombre:". $this->productoNombre."\n" .
-                "Precio Unitario:". $this->productoPrecio."\n" .
+                "Precio de Compra:". $this->productoPrecioCompra."\n" .
                 "Descripción:". $this->productoDescripcion."\n" .
                 "Estado: " . ($this->productoEstado ? "Activo" : "Inactivo") . "\n";
         }

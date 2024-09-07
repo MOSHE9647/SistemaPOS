@@ -8,21 +8,17 @@
 
         $id = isset($_POST['id']) ? $_POST['id'] : 0;
         $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : "";
-        $precio = isset($_POST['precio']) ? $_POST['precio'] : 0;
+        $precioCompra = isset($_POST['precioCompra']) ? $_POST['precioCompra'] : 0;
         $descripcion = isset($_POST['descripcion']) ? $_POST['descripcion'] : "";
-        $codigo = isset($_POST['codigo']) ? $_POST['codigo'] : "";
-
+        $codigoBarrasID = isset($_POST['codigoBarrasID']) ? $_POST['codigoBarrasID'] : "";
         $foto = isset($_POST['foto']) ? $_POST['foto'] : '';
-        $ganancia = isset($_POST['ganancia']) ? $_POST['ganancia'] :'';
-
-        $categoria = isset($_POST['categoria']) ? $_POST['categoria']:'';
-        $subcategoria = isset($_POST['subcategoria']) ? $_POST['subcategoria'] : '';
+        $ganancia = isset($_POST['ganancia']) ? $_POST['ganancia'] : '';
 
         // Se crea el Service para las operaciones
         $productoBusiness = new ProductoBusiness();
 
         // Crea y verifica que los datos del producto sean correctos
-        $producto = new Producto($nombre, $precio, $codigo,$foto,$ganancia, $id, $descripcion);
+        $producto = new Producto($nombre, $precioCompra, $codigoBarrasID, $foto, $ganancia, $id, $descripcion);
         $check = $productoBusiness->validarProducto($producto, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
         if ($check['is_valid']) {
             switch ($accion) {
@@ -39,13 +35,13 @@
                     // Elimina el producto de la base de datos
                     break;
                 default:
-                    // Error en caso de que la accion no sea válida
+                    // Error en caso de que la acción no sea válida
                     $response['success'] = false;
                     $response['message'] = "Acción no válida.";
                     break;
             }
         } else {
-            // Si los datos no son validos, se devuelve un mensaje de error
+            // Si los datos no son válidos, se devuelve un mensaje de error
             $response['success'] = $check['is_valid'];
             $response['message'] = $check['message'];
         }
@@ -56,7 +52,6 @@
     }
 
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
-
         if (isset($_GET['accion']) && $_GET['accion'] === 'listarProductos') {
             $productoBusiness = new ProductoBusiness();
             $result = $productoBusiness->getAllTBProducto();
@@ -74,12 +69,11 @@
         if ($page < 1) $page = 1;
         if ($size < 1) $size = 5;
 
-        $ProductoBusiness = new ProductoBusiness();
-        $result = $ProductoBusiness->getPaginatedProductos($page, $size, $sort);
+        $productoBusiness = new ProductoBusiness();
+        $result = $productoBusiness->getPaginatedProductos($page, $size, $sort);
         
         header('Content-Type: application/json');
         echo json_encode($result);
         exit();
     }
-
 ?>
