@@ -21,17 +21,21 @@
     <body>
         <h2>Administración de CRUDS <?php //echo gethostname() ?></h2>
         <ul>
+            <h3>Tablas Principales</h3>
             <li> <a href="./view/impuestoView.php">Gestión de Impuestos</a> </li>
             <li> <a href="./view/proveedorView.php">Gestión de Proveedores</a> </li>
             <li> <a href="./view/direccionView.php">Gestion de Direcciones</a> </li>
             <li> <a href="./view/productoView.php">Gestión de Productos</a> </li>
             <li> <a href="./view/telefonoView.php">Gestión de Telefonos</a> </li>
-            <li> <a href="./view/subcategoriaView.php">Gestión de Subcategorias</a> </li>
-            <li> <a href="./view/productoSubcategoriaView.php">Gestión de Producto-Subcategorias</a> </li>
-            <li> <a href="./view/proveedorProductoView.php">Gestión Proveedor-Producto</a> </li>
-            <li> <a href="./view/loteView.php">Gestión de lotes</a> </li>
-            <li> <a href="./view/tipoCompraView.php">Gestión de TipoCompra</a> </li>
             <li> <a href="./view/categoriaView.php">Gestion de Categorias</a> </li>
+            <li> <a href="./view/subcategoriaView.php">Gestión de Subcategorias</a> </li>
+            <li> <a href="./view/loteView.php">Gestión de Lotes</a> </li>
+
+            <h3>Tablas Intermedias</h3>
+            <li> <a href="./view/productoSubcategoriaView.php">Gestión de Producto-Subcategorias</a> </li>
+            <li> <a href="./view/proveedorProductoView.php">Gestión de Proveedor-Productos</a> </li>
+
+            <h3>Extras</h3>
             <li> <a href="" onclick="printBarcodes(10)">Imprimir Códigos de Barras</a> </li>
         </ul>
     </body>
