@@ -92,7 +92,7 @@
 					throw new Exception("Ya existe un proveedor con el mismo nombre o correo electrónico.");
                 }
                 //verificar si existe un numero por el id
-                $check = $this->proveedorTelefonoData->existeProveedorTelefono(null,$telefonoNumero);
+                $check = $this->proveedorTelefonoData->existeProveedorTelefono(null,$telefonoNumero, false, true);
                 if(!$check['success']){ 
                     return !$check; 
                 }
@@ -201,13 +201,13 @@
                     " SET " . 
                         PROVEEDOR_NOMBRE . " = ?, " . 
                         PROVEEDOR_EMAIL . " = ?, " .                    
-                        PROVEEDOR_ESTADO . " = true, " .
+                        PROVEEDOR_ESTADO . " = true " .
                     "WHERE " . PROVEEDOR_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
 
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'ssssi', // s: Cadena, i: Entero
+                    'ssi', // s: Cadena, i: Entero
                     $proveedorNombre,
                     $proveedorEmail,
                     $proveedorID
