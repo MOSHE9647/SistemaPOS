@@ -2,7 +2,7 @@
 
     include_once 'data.php';
     include __DIR__ . '/../domain/Proveedor.php';
-    include _DIR_ . '/../data/proveedorTelefonoData.php';
+    include __DIR__ . '/../data/proveedorTelefonoData.php';
     require_once __DIR__ . '/../utils/Utils.php';
     require_once __DIR__ . '/../utils/Variables.php';
 
@@ -11,7 +11,7 @@
         // Constructor
         public function __construct() {
             parent::__construct();
-            $this->proveedorTelefonoData = new ProveedorTelefonoData();
+            $this->proveedorTelefonoData = new  ProveedorTelefonoData();
         }
 
         // Función para verificar si un proveedor con el mismo nombre ya existe en la bd
@@ -295,7 +295,7 @@
 
                     $Telefonos = [];
 
-                    $resultTelefonos =  $this->proveedorTelefonoData->getTelefonoByProveedorID($row[PROVEEDOR_ID]);
+                    $resultTelefonos =  $this->proveedorTelefonoData->getTelefonosByProveedor( $row[PROVEEDOR_ID],true);
 
                     if($resultTelefonos['success']){
                         $telefonos = $resultTelefonos['telefonos'];
@@ -381,7 +381,7 @@
                     
                     $Telefonos = [];
 
-                    $resultTelefonos =  $this->proveedorTelefonoData->getTelefonoByProveedorID($row[PROVEEDOR_ID]);
+                    $resultTelefonos =   $this->proveedorTelefonoData->getTelefonosByProveedor( $row[PROVEEDOR_ID],true);
 
                     if($resultTelefonos['success']){
                         $telefonos = $resultTelefonos['telefonos'];
@@ -422,55 +422,6 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
-
-        // public function getTelefonosPorProveedor($proveedorID) {
-        //     try {
-        //         // Establece una conexión con la base de datos
-        //         $result = $this->getConnection();
-        //         if (!$result["success"]) {
-        //             throw new Exception($result["message"]);
-        //         }
-        //         $conn = $result["connection"];
-                
-        //         // Prepara la consulta para obtener los números de teléfono
-        //         $query = "
-        //             SELECT t.telefononumero 
-        //             FROM " . TB_TELEFONO . " t
-        //             WHERE t.telefonoproveedorid = ? AND t.telefonoestado != false
-        //         ";
-                
-        //         // Prepara la consulta y vincula los parámetros
-        //         $stmt = mysqli_prepare($conn, $query);
-        //         mysqli_stmt_bind_param($stmt, "i", $proveedorID);
-                
-        //         // Ejecuta la consulta
-        //         mysqli_stmt_execute($stmt);
-                
-        //         // Obtiene el resultado
-        //         $result = mysqli_stmt_get_result($stmt);
-        //         $telefonos = [];
-                
-        //         while ($row = mysqli_fetch_assoc($result)) {
-        //             $telefonos[] = $row['telefononumero'];
-        //         }
-                
-        //         return ["success" => true, "telefonos" => $telefonos];
-        //     } catch (Exception $e) {
-        //         // Manejo del error dentro del bloque catch
-        //         $userMessage = $this->handleMysqlError(
-        //             $e->getCode(), 
-        //             $e->getMessage(),
-        //             'Error al obtener los números de teléfono del proveedor'
-        //         );
-                
-        //         // Devolver mensaje amigable para el usuario
-        //         return ["success" => false, "message" => $userMessage];
-        //     } finally {
-        //         // Cierra la conexión y el statement
-        //         if (isset($stmt)) { mysqli_stmt_close($stmt); }
-        //         if (isset($conn)) { mysqli_close($conn); }
-        //     }
-        // }
         
     }
 
