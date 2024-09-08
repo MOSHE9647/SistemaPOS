@@ -7,139 +7,142 @@
 
     class ProveedorDireccionData extends Data {
 
-        // Constructor
-		public function __construct() {
-			parent::__construct();
-		}
+        private $className;
 
-        private function proveedorDireccionExisten($proveedorID = -1, $direccionID = -1) {
+        public function __construct() {
+            $this->className = get_class($this);
+            parent::__construct();
+        }
+
+        public function existeProveedorDireccion($proveedorID = null, $direccionID = null, $tbProveedor = false, $tbDireccion = false) {
+            $conn = null; $stmt = null;
+
             try {
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
+                if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
-        
-                // Verificar existencia del proveedor
-                if ($proveedorID !== null && is_numeric($proveedorID) && $proveedorID > 0) {
-                    $stmtProveedor = $conn->prepare("SELECT 1 FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ID . " = ? AND " . PROVEEDOR_ESTADO . " != false");
-                    if (!$stmtProveedor) {
-                        throw new Exception("Error al preparar la consulta del proveedor: " . $conn->error);
-                    }
-                    $stmtProveedor->bind_param("i", $proveedorID);
-                    $stmtProveedor->execute();
-                    $resultadoProveedor = $stmtProveedor->get_result();
-                    if ($resultadoProveedor->num_rows === 0) {
-                        throw new Exception("No se encontró al Proveedor en la base de datos.");
-                    }
+
+                // Determina la tabla y construye la consulta base
+                $tableName = $tbProveedor ? TB_PROVEEDOR : ($tbDireccion ? TB_DIRECCION : TB_PROVEEDOR_DIRECCION);
+                $queryCheck = "SELECT 1 FROM $tableName WHERE ";
+                $params = [];
+                $types = "";
+
+                if ($proveedorID && $direccionID) {
+                    // Consulta para verificar si existe una asignación entre el proveedor y la dirección
+                    $queryCheck .= PROVEEDOR_ID . " = ? AND " . DIRECCION_ID . " = ? AND " . PROVEEDOR_DIRECCION_ESTADO . " != FALSE";
+                    $params = [$proveedorID, $direccionID];
+                    $types = "ii";
+                } else if ($proveedorID) {
+                    // Consulta para verificar si existe un proveedor con el ID ingresado
+                    $estadoCampo = $tbProveedor ? PROVEEDOR_ESTADO : PROVEEDOR_DIRECCION_ESTADO;
+                    $queryCheck .= PROVEEDOR_ID . " = ? AND $estadoCampo != FALSE";
+                    $params = [$proveedorID];
+                    $types = "i";
+                } else if ($direccionID) {
+                    // Consulta para verificar si existe una dirección con el ID ingresado
+                    $estadoCampo = $tbDireccion ? DIRECCION_ESTADO : PROVEEDOR_DIRECCION_ESTADO;
+                    $queryCheck .= DIRECCION_ID . " = ? AND $estadoCampo != FALSE";
+                    $params = [$direccionID];
+                    $types = "i";
                 } else {
-                    throw new Exception("El ID del Proveedor no es válido");
+                    // Registrar parámetros faltantes y lanzar excepción
+                    $missingParamsLog = "Faltan parámetros para verificar la existencia del proveedor y/o direccion:";
+                    if (!$proveedorID) $missingParamsLog .= " proveedorID [" . ($proveedorID ?? 'null') . "]";
+                    if (!$direccionID) $missingParamsLog .= " direccionID [" . ($direccionID ?? 'null') . "]";
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    throw new Exception("Faltan parámetros para verificar la existencia del proveedor y/o direccion.");
                 }
-        
-                // Verificar existencia de la dirección
-                if ($direccionID !== null && is_numeric($direccionID) && $direccionID > 0) {
-                    $stmtDireccion = $conn->prepare("SELECT 1 FROM " . TB_DIRECCION . " WHERE " . DIRECCION_ID . " = ? AND " . DIRECCION_ESTADO . " != false");
-                    if (!$stmtDireccion) {
-                        throw new Exception("Error al preparar la consulta de la dirección: " . $conn->error);
-                    }
-                    $stmtDireccion->bind_param("i", $direccionID);
-                    $stmtDireccion->execute();
-                    $resultadoDireccion = $stmtDireccion->get_result();
-                    if ($resultadoDireccion->num_rows === 0) {
-                        throw new Exception("No se encontró la Dirección en la base de datos.");
-                    }
-                } else {
-                    throw new Exception("El ID de la Dirección no es válido");
+
+                // Prepara la consulta y ejecuta la verificación
+                $stmt = mysqli_prepare($conn, $queryCheck);
+                mysqli_stmt_bind_param($stmt, $types, ...$params);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+
+                // Verifica si existe algún registro con los criterios dados
+                if (mysqli_num_rows($result) > 0) {
+                    return ["success" => true, "exists" => true];
                 }
-        
-                return ["success" => true];
+
+                // Retorna false si no se encontraron resultados
+                $messageParams = [];
+                if ($proveedorID) { $messageParams[] = "Proveedor con ID [$proveedorID]"; }
+                if ($direccionID) { $messageParams[] = "Dirección con ID [$direccionID]"; }
+                $params = implode(' y ', $messageParams);
+
+                $message = "No se encontró a ningún $params en la base de datos.";
+                Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+
+                return ["success" => true, "exists" => false, "message" => $message];
             } catch (Exception $e) {
-                // Devuelve el mensaje de error
-                return ["success" => false, "message" => $e->getMessage()];
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al verificar la existencia de la dirección y/o del proveedor en la base de datos',
+                    $this->className
+                );
+        
+                return ["success" => false, "message" => $userMessage];
             } finally {
-                // Cierra el statement y la conexión
-                if (isset($stmtProveedor)) { $stmtProveedor->close(); }
-                if (isset($stmtDireccion)) { $stmtDireccion->close(); }
-                if (isset($conn)) { $conn->close(); }
+                // Cierra la conexión y el statement
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
             }
         }
 
-        private function verificarAsignacionDireccion($direccionID) {
-            try {
-                // Verifica que el ID sea válido
-                if ($direccionID === null || !is_numeric($direccionID)) {
-                    throw new Exception("El ID de la Dirección no es válido");
-                }
+        public function verificarExistenciaProveedorDireccion($proveedorID, $direccionID) {
+            // Verificar que el proveedor exista en la base de datos
+            $checkProveedor = $this->existeProveedorDireccion($proveedorID, null, true);
+            if (!$checkProveedor["success"]) { return $checkProveedor; }
+            if (!$checkProveedor["exists"]) {
+                $message = "El proveedor con ID [$proveedorID] no existe en la base de datos.";
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ['success' => false, 'message' => "El proveedor seleccionado no existe en la base de datos."];
+            }
 
-                // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
-                $conn = $result["connection"];
+            // Verificar que la dirección exista en la base de datos
+            $checkDireccion = $this->existeProveedorDireccion(null, $direccionID, false, true);
+            if (!$checkDireccion["success"]) { return $checkDireccion; }
+            if (!$checkDireccion["exists"]) {
+                $message = "La dirección con ID [$direccionID] no existe en la base de datos.";
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ['success' => false, 'message' => "La dirección seleccionada no existe en la base de datos."];
+            }
 
-                // Verificar existencia de la direccion
-                $queryCheck = "SELECT 1 FROM " . TB_PROVEEDOR_DIRECCION . " WHERE " . 
-                    DIRECCION_ID . " = ? AND " . 
-                    PROVEEDOR_DIRECCION_ESTADO . " != false"
-                ;
-                $stmt = mysqli_prepare($conn, $queryCheck);
-				if (!$stmt) {
-					throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
-				}
-
-                // Asignar los parámetros y ejecutar la consulta
-                mysqli_stmt_bind_param($stmt, 'i', $direccionID);
-                mysqli_stmt_execute($stmt);
-				$result = mysqli_stmt_get_result($stmt);
-
-                // Verifica si existe algún registro con los criterios dados
-				if (mysqli_num_rows($result) > 0) {
-					return ["success" => true, "assigned" => true];
-				}
-
-                return ["success" => true, "assigned" => false];
-            } catch (Exception $e) {
-                // Devuelve el mensaje de error
-                return ["success" => false, "message" => $e->getMessage()];
-            } finally {
-				// Cierra la conexión y el statement
-				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
-			}
+            return ['success' => true];
         }
 
-        public function addDireccionToProveedor($proveedorID, $direccionID) {
+        public function addDireccionToProveedor($proveedorID, $direccionID, $conn = null) {
+            $createdConnection = false; //<- Indica si la conexión se creó aquí o viene por parámetro
+            $stmt = null;
+            
             try {
-                // Verifica que el Proveedor y la Direccion existan en la BD
-                $check = $this->proveedorDireccionExisten($proveedorID, $direccionID);
-                if (!$check["success"]) {
-                    throw new Exception($check["message"]);
+                // Verificar la existencia del proveedor y de la dirección en la base de datos
+                $check = $this->verificarExistenciaProveedorDireccion($proveedorID, $direccionID);
+                if (!$check['success']) { return $check; }
+
+                // Verificar si la dirección ya está asignada a algún proveedor
+                $check = $this->existeProveedorDireccion(null, $direccionID);
+                if (!$check['success']) { return $check; }
+                if ($check['exists']) {
+                    $message = "La dirección con ID [$direccionID] ya está asignada a otro proveedor.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ['success' => false, 'message' => $message];
                 }
 
-                // Verifica que la Direccion no esté asignada a otro Proveedor
-                $check = $this->verificarAsignacionDireccion($direccionID);
-                if (!$check['success']) {
-                    return $check; // Error al verificar si estaba asignada
+                // Si no se proporcionó una conexión, crea una nueva
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
                 }
-                if ($check['assigned']) {
-                    throw new Exception("No pueden existir 2 o más proveedores con la misma dirección.");
-                }
-
-                // Establece una conexión con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) {
-					throw new Exception($result["message"]);
-				}
-				$conn = $result["connection"];
 
                 // Obtenemos el último ID de la tabla tbproveedordireccion
 				$queryGetLastId = "SELECT MAX(" . PROVEEDOR_DIRECCION_ID . ") FROM " . TB_PROVEEDOR_DIRECCION;
 				$idCont = mysqli_query($conn, $queryGetLastId);
-				if (!$idCont) {
-					throw new Exception("Error al obtener la información del proveedor de la base de datos: " . mysqli_error($conn));
-				}
 				$nextId = 1;
 
                 // Calcula el siguiente ID para la nueva entrada
@@ -151,289 +154,359 @@
                 $queryInsert = "INSERT INTO " . TB_PROVEEDOR_DIRECCION . " ("
                     . PROVEEDOR_DIRECCION_ID . ", "
                     . PROVEEDOR_ID . ", "
-                    . DIRECCION_ID . ", "
-                    . PROVEEDOR_DIRECCION_ESTADO
-                    . ") VALUES (?, ?, ?, true)";
+                    . DIRECCION_ID
+                    . ") VALUES (?, ?, ?)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
-                if (!$stmt) {
-                    throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
-                }
 
                 // Prepara y ejecuta la consulta de inserción
                 mysqli_stmt_bind_param($stmt, 'iii', $nextId, $proveedorID, $direccionID);
                 $result = mysqli_stmt_execute($stmt);
-				if (!$result) {
-					throw new Exception("Error al asignarle la dirección al proveedor: " . mysqli_error($conn));
-				}
 
-                return ["success" => true, "message" => "Dirección asignada exitosamente"];
+                return ["success" => true, "message" => "Dirección asignada exitosamente al proveedor."];
             } catch (Exception $e) {
-                // Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
+                // Manejo del error dentro del bloque catch
+				$userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al intentar asignarle la dirección al proveedor en la base de datos',
+                    $this->className
+                );
+        
+                return ["success" => false, "message" => $userMessage];
 			} finally {
-				// Cierra la conexión y el statement
-				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
+				// Cierra el statement y la conexión solo si fueron creados en esta función
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if ($createdConnection && isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
 			}
         }
 
-        private function existeAsignacion($proveedorID, $direccionID) {
+        public function removeDireccionFromProveedor($proveedorID, $direccionID, $conn = null) {
+            $createdConnection = false; //<- Indica si la conexión se creó aquí o viene por parámetro
+            $stmt = null;
+
             try {
-                // Establece una conexión con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) {
-					throw new Exception($result["message"]);
-				}
-				$conn = $result["connection"];
+                // Verificar la existencia del proveedor y de la dirección en la base de datos
+                $check = $this->verificarExistenciaProveedorDireccion($proveedorID, $direccionID);
+                if (!$check['success']) { return $check; }
 
-                // Crea una consulta y un statement SQL para buscar el registro
-                $queryCheck = "SELECT 1 FROM " . TB_PROVEEDOR_DIRECCION . " WHERE " . 
-                    PROVEEDOR_ID . " = ? AND " . 
-                    DIRECCION_ID . " = ? AND " . 
-                    PROVEEDOR_DIRECCION_ESTADO . " != false";
-                $stmt = mysqli_prepare($conn, $queryCheck);
-				if (!$stmt) {
-					throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
-				}
-
-                // Asignar los parámetros y ejecutar la consulta
-				mysqli_stmt_bind_param($stmt, "ii", $proveedorID, $direccionID);
-				mysqli_stmt_execute($stmt);
-				$result = mysqli_stmt_get_result($stmt);
-
-                // Verifica si existe algún registro con los criterios dados
-				if (mysqli_num_rows($result) > 0) {
-					return ["success" => true, "exists" => true];
-				}
-		
-				return ["success" => true, "exists" => false];
-            } catch (Exception $e) {
-                // Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
-			} finally {
-				// Cierra la conexión y el statement
-				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
-			}
-        }
-
-        public function removeDireccionFromProveedor($proveedorID, $direccionID) {
-            try {
-                // Verifica que el Proveedor y la Direccion existan en la BD
-                $check = $this->proveedorDireccionExisten($proveedorID, $direccionID);
-                if (!$check["success"]) {
-                    throw new Exception($check["message"]);
+                // Verificar si existe la asignación entre el teléfono y el proveedor en la base de datos
+                $check = $this->existeProveedorDireccion($proveedorID, $direccionID);
+                if (!$check['success']) { return $check; }
+                if (!$check['exists']) {
+                    $message = "La dirección con ID [$direccionID] no está asignada al proveedor con ID [$proveedorID].";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ['success' => false, 'message' => "La dirección seleccionada no está asignada al proveedor."];
                 }
 
-                // Verificar si la asignacion entre el proveedor y la direccion existe
-                $check = $this->existeAsignacion($proveedorID, $direccionID);
-                if (!$check["success"]) {
-					return $check; // Error al verificar la existencia
-				}
-				if (!$check["exists"]) {
-					throw new Exception("Ningún proveedor tiene esta dirección asignada.");
-				}
-
-                // Establece una conexión con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) {
-					throw new Exception($result["message"]);
-				}
-				$conn = $result["connection"];
+                // Si no se proporcionó una conexión, crea una nueva
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+        
+                    // Desactivar el autocommit para manejar transacciones si la conexión fue creada aquí
+                    mysqli_autocommit($conn, false);
+                }
 
                 // Crea una consulta y un statement SQL para eliminar el registro (borrado logico)
-				$queryDelete = 
-                    "UPDATE " . TB_PROVEEDOR_DIRECCION . " SET " .
-						PROVEEDOR_DIRECCION_ESTADO . " = false " .
-					"WHERE " .
-                        PROVEEDOR_ID . " = ? AND " .
-                        DIRECCION_ID . " = ?";
-				$stmt = mysqli_prepare($conn, $queryDelete);
-				if (!$stmt) {
-					throw new Exception("Error al preparar la consulta de eliminación: " . mysqli_error($conn));
-				}
-
-                // Prepara y ejecuta la consulta de eliminación
+				$queryUpdate = 
+                    "UPDATE " . TB_PROVEEDOR_DIRECCION . 
+                    " SET " 
+                        . PROVEEDOR_DIRECCION_ESTADO . " = FALSE " .
+					"WHERE " 
+                        . PROVEEDOR_ID . " = ? AND " 
+                        . DIRECCION_ID . " = ?";
+				$stmt = mysqli_prepare($conn, $queryUpdate);
                 mysqli_stmt_bind_param($stmt, 'ii', $proveedorID, $direccionID);
-				$result = mysqli_stmt_execute($stmt);
-				if (!$result) {
-					throw new Exception("Error al eliminar la dirección del proveedor: " . mysqli_error($conn));
-				}
+				mysqli_stmt_execute($stmt);
+
+                // Eliminar la dirección de la tabla tbDireccion
+                $queryUpdateDireccion = 
+                    "UPDATE " . TB_DIRECCION . 
+                    " SET " 
+                        . DIRECCION_ESTADO . " = FALSE " .
+                    "WHERE " 
+                        . DIRECCION_ID . " = ?";
+                $stmt = mysqli_prepare($conn, $queryUpdateDireccion);
+                mysqli_stmt_bind_param($stmt, 'i', $direccionID);
+                mysqli_stmt_execute($stmt);
+
+                // Confirmar la transacción si la conexión fue creada aquí
+                if ($createdConnection) {
+                    mysqli_commit($conn);
+                }
 		
 				// Devuelve el resultado de la operación
 				return ["success" => true, "message" => "Dirección eliminada exitosamente."];
             } catch (Exception $e) {
-                // Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
+                // Revertir la transacción en caso de error si la conexión fue creada aquí
+                if ($createdConnection && isset($conn)) { mysqli_rollback($conn); }
+        
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al intentar eliminar la dirección del proveedor en la base de datos',
+                    $this->className
+                );
+        
+                return ["success" => false, "message" => $userMessage];
 			} finally {
-				// Cierra la conexión y el statement
-				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
+				// Cierra el statement y la conexión solo si fueron creados en esta función
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if ($createdConnection && isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
 			}
         }
 
-        public function getDireccionesByProveedor($proveedorID) {
+        public function getDireccionesByProveedor($proveedorID, $json = false) {
+            $conn = null; $stmt = null;
+
             try {
-                // Verifica que el Proveedor exista en la BD
-                $check = $this->proveedorDireccionExisten($proveedorID);
-                if (!$check["success"]) {
-                    throw new Exception($check["message"]);
+                // Verificar que el proveedor tenga direcciones registradas
+                $check = $this->existeProveedorDireccion($proveedorID);
+                if (!$check["success"]) { throw new Exception($check["message"]); }
+                if (!$check["exists"]) {
+                    $message = "El proveedor con ID [$proveedorID] no tiene direcciones registradas.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ['success' => false, 'message' => "El proveedor seleccionado no tiene direcciones registradas."];
                 }
 
-                // Establece una conexion con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) {
-					throw new Exception($result["message"]);
-				}
-				$conn = $result["connection"];
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
 
-                // Obtenemos la lista de direcciones
+                // Consulta para obtener las direcciones de un proveedor
 				$querySelect = "
                     SELECT
-                        D." . DIRECCION_ID . ",
-                        D." . DIRECCION_PROVINCIA . ",
-                        D." . DIRECCION_CANTON . ",
-                        D." . DIRECCION_DISTRITO . ",
-                        D." . DIRECCION_BARRIO . ",
-                        D." . DIRECCION_SENNAS . ",
-                        D." . DIRECCION_DISTANCIA . ",
-                        D." . DIRECCION_ESTADO . "
-                    FROM
-                        " . TB_DIRECCION . " D
+                        D.*
+                    FROM " . 
+                        TB_DIRECCION . " D
                     INNER JOIN
-                        " . TB_PROVEEDOR_DIRECCION . " PD ON D." . DIRECCION_ID . " = PD." . DIRECCION_ID . "
+                        " . TB_PROVEEDOR_DIRECCION . " PD 
+                        ON D." . DIRECCION_ID . " = PD." . DIRECCION_ID . "
                     WHERE
                         PD." . PROVEEDOR_ID . " = ? AND 
-                        D." . DIRECCION_ESTADO . " != FALSE AND 
                         PD." . PROVEEDOR_DIRECCION_ESTADO . " != FALSE;
                 ";
+
+                // Preparar la consulta, vincular los parámetros y ejecutar la consulta
                 $stmt = mysqli_prepare($conn, $querySelect);
-
-                // Verificamos si ocurrió un error
-                if (!$stmt) {
-                    throw new Exception("Ocurrió un error al preparar la consulta: " . mysqli_error($conn));
-                }
-
                 mysqli_stmt_bind_param($stmt, 'i', $proveedorID);
-                
-                // Ejecuta la consulta de búsqueda
-                $result = mysqli_stmt_execute($stmt);
-                if (!$result) {
-                    throw new Exception("Error al ejecutar la consulta: " . mysqli_stmt_error($stmt));
-                }
-
-                // Recuperamos los resultados
+                mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
-                if (!$result) {
-                    throw new Exception("Error al obtener los resultados: " . mysqli_error($conn));
-                }
 
                 // Creamos la lista con los datos obtenidos
-                $listaDirecciones = [];
-                while ($row = mysqli_fetch_assoc($result)) { // Cambiado a mysqli_fetch_assoc
-                    $currentDireccion = new Direccion(
-                        $row[DIRECCION_PROVINCIA],
-                        $row[DIRECCION_CANTON],
-                        $row[DIRECCION_DISTRITO],
-                        $row[DIRECCION_BARRIO],
-                        $row[DIRECCION_ID],
-                        $row[DIRECCION_SENNAS],
-                        $row[DIRECCION_DISTANCIA],
-                        $row[DIRECCION_ESTADO]
-                    );
-                    array_push($listaDirecciones, $currentDireccion);
+                $direcciones = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    if ($json) {
+                        $direcciones[] = [
+                            "ID"        => $row[DIRECCION_ID],
+                            "Provincia" => $row[DIRECCION_PROVINCIA],
+                            "Canton"    => $row[DIRECCION_CANTON],
+                            "Distrito"  => $row[DIRECCION_DISTRITO],
+                            "Sennas"    => $row[DIRECCION_SENNAS],
+                            "Distancia" => $row[DIRECCION_DISTANCIA],
+                            "Estado"    => $row[DIRECCION_ESTADO]
+                        ];
+                    } else {
+                        $direcciones[] = new Direccion(
+                            $row[DIRECCION_ID],
+                            $row[DIRECCION_PROVINCIA],
+                            $row[DIRECCION_CANTON],
+                            $row[DIRECCION_DISTRITO],
+                            $row[DIRECCION_SENNAS],
+                            $row[DIRECCION_DISTANCIA],
+                            $row[DIRECCION_ESTADO]
+                        );
+                    }
                 }
 
-                return ["success" => true, "listaDirecciones" => $listaDirecciones];
+                return ["success" => true, "direcciones" => $direcciones];
             } catch (Exception $e) {
-                // Devuelve el mensaje de error
-                return ["success" => false, "message" => $e->getMessage()];
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al obtener la lista de direcciones del proveedor desde la base de datos',
+                    $this->className
+                );
+
+                return ["success" => false, "message" => $userMessage];
             } finally {
-                // Cerramos la conexión
-                if (isset($conn)) { mysqli_close($conn); }
-                if (isset($stmt)) { mysqli_stmt_close($stmt); } // Cerramos el stmt
+                // Cierra la conexión y el statement
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
             }
         }
 
-        public function getProveedoresByDireccion($direccionID) {
+        public function updateDireccionesProveedor($proveedor) {
+            $conn = null; $stmt = null;
+
             try {
-                // Verifica que la Dirección exista en la BD
-                $check = $this->proveedorDireccionExisten(-1, $direccionID);
-                if (!$check["success"]) {
-                    throw new Exception($check["message"]);
+                // Obtener el ID del Proveedor
+                $proveedorID = $proveedor->getProveedorID();
+                
+                // Verificar que el proveedor tenga direcciones registradas
+                $check = $this->existeProveedorDireccion($proveedorID);
+                if (!$check["success"]) { throw new Exception($check["message"]); }
+                if (!$check["exists"]) {
+                    $message = "El proveedor con ID [" . $proveedorID . "] no tiene direcciones registradas.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ['success' => false, 'message' => "El proveedor seleccionado no tiene direcciones registradas."];
                 }
-        
+
+                // Obtener la lista actual de direcciones del proveedor desde la base de datos
+                $result = $this->getDireccionesByProveedor($proveedorID);
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+
+                // Obtener los ID's de las direcciones actuales
+                $direccionesActuales = array_map(function($direccion) {
+                    return $direccion->getDireccionID();
+                }, $result["direcciones"]);
+
+                // Obtener los ID's de las direcciones nuevas
+                $direccionesNuevas = array_map(function($direccion) {
+                    return $direccion->getDireccionID();
+                }, $proveedor->getProveedorDirecciones());
+
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
+                if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
+            
+                // Iniciar una transacción
+                mysqli_begin_transaction($conn);
+
+                // Añadir nuevas direcciones (las que no están en la BD)
+                foreach ($direccionesNuevas as $nuevaDireccionID) {
+                    if (!in_array($nuevaDireccionID, $direccionesActuales)) {
+                        $addResult = $this->addDireccionToProveedor($proveedorID, $direccionID, $conn);
+                        if (!$addResult["success"]) { throw new Exception($addResult["message"]); }
+                    }
+                }
+
+                // Eliminar direcciones que ya no están en la nueva lista
+                foreach ($direccionesActuales as $direccionActualID) {
+                    if (!in_array($direccionActualID, $direccionesNuevas)) {
+                        $removeResult = $this->removeDireccionFromProveedor($proveedorID, $direccionActualID, $conn);
+                        if (!$removeResult["success"]) { throw new Exception($removeResult["message"]); }
+                    }
+                }
+
+                // Confirmar la transacción
+                mysqli_commit($conn);
+
+                return ["success" => true, "message" => "Las direcciones del proveedor se han actualizado correctamente."];
+            } catch (Exception $e) {
+                if (isset($conn)) { mysqli_rollback($conn); }
         
-                // Preparamos la consulta para obtener la lista de proveedores
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al intentar actualizar los teléfonos del proveedor en la base de datos',
+                    $this->className
+                );
+        
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+            }
+        }
+
+        public function getPaginatedDireccionesByProveedor($proveedorID, $page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
+            $conn = null; $stmt = null;
+
+            try {
+                // Validar los parámetros de paginación
+                if (!is_numeric($page) || $page < 1) {
+                    throw new Exception("El número de página debe ser un entero positivo.");
+                }
+                if (!is_numeric($size) || $size < 1) {
+                    throw new Exception("El tamaño de la página debe ser un entero positivo.");
+                }
+                $offset = ($page - 1) * $size;
+
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+
+                // Consultar el total de registros
+                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_PROVEEDOR_DIRECCION . " WHERE " . PROVEEDOR_ID . " = ? ";
+                if ($onlyActiveOrInactive) { $queryTotalCount .= " AND " . PROVEEDOR_DIRECCION_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+
+                // Preparar la consulta y ejecutarla
+                $stmt = mysqli_prepare($conn, $queryTotalCount);
+                mysqli_stmt_bind_param($stmt, 'i', $proveedorID);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                $totalRecords = mysqli_fetch_assoc($result)["total"];
+                $totalPages = ceil($totalRecords / $size);
+
+                // Construir la consulta SQL para paginación
                 $querySelect = "
                     SELECT
-                        P." . PROVEEDOR_ID . ",
-                        P." . PROVEEDOR_NOMBRE . ",
-                        P." . PROVEEDOR_EMAIL . ",
-                        P." . PROVEEDOR_TIPO . ",
-                        P." . PROVEEDOR_ESTADO . ",
-                        P." . PROVEEDOR_FECHA_REGISTRO . "
-                    FROM
-                        " . TB_PROVEEDOR . " P
+                        D.*
+                    FROM " . 
+                        TB_DIRECCION . " D
                     INNER JOIN
-                        " . TB_PROVEEDOR_DIRECCION . " PD ON P." . PROVEEDOR_ID . " = PD." . PROVEEDOR_ID . "
+                        " . TB_PROVEEDOR_DIRECCION . " PD 
+                        ON D." . DIRECCION_ID . " = PD." . DIRECCION_ID . "
                     WHERE
-                        PD." . DIRECCION_ID . " = ? AND
-                        P." . PROVEEDOR_ESTADO . " != FALSE AND
-                        PD." . PROVEEDOR_DIRECCION_ESTADO . " != FALSE;
-                ";
-        
+                        PD." . PROVEEDOR_ID . " = ?";
+                if ($onlyActiveOrInactive) { $queryTotalCount .= " AND " . PROVEEDOR_DIRECCION_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+
+                // Añadir la cláusula de ordenamiento si se proporciona
+                if ($sort) { $querySelect .= "ORDER BY telefono" . $sort . " "; }
+
+				// Añadir la cláusula de limitación y offset
+                $querySelect .= " LIMIT ? OFFSET ?";
+
+                // Preparar la consulta, vincular los parámetros y ejecutar la consulta
                 $stmt = mysqli_prepare($conn, $querySelect);
-        
-                // Verificamos si ocurrió un error al preparar la consulta
-                if (!$stmt) {
-                    throw new Exception("Ocurrió un error al preparar la consulta: " . mysqli_error($conn));
-                }
-        
-                // Enlazamos los parámetros y ejecutamos la consulta
-                mysqli_stmt_bind_param($stmt, 'i', $direccionID);
-                $result = mysqli_stmt_execute($stmt);
-                if (!$result) {
-                    throw new Exception("Error al ejecutar la consulta: " . mysqli_stmt_error($stmt));
-                }
-        
-                // Obtenemos el resultado de la consulta
+                mysqli_stmt_bind_param($stmt, "iii", $proveedorID, $size, $offset);
+                mysqli_stmt_execute($stmt);
+
+                // Obtener los resultados de la consulta
                 $result = mysqli_stmt_get_result($stmt);
-                if (!$result) {
-                    throw new Exception("Error al obtener los resultados: " . mysqli_error($conn));
-                }
-        
+
                 // Creamos la lista con los datos obtenidos
-                $listaProveedores = [];
-                while ($row = mysqli_fetch_assoc($result)) { // Cambiado a mysqli_fetch_assoc
-                    // Aquí puedes ajustar los atributos del objeto Proveedor según los datos
-                    $currentProveedor = new Proveedor(
-                        $row[PROVEEDOR_NOMBRE],
-                        $row[PROVEEDOR_EMAIL],
-                        $row[PROVEEDOR_FECHA_REGISTRO],
-                        $row[PROVEEDOR_ID],
-                        $row[PROVEEDOR_TIPO],
-                        $row[PROVEEDOR_ESTADO]
-                    );
-                    array_push($listaProveedores, $currentProveedor);
+                $direcciones = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $direcciones[] = [
+                        "ID"        => $row[DIRECCION_ID],
+                        "Provincia" => $row[DIRECCION_PROVINCIA],
+                        "Canton"    => $row[DIRECCION_CANTON],
+                        "Distrito"  => $row[DIRECCION_DISTRITO],
+                        "Sennas"    => $row[DIRECCION_SENNAS],
+                        "Distancia" => $row[DIRECCION_DISTANCIA],
+                        "Estado"    => $row[DIRECCION_ESTADO]
+                    ];
                 }
-        
-                return ["success" => true, "listaProveedores" => $listaProveedores];
+
+                return [
+                    "success" => true,
+                    "page" => $page,
+                    "size" => $size,
+                    "totalPages" => $totalPages,
+                    "totalRecords" => $totalRecords,
+                    "proveedor" => $proveedorID,
+                    "direcciones" => $direcciones
+                ];
             } catch (Exception $e) {
-                // Devuelve el mensaje de error
-                return ["success" => false, "message" => $e->getMessage()];
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al obtener la lista de direcciones del proveedor desde la base de datos',
+                    $this->className
+                );
+        
+                return ["success" => false, "message" => $userMessage];
             } finally {
-                // Cerramos la conexión
-                if (isset($conn)) { mysqli_close($conn); }
-                if (isset($stmt)) { mysqli_stmt_close($stmt); } // Cerramos el stmt
+                // Cierra la conexión y el statement
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
             }
-        }        
+        }
 
     }
 

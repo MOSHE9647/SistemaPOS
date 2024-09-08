@@ -1,7 +1,6 @@
 <?php
 
     include __DIR__ . '/../service/proveedorTelefonoBusiness.php';
-    include_once __DIR__ . '/../utils/Utils.php';
 
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -9,8 +8,8 @@
         $accion = isset($_POST['accion']) ? $_POST['accion'] : "";
 
         // Datos recibidos en la solicitud (Form)
-        $proveedorID = isset($_POST['proveedor']) ? $_POST['proveedor'] : null;
-        $telefonoID = isset($_POST['telefono']) ? $_POST['telefono'] : null;
+        $proveedorID = isset($_POST['proveedor']) ? intval($_POST['proveedor']) : null;
+        $telefonoID = isset($_POST['telefono']) ? intval($_POST['telefono']) : null;
 
         // Se crea el Service para las operaciones
         $proveedorTelefonoBusiness = new ProveedorTelefonoBusiness();
