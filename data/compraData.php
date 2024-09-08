@@ -1,7 +1,7 @@
 <?php
         include_once 'data.php';
         include __DIR__ . '/../domain/Compra.php';
-        include_once __DIR__ . '/..utils/Variables.php';
+        include_once __DIR__ . '/../utils/Variables.php';
 
         Class CompraData extends Data{
 
@@ -35,11 +35,11 @@
                     // Crea una consulta y un statement SQL para insertar el registro
                     $queryInsert = "INSERT INTO " . TB_COMPRA . " ("
                         . COMPRA_ID . ", "
-                        . COMPRA_NUMERO_FACTURA . ", "
+                        . COMPRA_NUMERO_FACTURA . ", " 
+                        . COMPRA_PROVEEDOR_ID . ", "
                         . COMPRA_MONTO_BRUTO . ", "
                         . COMPRA_MONTO_NETO . ", "
                         . COMPRA_TIPO_PAGO . ", "
-                        . COMPRA_PROVEEDOR_ID . ", "
                         . COMPRA_FECHA_CREACION . ", "
                         . COMPRA_FECHA_MODIFICACION . ", "
                         . COMPRA_ESTADO
@@ -58,13 +58,13 @@
                     // Asigna los valores a cada '?' de la consulta
                     mysqli_stmt_bind_param(
                         $stmt,
-                      'isddsiss', // i: Entero, s: Cadena, d: Decimal
+                      'isiddsss', // i: Entero, s: Cadena, d: Decimal
                     $nextId,
-                    $compraNumeroFactura,
+                    $compraNumeroFactura, 
+                    $compraProveedorId,
                     $compraMontoBruto,
                     $compraMontoNeto,
                     $compraTipoPago,
-                    $compraProveedorId,
                     $compraFechaCreacion,
                     $compraFechaModificacion,
                     );
@@ -104,10 +104,11 @@
                         "UPDATE " . TB_COMPRA . 
                         " SET " . 
                         COMPRA_NUMERO_FACTURA . " = ?, " .
+                        COMPRA_PROVEEDOR_ID . " = ?, " .
                         COMPRA_MONTO_BRUTO . " = ?, " .
                         COMPRA_MONTO_NETO . " = ?, " .
                         COMPRA_TIPO_PAGO . " = ?, " .
-                        COMPRA_PROVEEDOR_ID . " = ?, " .
+                       
                         COMPRA_FECHA_CREACION . " = ?, " .
                         COMPRA_FECHA_MODIFICACION . " = ?, " .
                         COMPRA_ESTADO . " = true " .
@@ -127,12 +128,12 @@
                     // Asigna los valores a cada '?' de la consulta
                     mysqli_stmt_bind_param(
                         $stmt,
-                        'sddsissi', // s: String, d: Double (decimal), i: Integer
-                        $compraNumeroFactura,
+                        'siddsssi', // s: String, d: Double (decimal), i: Integer
+                        $compraNumeroFactura, 
+                        $compraProveedorId,
                         $compraMontoBruto,
                         $compraMontoNeto,
                         $compraTipoPago,
-                        $compraProveedorId,
                         $compraFechaCreacion,
                         $compraFechaModificacion,
                         $compraID
@@ -161,7 +162,7 @@
             }
 
 
-            public function getAllTBCompra() {
+          /*  public function getAllTBCompra() {
                 try {
                     // Establece una conexion con la base de datos
                     $result = $this->getConnection();
@@ -172,19 +173,19 @@
         
                     // Construir la consulta SQL con joins para obtener nombres en lugar de IDs
                 $querySelect = "
-                SELECT 
-                    c." . COMPRA_ID . ", 
-                    c." . COMPRA_NUMERO_FACTURA . ", 
-                    c." . COMPRA_MONTO_BRUTO . ", 
-                    c." . COMPRA_MONTO_NETO . ", 
-                    c." . COMPRA_TIPO_PAGO . ", 
-                    c." . COMPRA_PROVEEDOR_ID . ", 
-                    c." . COMPRA_FECHA_CREACION . ", 
-                    c." . COMPRA_FECHA_MODIFICACION . ", 
-                    c." . COMPRA_ESTADO . "
-                FROM " . TB_COMPRA . " c
-                WHERE c." . COMPRA_ESTADO . " != false 
-                ";
+                   SELECT 
+             c." . COMPRA_ID . ", 
+                c." . COMPRA_NUMERO_FACTURA . ",
+                c." . COMPRA_PROVEEDOR_ID . ",
+                c." . COMPRA_MONTO_BRUTO . ", 
+                c." . COMPRA_MONTO_NETO . ", 
+                c." . COMPRA_TIPO_PAGO . ", 
+                c." . COMPRA_FECHA_CREACION . ", 
+                c." . COMPRA_FECHA_MODIFICACION . ", 
+                c." . COMPRA_ESTADO . "
+            FROM " . TB_COMPRA . " c
+            WHERE c." . COMPRA_ESTADO . " != false
+        ";
         
                 $result = mysqli_query($conn, $querySelect);
         
@@ -193,11 +194,12 @@
                 while ($row = mysqli_fetch_assoc($result)) {
                     $currentCompra = new Compra(
                         $row[COMPRA_ID],              // compraID
-                        $row[COMPRA_NUMERO_FACTURA],  // compraNumeroFactura
+                        $row[COMPRA_NUMERO_FACTURA], 
+                        $row[COMPRA_PROVEEDOR_ID],      // compraProveedorNombre en lugar de compraProveedorId // compraNumeroFactura
                         $row[COMPRA_MONTO_BRUTO],     // compraMontoBruto
                         $row[COMPRA_MONTO_NETO],      // compraMontoNeto
                         $row[COMPRA_TIPO_PAGO],       // compraTipoPago
-                        $row[COMPRA_PROVEEDOR_ID],    // compraProveedorId
+                        
                         $row[COMPRA_FECHA_CREACION],  // compraFechaCreacion
                         $row[COMPRA_FECHA_MODIFICACION], // compraFechaModificacion
                         $row[COMPRA_ESTADO]        
@@ -251,19 +253,20 @@
         
                      
                       $querySelect = "
-                      SELECT 
-                        c." . COMPRA_ID . ", 
-                        c." . COMPRA_NUMERO_FACTURA . ", 
-                        c." . COMPRA_MONTO_BRUTO . ", 
-                        c." . COMPRA_MONTO_NETO . ", 
-                        c." . COMPRA_TIPO_PAGO . ", 
-                        c." . COMPRA_PROVEEDOR_ID . ", 
-                        c." . COMPRA_FECHA_CREACION . ", 
-                        c." . COMPRA_FECHA_MODIFICACION . ", 
-                        c." . COMPRA_ESTADO . "
-                     FROM " . TB_COMPRA . " c
-                     WHERE c." . COMPRA_ESTADO . " != false 
-                      LIMIT ? OFFSET ?";
+                       SELECT 
+           c." . COMPRA_ID . ", 
+                c." . COMPRA_NUMERO_FACTURA . ",
+                 c." . COMPRA_PROVEEDOR_ID . ", 
+                c." . COMPRA_MONTO_BRUTO . ", 
+                c." . COMPRA_MONTO_NETO . ", 
+                c." . COMPRA_TIPO_PAGO . ", 
+                c." . COMPRA_FECHA_CREACION . ", 
+                c." . COMPRA_FECHA_MODIFICACION . ", 
+                c." . COMPRA_ESTADO . "
+            FROM " . TB_COMPRA . " c
+            WHERE c." . COMPRA_ESTADO . " != false
+            LIMIT ? OFFSET ?
+        ";
                 
                         // Preparar la consulta y vincular los parámetros
                         $stmt = mysqli_prepare($conn, $querySelect);
@@ -281,10 +284,11 @@
                         $listaCompras [] = [
                             'ID' => $row[COMPRA_ID],                    // compraID
                             'NumeroFactura' => $row[COMPRA_NUMERO_FACTURA], // compraNumeroFactura
+                            'ProveedorID' => $row[COMPRA_PROVEEDOR_ID], // Nombre del proveedor
                             'MontoBruto' => $row[COMPRA_MONTO_BRUTO],   // compraMontoBruto
                             'MontoNeto' => $row[COMPRA_MONTO_NETO],     // compraMontoNeto
                             'TipoPago' => $row[COMPRA_TIPO_PAGO],       // compraTipoPago
-                            'ProveedorId' => $row[COMPRA_PROVEEDOR_ID], // compraProveedorId
+                          
                             'FechaCreacion' => $row[COMPRA_FECHA_CREACION], // compraFechaCreacion
                             'FechaModificacion' => $row[COMPRA_FECHA_MODIFICACION], // compraFechaModificacion
                             'Estado' => $row[COMPRA_ESTADO]             // compraEstado
@@ -305,7 +309,7 @@
                     $userMessage = $this->handleMysqlError(
                         $e->getCode(), 
                         $e->getMessage(),
-                        'Error al obtener la lista de compras desde la base de datos'
+                        'Error al obtener la lista de compras desde la base de dat'
                     );
             
                     // Devolver mensaje amigable para el usuario
@@ -316,6 +320,171 @@
                     if (isset($conn)) { mysqli_close($conn); }
                 }
             }
+*/
+public function getAllTBCompra() {
+    try {
+        // Establece una conexión con la base de datos
+        $result = $this->getConnection();
+        if (!$result["success"]) {
+            throw new Exception($result["message"]);
+        }
+        $conn = $result["connection"];
+
+        // Construir la consulta SQL con joins para obtener nombres en lugar de IDs
+        $querySelect = "
+            SELECT 
+                c." . COMPRA_ID . ", 
+                c." . COMPRA_NUMERO_FACTURA . ",
+                p." . PROVEEDOR_NOMBRE . " AS ProveedorNombre,
+                c." . COMPRA_MONTO_BRUTO . ", 
+                c." . COMPRA_MONTO_NETO . ", 
+                c." . COMPRA_TIPO_PAGO . ", 
+                c." . COMPRA_FECHA_CREACION . ", 
+                c." . COMPRA_FECHA_MODIFICACION . ", 
+                c." . COMPRA_ESTADO . "
+            FROM " . TB_COMPRA . " c
+            JOIN " . TB_PROVEEDOR . " p ON c." . COMPRA_PROVEEDOR_ID . " = p." . PROVEEDOR_ID . "
+            WHERE c." . COMPRA_ESTADO . " != false
+        ";
+
+        $result = mysqli_query($conn, $querySelect);
+        if (!$result) {
+            throw new Exception("Error en la consulta de compras: " . mysqli_error($conn));
+        }
+
+        // Crear la lista con los datos obtenidos
+        $listaCompras = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $currentCompra = new Compra(
+                $row[COMPRA_ID],                  
+                $row[COMPRA_NUMERO_FACTURA], 
+                $row['ProveedorNombre'],      
+                $row[COMPRA_MONTO_BRUTO],     
+                $row[COMPRA_MONTO_NETO],      
+                $row[COMPRA_TIPO_PAGO],       
+                $row[COMPRA_FECHA_CREACION],  
+                $row[COMPRA_FECHA_MODIFICACION], 
+                $row[COMPRA_ESTADO]        
+            );
+            array_push($listaCompras, $currentCompra);
+        }
+
+        return ["success" => true, "listaCompras" => $listaCompras];
+    } catch (Exception $e) {
+        // Manejo del error dentro del bloque catch
+        $userMessage = $this->handleMysqlError(
+            $e->getCode(), 
+            $e->getMessage(),
+            'Error al obtener la lista de compras desde la base de datos'
+        );
+
+        // Devolver mensaje amigable para el usuario
+        return ["success" => false, "message" => $userMessage];
+    } finally {
+        // Cerramos la conexión
+        if (isset($conn)) { mysqli_close($conn); }
+    }
+}
+
+public function getPaginatedCompras($page, $size, $sort = null) {
+    try {
+        // Verificar que la página y el tamaño sean números enteros positivos
+        if (!is_numeric($page) || $page < 1) {
+            throw new Exception("El número de página debe ser un entero positivo.");
+        }
+        if (!is_numeric($size) || $size < 1) {
+            throw new Exception("El tamaño de la página debe ser un entero positivo.");
+        }
+        
+        // Calcular el offset para la paginación
+        $offset = ($page - 1) * $size;
+
+        // Establece una conexión con la base de datos
+        $result = $this->getConnection();
+        if (!$result["success"]) {
+            throw new Exception($result["message"]);
+        }
+        $conn = $result["connection"];
+
+        // Consultar el total de registros en la tabla
+        $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_COMPRA . " WHERE " . COMPRA_ESTADO . " != false";
+        $totalResult = mysqli_query($conn, $queryTotalCount);
+        $totalRow = mysqli_fetch_assoc($totalResult);
+        $totalRecords = (int) $totalRow['total'];
+        $totalPages = ceil($totalRecords / $size);
+
+        // Construir la consulta SQL con joins para obtener nombres en lugar de IDs
+        $querySelect = "
+            SELECT 
+                c." . COMPRA_ID . ", 
+                c." . COMPRA_NUMERO_FACTURA . ",
+                p." . PROVEEDOR_NOMBRE . " AS ProveedorNombre,
+                c." . COMPRA_MONTO_BRUTO . ", 
+                c." . COMPRA_MONTO_NETO . ", 
+                c." . COMPRA_TIPO_PAGO . ", 
+                c." . COMPRA_FECHA_CREACION . ", 
+                c." . COMPRA_FECHA_MODIFICACION . ", 
+                c." . COMPRA_ESTADO . "
+            FROM " . TB_COMPRA . " c
+            JOIN " . TB_PROVEEDOR . " p ON c." . COMPRA_PROVEEDOR_ID . " = p." . PROVEEDOR_ID . "
+            WHERE c." . COMPRA_ESTADO . " != false
+            LIMIT ? OFFSET ?
+        ";
+
+        // Preparar la consulta y vincular los parámetros
+        $stmt = mysqli_prepare($conn, $querySelect);
+        mysqli_stmt_bind_param($stmt, "ii", $size, $offset);
+
+        // Ejecutar la consulta
+        $result = mysqli_stmt_execute($stmt);
+        if (!$result) {
+            throw new Exception("Error en la ejecución de la consulta de compras: " . mysqli_error($conn));
+        }
+
+        // Obtener el resultado
+        $result = mysqli_stmt_get_result($stmt);
+
+        // Crear la lista de lotes
+        $listaCompras = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $listaCompras[] = [
+                'ID' => $row[COMPRA_ID],                    
+                'NumeroFactura' => $row[COMPRA_NUMERO_FACTURA], 
+                'ProveedorNombre' => $row['ProveedorNombre'], 
+                'MontoBruto' => $row[COMPRA_MONTO_BRUTO],   
+                'MontoNeto' => $row[COMPRA_MONTO_NETO],     
+                'TipoPago' => $row[COMPRA_TIPO_PAGO],       
+                'FechaCreacion' => $row[COMPRA_FECHA_CREACION], 
+                'FechaModificacion' => $row[COMPRA_FECHA_MODIFICACION], 
+                'Estado' => $row[COMPRA_ESTADO]             
+            ];
+        }
+
+        // Devolver el resultado con la lista de direcciones y metadatos de paginación
+        return [
+            "success" => true,
+            "page" => $page,
+            "size" => $size,
+            "totalPages" => $totalPages,
+            "totalRecords" => $totalRecords,
+            "listaCompras" => $listaCompras
+        ];
+    } catch (Exception $e) {
+        // Manejo del error dentro del bloque catch
+        $userMessage = $this->handleMysqlError(
+            $e->getCode(), 
+            $e->getMessage(),
+            'Error al obtener la lista de compras desde la base de datos'
+        );
+
+        // Devolver mensaje amigable para el usuario
+        return ["success" => false, "message" => $userMessage];
+    } finally {
+        // Cerrar la conexión y el statement
+        if (isset($stmt)) { mysqli_stmt_close($stmt); }
+        if (isset($conn)) { mysqli_close($conn); }
+    }
+}
 
             private function compraExiste($compraID) {
                 try {
@@ -346,7 +515,7 @@
                     $userMessage = $this->handleMysqlError(
                         $e->getCode(), 
                         $e->getMessage(),
-                        'Error al obtener la lista de compras desde la base de datos'
+                        'Error al obtener la lista de compras desde la base de datosssss'
                     );
         
                     // Devolver mensaje amigable para el usuario

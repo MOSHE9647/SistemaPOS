@@ -9,19 +9,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Datos recibidos en la solicitud (Form)
     $id = isset($_POST['id']) ? $_POST['id'] : 0;
-    $numeroFactura = isset($_POST['numeroFactura']) ? $_POST['numeroFactura'] : "";
-    $montoBruto = isset($_POST['montoBruto']) ? $_POST['montoBruto'] : 0;
-    $montoNeto = isset($_POST['montoNeto']) ? $_POST['montoNeto'] : 0;
-    $tipoPago = isset($_POST['tipoPago']) ? $_POST['tipoPago'] : "";
-    $proveedorId = isset($_POST['proveedorId']) ? $_POST['proveedorId'] : 0;
-    $fechaCreacion = isset($_POST['fechaCreacion']) ? $_POST['fechaCreacion'] : '';
-    $fechaModificacion = isset($_POST['fechaModificacion']) ? $_POST['fechaModificacion'] : '';
+    $compranumerofactura = isset($_POST['compranumerofactura']) ? $_POST['compranumerofactura'] : "";
+    $compramontobruto = isset($_POST['compramontobruto']) ? $_POST['compramontobruto'] : 0;
+    $compramontoneto = isset($_POST['compramontoneto']) ? $_POST['compramontoneto'] : 0;
+    $compratipopago = isset($_POST['compratipopago']) ? $_POST['compratipopago'] : "";
+    $compraproveedorid = isset($_POST['compraproveedorid']) ? $_POST['compraproveedorid'] : 0;
+    //$proveedornombre = isset($_POST['proveedornombre']) ? $_POST['proveedornombre'] : '';
+    $comprafechacreacion = isset($_POST['comprafechacreacion']) ? $_POST['comprafechacreacion'] : '';
+    $comprafechamodificacion = isset($_POST['comprafechamodificacion']) ? $_POST['comprafechamodificacion'] : '';
     
     // Se crea el Service para las operaciones
     $compraBusiness = new CompraBusiness();
 
     // Crea y verifica que los datos de la compra sean correctos
-    $compra = new Compra($id, $numeroFactura, $montoBruto, $montoNeto, $tipoPago, $proveedorId, $fechaCreacion, $fechaModificacion);
+    $compra = new Compra($id, $compranumerofactura, $compramontobruto, $compramontoneto, $compratipopago, $compraproveedorid, $comprafechacreacion, $comprafechamodificacion);
     $check = $compraBusiness->validarCompra($compra, $accion != 'eliminar'); // Indica si se validan (o no) los campos además del ID
 
     // Si los datos son válidos se realiza la acción correspondiente
