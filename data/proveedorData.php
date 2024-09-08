@@ -276,7 +276,6 @@
         
                 // Ejecuta la consulta de eliminación
                 $result = mysqli_stmt_execute($stmt);
-
                 // Devuelve el resultado de la operación
                 return ["success" => true, "message" => "Proveedor eliminado exitosamente."];
             } catch (Exception $e) {
@@ -342,7 +341,6 @@
                     $e->getMessage(),
                     'Error al obtener la lista de proveedores desde la base de datos'
                 );
-
                 // Devolver mensaje amigable para el usuario
                 return ["success" => false, "message" => $userMessage];
             } finally {

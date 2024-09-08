@@ -93,7 +93,6 @@
                 if (!$result) {
                     throw new Exception("Ocurrió un error al ejecutar la consulta: " . mysqli_error($conn));
                 }
-        
                 /************************************
                  * Obtención de datos
                  ************************************/
@@ -101,16 +100,24 @@
                 while ($row = mysqli_fetch_assoc($result)) {  // Usamos fetch_assoc para obtener un array asociativo
                     $currentSubcategoria = new Subcategoria(  
                         $row[SUBCATEGORIA_NOMBRE],
+                        $row[SUBCATEGORIA_DESCRIPCION],
                         $row[SUBCATEGORIA_ID],
-                        $row[SUBCATEGORIA_ESTADO]
+                        $row[SUBCATEGORIA_ESTADO],
                     );
                     array_push($listaSubcategorias, $currentSubcategoria);
                 }
-        
-                return ["success" => true, "listaProductos" => $listaSubcategorias];
+                return ["success" => true, "listaSubcategorias" => $listaSubcategorias];
             } catch (Exception $e) {
-                return ["success" => false, "message" => $e->getMessage()];
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al obtener la lista de subcategorias desde la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
             } finally {
+                // Cerramos la conexion
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
@@ -180,6 +187,7 @@
 					$listaSubcategorias[] = [
                         'ID' => $row[SUBCATEGORIA_ID],
                         'Nombre' => $row[SUBCATEGORIA_NOMBRE],
+                        'Descripcion'=>$row[SUBCATEGORIA_DESCRIPCION],
                         'Estado' => $row[SUBCATEGORIA_ESTADO]
 					];
 				}
@@ -192,8 +200,14 @@
                     "listaSubcategorias" => $listaSubcategorias
                 ];
 			} catch (Exception $e) {
-				// Devolver el mensaje de error
-                return ["success" => false, "message" => $e->getMessage()];
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al obtener la lista de subcategorias desde la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
             } finally {
                 // Cerrar la conexión y el statement
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
@@ -207,6 +221,7 @@
                  ***************************************/
                 $id_subcategoria = $Subcategoria->getSubcategoriaId();
                 $nombre_subcategoria = $Subcategoria->getSubcategoriaNombre();
+                $descripcion = $Subcategoria->getSubcategoriaDescripcion();
 
                 if(empty($id_subcategoria) || !is_numeric($id_subcategoria)){
                     throw new Exception("¡El id de la subcategoria esta vacio o no es valido!");
@@ -232,7 +247,8 @@
                 $queryUpdate = 
                     "UPDATE ".TB_SUBCATEGORIA ." SET " . 
                         SUBCATEGORIA_NOMBRE. " = ?, " . 
-                        SUBCATEGORIA_ESTADO." = ? ". 
+                        SUBCATEGORIA_DESCRIPCION ." = ?, " .
+                        SUBCATEGORIA_ESTADO." = true ". 
                     "WHERE " . SUBCATEGORIA_ID. " = ?;";
 
                 $stmt = mysqli_prepare($conn, $queryUpdate);
@@ -240,24 +256,31 @@
 
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'ssi', // s: Cadena, i: Entero
-                    $Subcategoria->getSubcategoriaNombre(),
-                    $Subcategoria->getSubcategoriaEstado(),
-                    $Subcategoria-> getSubcategoriaId()
+                    'sssi', // s: Cadena, i: Entero
+                    $nombre_subcategoria,
+                    $descripcion,
+                    $id_subcategoria
                 );
 
                 /*********************************
                  * Ejecusion de la sentencia
                  *********************************/
                 $result = mysqli_stmt_execute($stmt);
-                if (!$result) { throw new Exception("¡Error al actualizar la subcategoria!"); }
-
+                if (!$result) { 
+                    return ["success" => true, "message" => "¡No se pudo actualizar la subcategoria!"];
+                }
                 // Devuelve el resultado de la consulta
                 return ["success" => true, "message" => "¡Subcategoria actualizada exitosamente!"];
 
             } catch (Exception $e) {
-                // Devuelve el mensaje de error
-                return ["success" => false, "message" => $e->getMessage()];
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al actualizar la subcategorias en la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
             } finally {
                 // Cierra la conexión y el statement
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
@@ -317,9 +340,15 @@
 
                 return ["success" => true, "message" => "¡Subcategoria insertada excitosamente!"];
             }catch (Exception $e) {
-				// Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
-			} finally {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al obtener la lista de subcategorias desde la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
 				if (isset($conn)) { mysqli_close($conn); }
@@ -350,27 +379,33 @@
                  * Creando sentencia de 
                  * eliminado logico
                  *********************************/
-                $queryDelete = "UPDATE " . TB_SUBCATEGORIA . " SET " . SUBCATEGORIA_ESTADO. " = ? WHERE " . SUBCATEGORIA_ID . " = ?;";
+                $queryDelete = "UPDATE " . TB_SUBCATEGORIA . " SET " . SUBCATEGORIA_ESTADO. " = false WHERE " . SUBCATEGORIA_ID . " = ?;";
                 $stmt = mysqli_prepare($conn, $queryDelete);
                 if (!$stmt) {
                     throw new Exception("Error al preparar la consulta de eliminación.");
                 }
         
-                $subcategoriaEstado = false; //<- Para el borrado lógico
-                mysqli_stmt_bind_param($stmt, 'ii', $subcategoriaEstado, $id);
+                mysqli_stmt_bind_param($stmt, 'i', $id);
 
                 /********************************
                  * Ejecutando la sentencia
                  ********************************/
                 $result = mysqli_stmt_execute($stmt);
-                if (!$result) { throw new Exception("¡Error al eliminar la subcategoria!"); }
-        
+                if (!$result) {
+                    return ["success" => true, "message" => "¡No se pudo eliminar la subcategoria!"];
+                }
                 // Devuelve el resultado de la operación
                 return ["success" => true, "message" => "¡Subcategoria eliminado exitosamente!"];
-            } catch (Exception $e) {
-                // Devuelve el mensaje de error
-                return ["success" => false, "message" => $e->getMessage()];
-            } finally {
+            }catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al obtener la lista de subcategorias desde la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            }  finally {
                 // Cierra la conexión y el statement
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if (isset($conn)) { mysqli_close($conn); }
