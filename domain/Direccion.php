@@ -11,8 +11,8 @@
         private $direccionDistancia;
         private $direccionEstado;
 
-        function __construct($direccionProvincia, $direccionCanton, $direccionDistrito, $direccionBarrio = "", 
-                                $direccionID = 0, $direccionSennas = "", $direccionDistancia = 0, $direccionEstado = true) {
+        function __construct($direccionID = 0, $direccionProvincia = "", $direccionCanton = "", $direccionDistrito = "", 
+                $direccionBarrio = "", $direccionSennas = "", $direccionDistancia = 0, $direccionEstado = true) {
             $this->direccionID = $direccionID;
             $this->direccionProvincia = $direccionProvincia;
             $this->direccionCanton = $direccionCanton;

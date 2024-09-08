@@ -42,11 +42,12 @@ Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos
     | [ ] tbcompradetalle            | [ ] tbcategoria                  | [ ] tbusuario                   |
     | [ ] tbcuentaporpagar           | [ ] tbsubcategoria               | [1] tbimpuesto                  |
     | [1] tblote                     | [ ] tbproveedorproducto          | [1] tbtelefono                  |
-    | [ ] tbproducto                 | [ ] tbproveedorcategoria         | [ ] tbdireccion                 |
+    | [ ] tbproducto                 | [ ] tbproveedorcategoria         | [1] tbdireccion                 |
     |                                |                                  | [ ] tbcodigobarras              |
     |                                |                                  | [ ] tbproductocategoria         |
     |                                |                                  | [ ] tbproductosubcategoria      |
     |                                |                                  | [1] tbproveedortelefono         |
+    |                                |                                  | [ ] tbproveedordireccion        |
     |--------------------------------|----------------------------------|---------------------------------|
 
 [INFO] 

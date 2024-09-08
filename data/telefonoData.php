@@ -497,8 +497,10 @@
                     }
                     return ["success" => true, "telefono" => $telefono];
                 }
+                
                 // Retorna false si no se encontraron resultados
-                Utils::writeLog("No se encontró ningún teléfono con el ID [$telefonoID] en la base de datos.", DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                $message = "No se encontró ningún teléfono con el 'ID [$telefonoID]' en la base de datos.";
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
                 return ["success" => false, "message" => "No se encontró el teléfono en la base de datos"];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch

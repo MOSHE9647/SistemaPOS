@@ -74,9 +74,9 @@
 
                 // Retorna false si no se encontraron resultados
                 $messageParams = [];
-                if ($impuestoID) { $messageParams[] = "ID [$impuestoID]"; }
-                if ($impuestoNombre)  { $messageParams[] = "Nombre ['$impuestoNombre']"; }
-                if ($impuestoFecha)  { $messageParams[] = "Fecha ['$impuestoFecha']"; }
+                if ($impuestoID) { $messageParams[] = "'ID [$impuestoID]'"; }
+                if ($impuestoNombre)  { $messageParams[] = "'Nombre [$impuestoNombre]'"; }
+                if ($impuestoFecha)  { $messageParams[] = "'Fecha [$impuestoFecha]'"; }
                 $params = implode(', ', $messageParams);
 
                 $message = "No se encontró ningún impuesto ($params) en la base de datos.";
@@ -373,6 +373,7 @@
                 $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_IMPUESTO . " ";
                 if ($onlyActiveOrInactive) { $queryTotalCount .= "WHERE " . IMPUESTO_ESTADO . " != " . ($deleted ? "true" : "false") . " "; }
 
+                // Ejecutar la consulta y obtener el total de registros
                 $totalResult = mysqli_query($conn, $queryTotalCount);
                 $totalRow = mysqli_fetch_assoc($totalResult);
                 $totalRecords = (int) $totalRow['total'];

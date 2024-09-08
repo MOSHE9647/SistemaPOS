@@ -33,7 +33,7 @@ function fetchDirecciones(page, size, sort) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                renderTable(data.listaDirecciones);
+                renderTable(data.direcciones);
                 currentPage = data.page;
                 totalPages = data.totalPages;
                 totalRecords = data.totalRecords;

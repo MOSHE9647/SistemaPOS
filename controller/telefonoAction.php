@@ -77,6 +77,7 @@
                 if ($page < 1) $page = 1;
                 if ($size < 1) $size = 5;
 
+                // Obtiene la lista (paginada) de telefonos
                 $response = $telefonoBusiness->getPaginatedTelefonos($page, $size, $sort, $onlyActiveOrInactive, $deleted);
                 break;
         }
