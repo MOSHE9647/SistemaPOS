@@ -7,7 +7,7 @@
         private $proveedorEmail;
         private $proveedorEstado;
         private $proveedorFechaRegistro;
-        private $proveedorTelefono; // Nuevo campo para el teléfono
+        private $proveedorTelefono; // Nuevo campo para el teléfono id
     
 
         function __construct($proveedorNombre, $proveedorEmail, $proveedorFechaRegistro, $proveedorID = 0, $proveedorEstado = true,  $proveedorTelefono = "") {
