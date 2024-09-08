@@ -13,11 +13,11 @@
 
         // Se crea el Service para las operaciones
         $proveedorBusiness = new ProveedorBusiness();
+        Utils::writeLog("-> [$nombre]  [$email]  [$telefono]",UTILS_LOG_FILE);
 
         // Crea y verifica que los datos del proveedor sean correctos
-        $proveedor = new Proveedor($nombre, $email, $fecha, $id,true, $telefono);
+        $proveedor = new Proveedor($nombre, $email, $id,true, $telefono);
         $check = $proveedorBusiness->validarProveedor($proveedor, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
-
         // Si los datos son válidos se realiza acción correspondiente
         if ($check['is_valid']) {
             switch ($accion) {

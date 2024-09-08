@@ -75,7 +75,7 @@
             }
         }
 
-        public function insertProveedor($proveedor) {
+        public function insertProveedor($proveedor){
             try {
                 // Obtener los valores de las propiedades del objeto
                 $proveedorNombre = $proveedor->getProveedorNombre();
@@ -91,6 +91,16 @@
                     Utils::writeLog("El proveedor 'Nombre [$proveedorNombre], Correo [$proveedorEmail]' ya existe en la base de datos.", DATA_LOG_FILE);
 					throw new Exception("Ya existe un proveedor con el mismo nombre o correo electrónico.");
                 }
+                //verificar si existe un numero por el id
+                $check = $this->proveedorTelefonoData->existeProveedorTelefono(null,$telefonoNumero);
+                if(!$check['success']){ 
+                    return !$check; 
+                }
+                if(!$check["exists"]){
+                    return ["success" => true, "message"=> "El numero que deseas asignar ya esta registrado por otro proveedor."]; 
+                }
+
+
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) {
@@ -119,7 +129,7 @@
         
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'issss', // i: Entero, s: Cadena
+                    'iss', // i: Entero, s: Cadena
                     $nextId,
                     $proveedorNombre, 
                     $proveedorEmail                
@@ -127,7 +137,7 @@
         
                 // Ejecuta la consulta de inserción
                 $result = mysqli_stmt_execute($stmt);
-                $check = addTelefonoToProveedor($nextId, $telefonoNumero, $conn);
+                $check = $this->proveedorTelefonoData->addTelefonoToProveedor($nextId, $telefonoNumero, $conn);
                 if(!$check['success']){
                     return $check;
                 }

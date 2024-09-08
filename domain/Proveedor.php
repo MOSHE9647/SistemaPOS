@@ -10,12 +10,11 @@
         private $proveedorTelefono; // Nuevo campo para el teléfono id
     
 
-        function __construct($proveedorNombre, $proveedorEmail, $proveedorFechaRegistro, $proveedorID = 0, $proveedorEstado = true,  $proveedorTelefono = "") {
+        function __construct($proveedorNombre, $proveedorEmail, $proveedorID = 0, $proveedorEstado = true,  $proveedorTelefono = "") {
             $this->proveedorID = $proveedorID;
             $this->proveedorNombre = $proveedorNombre;
             $this->proveedorEmail = strtolower($proveedorEmail); // Convertir a minúsculas para consistencia
             $this->proveedorEstado = $proveedorEstado; 
-            $this->proveedorFechaRegistro = $proveedorFechaRegistro;
             $this->proveedorTelefono = $proveedorTelefono; // Inicializar el nuevo campo
         }
 
