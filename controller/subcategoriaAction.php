@@ -67,7 +67,7 @@
         // Validar los parámetros
         if ($page < 1) $page = 1;
         if ($size < 1) $size = 5;
-
+        Utils::writeLog("Ingreso ",UTILS_LOG_FILE);
         $subcategoriaService = new SubcategoriaBusiness();
         $result = $subcategoriaService->getPaginatedSubcategorias($page, $size, $sort);
         

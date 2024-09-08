@@ -98,14 +98,15 @@
                  ************************************/
                 $listaSubcategorias = [];
                 while ($row = mysqli_fetch_assoc($result)) {  // Usamos fetch_assoc para obtener un array asociativo
-                    $currentSubcategoria = new Subcategoria(  
-                        $row[SUBCATEGORIA_NOMBRE],
-                        $row[SUBCATEGORIA_DESCRIPCION],
-                        $row[SUBCATEGORIA_ID],
-                        $row[SUBCATEGORIA_ESTADO],
-                    );
-                    array_push($listaSubcategorias, $currentSubcategoria);
+                    $listaSubcategorias[] = [
+                        'ID' => $row[SUBCATEGORIA_ID],
+                        'Nombre' => $row[SUBCATEGORIA_NOMBRE],
+                        'Descripcion'=>$row[SUBCATEGORIA_DESCRIPCION],
+                        'Estado' => $row[SUBCATEGORIA_ESTADO]
+					];
                 }
+
+
                 return ["success" => true, "listaSubcategorias" => $listaSubcategorias];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -135,9 +136,7 @@
         
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
+                if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
 
 				// Consultar el total de registros
@@ -157,7 +156,6 @@
                 if ($sort) {
                     $querySelect .= "ORDER BY tbsubcategoria" . $sort . " ";
                 }
-
 				// Añadir la cláusula de limitación y offset
                 $querySelect .= "LIMIT ? OFFSET ?";
 
@@ -230,6 +228,9 @@
                     throw new Exception("¡El nombre de la subcategoria esta vacia!");
                 }
                 $check =$this->VerificarExisteSubcategoria($id_subcategoria, $nombre_subcategoria,true);
+                if(!$check['success']){
+                    return $check;
+                }
                 if($check["exists"]){
                     return $check;
                 }
@@ -294,10 +295,15 @@
                  * Validacion de campos necesarios
                  ***************************************/
                 $nombre = $subcategoria->getSubcategoriaNombre();    
-                if(empty($subcategoria->getSubcategoriaNombre())){
+                $descripcion = $Subcategoria->getSubcategoriaDescripcion();
+
+                if(empty($nombre)){
                     throw new Exception("¡El nombre de la subcategoria esta vacia!");
                 }
                 $check =$this->VerificarExisteSubcategoria(null, $nombre);
+                if(!$check['success']){
+                    return $check;
+                }
                 if($check["exists"]){
                     return $check;
                 }
@@ -321,7 +327,12 @@
                 /*****************************************************
                  * Creando sentencia para insertar el subcategoria
                  *****************************************************/
-                $queryInsert = "INSERT INTO " . TB_SUBCATEGORIA . " VALUES (?, ?, ?)";
+                $queryInsert = "INSERT INTO " . TB_SUBCATEGORIA . " ("
+                . SUBCATEGORIA_ID . ","
+                . SUBCATEGORIA_NOMBRE . ","
+                . SUBCATEGORIA_DESCRIPCION . ","
+                . SUBCATEGORIA_ESTADO . " )"
+                . " VALUES (?, ?, ?, true)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
                 if (!$stmt) { throw new Exception("Error al preparar la consulta"); }
 
@@ -329,8 +340,8 @@
                     $stmt,
                     'iss', // i: entero, s: Cadena
                     $nextId,
-                    $subcategoria->getSubcategoriaNombre(),
-                    $subcategoria->getSubcategoriaEstado()     
+                    $nombre,
+                    $descripcion   
                 );
                 /**************************************
                  * Ejecucion de la sentencia insertar
