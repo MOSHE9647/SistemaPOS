@@ -1,5 +1,5 @@
 <?php
- include __DIR__ . '/../service/ProductoSubcategoriasBusiness.php';
+ require_once __DIR__ . '/../service/ProductoSubcategoriasBusiness.php';
  require_once __DIR__ . '/../utils/Utils.php';
 
  // Función para validar los datos del impuesto

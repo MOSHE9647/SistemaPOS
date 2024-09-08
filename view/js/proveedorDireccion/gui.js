@@ -28,7 +28,7 @@ function renderTable(direcciones) {
                 <td data-field="distancia">${direccion.Distancia} km</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
-                    <button onclick="deleteDireccion(${direccion.ID})">Eliminar</button>
+                    <button onclick="removeDireccionFromProveedor(${direccion.ID})">Eliminar</button>
                 </td>
             </tr>
         `;
@@ -114,7 +114,7 @@ function showCreateRow() {
         <td data-field="sennas"><input type="text"></td>
         <td data-field="distancia"><input type="number" min="0" step="0.01" required></td>
         <td>
-            <button onclick="createDireccion()">Crear</button>
+            <button onclick="addDireccionToProveedor()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>
         </td>
     `;
@@ -132,7 +132,9 @@ function showCreateRow() {
  * cancelEdit();
  */
 function cancelEdit() {
-    fetchDirecciones(currentPage, pageSize, sort); // Recargar datos para cancelar la edición
+    // Recargar datos de direcciones para cancelar la edición
+    const cancelBtn = document.getElementById('cancelEdit');
+    if (cancelBtn) { fetchDirecciones(proveedor, currentPage, pageSize, sort); }
 }
 
 /**
@@ -143,6 +145,11 @@ function cancelEdit() {
  * cancelCreate();
  */
 function cancelCreate() {
-    document.getElementById('createRow').remove();
-    document.getElementById('createButton').style.display = 'inline-block';
+    // Eliminar la fila de creación
+    const createRow = document.getElementById('createRow');
+    if (createRow) { createRow.remove(); }
+
+    // Mostrar el botón de crear
+    const createBtn = document.getElementById('createButton');
+    if (createBtn) { createBtn.style.display = 'inline-block'; }
 }

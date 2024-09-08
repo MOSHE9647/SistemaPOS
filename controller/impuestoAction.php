@@ -1,5 +1,5 @@
 <?php
-    include __DIR__ . '/../service/impuestoBusiness.php';
+    require_once __DIR__ . '/../service/impuestoBusiness.php';
 
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {

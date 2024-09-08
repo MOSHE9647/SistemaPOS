@@ -42,6 +42,8 @@ function renderTable(impuestos) {
         // Agregar la fila al cuerpo de la tabla
         tableBody.innerHTML += row;
     });
+
+    checkEmptyTable();
 }
 
 /**

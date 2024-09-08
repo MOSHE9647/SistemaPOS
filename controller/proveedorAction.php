@@ -1,28 +1,23 @@
 <?php
-    include __DIR__ . '/../service/proveedorBusiness.php';
+    require_once __DIR__ . '/../service/proveedorBusiness.php';
 
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Acción que se va a realizar
         $accion = isset($_POST['accion']) ? $_POST['accion'] : "";
-
         // Datos recibidos en la solicitud (Form)
         $id = isset($_POST['id']) ? $_POST['id'] : 0;
         $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : "";
         $email = isset($_POST['email']) ? $_POST['email'] : "";
-        $tipo = isset($_POST['tipo']) ? $_POST['tipo'] : "";
-        $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : "";
-        $telefono = isset($_POST['telefono']) ? $_POST['telefono'] : "";
-
-       
+        $telefono = isset($_POST['telefono']) ? $_POST['telefono'] : "";//es el id del telefono
 
         // Se crea el Service para las operaciones
         $proveedorBusiness = new ProveedorBusiness();
+        Utils::writeLog("-> [$nombre]  [$email]  [$telefono]",UTILS_LOG_FILE);
 
         // Crea y verifica que los datos del proveedor sean correctos
-        $proveedor = new Proveedor($nombre, $email, $fecha, $id, $tipo,  $telefono);
+        $proveedor = new Proveedor($nombre, $email, $id,true, $telefono);
         $check = $proveedorBusiness->validarProveedor($proveedor, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
-
         // Si los datos son válidos se realiza acción correspondiente
         if ($check['is_valid']) {
             switch ($accion) {
@@ -56,7 +51,6 @@
     }
 
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
-
         if (isset($_GET['accion']) && $_GET['accion'] === 'listarProveedores') {
             $proveedorBusiness = new ProveedorBusiness();
             $result = $proveedorBusiness->getAllTBProveedor();
@@ -76,7 +70,7 @@
 
         $proveedorBusiness = new ProveedorBusiness();
         $result = $proveedorBusiness->getPaginatedProveedores($page, $size, $sort);
-        
+
         header('Content-Type: application/json');
         echo json_encode($result);
         exit();

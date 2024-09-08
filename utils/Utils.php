@@ -1,6 +1,6 @@
 <?php
 
-    include_once 'Variables.php';
+    require_once 'Variables.php';
 
     class Utils {
 

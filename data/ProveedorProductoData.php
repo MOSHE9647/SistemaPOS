@@ -1,7 +1,7 @@
 <?php
-    include_once 'data.php';
-    include __DIR__ . '/../domain/ProveedorProducto.php';
-    include __DIR__ . '/../domain/Producto.php';
+    require_once 'data.php';
+    require_once __DIR__ . '/../domain/ProveedorProducto.php';
+    require_once __DIR__ . '/../domain/Producto.php';
     require_once __DIR__ . '/../utils/Variables.php';
 
     class ProveedorProducto extends Data{

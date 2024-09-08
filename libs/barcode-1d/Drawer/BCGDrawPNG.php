@@ -11,7 +11,7 @@ declare(strict_types=1);
  * http://www.barcodebakery.com
  */
 
-include_once 'BCGDraw.php';
+require_once 'BCGDraw.php';
 
 if (!function_exists('file_put_contents')) {
     function file_put_contents($fileName, $data)

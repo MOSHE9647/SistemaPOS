@@ -1,6 +1,6 @@
 <?php
 
-include __DIR__ . "/../data/compraData.php";
+require_once __DIR__ . "/../data/compraData.php";
 
 class CompraBusiness {
 

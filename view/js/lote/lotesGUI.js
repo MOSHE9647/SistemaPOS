@@ -71,6 +71,8 @@ function renderTable(lotes) {
         `;
         tableBody.innerHTML += row;
     });
+
+    checkEmptyTable();
 }
 
 

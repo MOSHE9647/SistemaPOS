@@ -43,6 +43,8 @@ function renderTable(telefonos) {
         // Agregar la fila al cuerpo de la tabla
         tableBody.innerHTML += row;
     });
+
+    checkEmptyTable();
 }
 
 /**

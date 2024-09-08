@@ -7,6 +7,7 @@ const DEFAULT_PAGE_SIZE = 5; // Tamaño de página predeterminado
 
 // Variables globales
 let sort = 'provincia';
+let proveedor = 0;
 let totalRecords = 0;
 let currentPage = 1;
 let totalPages = 1;
@@ -28,12 +29,13 @@ let pageSize = DEFAULT_PAGE_SIZE;
  * 
  * @returns {undefined}
  */
-function fetchDirecciones(page, size, sort) {
-    fetch(`../controller/direccionAction.php?page=${page}&size=${size}&sort=${sort}`)
+function fetchDirecciones(proveedorID, page, size, sort) {
+    fetch(`../controller/proveedorDireccionAction.php?page=${page}&size=${size}&sort=${sort}&proveedor=${proveedorID}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 renderTable(data.direcciones);
+                proveedor = proveedorID;
                 currentPage = data.page;
                 totalPages = data.totalPages;
                 totalRecords = data.totalRecords;
@@ -74,7 +76,7 @@ function updatePaginationControls() {
  */
 function changePage(newPage) {
     if (newPage >= 1 && newPage <= totalPages) {
-        fetchDirecciones(newPage, pageSize, sort);
+        fetchDirecciones(proveedor, newPage, pageSize, sort);
     }
 }
 
@@ -87,7 +89,7 @@ function changePage(newPage) {
  */
 function changePageSize(newSize) {
     pageSize = newSize;
-    fetchDirecciones(currentPage, pageSize, sort);
+    fetchDirecciones(proveedor, currentPage, pageSize, sort);
 }
 
 /**
@@ -99,7 +101,7 @@ function changePageSize(newSize) {
  */
 function changePageSort(newSort) {
     sort = newSort;
-    fetchDirecciones(currentPage, pageSize, sort);
+    fetchDirecciones(proveedor, currentPage, pageSize, sort);
 }
 
 /**
@@ -123,9 +125,3 @@ document.getElementById('pageSizeSelector').addEventListener('change', (event) =
 document.getElementById('sortSelector').addEventListener('change', (event) => {
     changePageSort(event.target.value);
 });
-
-// ************************************************************************* //
-// ************* Llamada inicial para cargar la primera página ************* //
-// ************************************************************************* //
-
-fetchDirecciones(currentPage, pageSize, sort);

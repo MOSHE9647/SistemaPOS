@@ -1,7 +1,6 @@
 <?php
 
-    include __DIR__ . '/../service/telefonoBusiness.php';
-    include_once __DIR__ . '/../utils/Utils.php';
+    require_once __DIR__ . '/../service/telefonoBusiness.php';
 
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -78,6 +77,7 @@
                 if ($page < 1) $page = 1;
                 if ($size < 1) $size = 5;
 
+                // Obtiene la lista (paginada) de telefonos
                 $response = $telefonoBusiness->getPaginatedTelefonos($page, $size, $sort, $onlyActiveOrInactive, $deleted);
                 break;
         }

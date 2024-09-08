@@ -1,5 +1,5 @@
 <?php
-   include __DIR__ . "/../data/productoSubcategoriaData.php";
+   require_once __DIR__ . "/../data/productoSubcategoriaData.php";
 class ProductoSubcategoriaBusines{
     private $productoSubcategoria;
 

@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Gestión de Teléfonos de Proveedores | POSFusion</title>
+        <title>Gestión de Direcciones de Proveedores | POSFusion</title>
         <link rel="stylesheet" href="./css/styles.css">
 
         <style>
@@ -34,13 +34,13 @@
         </style>
     </head>
     <body>
-        <h2>Lista de Teléfonos según Proveedor</h2>
+        <h2>Lista de Direcciones según Proveedor</h2>
 
         <div id="message"></div>
 
         <div class="proveedores-container">
             <label for="proveedor-select">Seleccione un Proveedor:</label>
-            <select id="proveedor-select" onchange="loadTelefonos()">
+            <select id="proveedor-select" onchange="loadDirecciones()">
                 <option value="">-- Seleccionar --</option>
                 <!-- Las opciones se llenan dinámicamente con JavaScript -->
             </select>
@@ -48,30 +48,32 @@
 
         <hr>
 
-        <div class="table-container" id="telefonos-table" style="display: none;">
+        <div class="table-container" id="direcciones-table" style="display: none;">
             <div class="table-header">
                 <div id="paginationSort">
-                    <label for="sortSelector">Ordenar por:</label>
+                    Ordenar por:
                     <select id="sortSelector">
-                        <option value="tipo">Tipo</option>
-                        <option value="extension">Extension</option>
-                        <option value="codigopais">Código de País</option>
-                        <option value="numero">Número</option>
+                        <option value="provincia">Provincia</option>
+                        <option value="canton">Canton</option>
+                        <option value="distrito">Distrito</option>
+                        <option value="barrio">Barrio</option>
+                        <option value="distancia">Distancia</option>
                     </select>
                 </div>
 
-                <!-- Botón para crear nuevo Teléfono -->
+                <!-- Botón para crear nueva dirección -->
                 <button id="createButton" onclick="showCreateRow()">Crear</button>
             </div>
 
             <table>
                 <thead>
                     <tr>
-                        <th data-field="tipo">Tipo de Número</th>
-                        <th data-field="codigo">Código de País</th>
-                        <th data-field="numero">Número</th>
-                        <th data-field="extension">Extensión</th>
-                        <th data-field="creacion">Fecha de Creación</th>
+                        <th data-field="provincia">Provincia</th>
+                        <th data-field="canton">Cantón</th>
+                        <th data-field="distrito">Distrito</th>
+                        <th data-field="barrio">Barrio</th>
+                        <th data-field="senas">Señas</th>
+                        <th data-field="distancia">Distancia</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -81,7 +83,6 @@
             </table>
 
             <div class="pagination-container">
-                <!-- Selector de tamaño de página -->
                 <div id="paginationSize">
                     Mostrando:
                     <select id="pageSizeSelector">
@@ -92,8 +93,6 @@
                     </select>
                     de <span id="totalRecords"></span> registros
                 </div>
-
-                <!-- Controles de paginación -->
                 <div id="paginationControls">
                     <button id="prevPage" onclick="changePage(currentPage - 1)">Anterior</button>
                     <span id="pageInfo">Página <span id="currentPage">1</span> de <span id="totalPages">1</span></span>
@@ -105,30 +104,32 @@
         <a href="../index.php" class="menu-button">Regresar al Menú</a>
 
         <script>
-            function loadTelefonos() {
+            function loadDirecciones() {
                 const proveedor = document.getElementById('proveedor-select').value;
-                if (proveedor === '') {
+                const proveedorID = parseInt(proveedor);
+                if (proveedorID === '') {
                     showMessage('Debe seleccionar un Proveedor', 'error');
                     return;
                 }
                 
-                const table = document.getElementById('telefonos-table');
+                const table = document.getElementById('direcciones-table');
                 if (table) {
                     table.style.display = 'inline';
                     cancelCreate();
                     cancelEdit();
-                    fetchTelefonos(proveedor, currentPage, pageSize, sort);
+                    fetchDirecciones(proveedorID, currentPage, pageSize, sort);
                 } else {
                     showMessage('No se encontró la tabla de teléfonos', 'error');
                 }
             }
         </script>
 
-        <script src="./js/utils.js"></script>
-        <script src="./js/telefono/selects.js"></script>
-        <script src="./js/proveedorTelefono/gui.js"></script>
-        <script src="./js/proveedorTelefono/selects.js"></script>
-        <script src="./js/proveedorTelefono/pagination.js"></script>
-        <script src="./js/proveedorTelefono/crud.js"></script>
+        <script src="./js/utils.js"></script>                   <!-- Utiles para mostrar notificaciones y demás           -->
+        <script src="./js/direccion/selects.js"></script>       <!-- Carga de Provincias, Cantones y Distritos            -->
+        <script src="./js/proveedorDireccion/gui.js"></script>
+        <script src="./js/proveedorDireccion/selects.js"></script>
+        <script src="./js/proveedorDireccion/pagination.js"></script>
+        <script src="./js/proveedorDireccion/crud.js"></script>
+
     </body>
 </html>

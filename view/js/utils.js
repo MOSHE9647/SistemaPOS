@@ -128,3 +128,33 @@ function manejarInput() {
     numeroTelefono = formatearTelefono(codigoPais, numeroTelefono);
     document.getElementById('numero').value = numeroTelefono;
 }
+
+function checkEmptyTable() {
+    const tableBody = document.getElementById("tableBody");
+    const tableHeader = document.querySelector("table thead tr");
+
+    // Verifica si el tbody está vacío
+    if (tableBody.rows.length === 0) {
+        // Crear una fila
+        const row = document.createElement("tr");
+
+        // Obtener la cantidad de columnas desde el thead
+        const columnCount = tableHeader.children.length;
+
+        // Crear una celda que ocupará todas las columnas
+        const cell = document.createElement("td");
+        cell.colSpan = columnCount; // Establecer el colSpan dinámicamente
+        cell.textContent = "No hay registros disponibles";
+        cell.style.textAlign = "center"; // Centrar el texto
+        cell.style.height = "50px"; // Ajusta la altura según tus necesidades
+
+        // Añadir la celda a la fila
+        row.appendChild(cell);
+
+        // Añadir la fila al cuerpo de la tabla
+        tableBody.appendChild(row);
+    }
+}
+
+// Llama a la función después de cargar la tabla
+checkEmptyTable();

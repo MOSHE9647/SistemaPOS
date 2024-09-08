@@ -45,6 +45,9 @@ function renderTable(productos) {
         // Agregar la fila al cuerpo de la tabla
         tableBody.innerHTML += row;
     });
+
+    // Verificar si la tabla está vacía
+    checkEmptyTable();
 }
 
 /**

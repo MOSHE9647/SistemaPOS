@@ -1,6 +1,6 @@
 <?php
 
-    include __DIR__ . '/../data/telefonoData.php';
+    require_once __DIR__ . '/../data/telefonoData.php';
 
     class TelefonoBusiness {
 

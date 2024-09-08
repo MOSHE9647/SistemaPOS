@@ -1,6 +1,6 @@
 <?php
 
-    include_once 'data.php';
+    require_once 'data.php';
     require_once __DIR__ . '/../domain/Telefono.php';
     require_once __DIR__ . '/../utils/Variables.php';
     require_once __DIR__ . '/../utils/Utils.php';
@@ -57,12 +57,11 @@
                     $types = "i";
                 } else {
                     // Registrar parámetros faltantes y lanzar excepción
-                    $missingParamsLog = "Faltan parámetros para verificar la existencia:";
+                    $missingParamsLog = "Faltan parámetros para verificar la existencia del proveedor y/o telefono:";
                     if (!$proveedorID) $missingParamsLog .= " proveedorID [" . ($proveedorID ?? 'null') . "]";
                     if (!$telefonoID) $missingParamsLog .= " telefonoID [" . ($telefonoID ?? 'null') . "]";
                     Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
-        
-                    throw new Exception("No se proporcionaron los parámetros necesarios para verificar la existencia.");
+                    return ["success" => false, "message" => "No se proporcionaron los parámetros necesarios para realizar la verificación."];
                 }
         
                 // Preparar y ejecutar la consulta
@@ -77,14 +76,6 @@
                 }
         
                 // Retorna false si no se encontraron resultados
-                $messageParams = [];
-                if ($proveedorID) { $messageParams[] = "Proveedor con ID [$proveedorID]"; }
-                if ($telefonoID)  { $messageParams[] = "Teléfono con ID [$telefonoID]"; }
-                $params = implode(' y ', $messageParams);
-
-                $message = "No se encontró a ningún $params en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
-
                 return ["success" => true, "exists" => false, "message" => $message];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -152,7 +143,7 @@
                 $checkID = $this->existeProveedorTelefono(null, $telefonoID);
                 if (!$checkID["success"]) { return $checkID; }
                 if ($checkID["exists"]) {
-                    $message = "El teléfono con ID [$telefonoID] ya está asignado a un proveedor.";
+                    $message = "El teléfono con ID [$telefonoID] ya está asignado a otro proveedor.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
                     return ['success' => false, 'message' => "El teléfono seleccionado ya está asignado a un proveedor."];
                 }
@@ -187,7 +178,7 @@
                 mysqli_stmt_bind_param($stmt, "iii", $nextId, $proveedorID, $telefonoID);
                 mysqli_stmt_execute($stmt);
         
-                return ["success" => true, "message" => "Teléfono asignado exitosamente al proveedor"];
+                return ["success" => true, "message" => "Teléfono asignado exitosamente al proveedor."];
             } catch (Exception $e) {
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
@@ -303,8 +294,8 @@
                 if (!$checkID["success"]) { throw new Exception($checkID["message"]); }
                 if (!$checkID["exists"]) {
                     $message = "El proveedor con ID [$proveedorID] no tiene teléfonos registrados.";
-                    Utils::writeLog($message, DATA_LOG_FILE, INFO_MESSAGE, $this->className);
-                    throw new Exception("El proveedor seleccionado no tiene teléfonos registrados.");
+                    Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    return ["success" => true, "message" => "El proveedor seleccionado no tiene teléfonos registrados."];
                 }
 
                 // Establece una conexión con la base de datos
@@ -397,7 +388,7 @@
                 if (!$checkID["exists"]) {
                     $message = "El proveedor con ID [$proveedorID] no tiene teléfonos registrados.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
-                    throw new Exception("El proveedor seleccionado no tiene teléfonos registrados.");
+                    return ["success" => false, "message" => "El proveedor seleccionado no tiene teléfonos registrados."];
                 }
 
                 // Obtener la lista actual de teléfonos del proveedor desde la base de datos
@@ -506,6 +497,8 @@
 
 				// Añadir la cláusula de limitación y offset
                 $querySelect .= " LIMIT ? OFFSET ?";
+
+                
 
                 // Preparar la consulta, vincular los parámetros y ejecutar la consulta
                 $stmt = mysqli_prepare($conn, $querySelect);

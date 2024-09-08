@@ -1,6 +1,6 @@
 <?php
 
-    include __DIR__ . '/../service/direccionBusiness.php';
+    require_once __DIR__ . '/../service/direccionBusiness.php';
 
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -20,8 +20,8 @@
         $direccionBusiness = new DireccionBusiness();
 
         // Crea y verifica que los datos de la direccion sean correctos
-        $direccion = new Direccion($provincia, $canton, $distrito, $barrio, $id, $sennas, $distancia);
-        $check = $direccionBusiness->validarDireccion($direccion, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
+        $direccion = new Direccion($id, $provincia, $canton, $distrito, $barrio, $sennas, $distancia);
+        $check = $direccionBusiness->validarDireccion($direccion, $accion != 'eliminar', $accion == 'insertar'); //<- Indica si se validan (o no) los campos además del ID
 
         // Si los datos son válidos se realiza acción correspondiente
         if ($check['is_valid']) {
@@ -36,7 +36,7 @@
                     break;
                 case 'eliminar':
                     // Elimina la direccion de la base de datos
-                    $response = $direccionBusiness->deleteTBDireccion($direccion);
+                    $response = $direccionBusiness->deleteTBDireccion($id);
                     break;
                 default:
                     // Error en caso de que la accion no sea válida
@@ -56,18 +56,33 @@
     }
 
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
-        // Obtener parámetros de la solicitud GET
-        $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
-        $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
-        $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
+        $accion = isset($_GET['accion']) ? $_GET['accion'] : "";
+        $deleted = isset($_GET['deleted']) ? boolval($_GET['deleted']) : false;
+        $onlyActiveOrInactive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
 
-        // Validar los parámetros
-        if ($page < 1) $page = 1;
-        if ($size < 1) $size = 5;
-
-        // Crea el Service y obtiene la lista (paginada) de direcciones
         $direccionBusiness = new DireccionBusiness();
-        $response = $direccionBusiness->getPaginatedDirecciones($page, $size, $sort);
+        switch ($accion) {
+            case 'todos':
+                $response = $direccionBusiness->getAllDirecciones($deleted, $onlyActiveOrInactive);
+                break;
+            case 'id':
+                $direccionID = $direccionID = isset($_GET['id']) ? $_GET['id'] : -1;
+                $response = $direccionBusiness->getDireccionByID($direccionID);
+                break;
+            default:
+                // Obtener parámetros de la solicitud GET
+                $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+                $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
+                $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
+
+                // Validar los parámetros
+                if ($page < 1) $page = 1;
+                if ($size < 1) $size = 5;
+
+                // Obtiene la lista (paginada) de direcciones
+                $response = $direccionBusiness->getPaginatedDirecciones($page, $size, $sort, $onlyActiveOrInactive, $deleted);
+                break;
+        }
         
         header('Content-Type: application/json');
         echo json_encode($response);

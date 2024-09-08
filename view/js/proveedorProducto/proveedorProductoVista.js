@@ -24,6 +24,8 @@ function renderTable(relaciones) {
         `;
         tableBody.innerHTML += row;
     });
+
+    checkEmptyTable();
 }
 
 /**

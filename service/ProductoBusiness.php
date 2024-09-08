@@ -1,5 +1,5 @@
 <?php
-    include __DIR__ . "/../data/productoData.php";
+    require_once __DIR__ . "/../data/productoData.php";
     require_once __DIR__ . '/../utils/Utils.php';
 
     class ProductoBusiness{

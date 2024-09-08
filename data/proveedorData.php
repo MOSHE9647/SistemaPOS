@@ -1,15 +1,17 @@
 <?php
 
-    include_once 'data.php';
-    include __DIR__ . '/../domain/Proveedor.php';
+    require_once 'data.php';
+    require_once __DIR__ . '/../domain/Proveedor.php';
+    require_once __DIR__ . '/../data/proveedorTelefonoData.php';
     require_once __DIR__ . '/../utils/Utils.php';
     require_once __DIR__ . '/../utils/Variables.php';
 
     class ProveedorData extends Data {
-
+        private $proveedorTelefonoData;
         // Constructor
         public function __construct() {
             parent::__construct();
+            $this->proveedorTelefonoData = new  ProveedorTelefonoData();
         }
 
         // Función para verificar si un proveedor con el mismo nombre ya existe en la bd
@@ -73,13 +75,11 @@
             }
         }
 
-        public function insertProveedor($proveedor) {
+        public function insertProveedor($proveedor){
             try {
                 // Obtener los valores de las propiedades del objeto
                 $proveedorNombre = $proveedor->getProveedorNombre();
                 $proveedorEmail = $proveedor->getProveedorEmail();
-                $proveedorTipo = $proveedor->getProveedorTipo(); 
-                $proveedorFechaRegistro = $proveedor->getProveedorFechaRegistro();
                 $telefonoNumero = $proveedor->getProveedorTelefono(); // Obtener teléfono
 
                 // Verifica si el proveedor ya existe
@@ -91,7 +91,16 @@
                     Utils::writeLog("El proveedor 'Nombre [$proveedorNombre], Correo [$proveedorEmail]' ya existe en la base de datos.", DATA_LOG_FILE);
 					throw new Exception("Ya existe un proveedor con el mismo nombre o correo electrónico.");
                 }
-        
+                //verificar si existe un numero por el id
+                $check = $this->proveedorTelefonoData->existeProveedorTelefono(null,$telefonoNumero, false, true);
+                if(!$check['success']){ 
+                    return !$check; 
+                }
+                if(!$check["exists"]){
+                    return ["success" => true, "message"=> "El numero que deseas asignar ya esta registrado por otro proveedor."]; 
+                }
+
+
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) {
@@ -114,24 +123,24 @@
                     . PROVEEDOR_ID . ", "
                     . PROVEEDOR_NOMBRE . ", "
                     . PROVEEDOR_EMAIL . ", "
-                    . PROVEEDOR_TIPO . ", "
-                    . PROVEEDOR_ESTADO . ", "
-                    . PROVEEDOR_FECHA_REGISTRO
-                    . ") VALUES (?, ?, ?, ?, true, ?)";
+                    . PROVEEDOR_ESTADO . " "
+                    . ") VALUES (?, ?, ?, true)";
 				$stmt = mysqli_prepare($conn, $queryInsert);
         
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'issss', // i: Entero, s: Cadena
+                    'iss', // i: Entero, s: Cadena
                     $nextId,
                     $proveedorNombre, 
-                    $proveedorEmail,
-                    $proveedorTipo,
-                    $proveedorFechaRegistro                   
+                    $proveedorEmail                
                 );
         
                 // Ejecuta la consulta de inserción
                 $result = mysqli_stmt_execute($stmt);
+                $check = $this->proveedorTelefonoData->addTelefonoToProveedor($nextId, $telefonoNumero, $conn);
+                if(!$check['success']){
+                    return $check;
+                }
                 return ["success" => true, "message" => "Proveedor insertado exitosamente"];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -159,10 +168,6 @@
                 $proveedorNombre = $proveedor->getProveedorNombre(); 
                 $proveedorEmail = $proveedor->getProveedorEmail();
 
-                // Obtener demás datos del objeto
-                $proveedorTipo = $proveedor->getProveedorTipo();             
-                $proveedorFechaRegistro = $proveedor->getProveedorFechaRegistro();
-        
                 // Verifica si el proveedor ya existe
                 $check = $this->proveedorExiste($proveedorID);
                 if (!$check["success"]) {
@@ -195,20 +200,16 @@
                     "UPDATE " . TB_PROVEEDOR . 
                     " SET " . 
                         PROVEEDOR_NOMBRE . " = ?, " . 
-                        PROVEEDOR_EMAIL . " = ?, " .
-                        PROVEEDOR_TIPO . " = ?, " .                      
-                        PROVEEDOR_ESTADO . " = true, " .
-                        PROVEEDOR_FECHA_REGISTRO . " = ? " . 
+                        PROVEEDOR_EMAIL . " = ?, " .                    
+                        PROVEEDOR_ESTADO . " = true " .
                     "WHERE " . PROVEEDOR_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
 
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'ssssi', // s: Cadena, i: Entero
+                    'ssi', // s: Cadena, i: Entero
                     $proveedorNombre,
                     $proveedorEmail,
-                    $proveedorTipo,
-                    $proveedorFechaRegistro,
                     $proveedorID
                 );
 
@@ -289,25 +290,27 @@
                 }
                 $conn = $result["connection"];
 
-               // Obtenemos la lista de Proveedores
-               $querySelect = "SELECT * FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false ";
-                //        $querySelect = "
-                //        SELECT p.*, t.telefononumero 
-                //        FROM " . TB_PROVEEDOR . " p
-                //        LEFT JOIN " . TB_TELEFONO . " t ON p." . PROVEEDOR_ID . " = t." . TELEFONO_PROVEEDOR_ID . "
-                //        AND t." . TELEFONO_ESTADO . " = != false
-                //        WHERE p." . PROVEEDOR_ESTADO . " != false
-                //    ";
+                // Obtenemos la lista de Proveedores
+                $querySelect = "SELECT * FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false ";
                 $result = mysqli_query($conn, $querySelect);
 
                 // Creamos la lista con los datos obtenidos
                 $listaProveedores = [];
                 while ($row = mysqli_fetch_assoc($result)) {
+
+                    $Telefonos = [];
+
+                    $resultTelefonos =  $this->proveedorTelefonoData->getTelefonosByProveedor( $row[PROVEEDOR_ID],true);
+
+                    if($resultTelefonos['success']){
+                        $telefonos = $resultTelefonos['telefonos'];
+                    }
+
                     $listaProveedores[] = [
                         'ID' => $row[PROVEEDOR_ID],
                         'Nombre' => $row[PROVEEDOR_NOMBRE],
                         'Email' => $row[PROVEEDOR_EMAIL],
-                        // 'Telefono' => $row['telefononumero'], // Agregar el teléfono             
+                        'Telefonos' => (!empty($telefonos))? $telefonos: 'Este proveedor no tiene telefonos registrados',            
                         'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO], 'Y-MM-dd'),
 						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO]),
                         'Estado' => $row[PROVEEDOR_ESTADO]
@@ -357,13 +360,6 @@
                 $totalPages = ceil($totalRecords / $size);
 
 				// Construir la consulta SQL para paginación
-            //     $querySelect = "
-            //     SELECT p.*, t.telefononumero 
-            //     FROM " . TB_PROVEEDOR . " p
-            //     LEFT JOIN " . TB_TELEFONO . " t ON p." . PROVEEDOR_ID . " = t." . TELEFONO_PROVEEDOR_ID . "
-            //      AND t." . TELEFONO_ESTADO . " = true
-            //     WHERE p." . PROVEEDOR_ESTADO . " != false
-            // ";
                 $querySelect = "SELECT * FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false ";
 
 				// Añadir la cláusula de ordenamiento si se proporciona
@@ -386,11 +382,21 @@
 
 				$listaProveedores = [];
 				while ($row = mysqli_fetch_assoc($result)) {
+
+                    
+                    $Telefonos = [];
+
+                    $resultTelefonos =   $this->proveedorTelefonoData->getTelefonosByProveedor( $row[PROVEEDOR_ID],true);
+
+                    if($resultTelefonos['success']){
+                        $telefonos = $resultTelefonos['telefonos'];
+                    }
+
 					$listaProveedores[] = [
 						'ID' => $row[PROVEEDOR_ID],
 						'Nombre' => $row[PROVEEDOR_NOMBRE],
 						'Email' => $row[PROVEEDOR_EMAIL],
-						'Tipo' => $row[PROVEEDOR_TIPO],                                        
+                        'Telefonos'=>$telefonos,                                        
 						'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO], 'Y-MM-dd'),
 						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO]),
 						'Estado' => $row[PROVEEDOR_ESTADO]
@@ -417,108 +423,6 @@
                 return ["success" => false, "message" => $userMessage];
             } finally {
                 // Cerrar la conexión y el statement
-                if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
-            }
-        }
-
-       /* public function getTelefonoByProveedorID($proveedorID) {
-            try {
-                // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
-                $conn = $result["connection"];
-        
-                // Consulta para obtener el teléfono del proveedor
-                $querySelect = "
-                    SELECT
-                        T." . TELEFONO_NUMERO . "
-                    FROM
-                        " . TB_TELEFONO . " T
-                    WHERE
-                        T." . TELEFONO_ESTADO . " != FALSE AND 
-                        T." . TELEFONO_PROVEEDOR_ID . " = ?
-                ";
-        
-                // Preparar la consulta y vincular los parámetros
-                $stmt = mysqli_prepare($conn, $querySelect);
-                mysqli_stmt_bind_param($stmt, "i", $proveedorID);
-        
-                // Ejecutar la consulta
-                mysqli_stmt_execute($stmt);
-        
-                // Obtener el resultado
-                $result = mysqli_stmt_get_result($stmt);
-                $telefono = null;
-        
-                if ($row = mysqli_fetch_assoc($result)) {
-                    $telefono = $row[TELEFONO_NUMERO];
-                }
-        
-                return ["success" => true, "telefono" => $telefono];
-            } catch (Exception $e) {
-                // Manejo del error dentro del bloque catch
-                $userMessage = $this->handleMysqlError(
-                    $e->getCode(), 
-                    $e->getMessage(),
-                    'Error al obtener el teléfono del proveedor'
-                );
-        
-                // Devolver mensaje amigable para el usuario
-                return ["success" => false, "message" => $userMessage];
-            } finally {
-                // Cerrar la conexión y el statement
-                if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
-            }
-        }
-        */
-        public function getTelefonosPorProveedor($proveedorID) {
-            try {
-                // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
-                $conn = $result["connection"];
-                
-                // Prepara la consulta para obtener los números de teléfono
-                $query = "
-                    SELECT t.telefononumero 
-                    FROM " . TB_TELEFONO . " t
-                    WHERE t.telefonoproveedorid = ? AND t.telefonoestado != false
-                ";
-                
-                // Prepara la consulta y vincula los parámetros
-                $stmt = mysqli_prepare($conn, $query);
-                mysqli_stmt_bind_param($stmt, "i", $proveedorID);
-                
-                // Ejecuta la consulta
-                mysqli_stmt_execute($stmt);
-                
-                // Obtiene el resultado
-                $result = mysqli_stmt_get_result($stmt);
-                $telefonos = [];
-                
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $telefonos[] = $row['telefononumero'];
-                }
-                
-                return ["success" => true, "telefonos" => $telefonos];
-            } catch (Exception $e) {
-                // Manejo del error dentro del bloque catch
-                $userMessage = $this->handleMysqlError(
-                    $e->getCode(), 
-                    $e->getMessage(),
-                    'Error al obtener los números de teléfono del proveedor'
-                );
-                
-                // Devolver mensaje amigable para el usuario
-                return ["success" => false, "message" => $userMessage];
-            } finally {
-                // Cierra la conexión y el statement
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if (isset($conn)) { mysqli_close($conn); }
             }
