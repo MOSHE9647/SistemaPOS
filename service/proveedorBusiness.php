@@ -44,10 +44,10 @@
                         $errors[] = "El campo 'Fecha Registro' no puede ser una fecha mayor a la de hoy. Revise que la fecha sea menor o igual a la de hoy.";
                         Utils::writeLog("[Proveedor] El campo 'Fecha Registro [$fechaRegistro]' es mayor a la de hoy.", BUSINESS_LOG_FILE);
                     }
-                    if (empty($telefono) || !preg_match("/^[0-9\-\+\(\) ]+$/", $telefono)) {
-                        $errors[] = "El campo 'Teléfono' no es válido. Debe ingresar un número de teléfono válido.";
-                        Utils::writeLog("[Proveedor] El campo 'Teléfono [$telefono]' no es válido.", BUSINESS_LOG_FILE);
-                    }
+                    // if (empty($telefono) || !preg_match("/^[0-9\-\+\(\) ]+$/", $telefono)) {
+                    //     $errors[] = "El campo 'Teléfono' no es válido. Debe ingresar un número de teléfono válido.";
+                    //     Utils::writeLog("[Proveedor] El campo 'Teléfono [$telefono]' no es válido.", BUSINESS_LOG_FILE);
+                    // }
                 }
 
                 // Lanza una excepción si hay errores
