@@ -151,7 +151,7 @@
                 $checkID = $this->existeProveedorTelefono(null, $telefonoID);
                 if (!$checkID["success"]) { return $checkID; }
                 if ($checkID["exists"]) {
-                    $message = "El teléfono con ID [$telefonoID] ya está asignado a un proveedor.";
+                    $message = "El teléfono con ID [$telefonoID] ya está asignado a otro proveedor.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
                     return ['success' => false, 'message' => "El teléfono seleccionado ya está asignado a un proveedor."];
                 }
@@ -186,7 +186,7 @@
                 mysqli_stmt_bind_param($stmt, "iii", $nextId, $proveedorID, $telefonoID);
                 mysqli_stmt_execute($stmt);
         
-                return ["success" => true, "message" => "Teléfono asignado exitosamente al proveedor"];
+                return ["success" => true, "message" => "Teléfono asignado exitosamente al proveedor."];
             } catch (Exception $e) {
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
