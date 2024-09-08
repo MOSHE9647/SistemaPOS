@@ -10,13 +10,14 @@
         $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : "";
         $email = isset($_POST['email']) ? $_POST['email'] : "";
         $telefono = isset($_POST['telefono']) ? $_POST['telefono'] : "";//es el id del telefono
+        $direccion = isset($_POST['direccion'])? $_POST['direccion']: 0;// id de la direccion
 
         // Se crea el Service para las operaciones
         $proveedorBusiness = new ProveedorBusiness();
-        Utils::writeLog("-> [$nombre]  [$email]  [$telefono]",UTILS_LOG_FILE);
+        // Utils::writeLog("-> [$nombre]  [$email]  [$telefono]  -> [$id]",UTILS_LOG_FILE);
 
         // Crea y verifica que los datos del proveedor sean correctos
-        $proveedor = new Proveedor($nombre, $email, $id,true, $telefono);
+        $proveedor = new Proveedor($nombre, $email,$direccion, $id,true, $telefono);
         $check = $proveedorBusiness->validarProveedor($proveedor, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
         // Si los datos son válidos se realiza acción correspondiente
         if ($check['is_valid']) {
