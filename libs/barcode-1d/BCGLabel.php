@@ -11,10 +11,10 @@ declare(strict_types=1);
  * http://www.barcodebakery.com
  */
 
-include_once 'BCGFont.php';
-include_once 'BCGColor.php';
-include_once 'BCGFontPhp.php';
-include_once 'BCGArgumentException.php';
+require_once 'BCGFont.php';
+require_once 'BCGColor.php';
+require_once 'BCGFontPhp.php';
+require_once 'BCGArgumentException.php';
 
 class BCGLabel
 {

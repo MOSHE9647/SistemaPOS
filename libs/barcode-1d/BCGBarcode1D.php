@@ -10,11 +10,11 @@ declare(strict_types=1);
  * Copyright (C) Jean-Sebastien Goupil
  * http://www.barcodebakery.com
  */
-include_once 'BCGFont.php';
-include_once 'BCGLabel.php';
-include_once 'BCGFontPhp.php';
-include_once 'BCGBarcode.php';
-include_once 'BCGArgumentException.php';
+require_once 'BCGFont.php';
+require_once 'BCGLabel.php';
+require_once 'BCGFontPhp.php';
+require_once 'BCGBarcode.php';
+require_once 'BCGArgumentException.php';
 
 abstract class BCGBarcode1D extends BCGBarcode
 {

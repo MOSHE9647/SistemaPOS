@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . "/../data/ProductoCategoriaData.php";
+require_once __DIR__ . "/../data/ProductoCategoriaData.php";
 
 class ProductoCategoriaBusiness {
 

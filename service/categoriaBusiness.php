@@ -1,6 +1,6 @@
 <?php
 
-include __DIR__ . "/../data/categoriaData.php";
+require_once __DIR__ . "/../data/categoriaData.php";
 
 class CategoriaBusiness {
 

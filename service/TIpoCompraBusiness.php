@@ -1,6 +1,6 @@
 <?php
 
-include __DIR__ . "/../data/tipoCompraData.php";
+require_once __DIR__ . "/../data/tipoCompraData.php";
 require_once __DIR__ . '/../utils/Utils.php';
 
 class TipoCompraBusiness {

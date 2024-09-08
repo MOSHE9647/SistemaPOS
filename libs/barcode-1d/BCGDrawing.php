@@ -11,13 +11,13 @@ declare(strict_types=1);
  * Copyright (C) Jean-Sebastien Goupil
  * http://www.barcodebakery.com
  */
-include_once 'BCGColor.php';
-include_once 'BCGBarcode.php';
-include_once 'BCGLabel.php';
-include_once 'BCGFontPhp.php';
-include_once 'BCGDrawException.php';
-include_once __DIR__ . '/Drawer/BCGDrawPNG.php';
-include_once __DIR__ . '/Drawer/BCGDrawJPG.php';
+require_once 'BCGColor.php';
+require_once 'BCGBarcode.php';
+require_once 'BCGLabel.php';
+require_once 'BCGFontPhp.php';
+require_once 'BCGDrawException.php';
+require_once __DIR__ . '/Drawer/BCGDrawPNG.php';
+require_once __DIR__ . '/Drawer/BCGDrawJPG.php';
 
 class BCGDrawing
 {

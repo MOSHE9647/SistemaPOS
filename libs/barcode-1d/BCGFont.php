@@ -11,7 +11,7 @@ declare(strict_types=1);
  * http://www.barcodebakery.com
  */
 
-include_once 'BCGColor.php';
+require_once 'BCGColor.php';
 
 interface BCGFont
 {

@@ -1,6 +1,6 @@
 <?php
 
-include __DIR__ . "/../data/loteData.php";
+require_once __DIR__ . "/../data/loteData.php";
 
 class LoteBusiness {
 

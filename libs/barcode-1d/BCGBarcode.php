@@ -11,8 +11,8 @@ declare(strict_types=1);
  * http://www.barcodebakery.com
  */
 
-include_once 'BCGArgumentException.php';
-include_once 'BCGDrawException.php';
+require_once 'BCGArgumentException.php';
+require_once 'BCGDrawException.php';
 
 abstract class BCGBarcode
 {

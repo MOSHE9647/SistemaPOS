@@ -30,6 +30,7 @@
             <li> <a href="./view/categoriaView.php">Gestion de Categorias</a> </li>
             <li> <a href="./view/subcategoriaView.php">Gestión de Subcategorias</a> </li>
             <li> <a href="./view/loteView.php">Gestión de Lotes</a> </li>
+            <li> <a href="./view/compraView.php">Gestión de Compras</a> </li>
 
             <h3>Tablas Intermedias</h3>
             <li> <a href="./view/productoSubcategoriaView.php">Gestión de Producto-Subcategorias</a> </li>

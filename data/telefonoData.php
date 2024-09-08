@@ -1,9 +1,9 @@
 <?php
 
-    include_once 'data.php';
-    include __DIR__ . '/../domain/Telefono.php';
-    include_once __DIR__ . '/../utils/Variables.php';
-    include_once __DIR__ . '/../utils/Utils.php';
+    require_once 'data.php';
+    require_once __DIR__ . '/../domain/Telefono.php';
+    require_once __DIR__ . '/../utils/Variables.php';
+    require_once __DIR__ . '/../utils/Utils.php';
 
     class TelefonoData extends Data {
 

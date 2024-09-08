@@ -1,6 +1,6 @@
 <?php
 
-    include __DIR__ . '/../service/productoCategoriaBusiness.php';
+    require_once __DIR__ . '/../service/productoCategoriaBusiness.php';
 
     function validarDatos($productoID, $categoriaID) {
         $errors = [];

@@ -1,6 +1,6 @@
 <?php
 
-include __DIR__ . "/../data/cuentaPorPagarData.php";
+require_once __DIR__ . "/../data/cuentaPorPagarData.php";
 
 class CuentaPorPagarBusiness {
 

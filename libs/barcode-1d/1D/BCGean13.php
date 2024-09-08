@@ -19,10 +19,10 @@ declare(strict_types=1);
  * http://www.barcodebakery.com
  */
 
-include_once __DIR__ .  '/../BCGLabel.php';
-include_once __DIR__ .  '/../BCGBarcode.php';
-include_once __DIR__ .  '/../BCGBarcode1D.php';
-include_once __DIR__ .  '/../BCGParseException.php';
+require_once __DIR__ .  '/../BCGLabel.php';
+require_once __DIR__ .  '/../BCGBarcode.php';
+require_once __DIR__ .  '/../BCGBarcode1D.php';
+require_once __DIR__ .  '/../BCGParseException.php';
 
 class BCGean13 extends BCGBarcode1D
 {
