@@ -1,6 +1,6 @@
 <?php
 
-    include __DIR__ . "/../data/proveedorData.php";
+    require_once __DIR__ . "/../data/proveedorData.php";
 
     class ProveedorBusiness {
 

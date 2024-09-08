@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Categorías | POSFusion</title>
     <?php 
-        include __DIR__ . '/../service/categoriaBusiness.php'; 
+        require_once __DIR__ . '/../service/categoriaBusiness.php'; 
         require_once __DIR__ . '/../utils/Utils.php';
     ?>
     <link rel="stylesheet" href="./css/styles.css">

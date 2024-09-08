@@ -1,8 +1,8 @@
 <?php
 
-    include __DIR__ . '/../data/codigoBarrasData.php';
-    include __DIR__ . '/../service/ProductoBusiness.php';
-    include __DIR__ . '/../service/loteBusiness.php';
+    require_once __DIR__ . '/../data/codigoBarrasData.php';
+    require_once __DIR__ . '/../service/ProductoBusiness.php';
+    require_once __DIR__ . '/../service/loteBusiness.php';
 
     define('NUM_CEROS', 4);
 

@@ -1,6 +1,6 @@
 <?php
 
-    include __DIR__ . '/../service/proveedorTelefonoBusiness.php';
+    require_once __DIR__ . '/../service/proveedorTelefonoBusiness.php';
 
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {

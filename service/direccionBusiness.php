@@ -1,6 +1,6 @@
 <?php
 
-    include __DIR__ . "/../data/direccionData.php";
+    require_once __DIR__ . "/../data/direccionData.php";
 
     class DireccionBusiness {
 

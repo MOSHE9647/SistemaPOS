@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . '/../service/proveedorProductoBusiness.php';
+require_once __DIR__ . '/../service/proveedorProductoBusiness.php';
 require_once __DIR__ . '/../utils/Variables.php';
 
 // Función para validar los datos de ProveedorProducto

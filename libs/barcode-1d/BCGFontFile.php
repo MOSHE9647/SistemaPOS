@@ -10,9 +10,9 @@ declare(strict_types=1);
  * Copyright (C) Jean-Sebastien Goupil
  * http://www.barcodebakery.com
  */
-include_once 'BCGFont.php';
-include_once 'BCGColor.php';
-include_once 'BCGArgumentException.php';
+require_once 'BCGFont.php';
+require_once 'BCGColor.php';
+require_once 'BCGArgumentException.php';
 
 class BCGFontInfo
 {

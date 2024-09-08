@@ -1,8 +1,8 @@
 <?php
 
-include_once 'data.php';
-include __DIR__ . '/../domain/CuentaPorPagar.php';
-include_once __DIR__ . '/../utils/Variables.php';
+require_once 'data.php';
+require_once __DIR__ . '/../domain/CuentaPorPagar.php';
+require_once __DIR__ . '/../utils/Variables.php';
 
 class CuentaPorPagarData extends Data {
 

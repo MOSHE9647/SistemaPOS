@@ -3,7 +3,7 @@
     require_once(__DIR__ . '/../libs/barcode-1d/BCGDrawing.php');
     require_once(__DIR__ . '/../libs/barcode-1d/BCGFontFile.php');
     require_once(__DIR__ . '/../libs/barcode-1d/1D/BCGean13.php');
-    include_once __DIR__ . '/../utils/Utils.php';
+    require_once __DIR__ . '/../utils/Utils.php';
 
     if (isset($_GET['count'])) {
         $count = intval($_GET['count']);
