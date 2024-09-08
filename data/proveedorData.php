@@ -80,7 +80,6 @@
                 // Obtener los valores de las propiedades del objeto
                 $proveedorNombre = $proveedor->getProveedorNombre();
                 $proveedorEmail = $proveedor->getProveedorEmail();
-                $proveedorFechaRegistro = $proveedor->getProveedorFechaRegistro();
                 $telefonoNumero = $proveedor->getProveedorTelefono(); // Obtener teléfono
 
                 // Verifica si el proveedor ya existe
@@ -92,7 +91,6 @@
                     Utils::writeLog("El proveedor 'Nombre [$proveedorNombre], Correo [$proveedorEmail]' ya existe en la base de datos.", DATA_LOG_FILE);
 					throw new Exception("Ya existe un proveedor con el mismo nombre o correo electrónico.");
                 }
-        
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) {
@@ -115,9 +113,8 @@
                     . PROVEEDOR_ID . ", "
                     . PROVEEDOR_NOMBRE . ", "
                     . PROVEEDOR_EMAIL . ", "
-                    . PROVEEDOR_ESTADO . ", "
-                    . PROVEEDOR_FECHA_REGISTRO
-                    . ") VALUES (?, ?, ?, true, ?)";
+                    . PROVEEDOR_ESTADO . " "
+                    . ") VALUES (?, ?, ?, true)";
 				$stmt = mysqli_prepare($conn, $queryInsert);
         
                 mysqli_stmt_bind_param(
@@ -125,12 +122,15 @@
                     'issss', // i: Entero, s: Cadena
                     $nextId,
                     $proveedorNombre, 
-                    $proveedorEmail,
-                    $proveedorFechaRegistro                   
+                    $proveedorEmail                
                 );
         
                 // Ejecuta la consulta de inserción
                 $result = mysqli_stmt_execute($stmt);
+                $check = addTelefonoToProveedor($nextId, $telefonoNumero, $conn);
+                if(!$check['success']){
+                    return $check;
+                }
                 return ["success" => true, "message" => "Proveedor insertado exitosamente"];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
