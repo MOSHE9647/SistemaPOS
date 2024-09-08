@@ -92,13 +92,13 @@
 					throw new Exception("Ya existe un proveedor con el mismo nombre o correo electrónico.");
                 }
                 //verificar si existe un numero por el id
-                // $check = $this->proveedorTelefonoData->existeProveedorTelefono(null,$telefonoNumero);
-                // if(!$check['success']){ 
-                //     return !$check; 
-                // }
-                // if(!$check["exists"]){
-                //     return ["success" => true, "message"=> "El numero que deseas asignar ya esta registrado por otro proveedor."]; 
-                // }
+                $check = $this->proveedorTelefonoData->existeProveedorTelefono(null,$telefonoNumero, false, true);
+                if(!$check['success']){ 
+                    return !$check; 
+                }
+                if(!$check["exists"]){
+                    return ["success" => true, "message"=> "El numero que deseas asignar ya esta registrado por otro proveedor."]; 
+                }
 
 
                 // Establece una conexión con la base de datos
