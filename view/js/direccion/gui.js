@@ -34,6 +34,8 @@ function renderTable(direcciones) {
         `;
         tableBody.innerHTML += row;
     });
+
+    checkEmptyTable();
 }
 
 /**

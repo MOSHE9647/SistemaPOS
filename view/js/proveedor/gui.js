@@ -49,6 +49,9 @@ function renderTable(proveedores) {
         tableBody.innerHTML += row;
         console.log("Fila agregada:", row); // Verifica la fila agregada
     });
+
+    // Verificar si la tabla está vacía
+    checkEmptyTable();
 }
 
 /**
