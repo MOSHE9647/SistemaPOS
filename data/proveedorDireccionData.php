@@ -1,7 +1,6 @@
 <?php
 
     include_once 'data.php';
-    include __DIR__ . '/../domain/Proveedor.php';
 	include __DIR__ . '/../domain/Direccion.php';
 	require_once __DIR__ . '/../utils/Variables.php';
 
@@ -52,7 +51,7 @@
                     if (!$proveedorID) $missingParamsLog .= " proveedorID [" . ($proveedorID ?? 'null') . "]";
                     if (!$direccionID) $missingParamsLog .= " direccionID [" . ($direccionID ?? 'null') . "]";
                     Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
-                    throw new Exception("Faltan parámetros para verificar la existencia del proveedor y/o direccion.");
+                    return ["success" => false, "message" => "No se proporcionaron los parámetros necesarios para realizar la verificación."];
                 }
 
                 // Prepara la consulta y ejecuta la verificación
@@ -67,14 +66,6 @@
                 }
 
                 // Retorna false si no se encontraron resultados
-                $messageParams = [];
-                if ($proveedorID) { $messageParams[] = "Proveedor con ID [$proveedorID]"; }
-                if ($direccionID) { $messageParams[] = "Dirección con ID [$direccionID]"; }
-                $params = implode(' y ', $messageParams);
-
-                $message = "No se encontró a ningún $params en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
-
                 return ["success" => true, "exists" => false, "message" => $message];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -188,7 +179,7 @@
                 $check = $this->verificarExistenciaProveedorDireccion($proveedorID, $direccionID);
                 if (!$check['success']) { return $check; }
 
-                // Verificar si existe la asignación entre el teléfono y el proveedor en la base de datos
+                // Verificar si existe la asignación entre la dirección y el proveedor en la base de datos
                 $check = $this->existeProveedorDireccion($proveedorID, $direccionID);
                 if (!$check['success']) { return $check; }
                 if (!$check['exists']) {
@@ -265,7 +256,7 @@
                 if (!$check["success"]) { throw new Exception($check["message"]); }
                 if (!$check["exists"]) {
                     $message = "El proveedor con ID [$proveedorID] no tiene direcciones registradas.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
                     return ['success' => false, 'message' => "El proveedor seleccionado no tiene direcciones registradas."];
                 }
 
@@ -303,6 +294,7 @@
                             "Provincia" => $row[DIRECCION_PROVINCIA],
                             "Canton"    => $row[DIRECCION_CANTON],
                             "Distrito"  => $row[DIRECCION_DISTRITO],
+                            "Barrio"    => $row[DIRECCION_BARRIO],
                             "Sennas"    => $row[DIRECCION_SENNAS],
                             "Distancia" => $row[DIRECCION_DISTANCIA],
                             "Estado"    => $row[DIRECCION_ESTADO]
@@ -313,6 +305,7 @@
                             $row[DIRECCION_PROVINCIA],
                             $row[DIRECCION_CANTON],
                             $row[DIRECCION_DISTRITO],
+                            $row[DIRECCION_BARRIO],
                             $row[DIRECCION_SENNAS],
                             $row[DIRECCION_DISTANCIA],
                             $row[DIRECCION_ESTADO]
@@ -400,7 +393,7 @@
         
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
-                    'Ocurrió un error al intentar actualizar los teléfonos del proveedor en la base de datos',
+                    'Ocurrió un error al intentar actualizar las direcciones del proveedor en la base de datos',
                     $this->className
                 );
         
@@ -439,7 +432,7 @@
                 mysqli_stmt_bind_param($stmt, 'i', $proveedorID);
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
-                $totalRecords = mysqli_fetch_assoc($result)["total"];
+                $totalRecords = (int) mysqli_fetch_assoc($result)["total"];
                 $totalPages = ceil($totalRecords / $size);
 
                 // Construir la consulta SQL para paginación
@@ -448,15 +441,15 @@
                         D.*
                     FROM " . 
                         TB_DIRECCION . " D
-                    INNER JOIN
-                        " . TB_PROVEEDOR_DIRECCION . " PD 
+                    INNER JOIN " 
+                        . TB_PROVEEDOR_DIRECCION . " PD 
                         ON D." . DIRECCION_ID . " = PD." . DIRECCION_ID . "
                     WHERE
-                        PD." . PROVEEDOR_ID . " = ?";
-                if ($onlyActiveOrInactive) { $queryTotalCount .= " AND " . PROVEEDOR_DIRECCION_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                        PD." . PROVEEDOR_ID . " = ? ";
+                if ($onlyActiveOrInactive) { $querySelect .= " AND " . PROVEEDOR_DIRECCION_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 // Añadir la cláusula de ordenamiento si se proporciona
-                if ($sort) { $querySelect .= "ORDER BY telefono" . $sort . " "; }
+                if ($sort) { $querySelect .= "ORDER BY direccion" . $sort . " "; }
 
 				// Añadir la cláusula de limitación y offset
                 $querySelect .= " LIMIT ? OFFSET ?";
@@ -477,6 +470,7 @@
                         "Provincia" => $row[DIRECCION_PROVINCIA],
                         "Canton"    => $row[DIRECCION_CANTON],
                         "Distrito"  => $row[DIRECCION_DISTRITO],
+                        "Barrio"    => $row[DIRECCION_BARRIO],
                         "Sennas"    => $row[DIRECCION_SENNAS],
                         "Distancia" => $row[DIRECCION_DISTANCIA],
                         "Estado"    => $row[DIRECCION_ESTADO]
