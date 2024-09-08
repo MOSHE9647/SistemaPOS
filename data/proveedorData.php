@@ -158,9 +158,6 @@
                 $proveedorNombre = $proveedor->getProveedorNombre(); 
                 $proveedorEmail = $proveedor->getProveedorEmail();
 
-                // Obtener demás datos del objeto          
-                $proveedorFechaRegistro = $proveedor->getProveedorFechaRegistro();
-        
                 // Verifica si el proveedor ya existe
                 $check = $this->proveedorExiste($proveedorID);
                 if (!$check["success"]) {
@@ -195,7 +192,6 @@
                         PROVEEDOR_NOMBRE . " = ?, " . 
                         PROVEEDOR_EMAIL . " = ?, " .                    
                         PROVEEDOR_ESTADO . " = true, " .
-                        PROVEEDOR_FECHA_REGISTRO . " = ? " . 
                     "WHERE " . PROVEEDOR_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
 
@@ -204,7 +200,6 @@
                     'ssssi', // s: Cadena, i: Entero
                     $proveedorNombre,
                     $proveedorEmail,
-                    $proveedorFechaRegistro,
                     $proveedorID
                 );
 
