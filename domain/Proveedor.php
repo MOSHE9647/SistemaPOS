@@ -8,14 +8,15 @@
         private $proveedorEstado;
         private $proveedorFechaRegistro;
         private $proveedorTelefono; // Nuevo campo para el teléfono id
-    
+        private $direccionid; // id direccion
 
-        function __construct($proveedorNombre, $proveedorEmail, $proveedorID = 0, $proveedorEstado = true,  $proveedorTelefono = "") {
+        function __construct($proveedorNombre, $proveedorEmail, $direccionid,$proveedorID = 0, $proveedorEstado = true,  $proveedorTelefono = "") {
             $this->proveedorID = $proveedorID;
             $this->proveedorNombre = $proveedorNombre;
             $this->proveedorEmail = strtolower($proveedorEmail); // Convertir a minúsculas para consistencia
             $this->proveedorEstado = $proveedorEstado; 
             $this->proveedorTelefono = $proveedorTelefono; // Inicializar el nuevo campo
+            $this->direccionid = $direccionid;
         }
 
         // Getters
@@ -25,7 +26,7 @@
         function getProveedorEstado() { return $this->proveedorEstado; }
         function getProveedorFechaRegistro() { return $this->proveedorFechaRegistro; }
         function getProveedorTelefono() { return $this->proveedorTelefono; } // Nuevo getter
-        
+        function getProveedorDireccionId(){return $this->direccionid; }
 
         // Setters
         function setProveedorID($proveedorID) { $this->proveedorID = $proveedorID; }
@@ -34,7 +35,9 @@
         function setProveedorEstado($proveedorEstado) { $this->proveedorEstado = $proveedorEstado; }
         function setProveedorFechaRegistro($proveedorFechaRegistro) { $this->proveedorFechaRegistro = $proveedorFechaRegistro; }
         function setProveedorTelefono($proveedorTelefono) { $this->proveedorTelefono = $proveedorTelefono; } // Nuevo setter
+        function setProveedorDireccionId($direccionid){ $this->direccionid = $direccionid; }
 
+        
         // Implementación del método __toString
         public function __toString() {
             return "ID: " . $this->proveedorID . "\n" .

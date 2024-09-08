@@ -2,16 +2,19 @@
 
     include_once 'data.php';
     include __DIR__ . '/../domain/Proveedor.php';
-    include __DIR__ . '/../data/proveedorTelefonoData.php';
+    include_once __DIR__ . '/../data/proveedorTelefonoData.php';
+    include_once __DIR__ . '/../data/proveedorDireccionData.php';
     require_once __DIR__ . '/../utils/Utils.php';
     require_once __DIR__ . '/../utils/Variables.php';
 
     class ProveedorData extends Data {
         private $proveedorTelefonoData;
+        private $proveedorDireccionData;
         // Constructor
         public function __construct() {
             parent::__construct();
             $this->proveedorTelefonoData = new  ProveedorTelefonoData();
+            $this->proveedorDireccionData = new ProveedorDireccionData();
         }
 
         // Función para verificar si un proveedor con el mismo nombre ya existe en la bd
@@ -81,7 +84,7 @@
                 $proveedorNombre = $proveedor->getProveedorNombre();
                 $proveedorEmail = $proveedor->getProveedorEmail();
                 $telefonoNumero = $proveedor->getProveedorTelefono(); // Obtener teléfono
-
+                $direccionID = $proveedor->getProveedorDireccionId();
                 // Verifica si el proveedor ya existe
                 $check = $this->proveedorExiste(null, $proveedorNombre, $proveedorEmail);
                 if (!$check["success"]) {
@@ -100,7 +103,14 @@
                     return ["success" => true, "message"=> "El numero que deseas asignar ya esta registrado por otro proveedor."]; 
                 }
 
-
+                //verificar si la direccion existe
+                $check = $this->proveedorDireccionData->existeProveedorDireccion(null,$direccionID,false,true);
+                if(!$check['success']){ 
+                    return !$check; 
+                }
+                if(!$check["exists"]){
+                    return ["success" => true, "message"=> "La direccion que deseas asignar ya esta registrado por otro proveedor."]; 
+                }
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) {
@@ -137,10 +147,16 @@
         
                 // Ejecuta la consulta de inserción
                 $result = mysqli_stmt_execute($stmt);
+
                 $check = $this->proveedorTelefonoData->addTelefonoToProveedor($nextId, $telefonoNumero, $conn);
                 if(!$check['success']){
                     return $check;
                 }
+                $check = $this->proveedorDireccionData->addDireccionToProveedor($nextId, $direccionID, $conn);
+                if(!$check['success']){
+                    return $check;
+                }
+
                 return ["success" => true, "message" => "Proveedor insertado exitosamente"];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -261,7 +277,7 @@
         
                 // Ejecuta la consulta de eliminación
                 $result = mysqli_stmt_execute($stmt);
-        
+
                 // Devuelve el resultado de la operación
                 return ["success" => true, "message" => "Proveedor eliminado exitosamente."];
             } catch (Exception $e) {
@@ -298,19 +314,21 @@
                 $listaProveedores = [];
                 while ($row = mysqli_fetch_assoc($result)) {
 
-                    $Telefonos = [];
-
                     $resultTelefonos =  $this->proveedorTelefonoData->getTelefonosByProveedor( $row[PROVEEDOR_ID],true);
-
                     if($resultTelefonos['success']){
                         $telefonos = $resultTelefonos['telefonos'];
                     }
 
+                    $resultDireccion = $this->proveedorDireccionData->getDireccionesByProveedor($row[PROVEEDOR_ID],true);
+                    if($resultDireccion["success"]){
+                        $direcciones = $resultDireccion['direcciones'];
+                    }
                     $listaProveedores[] = [
                         'ID' => $row[PROVEEDOR_ID],
                         'Nombre' => $row[PROVEEDOR_NOMBRE],
                         'Email' => $row[PROVEEDOR_EMAIL],
-                        'Telefonos' => (!empty($telefonos))? $telefonos: 'Este proveedor no tiene telefonos registrados',            
+                        'Telefonos' => (!empty($telefonos))? $telefonos: 'Este proveedor no tiene telefonos registrados',
+                        'Direcciones'=>(!empty($direcciones))?$direcciones : 'Este proveedor no posee direcciones',               
                         'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO], 'Y-MM-dd'),
 						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO]),
                         'Estado' => $row[PROVEEDOR_ESTADO]
@@ -383,20 +401,23 @@
 				$listaProveedores = [];
 				while ($row = mysqli_fetch_assoc($result)) {
 
-                    
-                    $Telefonos = [];
-
                     $resultTelefonos =   $this->proveedorTelefonoData->getTelefonosByProveedor( $row[PROVEEDOR_ID],true);
 
                     if($resultTelefonos['success']){
                         $telefonos = $resultTelefonos['telefonos'];
+                    }
+                    
+                    $resultDireccion = $this->proveedorDireccionData->getDireccionesByProveedor($row[PROVEEDOR_ID],true);
+                    if($resultDireccion["success"]){
+                        $direcciones = $resultDireccion['direcciones'];
                     }
 
 					$listaProveedores[] = [
 						'ID' => $row[PROVEEDOR_ID],
 						'Nombre' => $row[PROVEEDOR_NOMBRE],
 						'Email' => $row[PROVEEDOR_EMAIL],
-                        'Telefonos'=>$telefonos,                                        
+                        'Telefonos'=>(!empty($telefonos))? $telefonos: 'Este proveedor no tiene telefonos registrados', 
+                        'Direcciones'=>(!empty($direcciones))?$direcciones : 'Este proveedor no posee direcciones',                              
 						'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO], 'Y-MM-dd'),
 						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO]),
 						'Estado' => $row[PROVEEDOR_ESTADO]
