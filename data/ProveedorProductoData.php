@@ -116,7 +116,6 @@
         
         }
 
-
         private function verificarProveedorExiste($proveedorId) {
             try {
                 $result = $this->getConnection();
