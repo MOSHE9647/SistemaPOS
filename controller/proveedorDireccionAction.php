@@ -59,7 +59,7 @@
 
         if ($check['is_valid']) {
             switch ($accion) {
-                case 'id':
+                case 'todo':
                     // Obtiene las direcciones de un proveedor en la base de datos.
                     $response = $proveedorDireccionBusiness->getDireccionesByProveedor($proveedorID, true);
                     break;

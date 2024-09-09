@@ -76,7 +76,7 @@
                 }
         
                 // Retorna false si no se encontraron resultados
-                return ["success" => true, "exists" => false, "message" => $message];
+                return ["success" => true, "exists" => false];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
@@ -105,7 +105,7 @@
             $checkProveedorID = $this->existeProveedorTelefono($proveedorID, null, true);
             if (!$checkProveedorID["success"]) { return $checkProveedorID; }
             if (!$checkProveedorID["exists"]) {
-                $message = "El proveedor con ID [$proveedorID] no existe en la base de datos.";
+                $message = "El proveedor con 'ID [$proveedorID]' no existe en la base de datos.";
                 Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
                 return ['success' => false, 'message' => "El proveedor seleccionado no existe en la base de datos."];
             }
@@ -156,7 +156,7 @@
                     $createdConnection = true;
                 }
         
-                // Obtenemos el último ID de la tabla tbtelefono
+                // Obtenemos el último ID de la tabla tbproveedortelefono
                 $queryGetLastId = "SELECT MAX(" . PROVEEDOR_TELEFONO_ID . ") FROM " . TB_PROVEEDOR_TELEFONO;
                 $idCont = mysqli_query($conn, $queryGetLastId);
                 $nextId = 1;
@@ -497,8 +497,6 @@
 
 				// Añadir la cláusula de limitación y offset
                 $querySelect .= " LIMIT ? OFFSET ?";
-
-                
 
                 // Preparar la consulta, vincular los parámetros y ejecutar la consulta
                 $stmt = mysqli_prepare($conn, $querySelect);

@@ -4,9 +4,9 @@
 	// ESTÁTICAS QUE SE VAN A ESTAR UTILIZANDO DENTRO DEL PROGRAMA
 
 	// VARIABLES PARA LOG:
-	define('UTILS_LOG_FILE', 'utils-error.log');
-	define('DATA_LOG_FILE', 'database-error.log');
-	define('BUSINESS_LOG_FILE', 'business-error.log');
+	define('UTILS_LOG_FILE', 'utils-log.log');
+	define('DATA_LOG_FILE', 'database-log.log');
+	define('BUSINESS_LOG_FILE', 'business-log.log');
 	define('ERROR_MESSAGE', 'ERROR');
 	define('INFO_MESSAGE', 'INFO');
 	define('WARN_MESSAGE', 'WARN');
@@ -129,10 +129,10 @@
 
 	//Tabla 'tbSubCategoria'
 	define('TB_SUBCATEGORIA','tbsubcategoria');
-	define('SUBCATEGORIA_ID','tbsubcategoriaid');
-	define('SUBCATEGORIA_NOMBRE','tbsubcategorianombre');
-	define('SUBCATEGORIA_DESCRIPCION','tbsubcategoriadescripcion');
-	define('SUBCATEGORIA_ESTADO','tbsubcategoriaestado');
+	define('SUBCATEGORIA_ID','subcategoriaid');
+	define('SUBCATEGORIA_NOMBRE','subcategorianombre');
+	define('SUBCATEGORIA_DESCRIPCION','subcategoriadescripcion');
+	define('SUBCATEGORIA_ESTADO','subcategoriaestado');
 
 	// TABLA 'tbTelefono'
 	define('TB_TELEFONO', 'tbtelefono'); //<- Nombre de la Tabla

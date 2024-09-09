@@ -7,7 +7,7 @@ class Subcategoria{
     private $subcategoria_estado;
 
     // Constructor
-    public function __construct($subcategoria_nombre,$subcategoria_descripcion = "", $subcategoria_id = 0, $subcategoria_estado = true ) {
+    public function __construct($subcategoria_nombre = "", $subcategoria_descripcion = "", $subcategoria_id = 0, $subcategoria_estado = true ) {
         $this->subcategoria_id = $subcategoria_id;
         $this->subcategoria_nombre = $subcategoria_nombre;
         $this->subcategoria_estado = $subcategoria_estado;

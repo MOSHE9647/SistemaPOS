@@ -1,189 +1,324 @@
 <?php
-    require_once 'data.php';
-    require_once __DIR__ . '/../domain/ProductoSubcategoria.php';
-    require_once __DIR__ . '/../utils/Utils.php';
-    require_once __DIR__ . '/../utils/Variables.php';
+	require_once 'data.php';
+    require_once __DIR__ . '/../domain/Subcategoria.php';
+	require_once __DIR__ . '/../utils/Variables.php';
+	require_once __DIR__ . '/../utils/Utils.php';
 
-    class ProductoSubcategoriaData extends Data{
-                // Constructor
+	class ProductoSubcategoriaData extends Data {
+	
+		private $className;
+
 		public function __construct() {
 			parent::__construct();
-        }
-        function Exists_Producto_Subcategoria_Relation($id_producto, $id_subcategoria, $id_producto_subcategoria = null, $update = false) {
-            if (empty($id_producto) || empty($id_subcategoria)) { 
-                throw new Exception("Los parámetros no deben estar vacíos.");
-            }
-        
-            if ($update && empty($id_producto_subcategoria)) {
-                throw new Exception("El ID del producto subcategoría no puede estar vacío al actualizar.");
-            }
-        
-            try {
+			$this->className = get_class($this);
+		}
+
+		public function existeProductoSubcategoria($productoID = null, $subcategoriaID = null, $tbProducto = false, $tbSubcategoria = false) {
+			$conn = null; $stmt = null;
+
+			try {
+				// Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
-        
-                // Preparación de la consulta
-                $query = "SELECT 1 FROM " . TB_PRODUCTO_SUBCATEGORIA . " WHERE " . PRODUCTO_SUBCATEGORIA_PRODUCTO_ID . " = ? AND " . PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID . " = ? AND " . PRODUCTO_SUBCATEGORIA_ESTADO . " != false";
-                $types = "ii";
-                $params = [$id_producto, $id_subcategoria];
-        
-                if ($update) {
-                    $query .= " AND " . PRODUCTO_SUBCATEGORIA_ID . " <> ?";
-                    $types .= "i";
-                    $params[] = $id_producto_subcategoria;
+
+				// Determina la tabla y construye la consulta base
+				$tableName = $tbProducto ? TB_PRODUCTO : ($tbSubcategoria ? TB_SUBCATEGORIA : TB_PRODUCTO_SUBCATEGORIA);
+				$queryCheck = "SELECT 1 FROM $tableName WHERE ";
+				$params = [];
+				$types = "";
+
+				if ($productoID && $subcategoriaID) {
+					// Consulta para verificar si existe una asignación entre el producto y la subcategoría
+					$queryCheck .= PRODUCTO_ID . " = ? AND " . SUBCATEGORIA_ID . " = ? AND " . PRODUCTO_SUBCATEGORIA_ESTADO . " != FALSE";
+					$params = [$productoID, $subcategoriaID];
+					$types = "ii";
+				} else if ($productoID) {
+					// Consulta para verificar si existe un producto con el ID ingresado
+					$estadoCampo = $tbProducto ? PRODUCTO_ESTADO : PRODUCTO_SUBCATEGORIA_ESTADO;
+					$queryCheck .= PRODUCTO_ID . " = ? AND $estadoCampo != FALSE";
+					$params = [$productoID];
+					$types = "i";
+				} else if ($subcategoriaID) {
+					// Consulta para verificar si existe una subcategoría con el ID ingresado
+					$estadoCampo = $tbSubcategoria ? SUBCATEGORIA_ESTADO : PRODUCTO_SUBCATEGORIA_ESTADO;
+					$queryCheck .= SUBCATEGORIA_ID . " = ? AND $estadoCampo != FALSE";
+					$params = [$subcategoriaID];
+					$types = "i";
+				} else {
+					// Registrar parámetros faltantes y lanzar excepción
+                    $missingParamsLog = "Faltan parámetros para verificar la existencia del producto y/o subcategoria:";
+                    if (!$productoID) $missingParamsLog .= " productoID [" . ($productoID ?? 'null') . "]";
+                    if (!$subcategoriaID) $missingParamsLog .= " subcategoriaID [" . ($subcategoriaID ?? 'null') . "]";
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    return ["success" => false, "message" => "No se proporcionaron los parámetros necesarios para realizar la verificación."];
+				}
+
+				// Prepara y ejecuta la consulta
+				$stmt = mysqli_prepare($conn, $queryCheck);
+                mysqli_stmt_bind_param($stmt, $types, ...$params);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+
+				// Verifica si existe algún registro con los criterios dados
+                if (mysqli_num_rows($result) > 0) {
+                    return ["success" => true, "exists" => true];
                 }
+
+				return ["success" => true, "exists" => false];
+			} catch (Exception $e) {
+				// Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al verificar la existencia del producto y/o de la subcategoria en la base de datos',
+                    $this->className
+                );
         
-                $stmt = $conn->prepare($query);
-                if (!$stmt) {
-                    throw new Exception("Error al preparar la consulta: " . $conn->error);
+                return ["success" => false, "message" => $userMessage];
+			} finally {
+				// Cierra la conexión y el statement
+				if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+			}
+		}
+
+		private function verificarExistenciaProductoSubcategoria($productoID, $subcategoriaID) {
+			// Verificar que el producto exista en la base de datos
+			$checkProductoID = $this->existeProductoSubcategoria($productoID, null, true);
+			if (!$checkProductoID["success"]) { return $checkProductoID; }
+			if (!$checkProductoID["exists"]) {
+				$message = "El producto con 'ID [$productoID]' no existe en la base de datos.";
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ['success' => false, 'message' => "El producto seleccionado no existe en la base de datos."];
+			}
+
+			// Verificar que la subcategoría exista en la base de datos
+			$checkSubcategoriaID = $this->existeProductoSubcategoria(null, $subcategoriaID, false, true);
+			if (!$checkSubcategoriaID["success"]) { return $checkSubcategoriaID; }
+			if (!$checkSubcategoriaID["exists"]) {
+				$message = "La subcategoría con 'ID [$subcategoriaID]' no existe en la base de datos.";
+				Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+				return ['success' => false, 'message' => "La subcategoría seleccionada no existe en la base de datos."];
+			}
+
+			return ['success' => true];
+		}
+
+		public function addSubcategoriaToProducto($productoID, $subcategoriaID, $conn = null) {
+			$createdConnection = false; //<- Indica si la conexión se creó aquí o viene por parámetro
+            $stmt = null;
+
+			try {
+				// Verificar que el producto y la subcategoría existan en la base de datos
+				$checkExistencia = $this->verificarExistenciaProductoSubcategoria($productoID, $subcategoriaID);
+				if (!$checkExistencia["success"]) { return $checkExistencia; }
+
+				// Si no se proporcionó una conexión, crea una nueva
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
                 }
-        
-                // Vinculación y ejecución
-                $stmt->bind_param($types, ...$params);
-                $stmt->execute();
-                $resultado = $stmt->get_result();
-        
-                // Verificación del resultado
-                if ($resultado->num_rows > 0) {
-                    return ["success" => true, "exists" => true, "message" => "El registro existe"];
-                } else {
-                    return ["success" => true, "exists" => false, "message" => "No se encontró el registro en la base de datos."];
+
+				// Obtenemos el último ID de la tabla tbproductosubcategoria
+				$queryGetLastId = "SELECT MAX(" . PRODUCTO_SUBCATEGORIA_ID . ") FROM " . TB_PRODUCTO_SUBCATEGORIA;
+				$idCont = mysqli_query($conn, $queryGetLastId);
+                $nextId = 1;
+
+				// Calcula el siguiente ID para la nueva entrada
+                if ($row = mysqli_fetch_row($idCont)) {
+                    $nextId = (int) trim($row[0]) + 1;
                 }
-            } catch (Exception $e) {
-                return ["success" => false, "message" => $e->getMessage()];
-            } finally {
-                // Cierre de recursos
-                if (isset($stmt)) { $stmt->close(); }
-                if (isset($conn)) { $conn->close(); }
+
+				// Crea una consulta y un statement SQL para insertar el nuevo registro
+				$queryInsert = "INSERT INTO " . TB_PRODUCTO_SUBCATEGORIA . " ("
+                    . PRODUCTO_SUBCATEGORIA_ID . ", "
+                    . PRODUCTO_ID . ", "
+                    . SUBCATEGORIA_ID
+                    . ") VALUES (?, ?, ?)";
+                $stmt = mysqli_prepare($conn, $queryInsert);
+
+				// Vincula los parámetros y ejecuta la consulta
+                mysqli_stmt_bind_param($stmt, "iii", $nextId, $productoID, $subcategoriaID);
+                mysqli_stmt_execute($stmt);
+
+				return ["success" => true, "message" => "Subcategoría asignada exitosamente al producto."];
+			} catch (Exception $e) {
+				$userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al intentar asignarle la subcategoria al producto en la base de datos',
+                    $this->className
+                );
+
+				return ["success" => false, "message" => $userMessage];
+			} finally {
+                // Cierra el statement y la conexión solo si fueron creados en esta función
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if ($createdConnection && isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
             }
-        }
-        
-        
-        function Exists_Primary_Key($id, $TABLE_NAME, $COLUMN_ID, $COLUMN_STATUS_NAME) {
-            // Validación de parámetros
-            if(empty($id) || empty($TABLE_NAME) || empty($COLUMN_STATUS_NAME) || empty($COLUMN_ID)) {
-                throw new Exception("¡Los parámetros no pueden estar vacíos, asegúrese de colocar los datos correspondientes!");
-            }
-            try {
-                $result = $this->getConnection();
-                if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
-        
-                // Validación del ID
-                if(is_numeric($id) && $id > 0) {
-                    // Preparación de la consulta
-                    $stmt = $conn->prepare("SELECT 1 FROM " . $TABLE_NAME . " WHERE " . $COLUMN_ID . " = ? AND " . $COLUMN_STATUS_NAME . " != false;");
-                    if (!$stmt) {
-                        throw new Exception("Error al preparar la consulta: " . $conn->error);
-                    }
-        
-                    // Vinculación y ejecución
-                    $stmt->bind_param("i", $id);
-                    $stmt->execute();
-                    $resultado = $stmt->get_result();
-        
-                    // Verificación del resultado
-                    if ($resultado->num_rows === 0) {
-                        throw new Exception("No se encontró el registro en la base de datos.");
-                    }
-                    return ["success" => true, "message" => "El registro existe y no está borrado."];
-                } else {
-                    throw new Exception("El ID proporcionado no es válido.");
+		}
+
+		public function removeSubcategoriaFromProducto($productoID, $subcategoriaID, $conn = null) {
+			$createdConnection = false; //<- Indica si la conexión se creó aquí o viene por parámetro
+			$stmt = null;
+
+			try {
+				// Verificar que el producto y la subcategoría existan en la base de datos
+				$checkExistencia = $this->verificarExistenciaProductoSubcategoria($productoID, $subcategoriaID);
+				if (!$checkExistencia["success"]) { return $checkExistencia; }
+
+				// Verificar si existe la asignación entre el producto y la subcategoría en la base de datos
+				$checkAsignacion = $this->existeProductoSubcategoria($productoID, $subcategoriaID);
+				if (!$checkAsignacion["success"]) { return $checkAsignacion; }
+				if (!$checkAsignacion["exists"]) {
+					$message = "La subcategoria con 'ID [$subcategoriaID]' no está asignada al producto con 'ID [$productoID]'.";
+					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+					return ['success' => false, 'message' => "La subcategoría seleccionada no está asignada al producto."];
+				}
+
+				// Si no se proporcionó una conexión, crea una nueva
+				if (is_null($conn)) {
+					$result = $this->getConnection();
+					if (!$result["success"]) { throw new Exception($result["message"]); }
+					$conn = $result["connection"];
+					$createdConnection = true;
+
+					// Desactivar el autocommit para manejar transacciones si la conexión fue creada aquí
+                    mysqli_autocommit($conn, false);
+				}
+
+				// Crea una consulta y un statement SQL para eliminar el registro
+				$queryUpdate = 
+					"UPDATE " . TB_PRODUCTO_SUBCATEGORIA . 
+					" SET " 
+						. PRODUCTO_SUBCATEGORIA_ESTADO . " = FALSE" . 
+					" WHERE "
+						. PRODUCTO_ID . " = ? AND " 
+						. SUBCATEGORIA_ID . " = ?";
+				$stmt = mysqli_prepare($conn, $queryUpdate);
+
+				// Vincula los parámetros y ejecuta la consulta
+				mysqli_stmt_bind_param($stmt, "ii", $productoID, $subcategoriaID);
+				mysqli_stmt_execute($stmt);
+
+				// Eliminar subcategoria de la tabla tbsubcategoria
+				$queryUpdateSubcategoria = 
+					"UPDATE " . TB_SUBCATEGORIA . 
+					" SET " 
+						. SUBCATEGORIA_ESTADO . " = FALSE" . 
+					" WHERE "
+						. SUBCATEGORIA_ID . " = ?";
+				$stmt = mysqli_prepare($conn, $queryUpdateSubcategoria);
+
+				// Vincula los parámetros y ejecuta la consulta
+				mysqli_stmt_bind_param($stmt, "i", $subcategoriaID);
+				mysqli_stmt_execute($stmt);
+
+				// Confirmar la transacción si la conexión fue creada aquí
+                if ($createdConnection) {
+                    mysqli_commit($conn);
                 }
-            } catch (Exception $e) {
-                return ["success" => false, "message" => $e->getMessage()];
-            } finally {
-                // Cierre de la conexión y el statement
-                if (isset($stmt)) { $stmt->close(); }
-                if (isset($conn)) { $conn->close(); }
-            }
-        }
-        function insertProductoSubcategoria($ProductoSubcategoria){
-            
-            try{
-                $response = [];
-                /************************************
-                 * Verificacion
-                 */
-                $id_producto = $ProductoSubcategoria->getIdProducto();
-                $id_subcategoria = $ProductoSubcategoria->getIdSubcategoria();
 
-                if(empty($id_producto)){ throw new Exception("El id de producto no debe ser vacio."); }
-                if(empty($id_subcategoria)){ throw new Exception("El id de la subcategoria no debe ser vacio."); }
+				return ["success" => true, "message" => "Subcategoría eliminada correctamente."];
+			} catch (Exception $e) {
+				// Revertir la transacción en caso de error si la conexión fue creada aquí
+                if ($createdConnection && isset($conn)) { mysqli_rollback($conn); }
+        
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al intentar eliminar la subcategoria del producto en la base de datos',
+                    $this->className
+                );
+        
+                return ["success" => false, "message" => $userMessage];
+			} finally {
+				// Cierra el statement y la conexión solo si fueron creados en esta función
+				if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+				if ($createdConnection && isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+			}
+		}
 
-                $relation = $this->Exists_Producto_Subcategoria_Relation($id_producto,$id_subcategoria);
-                if($relation["exists"]){
-                    return $relation;
-                }
+		public function getSubcategoriasByProducto($productoID, $json = false) {
+			$conn = null; $stmt = null;
 
+			try {
+				// Verificar que el producto tenga subcategorias registradas
+				$checkProductoID = $this->existeProductoSubcategoria($productoID, null, true);
+				if (!$checkProductoID["success"]) { throw new Exception($checkProductoID["message"]); }
+				if (!$checkProductoID["exists"]) {
+					$message = "El producto con 'ID [$productoID]' no tiene subcategorías registradas.";
+					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+					return ['success' => false, 'message' => "El producto seleccionado no tiene subcategorías registradas."];
+				}
 
-                $check = $this->Exists_Primary_Key($id_producto,TB_PRODUCTO, PRODUCTO_ID, PRODUCTO_ESTADO);
-                if(!$check["success"]){ throw new Exception("id producto inexistente."); }
-
-                $check = $this->Exists_Primary_Key($id_subcategoria,TB_SUBCATEGORIA, SUBCATEGORIA_ID, SUBCATEGORIA_ESTADO);
-                if(!$check["success"]){ throw new Exception("id subcategoria inexistente."); }
-
-                /*************************************
-                 * Conexion a bd
-                 */
-                $result = $this->getConnection();
+				// Establece una conexión con la base de datos
+				$result = $this->getConnection();
 				if (!$result["success"]) { throw new Exception($result["message"]); }
 				$conn = $result["connection"];
 
-                /**************************************
-                 * Incrementando id
-                 */
-                $queryGetLastId = "SELECT MAX(" . PRODUCTO_SUBCATEGORIA_ID . ") AS impuestoID FROM " . TB_PRODUCTO_SUBCATEGORIA;
-				$idCont = mysqli_query($conn, $queryGetLastId);
-				if (!$idCont) {
-					throw new Exception("Error al ejecutar la consulta");
+				// Consulta para obtener las subcategorias asignadas al producto
+				$querySelect = "
+					SELECT
+						S.*
+					FROM " 
+						. TB_SUBCATEGORIA . " S
+					INNER JOIN " . 
+						TB_PRODUCTO_SUBCATEGORIA . " PS
+						ON S." . SUBCATEGORIA_ID . " = PS." . SUBCATEGORIA_ID . "
+					WHERE
+						PS." . PRODUCTO_ID . " = ? AND
+						PS." . PRODUCTO_SUBCATEGORIA_ESTADO . " != FALSE AND
+						S."  . SUBCATEGORIA_ESTADO . " != FALSE
+				";
+
+				// Preparar la consulta, vincular los parámetros y ejecutar la consulta
+				$stmt = mysqli_prepare($conn, $querySelect);
+				mysqli_stmt_bind_param($stmt, "i", $productoID);
+				mysqli_stmt_execute($stmt);
+				$result = mysqli_stmt_get_result($stmt);
+
+				// Obtener los resultados de la consulta
+				$subcategorias = [];
+				while ($row = mysqli_fetch_assoc($result)) {
+					if ($json) {
+						$subcategorias[] = [
+							"ID" => $row[SUBCATEGORIA_ID],
+							"Nombre" => $row[SUBCATEGORIA_NOMBRE],
+							"Descripcion" => $row[SUBCATEGORIA_DESCRIPCION],
+							"Estado" => $row[SUBCATEGORIA_ESTADO]
+						];
+					} else {
+						$subcategorias[] = new Subcategoria(
+							$row[SUBCATEGORIA_NOMBRE],
+							$row[SUBCATEGORIA_DESCRIPCION],
+							$row[SUBCATEGORIA_ID],
+							$row[SUBCATEGORIA_ESTADO]
+						);
+					}
 				}
-				$nextId = 1;
-		
-				// Calcula el siguiente ID para la nueva entrada
-				if ($row = mysqli_fetch_row($idCont)) {
-					$nextId = (int) trim($row[0]) + 1;
-				}
-                /*******************************************
-                 * Generando Query
-                 */
-				$queryInsert = "INSERT INTO " . TB_PRODUCTO_SUBCATEGORIA. " ("
-                    . PRODUCTO_SUBCATEGORIA_ID . ", "
-                    . PRODUCTO_SUBCATEGORIA_PRODUCTO_ID . ", "
-                    . PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID . ", "
-                    . PRODUCTO_SUBCATEGORIA_ESTADO ." "
-                    . ") VALUES (?, ?, ?, true)";
-				$stmt = mysqli_prepare($conn, $queryInsert);
-				if (!$stmt) {
-					throw new Exception("Error al preparar la consulta");
-				}
-		
-				mysqli_stmt_bind_param(
-					$stmt,
-					'iii', // i: Entero, s: Cadena
-					$nextId,
-					$id_producto,
-					$id_subcategoria
-				);
-		
-				// Ejecuta la consulta de inserción
-				$result = mysqli_stmt_execute($stmt);
-				if (!$result) {
-					throw new Exception("Error al insertar el producto sub categoria");
-				}
-				return ["success" => true, "message" => "producto subcategoria insertado exitosamente"];
-            }catch (Exception $e) {
-                // Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
+
+				return ["success" => true, "subcategorias" => $subcategorias];
+			} catch (Exception $e) {
+				// Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al obtener la lista de subcategorias del producto desde la base de datos',
+                    $this->className
+                );
+
+                return ["success" => false, "message" => $userMessage];
 			} finally {
-				// Cierra la conexión y el statement
-				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
-			}
-        }
-        function getALLProductoSubcategoria($page, $size, $sort = null){
-            try {
+                // Cierra la conexión y el statement
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+            }
+		}
+
+		public function getPaginatedSubcategoriasByProducto($productoID, $page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
+			$conn = null; $stmt = null;
+
+			try {
 				// Validar los parámetros de paginación
                 if (!is_numeric($page) || $page < 1) {
                     throw new Exception("El número de página debe ser un entero positivo.");
@@ -192,224 +327,86 @@
                     throw new Exception("El tamaño de la página debe ser un entero positivo.");
                 }
                 $offset = ($page - 1) * $size;
-        
-                // Establece una conexión con la base de datos
+
+				// Establece una conexión con la base de datos
                 $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
+                if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
 
 				// Consultar el total de registros
-                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_PRODUCTO_SUBCATEGORIA . " WHERE " .PRODUCTO_SUBCATEGORIA_ESTADO . " != false";
-                $totalResult = mysqli_query($conn, $queryTotalCount);
-                if (!$totalResult) {
-                    throw new Exception("Error al obtener el conteo total de registros: " . mysqli_error($conn));
-                }
-                $totalRow = mysqli_fetch_assoc($totalResult);
-                $totalRecords = (int)$totalRow['total'];
-                $totalPages = ceil($totalRecords / $size);
+				$queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_PRODUCTO_SUBCATEGORIA . " WHERE " . PRODUCTO_ID . " = ? ";
+				if ($onlyActiveOrInactive) { $queryTotalCount .= "AND " . PRODUCTO_SUBCATEGORIA_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
-				/*******************************************
-                 * Construir la consulta SQL para paginación
-                 */
+				// Preparar y ejecutar la consulta para obtener el total de registros
+				$stmt = mysqli_prepare($conn, $queryTotalCount);
+				mysqli_stmt_bind_param($stmt, "i", $productoID);
+				mysqli_stmt_execute($stmt);
+				$result = mysqli_stmt_get_result($stmt);
+				$totalRecords = (int) mysqli_fetch_assoc($result)["total"];
+				$totalPages = ceil($totalRecords / $size);
 
-                $querySelect =" 
-                SELECT 
-                PS.".PRODUCTO_SUBCATEGORIA_ID.",
-                PS.".PRODUCTO_SUBCATEGORIA_PRODUCTO_ID.",
-                PS.".PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID.",
-                P.".PRODUCTO_NOMBRE.",
-                S.".SUBCATEGORIA_NOMBRE.",
-                PS.".PRODUCTO_SUBCATEGORIA_ESTADO."  
-                FROM ".TB_PRODUCTO_SUBCATEGORIA." PS
-                INNER JOIN ".TB_PRODUCTO." P ON PS.".PRODUCTO_SUBCATEGORIA_PRODUCTO_ID." = P.".PRODUCTO_ID." 
-                INNER JOIN ".TB_SUBCATEGORIA." S ON PS.".PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID." = S.".SUBCATEGORIA_ID."
-                WHERE PS.".PRODUCTO_SUBCATEGORIA_ESTADO." != FALSE ";
+				// Construir la consulta SQL para paginación
+				$querySelect = "
+                    SELECT
+                        S.*
+                    FROM " . 
+                        TB_SUBCATEGORIA . " S
+                    INNER JOIN " . 
+                        TB_PRODUCTO_SUBCATEGORIA . " PS 
+                        ON S." . SUBCATEGORIA_ID . " = PS." . SUBCATEGORIA_ID . "
+                    WHERE 
+                        PS." . PRODUCTO_ID . " = ? ";
+				if ($onlyActiveOrInactive) { $querySelect .= "AND " . PRODUCTO_SUBCATEGORIA_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
 				// Añadir la cláusula de ordenamiento si se proporciona
-                if ($sort) {
-                    $querySelect .= "ORDER BY tbsubcategoria" . $sort . " ";
-                }
+                if ($sort) { $querySelect .= "ORDER BY subcategoria" . $sort . " "; }
 
 				// Añadir la cláusula de limitación y offset
                 $querySelect .= "LIMIT ? OFFSET ?";
-                
-				// Preparar la consulta
-                $stmt = mysqli_prepare($conn, $querySelect);
-                if (!$stmt) {
-                    throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
-                }
-               
-                // Vincular los parámetros
-                mysqli_stmt_bind_param($stmt, "ii", $size, $offset);
 
-				// Ejecutar la consulta
-                $result = mysqli_stmt_execute($stmt);
-                if (!$result) {
-                    throw new Exception("Error al ejecutar la consulta: " . mysqli_error($conn));
-                }
+                // Preparar la consulta, vincular los parámetros y ejecutar la consulta
+				$stmt = mysqli_prepare($conn, $querySelect);
+				mysqli_stmt_bind_param($stmt, "iii", $productoID, $size, $offset);
+				mysqli_stmt_execute($stmt);
+				$result = mysqli_stmt_get_result($stmt);
 
-				// Obtener el resultado
-                $result = mysqli_stmt_get_result($stmt);
-                if (!$result) {
-                    throw new Exception("Error al obtener el resultado: " . mysqli_error($conn));
-                }
-               
-				$listaProductosSubcategorias = [];
+				// Obtener los resultados de la consulta
+				$subcategorias = [];
+				$subcategorias = [];
 				while ($row = mysqli_fetch_assoc($result)) {
-					$listaProductosSubcategorias[] = [
-						'ID' => $row[PRODUCTO_SUBCATEGORIA_ID],
-						'ProductoId' => $row[PRODUCTO_SUBCATEGORIA_PRODUCTO_ID],
-						'SubcategoriaId' => $row[PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID],
-                        'NombreProducto' => $row[PRODUCTO_NOMBRE],
-                        'NombreSubcategoria' =>  $row[SUBCATEGORIA_NOMBRE],
-                        'Estado' => $row[PRODUCTO_SUBCATEGORIA_ESTADO]
+					$subcategorias[] = [
+						"ID" => $row[SUBCATEGORIA_ID],
+						"Nombre" => $row[SUBCATEGORIA_NOMBRE],
+						"Descripcion" => $row[SUBCATEGORIA_DESCRIPCION],
+						"Estado" => $row[SUBCATEGORIA_ESTADO]
 					];
 				}
+
 				return [
                     "success" => true,
                     "page" => $page,
                     "size" => $size,
                     "totalPages" => $totalPages,
                     "totalRecords" => $totalRecords,
-                    "listaProductosSubcategorias" => $listaProductosSubcategorias
+                    "producto" => $productoID,
+                    "subcategorias" => $subcategorias
                 ];
 			} catch (Exception $e) {
-				// Devolver el mensaje de error
-                return ["success" => false, "message" => $e->getMessage()];
-            } finally {
-                // Cerrar la conexión y el statement
-                if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
-            }
-        }
-
-        function updateProductoSubcategoria($ProductoSubcategoria){
-            try {
-                /***************************************
-                 * Validacion de campos necesarios
-                 ***************************************/
-                $id_producto_subcategoria = $ProductoSubcategoria->getIdProductoSubcategoria();
-                $id_producto = $ProductoSubcategoria->getIdProducto();
-                $id_subcategoria = $ProductoSubcategoria->getIdSubcategoria();
-                
-                if(empty($id_producto_subcategoria)){throw new Exception("Id del producto subcategoria vacio."); }
-                if(empty($id_producto)){ throw new Exception("El id de producto no debe ser vacio."); }
-                if(empty($id_subcategoria)){ throw new Exception("El id de la subcategoria no debe ser vacio."); }
-
-                $relation = $this->Exists_Producto_Subcategoria_Relation($id_producto,$id_subcategoria, $id_producto_subcategoria, true);
-                if($relation["exists"]){
-                    return $relation;
-                }
-
-                $check = $this->Exists_Primary_Key($id_producto_subcategoria,TB_PRODUCTO_SUBCATEGORIA, PRODUCTO_SUBCATEGORIA_ID, PRODUCTO_SUBCATEGORIA_ESTADO);
-                if(!$check["success"]){ throw new Exception("id subcategoria inexistente."); }
-
-                $check = $this->Exists_Primary_Key($id_producto,TB_PRODUCTO, PRODUCTO_ID, PRODUCTO_ESTADO);
-                if(!$check["success"]){ throw new Exception("id producto inexistente."); }
-
-                $check = $this->Exists_Primary_Key($id_subcategoria,TB_SUBCATEGORIA, SUBCATEGORIA_ID, SUBCATEGORIA_ESTADO);
-                if(!$check["success"]){ throw new Exception("id subcategoria inexistente."); }
-
-
-                /***********************************
-                 * Conexion a la base de datos 
-                 ***********************************/
-                $result = $this->getConnection();
-                if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
-
-                /***********************************
-                 * Creando sentencia update
-                 ***********************************/
-                $queryUpdate = 
-                    "UPDATE ".TB_PRODUCTO_SUBCATEGORIA ." SET " . 
-                        PRODUCTO_SUBCATEGORIA_PRODUCTO_ID. " = ?, " . 
-                        PRODUCTO_SUBCATEGORIA_SUBCATEGORIA_ID." = ? ". 
-                    "WHERE " .PRODUCTO_SUBCATEGORIA_ID. " = ?;";
-
-                $stmt = mysqli_prepare($conn, $queryUpdate);
-                if (!$stmt) { throw new Exception("Error al preparar la consulta"); }
-                // Utils::writeLog("Id p :".$ProductoSubcategoria->getIdProducto()."  Id s :".$ProductoSubcategoria->getIdSubcategoria()."   PS: ".$ProductoSubcategoria->getIdProductoSubcategoria());
-                mysqli_stmt_bind_param(
-                    $stmt,
-                    'iii', // s: Cadena, i: Entero
-                    $ProductoSubcategoria->getIdProducto(),
-                    $ProductoSubcategoria->getIdSubcategoria(),
-                    $ProductoSubcategoria->getIdProductoSubcategoria()
+				// Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al obtener la lista de subcategorias del producto desde la base de datos',
+                    $this->className
                 );
-
-                /*********************************
-                 * Ejecusion de la sentencia
-                 *********************************/
-                $result = mysqli_stmt_execute($stmt);
-                if (!$result) { throw new Exception("¡Error al actualizar la producto subcategoria!"); }
-
-                // Devuelve el resultado de la consulta
-                return ["success" => true, "message" => "¡Producto subcategoria actualizada exitosamente!"];
-
-            } catch (Exception $e) {
-                // Devuelve el mensaje de error
-                return ["success" => false, "message" => $e->getMessage()];
-            } finally {
-                // Cierra la conexión y el statement
-                if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
-            }
-        }
-        function deleteProductoSubcategoria($id){
-            try {
-                /************************************
-                 * Proceder a verificar si 
-                 * existe el subcategoria a eliminar
-                 ***********************************/
-                if(empty($id) || $id<= 0){
-                    throw new Exception("¡El id de la producto subcategoria esta vacio o no es valido!");
-                }
-
-                $exist = $this->Exists_Primary_Key($id,TB_PRODUCTO_SUBCATEGORIA,PRODUCTO_SUBCATEGORIA_ID,PRODUCTO_SUBCATEGORIA_ESTADO);
-                if(!$exist["exists"]){ return $check; }
-
-                /******************************
-                 * Conexion a la base de datos
-                 ******************************/
-                $result = $this->getConnection();
-                if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
         
-                /*********************************
-                 * Creando sentencia de 
-                 * eliminado logico
-                 *********************************/
-                $queryDelete = "UPDATE " . TB_PRODUCTO_SUBCATEGORIA. " SET " . PRODUCTO_SUBCATEGORIA_ESTADO . " = ? WHERE " . PRODUCTO_SUBCATEGORIA_ID . " = ?;";
-                $stmt = mysqli_prepare($conn, $queryDelete);
-                if (!$stmt) {
-                    throw new Exception("Error al preparar la consulta de eliminación.");
-                }
-        
-                $subcategoriaEstado = false; //<- Para el borrado lógico
-                mysqli_stmt_bind_param($stmt, 'ii', $subcategoriaEstado, $id);
+                return ["success" => false, "message" => $userMessage];
+			} finally {
+				// Cierra la conexión y el statement
+				if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+				if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+			}
+		}
 
-                /********************************
-                 * Ejecutando la sentencia
-                 ********************************/
-                $result = mysqli_stmt_execute($stmt);
-                if (!$result) { throw new Exception("¡Error al eliminar la subcategoria!"); }
-        
-                // Devuelve el resultado de la operación
-                return ["success" => true, "message" => "¡Subcategoria eliminado exitosamente!"];
-            } catch (Exception $e) {
-                // Devuelve el mensaje de error
-                return ["success" => false, "message" => $e->getMessage()];
-            } finally {
-                // Cierra la conexión y el statement
-                if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
-            }
-        }
-
-    }
-
-
+	}
+	
 ?>
