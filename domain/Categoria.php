@@ -1,12 +1,10 @@
 <?php
 
     class Categoria {
-
         private $categoriaID;
         private $categoriaNombre;
         private $categoriaDescripcion;
         private $categoriaEstado;
-
         function __construct($categoriaID = 0, $categoriaNombre = "", $categoriaDescripcion = "", $categoriaEstado = true) {
             $this->categoriaID = $categoriaID;
             $this->categoriaNombre = strtoupper($categoriaNombre);

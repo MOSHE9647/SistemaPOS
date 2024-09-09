@@ -72,6 +72,7 @@
 			try {
 				// Obtener los valores de las propiedades del objeto
 				$categoriaNombre = $categoria->getCategoriaNombre();
+				$categoriaDescripcion = $categoria->getCategoriaDescripcion();
 				$categoriaEstado = true; // Estado por defecto: activo
 
 				// Verifica que las propiedades no estén vacías
@@ -112,8 +113,9 @@
 				$queryInsert = "INSERT INTO " . TB_CATEGORIA . " ("
                     . CATEGORIA_ID . ", "
                     . CATEGORIA_NOMBRE . ", "
-                    . CATEGORIA_ESTADO
-                    . ") VALUES (?, ?, ?)";
+					. CATEGORIA_DESCRIPCION .", "
+                    . CATEGORIA_ESTADO ." "
+                    . ") VALUES (?, ?, ?, true)";
 				$stmt = mysqli_prepare($conn, $queryInsert);
 				if (!$stmt) {
 					throw new Exception("Error al preparar la consulta");
@@ -121,10 +123,10 @@
 
 				mysqli_stmt_bind_param(
 					$stmt,
-					'isi', // i: Entero, s: Cadena
+					'iss', // i: Entero, s: Cadena
 					$nextId,
 					$categoriaNombre,
-					$categoriaEstado
+					$categoriaDescripcion
 				);
 
 				// Ejecuta la consulta de inserción
@@ -134,10 +136,16 @@
 				}
 
 				return ["success" => true, "message" => "Categoría insertada exitosamente"];
-			} catch (Exception $e) {
-				// Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
-			} finally {
+			}catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al insertar categoria a la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
 				if (isset($conn)) { mysqli_close($conn); }
@@ -169,15 +177,22 @@
 					$currentCategoria = new Categoria(
 						$row[CATEGORIA_ID],
 						$row[CATEGORIA_NOMBRE],
+						$row[CATEGORIA_DESCRIPCION],
 						$row[CATEGORIA_ESTADO]
 					);
 					array_push($listaCategorias, $currentCategoria);
 				}
 				return ["success" => true, "listaCategorias" => $listaCategorias];
 			} catch (Exception $e) {
-				// Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
-			} finally {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al listar las categorias de la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            }  finally {
 				// Cierra la conexión y el statement
 				if (isset($conn)) { mysqli_close($conn); }
 			}
@@ -244,6 +259,7 @@
 					$currentCategoria = new Categoria(
 						$row[CATEGORIA_ID],
 						$row[CATEGORIA_NOMBRE],
+						$row[CATEGORIA_DESCRIPCION],
 						$row[CATEGORIA_ESTADO]
 					);
 					array_push($listaCategorias, $currentCategoria);
@@ -257,10 +273,16 @@
 					"totalRecords" => $totalRecords,
 					"listaCategorias" => $listaCategorias
 				];
-			} catch (Exception $e) {
-				// Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
-			} finally {
+			}catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al listar las categorias de la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            }  finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
 				if (isset($conn)) { mysqli_close($conn); }
@@ -272,7 +294,7 @@
 			try {
 				$categoriaID = $categoria->getCategoriaID();
 				$categoriaNombre = $categoria->getCategoriaNombre();
-				$categoriaEstado = $categoria->getCategoriaEstado();
+				$categoriaDescripcion = $categoria->getCategoriaDescripcion();
 
 				// Verifica que las propiedades no estén vacías
 				if (empty($categoriaNombre)) {
@@ -298,7 +320,8 @@
 				// Crea la consulta SQL para actualizar la categoría
 				$queryUpdate = "UPDATE " . TB_CATEGORIA . " SET "
 					. CATEGORIA_NOMBRE . " = ?, "
-					. CATEGORIA_ESTADO . " = ? "
+					. CATEGORIA_DESCRIPCION . " = ?, "
+					. CATEGORIA_ESTADO . " = true "
 					. "WHERE " . CATEGORIA_ID . " = ?";
 
 				$stmt = mysqli_prepare($conn, $queryUpdate);
@@ -308,9 +331,9 @@
 
 				mysqli_stmt_bind_param(
 					$stmt,
-					'sii', // s: Cadena, i: Entero
+					'ssi', // s: Cadena, i: Entero
 					$categoriaNombre,
-					$categoriaEstado,
+					$categoriaDescripcion,
 					$categoriaID
 				);
 
@@ -321,10 +344,16 @@
 				}
 
 				return ["success" => true, "message" => "Categoría actualizada exitosamente"];
-			} catch (Exception $e) {
-				// Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
-			} finally {
+			}catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al actualizar la categoria a la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
 				if (isset($conn)) { mysqli_close($conn); }
@@ -358,7 +387,7 @@
 				// Crea la consulta SQL para desactivar la categoría
 				$queryDelete = "UPDATE " . TB_CATEGORIA . " SET "
 					. CATEGORIA_ESTADO . " = false "
-					. "WHERE " . CATEGORIA_ID . " = ?";
+					. " WHERE " . CATEGORIA_ID . " = ?";
 
 				$stmt = mysqli_prepare($conn, $queryDelete);
 				if (!$stmt) {
@@ -378,10 +407,16 @@
 				}
 
 				return ["success" => true, "message" => "Categoría eliminada exitosamente"];
-			} catch (Exception $e) {
-				// Devuelve el mensaje de error
-				return ["success" => false, "message" => $e->getMessage()];
-			} finally {
+			}catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al eliminar la categoria a la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            }finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
 				if (isset($conn)) { mysqli_close($conn); }

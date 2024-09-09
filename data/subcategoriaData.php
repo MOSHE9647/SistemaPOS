@@ -377,7 +377,7 @@
                 }
 
                 $exist = $this->VerificarExisteSubcategoria($id);
-                if(!$exist["exists"]){ return $check; }
+                if(!$exist["exists"]){ return $exist; }
 
                 /******************************
                  * Conexion a la base de datos
