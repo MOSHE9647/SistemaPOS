@@ -1,57 +1,57 @@
 <?php
 class CompraDetalle {
-    private $compradetalleid;
-    private $compradetallecompraid;
-    private $compradetalleloteid;
-    private $compradetalleproductoid;
-    private $compradetalleprecioproducto;
-    private $compradetallecantidad;
-    private $compradetallefechacreacion;
-    private $compradetallefechamodificacion;
-    private $compradetalleestado;
+    private $compraDetalleID;
+    private $compraDetalleCompraID;
+    private $compraDetalleLoteID;
+    private $compraDetalleProductoID;
+    private $compraDetallePrecioProducto;
+    private $compraDetalleCantidad;
+    private $compraDetalleFechaCreacion;
+    private $compraDetalleFechaModificacion;
+    private $compraDetalleEstado;
 
     public function __construct(
-        $compradetalleid,
-        $compradetallecompraid,
-        $compradetalleloteid,
-        $compradetalleproductoid,
-        $compradetalleprecioproducto,
-        $compradetallecantidad,
-        $compradetallefechacreacion,
-        $compradetallefechamodificacion,
-        $compradetalleestado
+        $compraDetalleID,
+        $compraDetalleCompraID,
+        $compraDetalleLoteID,
+        $compraDetalleProductoID,
+        $compraDetallePrecioProducto,
+        $compraDetalleCantidad,
+        $compraDetalleFechaCreacion,
+        $compraDetalleFechaModificacion,
+        $compraDetalleEstado
     ) {
-        $this->compradetalleid = $compradetalleid;
-        $this->compradetallecompraid = $compradetallecompraid;
-        $this->compradetalleloteid = $compradetalleloteid;
-        $this->compradetalleproductoid = $compradetalleproductoid;
-        $this->compradetalleprecioproducto = $compradetalleprecioproducto;
-        $this->compradetallecantidad = $compradetallecantidad;
-        $this->compradetallefechacreacion = $compradetallefechacreacion;
-        $this->compradetallefechamodificacion = $compradetallefechamodificacion;
-        $this->compradetalleestado = $compradetalleestado;
+        $this->compraDetalleID = $compraDetalleID;
+        $this->compraDetalleCompraID = $compraDetalleCompraID;
+        $this->compraDetalleLoteID = $compraDetalleLoteID;
+        $this->compraDetalleProductoID = $compraDetalleProductoID;
+        $this->compraDetallePrecioProducto = $compraDetallePrecioProducto;
+        $this->compraDetalleCantidad = $compraDetalleCantidad;
+        $this->compraDetalleFechaCreacion = $compraDetalleFechaCreacion;
+        $this->compraDetalleFechaModificacion = $compraDetalleFechaModificacion;
+        $this->compraDetalleEstado = $compraDetalleEstado;
     }
 
     // Getters
-    public function getCompradetalleid() { return $this->compradetalleid; }
-    public function getCompradetallecompraid() { return $this->compradetallecompraid; }
-    public function getCompradetalleloteid() { return $this->compradetalleloteid; }
-    public function getCompradetalleproductoid() { return $this->compradetalleproductoid; }
-    public function getCompradetalleprecioproducto() { return $this->compradetalleprecioproducto; }
-    public function getCompradetallecantidad() { return $this->compradetallecantidad; }
-    public function getCompradetallefechacreacion() { return $this->compradetallefechacreacion; }
-    public function getCompradetallefechamodificacion() { return $this->compradetallefechamodificacion; }
-    public function getCompradetalleestado() { return $this->compradetalleestado; }
+    public function getCompraDetalleID() { return $this->compraDetalleID; }
+    public function getCompraDetalleCompraID() { return $this->compraDetalleCompraID; }
+    public function getCompraDetalleLoteID() { return $this->compraDetalleLoteID; }
+    public function getCompraDetalleProductoID() { return $this->compraDetalleProductoID; }
+    public function getCompraDetallePrecioProducto() { return $this->compraDetallePrecioProducto; }
+    public function getCompraDetalleCantidad() { return $this->compraDetalleCantidad; }
+    public function getCompraDetalleFechaCreacion() { return $this->compraDetalleFechaCreacion; }
+    public function getCompraDetalleFechaModificacion() { return $this->compraDetalleFechaModificacion; }
+    public function getCompraDetalleEstado() { return $this->compraDetalleEstado; }
 
     // Setters
-    public function setCompradetalleid($compradetalleid) { $this->compradetalleid = $compradetalleid; }
-    public function setCompradetallecompraid($compradetallecompraid) { $this->compradetallecompraid = $compradetallecompraid; }
-    public function setCompradetalleloteid($compradetalleloteid) { $this->compradetalleloteid = $compradetalleloteid; }
-    public function setCompradetalleproductoid($compradetalleproductoid) { $this->compradetalleproductoid = $compradetalleproductoid; }
-    public function setCompradetalleprecioproducto($compradetalleprecioproducto) { $this->compradetalleprecioproducto = $compradetalleprecioproducto; }
-    public function setCompradetallecantidad($compradetallecantidad) { $this->compradetallecantidad = $compradetallecantidad; }
-    public function setCompradetallefechacreacion($compradetallefechacreacion) { $this->compradetallefechacreacion = $compradetallefechacreacion; }
-    public function setCompradetallefechamodificacion($compradetallefechamodificacion) { $this->compradetallefechamodificacion = $compradetallefechamodificacion; }
-    public function setCompradetalleestado($compradetalleestado) { $this->compradetalleestado = $compradetalleestado; }
+    public function setCompraDetalleID($compraDetalleID) { $this->compraDetalleID = $compraDetalleID; }
+    public function setCompraDetalleCompraID($compraDetalleCompraID) { $this->compraDetalleCompraID = $compraDetalleCompraID; }
+    public function setCompraDetalleLoteID($compraDetalleLoteID) { $this->compraDetalleLoteID = $compraDetalleLoteID; }
+    public function setCompraDetalleProductoID($compraDetalleProductoID) { $this->compraDetalleProductoID = $compraDetalleProductoID; }
+    public function setCompraDetallePrecioProducto($compraDetallePrecioProducto) { $this->compraDetallePrecioProducto = $compraDetallePrecioProducto; }
+    public function setCompraDetalleCantidad($compraDetalleCantidad) { $this->compraDetalleCantidad = $compraDetalleCantidad; }
+    public function setCompraDetalleFechaCreacion($compraDetalleFechaCreacion) { $this->compraDetalleFechaCreacion = $compraDetalleFechaCreacion; }
+    public function setCompraDetalleFechaModificacion($compraDetalleFechaModificacion) { $this->compraDetalleFechaModificacion = $compraDetalleFechaModificacion; }
+    public function setCompraDetalleEstado($compraDetalleEstado) { $this->compraDetalleEstado = $compraDetalleEstado; }
 }
 ?>

@@ -115,7 +115,7 @@
                 if ($check['exists']) {
                     $message = "El telefono con 'Código [$telefonoCodigoPais]' y 'Número [$telefonoNumero]' ya existe en la base de datos.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
-					return ["success" => false, "message" => "Ya existe un telefono con el mismo número y código de país."];
+					return ["success" => false, "message" => "Ya existe un telefono con el mismo número y código de país en la base de datos."];
                 }
 
                 // Establece una conexión con la base de datos
