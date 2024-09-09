@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 07-09-2024 a las 15:36:46
+-- Tiempo de generación: 08-09-2024 a las 20:13:08
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -125,6 +125,16 @@ CREATE TABLE `tbdireccion` (
   `direccionestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
+--
+-- Volcado de datos para la tabla `tbdireccion`
+--
+
+INSERT INTO `tbdireccion` (`direccionid`, `direccionprovincia`, `direccioncanton`, `direcciondistrito`, `direccionbarrio`, `direccionsennas`, `direcciondistancia`, `direccionestado`) VALUES
+(1, 'Heredia', 'Sarapiquí', 'Horquetas', 'Urb Miraflores', 'Casa #37', 3.00, 1),
+(2, 'Alajuela', 'Zarcero', 'Guadalupe', 'Escalante', 'Casa #26', 20.00, 1),
+(3, 'Alajuela', 'San Carlos', 'Aguas Zarcas', 'Cascadia', '', 20.00, 0),
+(4, 'Guanacaste', 'Abangares', 'Sierra', 'Sierra', 'Casa #32', 5.00, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -150,7 +160,10 @@ INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impu
 (2, 'IFJ', 10.00, '', '2024-08-20', 0),
 (3, 'IFK', 13.00, '', '2024-08-20', 0),
 (4, 'IJK', 20.00, '', '2024-09-04', 0),
-(5, 'MELI956124', 100.00, '.', '2024-09-03', 1);
+(5, 'MELI956124', 100.00, '.', '2024-09-03', 0),
+(6, 'IRF', 13.00, '', '2024-08-01', 1),
+(7, 'IVM', 5.00, '', '2024-09-07', 1),
+(8, 'IPJ', 6.00, '', '2024-09-04', 1);
 
 -- --------------------------------------------------------
 
@@ -199,6 +212,22 @@ CREATE TABLE `tbproducto` (
   `productoestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
+--
+-- Volcado de datos para la tabla `tbproducto`
+--
+
+INSERT INTO `tbproducto` (`productoid`, `productonombre`, `productopreciocompra`, `productoporcentajeganancia`, `productodescripcion`, `productocodigobarrasid`, `productoimagen`, `productoestado`) VALUES
+(1, 'Laptop', 800.00, 20.00, 'Laptop de alta gama', 1001, '/images/productos/electronics/1_laptop.jpg', 1),
+(2, 'Smartphone', 400.00, 25.00, 'Smartphone con excelente cámara', 1002, '/images/productos/electronics/2_smartphone.jpg', 1),
+(3, 'Headphones', 50.00, 30.00, 'Auriculares con cancelación de ruido', 1003, '/images/productos/electronics/3_headphones.jpg', 1),
+(4, 'Smartwatch', 150.00, 15.00, 'Reloj inteligente resistente al agua', 1004, '/images/productos/electronics/4_smartwatch.jpg', 1),
+(5, 'Tablet', 250.00, 22.00, 'Tablet de alta resolución', 1005, '/images/productos/electronics/5_tablet.jpg', 1),
+(6, 'Camera', 600.00, 18.00, 'Cámara digital profesional', 1006, '/images/productos/electronics/6_camera.jpg', 1),
+(7, 'Printer', 120.00, 20.00, 'Impresora multifuncional', 1007, '/images/productos/electronics/7_printer.jpg', 1),
+(8, 'Monitor', 200.00, 25.00, 'Monitor de 27 pulgadas', 1008, '/images/productos/electronics/8_monitor.jpg', 1),
+(9, 'Keyboard', 30.00, 35.00, 'Teclado mecánico retroiluminado', 1009, '/images/productos/electronics/9_keyboard.jpg', 1),
+(10, 'Mouse', 20.00, 40.00, 'Mouse ergonómico', 1010, '/images/productos/electronics/10_mouse.jpg', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -226,6 +255,15 @@ CREATE TABLE `tbproductosubcategoria` (
   `subcategoriaid` int NOT NULL,
   `productosubcategoriaestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+--
+-- Volcado de datos para la tabla `tbproductosubcategoria`
+--
+
+INSERT INTO `tbproductosubcategoria` (`productosubcategoriaid`, `productoid`, `subcategoriaid`, `productosubcategoriaestado`) VALUES
+(1, 1, 6, 1),
+(2, 1, 7, 0),
+(3, 1, 8, 1);
 
 -- --------------------------------------------------------
 
@@ -286,6 +324,16 @@ CREATE TABLE `tbproveedordireccion` (
   `proveedordireccionestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
+--
+-- Volcado de datos para la tabla `tbproveedordireccion`
+--
+
+INSERT INTO `tbproveedordireccion` (`proveedordireccionid`, `proveedorid`, `direccionid`, `proveedordireccionestado`) VALUES
+(1, 1, 1, 1),
+(2, 1, 2, 1),
+(3, 1, 3, 0),
+(4, 1, 4, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -319,20 +367,8 @@ CREATE TABLE `tbproveedortelefono` (
 --
 
 INSERT INTO `tbproveedortelefono` (`proveedortelefonoid`, `proveedorid`, `telefonoid`, `proveedortelefonoestado`) VALUES
-(1, 1, 1, 0),
-(2, 2, 2, 0),
-(3, 2, 3, 0),
-(4, 2, 4, 1),
-(5, 5, 5, 1),
-(6, 6, 6, 1),
-(7, 7, 7, 1),
-(8, 8, 8, 1),
-(9, 9, 9, 1),
-(10, 10, 10, 1),
-(11, 10, 11, 0),
-(12, 10, 12, 1),
-(13, 10, 13, 0),
-(14, 4, 13, 1);
+(1, 1, 1, 1),
+(2, 1, 2, 0);
 
 -- --------------------------------------------------------
 
@@ -362,6 +398,22 @@ CREATE TABLE `tbsubcategoria` (
   `subcategoriaestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
+--
+-- Volcado de datos para la tabla `tbsubcategoria`
+--
+
+INSERT INTO `tbsubcategoria` (`subcategoriaid`, `subcategorianombre`, `subcategoriadescripcion`, `subcategoriaestado`) VALUES
+(1, 'Electrónica', 'Productos electrónicos', 1),
+(2, 'Computadoras', 'Equipos de computación', 1),
+(3, 'Accessorios', 'Accesorios de electrónica', 1),
+(4, 'Wearables', 'Dispositivos ponibles', 1),
+(5, 'Cámaras', 'Cámaras digitales', 0),
+(6, 'Impresoras', 'Impresoras y escáneres', 1),
+(7, 'Pantallas', 'Monitores y pantallas', 0),
+(8, 'Dispositivos de Entrada', 'Dispositivos de entrada', 1),
+(9, 'Dispositivos Móviles', 'Dispositivos móviles', 1),
+(10, 'Electrodomésticos', 'Electrodomésticos', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -385,19 +437,8 @@ CREATE TABLE `tbtelefono` (
 --
 
 INSERT INTO `tbtelefono` (`telefonoid`, `telefonotipo`, `telefonocodigopais`, `telefononumero`, `telefonoextension`, `telefonofechacreacion`, `telefonofechamodificacion`, `telefonoestado`) VALUES
-(1, 'Fax', '+505', '6421 2950', '', '2024-09-05 00:32:16', '2024-09-05 01:31:35', 0),
-(2, 'Móvil', '+506', '2764 4311', '', '2024-09-05 00:41:25', '2024-09-05 00:42:33', 0),
-(3, 'Móvil', '+506', '6397 3489', '', '2024-09-05 01:31:05', '2024-09-06 19:34:23', 0),
-(4, 'Fijo', '+502', '5550 1039', '124', '2024-09-06 18:12:58', '2024-09-07 03:21:39', 1),
-(5, 'Móvil', '+1-809', '555 010 4972', '', '2024-09-06 18:12:58', '2024-09-07 03:25:09', 1),
-(6, 'Fijo', '+53', '555 0105 9657', '125', '2024-09-06 18:12:58', '2024-09-07 03:30:08', 1),
-(7, 'Móvil', '+57', '555 010 6974', '', '2024-09-06 18:12:58', '2024-09-07 03:30:24', 1),
-(8, 'Fijo', '+52', '55 5010 7973', '126', '2024-09-06 18:12:58', '2024-09-07 03:30:44', 1),
-(9, 'Móvil', '+58', '5550 1087', '', '2024-09-06 18:12:58', '2024-09-07 03:31:03', 1),
-(10, 'Fijo', '+506', '5550 1099', '127', '2024-09-06 18:12:58', '2024-09-07 03:21:13', 1),
-(11, 'Móvil', '+506', '6397 3489', '', '2024-09-06 19:33:30', '2024-09-06 23:19:12', 0),
-(12, 'Móvil', '+506', '8888 8888', '', '2024-09-07 02:35:16', '2024-09-07 02:35:16', 1),
-(13, 'Móvil', '+506', '8881 8881', '', '2024-09-07 02:55:59', '2024-09-07 03:31:35', 1);
+(1, 'Móvil', '+1-809', '257 998 5247', '', '2024-09-07 22:11:19', '2024-09-07 22:11:19', 1),
+(2, 'Móvil', '+503', '9728 6416', '', '2024-09-07 22:11:51', '2024-09-07 22:12:25', 0);
 
 -- --------------------------------------------------------
 
