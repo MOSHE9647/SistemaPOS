@@ -13,12 +13,12 @@ class CompraDetalleBusiness {
     public function validarCompraDetalle($compraDetalle, $validarCamposAdicionales = true) {
         try {
             // Obtener los valores de las propiedades del objeto
-            $compraDetalleID = $compraDetalle->getCompradetalleid();
-            $compraDetalleCompraID = $compraDetalle->getCompradetallecompraid();
-            $compraDetalleLoteID = $compraDetalle->getCompradetalleloteid();
-            $compraDetalleProductoID = $compraDetalle->getCompradetalleproductoid();
-            $compraDetallePrecioProducto = $compraDetalle->getCompradetalleprecioproducto();
-            $compraDetalleCantidad = $compraDetalle->getCompradetallecantidad();
+            $compraDetalleID = $compraDetalle->getCompraDetalleID();
+            $compraDetalleCompraID = $compraDetalle->getCompraDetalleCompraID();
+            $compraDetalleLoteID = $compraDetalle->getCompraDetalleLoteID();
+            $compraDetalleProductoID = $compraDetalle->getCompraDetalleProductoID();
+            $compraDetallePrecioProducto = $compraDetalle->getCompraDetallePrecioProducto();
+            $compraDetalleCantidad = $compraDetalle->getCompraDetalleCantidad();
             $errors = [];
 
             // Verifica que el ID del detalle de compra sea válido

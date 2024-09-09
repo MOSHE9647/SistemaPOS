@@ -8,7 +8,7 @@
         private $codigoBarrasFechaModificacion;
         private $codigoBarrasEstado;
 
-        function __construct($codigoBarrasNumero, $codigoBarrasID = -1, $codigoBarrasFechaCreacion = '', 
+        function __construct($codigoBarrasID = -1, $codigoBarrasNumero = "", $codigoBarrasFechaCreacion = '', 
             $codigoBarrasFechaModificacion = '', $codigoBarrasEstado = true) {
 
             $this->codigoBarrasID = $codigoBarrasID;

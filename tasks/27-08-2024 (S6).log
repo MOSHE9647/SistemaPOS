@@ -45,7 +45,7 @@ Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos
     | [ ] tbproducto                 | [-] tbproveedorcategoria         | [1] tbdireccion                 |
     |                                |                                  | [ ] tbcodigobarras              |
     |                                |                                  | [0] tbproductocategoria         |
-    |                                |                                  | [0] tbproductosubcategoria      |
+    |                                |                                  | [1] tbproductosubcategoria      |
     |                                |                                  | [1] tbproveedortelefono         |
     |                                |                                  | [1] tbproveedordireccion        |
     |--------------------------------|----------------------------------|---------------------------------|
