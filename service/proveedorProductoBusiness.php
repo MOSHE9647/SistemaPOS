@@ -13,7 +13,6 @@ class ProveedorProductoBusiness {
         try {
             return $this->proveedorProductoData->insertarProveedorProducto($proveedorId, $productoId);
         } catch (Exception $e) {
-            
             return ["success" => false, "message" => $e->getMessage()];
         }
     }

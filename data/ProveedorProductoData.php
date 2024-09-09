@@ -309,7 +309,6 @@
             }
         }
 
-
         public function obtenerProveedorProductoPorId($proveedorProductoId) {
             try {
                 $result = $this->getConnection();
@@ -350,8 +349,6 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }        
-        
-       
     }
 
 ?>
