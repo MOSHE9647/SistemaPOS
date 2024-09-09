@@ -257,7 +257,7 @@
 
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'sssi', // s: Cadena, i: Entero
+                    'ssi', // s: Cadena, i: Entero
                     $nombre_subcategoria,
                     $descripcion,
                     $id_subcategoria
