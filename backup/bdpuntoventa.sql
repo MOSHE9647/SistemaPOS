@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 08-09-2024 a las 20:13:08
+-- Tiempo de generación: 08-09-2024 a las 23:10:33
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -34,6 +34,22 @@ CREATE TABLE `tbcategoria` (
   `categoriadescripcion` text,
   `categoriaestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+--
+-- Volcado de datos para la tabla `tbcategoria`
+--
+
+INSERT INTO `tbcategoria` (`categoriaid`, `categorianombre`, `categoriadescripcion`, `categoriaestado`) VALUES
+(1, 'Electronics', 'Todo tipo de productos electrónicos', 1),
+(2, 'Computers & Accessories', 'Computadoras y accesorios', 1),
+(3, 'Mobile Devices', 'Dispositivos móviles y accesorios', 1),
+(4, 'Wearable Technology', 'Tecnología ponible', 1),
+(5, 'Photography & Video', 'Fotografía y video', 1),
+(6, 'Printers & Scanners', 'Impresoras y escáneres', 0),
+(7, 'Monitors & Displays', 'Monitores y pantallas', 0),
+(8, 'Input Devices', 'Dispositivos de entrada', 1),
+(9, 'Home Appliances', 'Electrodomésticos para el hogar', 1),
+(10, 'Audio & Headphones', 'Audio y auriculares', 1);
 
 -- --------------------------------------------------------
 
@@ -217,16 +233,16 @@ CREATE TABLE `tbproducto` (
 --
 
 INSERT INTO `tbproducto` (`productoid`, `productonombre`, `productopreciocompra`, `productoporcentajeganancia`, `productodescripcion`, `productocodigobarrasid`, `productoimagen`, `productoestado`) VALUES
-(1, 'Laptop', 800.00, 20.00, 'Laptop de alta gama', 1001, '/images/productos/electronics/1_laptop.jpg', 1),
-(2, 'Smartphone', 400.00, 25.00, 'Smartphone con excelente cámara', 1002, '/images/productos/electronics/2_smartphone.jpg', 1),
-(3, 'Headphones', 50.00, 30.00, 'Auriculares con cancelación de ruido', 1003, '/images/productos/electronics/3_headphones.jpg', 1),
-(4, 'Smartwatch', 150.00, 15.00, 'Reloj inteligente resistente al agua', 1004, '/images/productos/electronics/4_smartwatch.jpg', 1),
-(5, 'Tablet', 250.00, 22.00, 'Tablet de alta resolución', 1005, '/images/productos/electronics/5_tablet.jpg', 1),
-(6, 'Camera', 600.00, 18.00, 'Cámara digital profesional', 1006, '/images/productos/electronics/6_camera.jpg', 1),
-(7, 'Printer', 120.00, 20.00, 'Impresora multifuncional', 1007, '/images/productos/electronics/7_printer.jpg', 1),
-(8, 'Monitor', 200.00, 25.00, 'Monitor de 27 pulgadas', 1008, '/images/productos/electronics/8_monitor.jpg', 1),
-(9, 'Keyboard', 30.00, 35.00, 'Teclado mecánico retroiluminado', 1009, '/images/productos/electronics/9_keyboard.jpg', 1),
-(10, 'Mouse', 20.00, 40.00, 'Mouse ergonómico', 1010, '/images/productos/electronics/10_mouse.jpg', 1);
+(1, 'Laptop', 800.00, 20.00, 'Laptop de alta gama', 1001, '/img/productos/electronics/1_laptop.jpg', 1),
+(2, 'Smartphone', 400.00, 25.00, 'Smartphone con excelente cámara', 1002, '/img/productos/electronics/2_smartphone.jpg', 1),
+(3, 'Headphones', 50.00, 30.00, 'Auriculares con cancelación de ruido', 1003, '/img/productos/electronics/3_headphones.jpg', 1),
+(4, 'Smartwatch', 150.00, 15.00, 'Reloj inteligente resistente al agua', 1004, '/img/productos/electronics/4_smartwatch.jpg', 1),
+(5, 'Tablet', 250.00, 22.00, 'Tablet de alta resolución', 1005, '/img/productos/electronics/5_tablet.jpg', 1),
+(6, 'Camera', 600.00, 18.00, 'Cámara digital profesional', 1006, '/img/productos/electronics/6_camera.jpg', 1),
+(7, 'Printer', 120.00, 20.00, 'Impresora multifuncional', 1007, '/img/productos/electronics/7_printer.jpg', 1),
+(8, 'Monitor', 200.00, 25.00, 'Monitor de 27 pulgadas', 1008, '/img/productos/electronics/8_monitor.jpg', 1),
+(9, 'Keyboard', 30.00, 35.00, 'Teclado mecánico retroiluminado', 1009, '/img/productos/electronics/9_keyboard.jpg', 1),
+(10, 'Mouse', 20.00, 40.00, 'Mouse ergonómico', 1010, '/img/productos/electronics/10_mouse.jpg', 1);
 
 -- --------------------------------------------------------
 
@@ -241,6 +257,25 @@ CREATE TABLE `tbproductocategoria` (
   `categoriaid` int NOT NULL,
   `productocategoriaestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+--
+-- Volcado de datos para la tabla `tbproductocategoria`
+--
+
+INSERT INTO `tbproductocategoria` (`productocategoriaid`, `productoid`, `categoriaid`, `productocategoriaestado`) VALUES
+(1, 1, 2, 1),
+(2, 2, 3, 1),
+(3, 3, 10, 1),
+(4, 4, 4, 1),
+(5, 5, 2, 1),
+(6, 6, 5, 1),
+(7, 7, 6, 1),
+(8, 8, 7, 1),
+(9, 9, 8, 1),
+(10, 10, 8, 1),
+(11, 1, 6, 0),
+(12, 1, 7, 0),
+(13, 1, 8, 1);
 
 -- --------------------------------------------------------
 
@@ -263,7 +298,8 @@ CREATE TABLE `tbproductosubcategoria` (
 INSERT INTO `tbproductosubcategoria` (`productosubcategoriaid`, `productoid`, `subcategoriaid`, `productosubcategoriaestado`) VALUES
 (1, 1, 6, 1),
 (2, 1, 7, 0),
-(3, 1, 8, 1);
+(3, 1, 8, 1),
+(4, 2, 12, 0);
 
 -- --------------------------------------------------------
 
@@ -412,7 +448,9 @@ INSERT INTO `tbsubcategoria` (`subcategoriaid`, `subcategorianombre`, `subcatego
 (7, 'Pantallas', 'Monitores y pantallas', 0),
 (8, 'Dispositivos de Entrada', 'Dispositivos de entrada', 1),
 (9, 'Dispositivos Móviles', 'Dispositivos móviles', 1),
-(10, 'Electrodomésticos', 'Electrodomésticos', 1);
+(10, 'Electrodomésticos', 'Electrodomésticos', 1),
+(11, 'Bebidas', '', 1),
+(12, 'Accesorios', 'Ninguna', 0);
 
 -- --------------------------------------------------------
 

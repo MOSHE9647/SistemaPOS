@@ -5,7 +5,7 @@
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $accion = $_POST['accion'];
-        $id_subcategoria = isset($_POST['id']) ? $_POST['id'] : null;
+        $id_subcategoria = isset($_POST['id']) ? $_POST['id'] : -1;
         $nombre_subcategoria = isset($_POST['nombre']) ? $_POST['nombre']: "";
         $descripcion = isset($_POST['descripcion'])?$_POST['descripcion']:"";
 

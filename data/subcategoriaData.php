@@ -349,7 +349,7 @@
                 $result = mysqli_stmt_execute($stmt);
                 if (!$result) { throw new Exception("¡Error al insertar nueva subcategoria!"); }
 
-                return ["success" => true, "message" => "¡Subcategoria insertada excitosamente!"];
+                return ["success" => true, "message" => "¡Subcategoria insertada excitosamente!", "id" => $nextId];
             }catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
@@ -377,7 +377,7 @@
                 }
 
                 $exist = $this->VerificarExisteSubcategoria($id);
-                if(!$exist["exists"]){ return $exist; }
+                if(!$exist["exists"]){ return $check; }
 
                 /******************************
                  * Conexion a la base de datos

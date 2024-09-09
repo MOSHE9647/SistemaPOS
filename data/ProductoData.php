@@ -369,17 +369,16 @@
                 // Creamos la lista con los datos obtenidos
                 $listaProductos = [];
                 while ($row = mysqli_fetch_assoc($result)) {  // Usamos fetch_assoc para obtener un array asociativo
-                    $currentProducto = new Producto(  
-                        $row[PRODUCTO_NOMBRE],
-                        $row[PRODUCTO_PRECIO_COMPRA],
-                        $row[PRODUCTO_CODIGO_BARRAS_ID], // Cambié PRODUCTO_ID a PRODUCTO_CODIGO_BARRAS_ID
-                        $row[PRODUCTO_DESCRIPCION],
-                        $row[PRODUCTO_ESTADO],
-                        $row[PRODUCTO_ID], // Asegúrate de incluir el ID en el constructor si es necesario
-                        $row[PRODUCTO_IMAGEN],
-                        $row[PRODUCTO_PORCENTAJE_GANANCIA]
-                    );
-                    array_push($listaProductos, $currentProducto);
+                    $listaProductos[] = [
+                        'ID' => $row[PRODUCTO_ID], // Asegúrate de incluir el ID en el constructor si es necesario
+                        'Nombre' => $row[PRODUCTO_NOMBRE],
+                        'PrecioCompra' => $row[PRODUCTO_PRECIO_COMPRA],
+                        'PorcentajeGanancia' => $row[PRODUCTO_PORCENTAJE_GANANCIA],
+                        'Descripcion' => $row[PRODUCTO_DESCRIPCION],
+                        'CodigoBarras' => $row[PRODUCTO_CODIGO_BARRAS_ID], // Cambié PRODUCTO_ID a PRODUCTO_CODIGO_BARRAS_ID
+                        'RutaImagen' => $row[PRODUCTO_IMAGEN],
+                        'Estado' => $row[PRODUCTO_ESTADO],
+                    ];
                 }
         
                 return ["success" => true, "listaProductos" => $listaProductos];
