@@ -3,6 +3,7 @@
     require_once 'data.php';
     require_once __DIR__ . '/../domain/Proveedor.php';
     require_once __DIR__ . '/../data/proveedorTelefonoData.php';
+    require_once __DIR__ . '/../data/proveedorDireccionData.php';
     require_once __DIR__ . '/../utils/Utils.php';
     require_once __DIR__ . '/../utils/Variables.php';
 
