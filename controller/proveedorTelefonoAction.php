@@ -59,7 +59,7 @@
 
         if ($check['is_valid']) {
             switch ($accion) {
-                case 'id':
+                case 'todo':
                     // Obtiene los teléfonos de un proveedor en la base de datos.
                     $response = $proveedorTelefonoBusiness->getTelefonosByProveedor($proveedorID, true);
                     break;
