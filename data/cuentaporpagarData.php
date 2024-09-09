@@ -21,7 +21,7 @@ class CuentaPorPagarData extends Data {
             $conn = $result["connection"];
 
             // Verifica si ya existe una cuenta por pagar con el mismo ID
-            if ($this->cuentaPorPagarExists($cuentaPorPagar->getCuentaPorPagarID())) {
+            if ($this->cuentaPorPagarExiste($cuentaPorPagar->getCuentaPorPagarID())) {
                 return ["success" => false, "message" => "Ya existe una cuenta por pagar con el mismo ID."];
             }
 

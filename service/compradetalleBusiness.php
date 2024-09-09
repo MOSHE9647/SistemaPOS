@@ -92,7 +92,7 @@ class CompraDetalleBusiness {
     }
 
     public function getAllCompraDetalle() {
-        return $this->compraDetalleData->getAllCompraDetalle();
+        return $this->compraDetalleData->getAllCompraDetalles();
     }
 
     public function getPaginatedCompraDetalles($page, $size) {
