@@ -295,7 +295,7 @@
                  * Validacion de campos necesarios
                  ***************************************/
                 $nombre = $subcategoria->getSubcategoriaNombre();    
-                $descripcion = $Subcategoria->getSubcategoriaDescripcion();
+                $descripcion = $subcategoria->getSubcategoriaDescripcion();
 
                 if(empty($nombre)){
                     throw new Exception("¡El nombre de la subcategoria esta vacia!");

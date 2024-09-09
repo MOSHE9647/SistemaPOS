@@ -5,30 +5,22 @@
         private $subcategoriaData;
 
 
-        public function verificacionDeDatos($subcategoria, $update = false,$delete = false){
+        public function verificacionDeDatos($subcategoria, $verificarcampos = true, $verificarid = false){
            try{
                 $id = $subcategoria->getSubcategoriaId();
                 $nombre = $subcategoria->getSubcategoriaNombre();
                 $errors = [];
-                if($delete && (empty($id) || $id <= 0 || !is_numeric($id))){
+                if($verificarid && (empty($id) || $id <= 0 || !is_numeric($id))){
                     $errors[] = "El ID de la subcategoria está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
                     Utils::writeLog("El ID '[$id]' de la subcategoria no es válido.", BUSINESS_LOG_FILE);   
-
-                } else if($update){
-                        if(empty($id) || $id <= 0 || !is_numeric($id)){
-                            $errors[] = "El ID de la subcategoria está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
-                            Utils::writeLog("El ID '[$id]' de la subcategoria no es válido.", BUSINESS_LOG_FILE);
-                        }
-                        if(empty($nombre)){
-                            $errors[] = "El Nombre de la subcategoria esta vacia. Revisa que esta ingresando correctamente el nombre.";
-                            Utils::writeLog("El Nombre '[$nombre]' de la subcategoria no es válido.", BUSINESS_LOG_FILE);
-                        }
-                }else{
+                }
+                if($verificarcampos){
                     if(empty($nombre)){
                         $errors[] = "El Nombre de la subcategoria esta vacia. Revisa que esta ingresando correctamente el nombre.";
-                        Utils::writeLog("El Nombre '[$nombre]' de la subcategoria no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("El Nombre '>>[$nombre]' de la subcategoria no es válido.", BUSINESS_LOG_FILE);
                     }
                 }
+
                 if (!empty($errors)) {
                     throw new Exception(implode('<br>', $errors));
                 }
@@ -41,15 +33,15 @@
         public function __construct(){
             $this->subcategoriaData = new SubcategoriaData();
         }
-        
+
         function insertSubcategoria($subcategoria){
-            $check = $this->verificacionDeDatos($subcategoria);
+            $check = $this->verificacionDeDatos($subcategoria,true);
             if(!$check['is_valid']){ return $check; }
             return $this->subcategoriaData->insertSubcategoria($subcategoria);
         }
 
         function updateSubcategoria($subcategoria){
-            $check = $this->verificacionDeDatos($subcategoria,true);
+            $check = $this->verificacionDeDatos($subcategoria,true,true);
             if(!$check['is_valid']){ return $check; }
             return $this->subcategoriaData->updateSubcategorias($subcategoria);
         }

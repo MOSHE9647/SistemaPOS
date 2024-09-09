@@ -10,7 +10,9 @@
         $descripcion = isset($_POST['descripcion'])?$_POST['descripcion']:"";
 
         $subcategoriaBusiness = new SubcategoriaBusiness();
-        $subcategoria = new Subcategoria($nombre,$descripcion,$id_subcategoria);
+
+        $subcategoria = new Subcategoria($nombre_subcategoria, $descripcion,$id_subcategoria);
+        Utils::writeLog(" Datos : [$nombre_subcategoria]  [$id_subcategoria]  [$descripcion]" );
 
         switch($accion){
             case 'eliminar':
