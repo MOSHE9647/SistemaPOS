@@ -3,10 +3,22 @@
     require_once __DIR__ . '/../utils/Utils.php';
 
     class ProductoBusiness{
+
+        private $className;
         private $productoData;
 
         public function __construct(){
             $this->productoData = new ProductoData();
+            $this->className = get_class($this);
+        }
+
+        public function validarProductoID($productoID) {
+            if ($productoID === null || !is_numeric($productoID) || $productoID < 0) {
+                Utils::writeLog("El ID [$productoID] del producto no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ["is_valid" => false, "message" => "El ID del producto está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
+            }
+
+            return ["is_valid" => true];
         }
 
         public function validarProducto($producto, $validarCamposAdicionales = true) {
@@ -20,10 +32,8 @@
                 $errors = [];
 
                 // Verifica que el ID del producto sea válido
-                if ($productoID === null || !is_numeric($productoID) || $productoID < 0) {
-                    $errors[] = "El ID del producto está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
-                    Utils::writeLog("El ID [$productoID] del producto no es válido.", BUSINESS_LOG_FILE);
-                }
+                $checkID = $this->validarProductoID($productoID);
+                if (!$checkID['is_valid']) { $errors[] = $checkID['message']; }
 
                 // Si la validación de campos adicionales está activada, valida los otros campos
                 if ($validarCamposAdicionales) {

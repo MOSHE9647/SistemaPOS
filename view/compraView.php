@@ -21,7 +21,7 @@
             <thead>
                 <tr>
                     <th data-field="compranumerofactura">Número de Factura</th>
-                    <th data-field="compraproveedorid">Proveedor</th>
+                    <th data-field="proveedornombre">Proveedor</th>
                     <th data-field="compramontobruto">Monto Bruto</th>
                     <th data-field="compramontoneto">Monto Neto</th>
                     <th data-field="compratipopago">Tipo de Pago</th>

@@ -1,12 +1,7 @@
 <?php
 
     require_once __DIR__ . '/../data/codigoBarrasData.php';
-    require_once __DIR__ . '/../service/compraDetalleBusiness.php';
-    require_once __DIR__ . '/../service/proveedorBusiness.php';
     require_once __DIR__ . '/../service/productoBusiness.php';
-    require_once __DIR__ . '/../service/loteBusiness.php';
-
-    define('NUM_CEROS', 4);
 
     class CodigoBarrasBusiness {
 
@@ -57,14 +52,14 @@
             }
         }
 
-        public function insertTBCodigoBarras($codigoBarras) {
+        public function insertTBCodigoBarras($codigoBarras, $conn = null) {
             // Verifica que los datos del Código de Barras sean validos
             $check = $this->validarCodigoBarras($codigoBarras);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
 
-            return $this->codigoBarrasData->insertCodigoBarras($codigoBarras);
+            return $this->codigoBarrasData->insertCodigoBarras($codigoBarras, $conn);
         }
 
         public function updateTBCodigoBarras($codigoBarras) {
@@ -77,14 +72,14 @@
             return $this->codigoBarrasData->updateCodigoBarras($codigoBarras);
         }
 
-        public function deleteTBCodigoBarras($codigoBarrasID) {
+        public function deleteTBCodigoBarras($codigoBarrasID, $conn = null) {
             // Verifica que los datos del Código de Barras sean validos
             $check = $this->validarCodigoBarrasID($codigoBarrasID);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
 
-            return $this->codigoBarrasData->deleteCodigoBarras($codigoBarrasID);
+            return $this->codigoBarrasData->deleteCodigoBarras($codigoBarrasID, $conn);
         }
 
         public function getAllTBCodigoBarras($onlyActiveOrInactive = false, $deleted = false) {
@@ -105,101 +100,63 @@
             return $this->codigoBarrasData->getCodigoBarrasByID($codigoBarraID);
         }
 
-        public function generarCodigoDeBarras($compraDetalle) {
+        public function generarCodigoDeBarras($productoID) {
             try {
-                // Generamos los servicios para manejar los datos
-                $compraDetalleBusiness = new CompraDetalleBusiness();
-                $proveedorBusiness = new ProveedorBusiness();
+                // Verificar que el ID del producto sea válido
                 $productoBusiness = new ProductoBusiness();
-                $loteBusiness = new LoteBusiness();
-                
-                // Validamos que el objeto CompraDetalle sea válido
-                $check = $compraDetalleBusiness->validarCompraDetalle($compraDetalle);
-                if (!$check["is_valid"]) { return ["success" => $check["is_valid"], "message" => $check["message"]]; }
-        
-                
+                $check = $productoBusiness->validarProductoID($productoID);
+                if (!$check["is_valid"]) {
+                    return ["success" => $check["is_valid"], "message" => $check["message"]];
+                }
 
-                // Obtener la información del Lote desde la BD
-                $loteBusiness = new LoteBusiness();
-                $result = $loteBusiness->getLoteByID($loteID);
-                if (!$result['success']) { 
-                    throw new Exception($result['message']);                    
-                }
-        
-                $lote = $result['lote'];
-        
-                // Generar el código de barras
-                $codigoBarrasData = $this->generarCodigoBarrasData($lote);
-                $ean13 = Utils::calculateEAN13Checksum($codigoBarrasData['codigo']);
-        
-                // Generar la ruta donde se va a guardar la imagen
-                $path = $this->crearRutaImagen($codigoBarrasData['codigoURL'], $ean13);
-        
-                // Insertar el código de barras en la BD
-                $codigoBarras = new CodigoBarras($ean13);
-                $result = $this->insertTBCodigoBarras($codigoBarras);
-                if (!$result['success']) {
-                    throw new Exception($result['message']);
-                }
-                $codigoBarrasID = $result['codigoID'];
-        
-                // Obtener el Producto desde la BD y actualizar con el código de barras generado
-                $productoBusiness = new ProductoBusiness();
-                $result = $productoBusiness->getProductoByID($lote->getProductoID());
-                if (!$result['success']) {
-                    $delete = $this->deleteTBCodigoBarras($codigoBarras);
-                    $message = $result['message'] . ". ";
-                    if (!$delete['success']) {
-                        $message .= $delete['message'];
-                    }
-                    throw new Exception($message);
-                }
-                $producto = $result['producto'];
-                $producto->setProductoCodigoBarras($codigoBarrasID);
-        
-                $result = $productoBusiness->updateTBProducto($producto);
-                if (!$result['success']) {
-                    throw new Exception($result['message']);
-                }
-        
-                return ['success' => true, 'path' => $path, 'code' => $ean13];
+                // Generar el código de barras a partir del ID del Producto
+                $ean13 = $this->generateBarcodeFromHash($productoID);
+                return ['success' => true, 'code' => $ean13];
             } catch (Exception $e) {
                 // Manejo de errores y logging
-                $message = 'Ocurrió un error al generar el código de barras. ' . $e->getMessage();
-                Utils::writeLog("[CodigoBarras] $message", BUSINESS_LOG_FILE);
+                $message = 'Ocurrió un error al intentar generar el código de barras: ' . $e->getMessage();
                 return ["success" => false, "message" => $message];
             }
         }
 
-        public function calculateEAN13Checksum($code) {
+        /**
+         * Genera un código de barras a partir de un hash.
+         *
+         * @param string $stringToHash El string desde el cual se quiere generar el hash.
+         * @return string El código de barras generado (12 dígitos + checksum).
+         */
+        private function generateBarcodeFromHash($stringToHash = '') {
+            $uniqueString = $stringToHash . date('YmdHis');                 //<- Agregar la fecha y hora actual al string proporcionado
+            $hash = md5($uniqueString);                                     //<- Generar un hash (usando MD5)
+            $barcode = substr(preg_replace('/[^0-9]/', '', $hash), 0, 12);  //<- Tomar los primeros 12 dígitos numéricos del hash
+            $ean13code = $this->calculateEAN13Checksum($barcode);           //<- Calcular el dígito de verificación para EAN-13
+            return $ean13code;                                              //<- Retornar el código de barras completo (12 dígitos + checksum)
+        }
+
+        /**
+         * Calcula el dígito de control para un código EAN-13.
+         *
+         * @param string $code El código de 12 dígitos al cual calcular el dígito de control.
+         * @return string El código EAN-13 completo con el dígito de control.
+         * @throws InvalidArgumentException Si el código no tiene 12 dígitos.
+         */
+        private function calculateEAN13Checksum($code) {
             // Verificar que el código tenga 12 dígitos
             if (!is_string($code) || strlen($code) != 12 || !ctype_digit($code)) {
                 $message = "Error al generar el checksum del código de barras para [$code]: El código debe tener 12 dígitos";
-                Utils::writeLog($message, BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, BUSINESS_LOG_FILE, ERROR_MESSAGE, $className);
                 throw new InvalidArgumentException("El código para generar el checksum debe tener 12 dígitos");
             }
         
-            // Calcular el dígito de control
-            $digits = str_split($code);
-            $weights = array(1, 3);
-            $sum_weights = 0;
+            // Calcular el dígito de control (checksum) para el código EAN-13
+            $digits = str_split($code);                     //<- Convertir el código en un array de dígitos
+            $weights = array(1, 3);                         //<- Pesos para los dígitos (1, 3)
+            $sum_weights = 0;                               //<- Suma de todos los pesos
             foreach ($digits as $i => $digit) {
-                $sum_weights += $digit * $weights[$i % 2];
+                $sum_weights += $digit * $weights[$i % 2];  //<- Multiplicar el dígito por el peso correspondiente
             }
-            $checksum = (10 - ($sum_weights % 10)) % 10;
-        
-            // Construir el código EAN-13 completo
-            $ean13 = $code . $checksum;
-
-            return $ean13;
-        }
-
-        public function generateBarcodeFromHash($loteID, $proveedorID, $productoID) {
-            $stringToHash = $loteID . $proveedorID . $productoID;               //<- Concatenar los IDs
-            $hash = sha1($stringToHash);                                        //<- Generar un hash (usando SHA-1)
-            $numericHash = substr(preg_replace('/[^0-9]/', '', $hash), 0, 12);  //<- Tomar los primeros 12 dígitos numéricos del hash
-            $checksum = $this->calculateEAN13Checksum($numericHash);              //<- Calcular el dígito de verificación para EAN-13
-            return $checksum;                                                   //<- Retornar el código de barras completo (12 dígitos + checksum)
+            $checksum = (10 - ($sum_weights % 10)) % 10;    //<- Calcular el checksum (10 - (suma % 10))
+            return ($code . $checksum);                     //<- Retornar el código EAN-13 completo (12 dígitos + checksum)
         }
 
     }

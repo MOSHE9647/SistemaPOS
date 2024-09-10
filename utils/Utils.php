@@ -2,7 +2,11 @@
 
     require_once 'Variables.php';
 
+    define('NUM_CEROS', 4);
+
     class Utils {
+
+        private static $className = 'Utils';
 
         /**
          * Escribe un mensaje en el archivo de log especificado.
@@ -90,44 +94,15 @@
         }
         
         /**
-         * Genera un código de lote a partir de un UUID.
+         * Genera un código a partir de un UUID.
          *
-         * @return string El código de lote generado (5 dígitos).
+         * @return string El código generado.
          */
-        public static function generateCodigoLoteFromUUID() {
+        public static function generateCodeFromUUID($size = 5) {
             // Generar un UUID
-            $uuid = bin2hex(random_bytes(16));                                  //<- 128 bits (32 caracteres hexadecimales)
-            $numericUUID = substr(preg_replace('/[^0-9]/', '', $uuid), 0, 5);   //<- Tomar los primeros 5 dígitos numéricos del UUID
-            return $numericUUID;                                                //<- Retornar el código del lote completo (5 dígitos)
-        }
-
-        /**
-         * Calcula el dígito de control para un código EAN-13.
-         *
-         * @param string $code El código de 12 dígitos para el cual calcular el dígito de control.
-         * @return string El código EAN-13 completo con el dígito de control.
-         * @throws InvalidArgumentException Si el código no tiene 12 dígitos.
-         */
-        public static function calculateEAN13Checksum($code) {
-            // Verificar que el código tenga 12 dígitos
-            if (!is_string($code) || strlen($code) != 12 || !ctype_digit($code)) {
-                Utils::writeLog("Error al generar el código de barras para [$code]: El código debe tener 12 dígitos");
-                throw new InvalidArgumentException("No se pudo generar el código de barras: El código debe tener 12 dígitos");
-            }
-        
-            // Calcular el dígito de control
-            $digits = str_split($code);
-            $weights = array(1, 3);
-            $sum_weights = 0;
-            foreach ($digits as $i => $digit) {
-                $sum_weights += $digit * $weights[$i % 2];
-            }
-            $check_digit = (10 - ($sum_weights % 10)) % 10;
-        
-            // Construir el código EAN-13 completo
-            $ean13 = $code . $check_digit;
-
-            return $ean13;
+            $uuid = bin2hex(random_bytes(16));                                      //<- 128 bits (32 caracteres hexadecimales)
+            $numericUUID = substr(preg_replace('/[^0-9]/', '', $uuid), 0, $size);   //<- Tomar los primeros dígitos numéricos del UUID según $size
+            return $numericUUID;                                                    //<- Retornar el código completo
         }
         
         /**

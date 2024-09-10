@@ -11,7 +11,7 @@
         private $productoImagen;
         private $productoEstado;
 
-        public function __construct($productoNombre, $productoPrecioCompra, $productoCodigoBarrasID, $productoImagen = null, 
+        public function __construct($productoNombre = "", $productoPrecioCompra = 0, $productoCodigoBarrasID = -1, $productoImagen = null, 
                 $productoPorcentajeGanancia = null, $productoID = 0, $productoDescripcion = "", $productoEstado = true){
            
             $this->productoID = $productoID;

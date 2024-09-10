@@ -3,13 +3,13 @@
 // ************************************************************************************************ //
 
 /**
- * Crea una nueva compra.
+ * Crea un nuevo lote.
  * 
- * @description Envía una solicitud POST al servidor para crear una nueva compra con los datos ingresados en la fila de creación.
+ * @description Envía una solicitud POST al servidor para crear un nuevo lote con los datos ingresados en la fila de creación.
  * @example
- * createCompra();
+ * createLote();
  */
-function createCompra() {
+function createProducto() {
     let row = document.getElementById('createRow');
     let inputs = row.querySelectorAll('input, select');
     let data = { accion: 'insertar' };
@@ -17,16 +17,12 @@ function createCompra() {
     inputs.forEach(input => {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
-
-        if (fieldName === 'proveedornombre') {
-            value = document.getElementById('proveedorid-select').value;
-        } 
+  
         data[fieldName] = value;
     });
+    console.log('Datos enviados para crear producto:', data); // Mensaje de depuración
 
-    console.log('Datos enviados para crear compra:', data); // Mensaje de depuración
-
-    fetch('../controller/compraAction.php', {
+    fetch('../controller/productoAction.php', {
         method: 'POST',
         body: new URLSearchParams(data),
         headers: {
@@ -35,30 +31,31 @@ function createCompra() {
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Respuesta del servidor al crear compra:', data); // Mensaje de depuración
+        console.log('Respuesta del servidor al crear producto:', data); // Mensaje de depuración
         if (data.success) {
             showMessage(data.message, 'success');
-            fetchCompras(currentPage, pageSize);
-            document.getElementById('createRow').remove(); // Elimina la fila de creación
-            document.getElementById('createButton').style.display = 'inline-block'; // Muestra el botón de crear
+            fetchProductos(currentPage, pageSize);
+            document.getElementById('createRow').remove();
+            document.getElementById('createButton').style.display = 'inline-block';
         } else {
             showMessage(data.message, 'error');
         }
     })
     .catch(error => {
-        showMessage(`Ocurrió un error al crear la nueva compra.<br>${error}`, 'error');
+        showMessage(`Ocurrió un error al crear el nuevo lote.<br>${error}`, 'error');
     });
 }
 
 /**
- * Actualiza una compra existente.
+ * Actualiza un lote existente.
  * 
- * @param {number} id - El ID de la compra que se desea actualizar.
- * @description Envía una solicitud POST al servidor para actualizar la compra con los datos ingresados en la fila de edición.
+ * @param {number} id - El ID del lote que se desea actualizar.
+ * @description Envía una solicitud POST al servidor para actualizar el lote con los datos ingresados en la fila de edición.
  * @example
- * updateCompra(123);
+ * updateLote(123);
  */
-function updateCompra(id) {
+
+function updateProducto(id) {
     let row = document.querySelector(`tr[data-id='${id}']`);
     let inputs = row.querySelectorAll('input, select');
     let data = { accion: 'actualizar', id: id };
@@ -67,18 +64,16 @@ function updateCompra(id) {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
 
-        if (fieldName === 'proveedornombre') {
-            value = document.getElementById('proveedorid-select').value;
-        }
+
 
         data[fieldName] = value;
     });
 
-    console.log('Datos enviados para actualizar compra:', data); // Para depuración
+    console.log('Datos enviados:', data); // Para depuración
 
-    fetch('../controller/compraAction.php', {
+    fetch('../controller/productoAction.php', {
         method: 'POST',
-        body: new URLSearchParams(data),
+        body: new URLSearchParams(data).toString(),  // Convierte a string
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
@@ -87,27 +82,27 @@ function updateCompra(id) {
     .then(data => {
         if (data.success) {
             showMessage(data.message, 'success');
-            fetchCompras(currentPage, pageSize);
+            fetchProductos(currentPage, pageSize);
         } else {
             showMessage(data.message, 'error');
         }
     })
     .catch(error => {
-        showMessage(`Ocurrió un error al actualizar la compra.<br>${error}`, 'error');
+        showMessage(`Ocurrió un error al actualizarrr el producto.<br>${error}`, 'error');
     });
 }
 
 /**
- * Elimina una compra existente.
+ * Elimina un lote existente.
  * 
- * @param {number} id - El ID de la compra que se desea eliminar.
- * @description Envía una solicitud POST al servidor para eliminar la compra después de confirmar con el usuario.
+ * @param {number} id - El ID del lote que se desea eliminar.
+ * @description Envía una solicitud POST al servidor para eliminar el lote después de confirmar con el usuario.
  * @example
- * deleteCompra(123);
+ * deleteLote(123);
  */
-function deleteCompra(id) {
-    if (confirm('¿Estás seguro de que deseas eliminar esta compra?')) {
-        fetch('../controller/compraAction.php', {
+function deleteProducto(id) {
+    if (confirm('¿Estás seguro de que deseas eliminar este lote?')) {
+        fetch('../controller/productoAction.php', {
             method: 'POST',
             body: new URLSearchParams({ accion: 'eliminar', id: id }),
             headers: {
@@ -118,14 +113,14 @@ function deleteCompra(id) {
         .then(data => {
             if (data.success) {
                 showMessage(data.message, 'success');
-                fetchCompras(currentPage, pageSize); // Recargar datos para reflejar la eliminación de la compra
+                fetchProductos(currentPage, pageSize); // Recargar datos para reflejar la eliminación del lote
             } else {
                 showMessage(data.message, 'error');
             }
         })
         .catch(error => {
             // Muestra el mensaje de error detallado
-            showMessage(`Ocurrió un error al eliminar la compra.<br>${error}`, 'error');
+            showMessage(`Ocurrió un error al eliminar el producto.<br>${error}`, 'error');
         });
     }
 }
