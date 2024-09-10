@@ -333,21 +333,18 @@
         }
 
         public function removeProductoToProveedor($idproveedor, $idproducto,$conn = null){
-            $createdConnection = false; //<- Indica si la conexión se creó aquí o viene por parámetro
+            $createdConnection = false;
             $stmt = null;
 
             try {
-                // Verificar la existencia del proveedor y de la dirección en la base de datos
-                $check = $this->verificarExistenciaProveedorDireccion($proveedorID, $direccionID);
-                if (!$check['success']) { return $check; }
+                 $check  = $this->ExistenciaDeProveedorYProducto($idproveedor,$idproducto);
+                if(!$check['success']){ return $check; }
 
-                // Verificar si existe la asignación entre la dirección y el proveedor en la base de datos
-                $check = $this->existeProveedorDireccion($proveedorID, $direccionID);
-                if (!$check['success']) { return $check; }
-                if (!$check['exists']) {
-                    $message = "La dirección con ID [$direccionID] no está asignada al proveedor con ID [$proveedorID].";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
-                    return ['success' => false, 'message' => "La dirección seleccionada no está asignada al proveedor."];
+                //existencia de una relaccion
+                $check = $this->existeProveedorProducto($idproveedor, $idproducto);
+                if(!$check['success']){ return $check;}
+                if(!$check['exists']){
+                    return ['success' => false, 'message' => 'No existe relacion entre este producto y el proveedor.'];
                 }
 
                 // Si no se proporcionó una conexión, crea una nueva
@@ -356,33 +353,20 @@
                     if (!$result["success"]) { throw new Exception($result["message"]); }
                     $conn = $result["connection"];
                     $createdConnection = true;
-        
                     // Desactivar el autocommit para manejar transacciones si la conexión fue creada aquí
                     mysqli_autocommit($conn, false);
                 }
 
                 // Crea una consulta y un statement SQL para eliminar el registro (borrado logico)
 				$queryUpdate = 
-                    "UPDATE " . TB_PROVEEDOR_DIRECCION . 
-                    " SET " 
-                        . PROVEEDOR_DIRECCION_ESTADO . " = FALSE " .
-					"WHERE " 
+                    "UPDATE " . TB_PROVEEDOR_PRODUCTO . 
+                    " SET " . PROVEEDOR_PRODUCTO_ESTADO . " = FALSE " .
+					" WHERE " 
                         . PROVEEDOR_ID . " = ? AND " 
-                        . DIRECCION_ID . " = ?";
+                        . PRODUCTO_ID . " = ?";
 				$stmt = mysqli_prepare($conn, $queryUpdate);
-                mysqli_stmt_bind_param($stmt, 'ii', $proveedorID, $direccionID);
+                mysqli_stmt_bind_param($stmt, 'ii', $idproveedor, $idproducto);
 				mysqli_stmt_execute($stmt);
-
-                // Eliminar la dirección de la tabla tbDireccion
-                $queryUpdateDireccion = 
-                    "UPDATE " . TB_DIRECCION . 
-                    " SET " 
-                        . DIRECCION_ESTADO . " = FALSE " .
-                    "WHERE " 
-                        . DIRECCION_ID . " = ?";
-                $stmt = mysqli_prepare($conn, $queryUpdateDireccion);
-                mysqli_stmt_bind_param($stmt, 'i', $direccionID);
-                mysqli_stmt_execute($stmt);
 
                 // Confirmar la transacción si la conexión fue creada aquí
                 if ($createdConnection) {
@@ -390,24 +374,22 @@
                 }
 		
 				// Devuelve el resultado de la operación
-				return ["success" => true, "message" => "Dirección eliminada exitosamente."];
+				return ["success" => true, "message" => "Producto del proveedor ha sido eliminada exitosamente."];
             } catch (Exception $e) {
                 // Revertir la transacción en caso de error si la conexión fue creada aquí
                 if ($createdConnection && isset($conn)) { mysqli_rollback($conn); }
         
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
-                    'Ocurrió un error al intentar eliminar la dirección del proveedor en la base de datos',
+                    'Ocurrió un error al intentar eliminar el producto del proveedor en la base de datos',
                     $this->className
                 );
-        
                 return ["success" => false, "message" => $userMessage];
 			} finally {
 				// Cierra el statement y la conexión solo si fueron creados en esta función
                 if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
                 if ($createdConnection && isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
 			}    
-
         }
 
 
