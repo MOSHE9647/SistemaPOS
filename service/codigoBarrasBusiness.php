@@ -52,14 +52,14 @@
             }
         }
 
-        public function insertTBCodigoBarras($codigoBarras) {
+        public function insertTBCodigoBarras($codigoBarras, $conn = null) {
             // Verifica que los datos del Código de Barras sean validos
             $check = $this->validarCodigoBarras($codigoBarras);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
 
-            return $this->codigoBarrasData->insertCodigoBarras($codigoBarras);
+            return $this->codigoBarrasData->insertCodigoBarras($codigoBarras, $conn);
         }
 
         public function updateTBCodigoBarras($codigoBarras) {
@@ -72,14 +72,14 @@
             return $this->codigoBarrasData->updateCodigoBarras($codigoBarras);
         }
 
-        public function deleteTBCodigoBarras($codigoBarrasID) {
+        public function deleteTBCodigoBarras($codigoBarrasID, $conn = null) {
             // Verifica que los datos del Código de Barras sean validos
             $check = $this->validarCodigoBarrasID($codigoBarrasID);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
 
-            return $this->codigoBarrasData->deleteCodigoBarras($codigoBarrasID);
+            return $this->codigoBarrasData->deleteCodigoBarras($codigoBarrasID, $conn);
         }
 
         public function getAllTBCodigoBarras($onlyActiveOrInactive = false, $deleted = false) {
@@ -125,7 +125,7 @@
          * @param string $stringToHash El string desde el cual se quiere generar el hash.
          * @return string El código de barras generado (12 dígitos + checksum).
          */
-        private function generateBarcodeFromHash($stringToHash) {
+        private function generateBarcodeFromHash($stringToHash = '') {
             $uniqueString = $stringToHash . date('YmdHis');                 //<- Agregar la fecha y hora actual al string proporcionado
             $hash = md5($uniqueString);                                     //<- Generar un hash (usando MD5)
             $barcode = substr(preg_replace('/[^0-9]/', '', $hash), 0, 12);  //<- Tomar los primeros 12 dígitos numéricos del hash

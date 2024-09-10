@@ -98,8 +98,9 @@
             }
         }
 
-        public function insertCodigoBarras($codigoBarras) {
-            $conn = null; $stmt = null;
+        public function insertCodigoBarras($codigoBarras, $conn = null) {
+            $createdConnection = false; //<- Indica si la conexión se creó aquí o viene por parámetro
+            $stmt = null;
             
             try {
                 // Obtener los valores de las propiedades del objeto
@@ -116,10 +117,13 @@
 					return ["success" => false, "message" => "Ya existe un código de barras con el mismo número en la base de datos"];
                 }
 
-                // Establece una conexión con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) { throw new Exception($result["message"]); }
-				$conn = $result["connection"];
+                // Si no se proporcionó una conexión, crea una nueva
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+                }
 
                 // Obtenemos el último ID de la tabla tbcodigobarras
 				$queryGetLastId = "SELECT MAX(" . CODIGO_BARRAS_ID . ") AS codigoBarrasID FROM " . TB_CODIGO_BARRAS;
@@ -156,9 +160,9 @@
                 // Devolver mensaje amigable para el usuario
                 return ["success" => false, "message" => $userMessage];
             } finally {
-                // Cierra la conexión y el statement
-				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
+                // Cierra el statement y la conexión solo si fueron creados en esta función
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if ($createdConnection && isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
             }
         }
 
@@ -221,8 +225,9 @@
             }
         }
 
-        public function deleteCodigoBarras($codigoBarrasID) {
-            $conn = null; $stmt = null;
+        public function deleteCodigoBarras($codigoBarrasID, $conn = null) {
+            $createdConnection = false; //<- Indica si la conexión se creó aquí o viene por parámetro
+            $stmt = null;
 
             try {
                 // Verifica si existe un Código de Barras con el mismo ID en la BD
@@ -234,10 +239,13 @@
 					return ["success" => false, "message" => "No existe ningún código de barras en la base de datos que coincida con la información proporcionada."];
 				}
 
-                // Establece una conexion con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) { throw new Exception($result["message"]); }
-				$conn = $result["connection"];
+                // Si no se proporcionó una conexión, crea una nueva
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+                }
 
                 // Crea una consulta y un statement SQL para eliminar el registro (borrado logico)
 				$queryDelete = "UPDATE " . TB_CODIGO_BARRAS . " SET " . CODIGO_BARRAS_ESTADO . " = false WHERE " . CODIGO_BARRAS_ID . " = ?";
@@ -261,9 +269,9 @@
                 // Devolver mensaje amigable para el usuario
                 return ["success" => false, "message" => $userMessage];
             } finally {
-                // Cierra la conexión y el statement
-				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
+                // Cierra el statement y la conexión solo si fueron creados en esta función
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if ($createdConnection && isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
             }
         }
 
