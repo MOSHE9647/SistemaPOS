@@ -53,7 +53,7 @@ class CuentaPorPagarData extends Data {
             // Asigna los valores a cada '?' de la consulta
             mysqli_stmt_bind_param(
                 $stmt,
-                'iissddsss', // i: Entero, d: Doble, s: Cadena
+                'iisddssss', // i: Entero, d: Doble, s: Cadena
                 $cuentaPorPagarID,
                 $cuentaPorPagarCompraDetalleID,
                 $cuentaPorPagarFechaVencimiento,
@@ -123,7 +123,7 @@ class CuentaPorPagarData extends Data {
             // Asigna los valores a cada '?' de la consulta
             mysqli_stmt_bind_param(
                 $stmt,
-                'issdssss', // i: Entero, s: Cadena, d: Decimal
+                'isddssssi', // i: Entero, s: Cadena, d: Decimal
                 $cuentaPorPagarCompraDetalleID,
                 $cuentaPorPagarFechaVencimiento,
                 $cuentaPorPagarMontoTotal,
