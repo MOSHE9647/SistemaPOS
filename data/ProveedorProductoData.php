@@ -1,9 +1,9 @@
 <?php
     require_once 'data.php';
-    require_once __DIR__ . '/../domain/ProveedorProducto.php';
+    //require_once __DIR__ . '/../domain/ProveedorProducto.php';
     require_once __DIR__ . '/../domain/Producto.php';
     require_once __DIR__ . '/../utils/Variables.php';
-
+    require_once __DIR__ . '/../utils/Variables.php';
     class ProveedorProducto extends Data{
 
         private $className;
@@ -22,43 +22,52 @@
                 $conn = $result["connection"];
 
                 // Determina la tabla y construye la consulta base
-                $tableName = $tbProveedor ? TB_PROVEEDOR : ($tbProducto ? TB_PRODUCTO : TB_PROVEEDOR_PRODUCTO);
+                $tableName = TB_PROVEEDOR_PRODUCTO; 
+                if ($tbProveedor) {
+                    $tableName = TB_PROVEEDOR;
+                } elseif ($tbProducto) {
+                    $tableName = TB_PRODUCTO;
+                }
+
                 $queryCheck = "SELECT 1 FROM $tableName WHERE ";
                 $params = [];
                 $types = "";
 
-                if ($proveedorID && $productoID) {
-                    // Consulta para verificar si existe una asignación entre el proveedor y la dirección
-                    $queryCheck .= PROVEEDOR_ID . " = ? AND " .  PRODUCTO_ID . " = ? AND " . PROVEEDOR_SUBCATEGORIA_ESTADO . " != FALSE";
+                if ($proveedorID !== null && $productoID !== null) {
+                    // Si ambos parámetros están presentes, verificar la relación entre proveedor y producto
+                    $queryCheck .= PROVEEDOR_ID . " = ? AND " .  PRODUCTO_ID . " = ? AND " . PROVEEDOR_PRODUCTO_ESTADO . " != FALSE";
                     $params = [$proveedorID, $productoID];
                     $types = "ii";
-                } else if ($proveedorID) {
-                    // Consulta para verificar si existe un proveedor con el ID ingresado
-                    $estadoCampo = $tbProveedor ? PROVEEDOR_ESTADO :PROVEEDOR_PRODUCTO_ESTADO;
+                    Utils::writeLog("Consulta con proveedor y producto: " . $queryCheck, UTILS_LOG_FILE);
+                } elseif ($proveedorID !== null) {
+                    // Si solo hay proveedorID, buscar solo el proveedor
+                    $estadoCampo = $tbProveedor ? PROVEEDOR_ESTADO : PROVEEDOR_PRODUCTO_ESTADO;
                     $queryCheck .= PROVEEDOR_ID . " = ? AND $estadoCampo != FALSE";
                     $params = [$proveedorID];
                     $types = "i";
-                } else if ($productoID) {
-                    // Consulta para verificar si existe una dirección con el ID ingresado
+                    Utils::writeLog("Consulta solo con proveedor: " . $queryCheck, UTILS_LOG_FILE);
+                } elseif ($productoID !== null) {
+                    // Si solo hay productoID, buscar solo el producto
                     $estadoCampo = $tbProducto ? PRODUCTO_ESTADO : PROVEEDOR_PRODUCTO_ESTADO;
                     $queryCheck .= PRODUCTO_ID . " = ? AND $estadoCampo != FALSE";
                     $params = [$productoID];
                     $types = "i";
+                    Utils::writeLog("Consulta solo con producto: " . $queryCheck, UTILS_LOG_FILE);
                 } else {
-                    // Registrar parámetros faltantes y lanzar excepción
-                    $missingParamsLog = "Faltan parámetros para verificar la existencia del proveedor y/o producto:";
-                    if (!$proveedorID) $missingParamsLog .= " proveedorID [" . ($proveedorID ?? 'null') . "]";
-                    if (!$productoID) $missingParamsLog .= " productoID [" . ($productoID ?? 'null') . "]";
+                    // Si faltan parámetros, loguear y retornar error
+                    $missingParamsLog = "Faltan parámetros para verificar la existencia del proveedor y/o producto: ";
+                    if ($proveedorID === null) $missingParamsLog .= "proveedorID [null] ";
+                    if ($productoID === null) $missingParamsLog .= "productoID [null] ";
                     Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
                     return ["success" => false, "message" => "No se proporcionaron los parámetros necesarios para realizar la verificación."];
                 }
+
 
                 // Prepara la consulta y ejecuta la verificación
                 $stmt = mysqli_prepare($conn, $queryCheck);
                 mysqli_stmt_bind_param($stmt, $types, ...$params);
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
-
                 // Verifica si existe algún registro con los criterios dados
                 if (mysqli_num_rows($result) > 0) {
                     return ["success" => true, "exists" => true];
@@ -91,7 +100,7 @@
             $check = $this->existeProveedorProducto(null,$idproducto,false,true);
             if(!$check['success']){ return $check; }
             if(!$check['exists']){
-                return ['success'=> false, 'message' => 'Este proveedor no existe'];
+                return ['success'=> false, 'message' => 'Este producto no existe'];
             }
             return ['success'=> true];
         }
@@ -102,7 +111,7 @@
             try{
 
 
-                $check = ExistenciaDeProveedorYProducto($idproveedor, $idproducto);
+                $check = $this->ExistenciaDeProveedorYProducto($idproveedor, $idproducto);
                 if(!$check['success']){
                     return $check;
                 }
@@ -162,7 +171,6 @@
                 if(!$check["exists"]){
                     return ['success' => false, 'message'=> 'El proveedor no existe en la base de datos.'];
                 }
-               
                 $check = $this->existeProveedorProducto($idproveedor);
                 if(!$check["success"]){ return $check; }
                 if(!$check["exists"]){
@@ -321,7 +329,7 @@
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
-                    'Ocurrió un error al obtener la lista de direcciones del proveedor desde la base de datos',
+                    'Ocurrió un error al obtener la lista de productos del proveedor desde la base de datos',
                     $this->className
                 );
         
@@ -603,7 +611,7 @@
                           FROM " . TB_PROVEEDOR_PRODUCTO . " pp
                           INNER JOIN " . TB_PRODUCTO . " p ON pp." . PRODUCTO_ID . " = p." . PRODUCTO_ID . "
                           INNER JOIN " . TB_PROVEEDOR . " pr ON pp." . PROVEEDOR_ID . " = pr." . PROVEEDOR_ID;
-        
+         
                 $stmt = mysqli_prepare($conn, $query);
                 if (!$stmt) {
                     throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));

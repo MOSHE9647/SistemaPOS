@@ -6,7 +6,7 @@ class ProveedorProductoBusiness {
     private $proveedorProductoData;
 
     public function __construct() {
-        $this->proveedorProductoData = new ProveedorProductoData();
+        $this->proveedorProductoData = new ProveedorProducto();
     }
     public function verificacionDeIDs($idproveedor, $idproducto = 0,$verificarProducto = false){
         try{
@@ -17,7 +17,7 @@ class ProveedorProductoBusiness {
             }
             if($verificarProducto &&  (empty($idproducto) || !is_numeric($idproducto) || $idproducto <= 0)){
                 $errors[] = "El ID del producto está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
-                Utils::writeLog("El ID '[$idproducto]' del proveedor no es válido.", BUSINESS_LOG_FILE);  
+                Utils::writeLog("El ID '[$idproducto]' del producto no es válido.", BUSINESS_LOG_FILE);  
             }
             if (!empty($errors)) {
                 throw new Exception(implode('<br>', $errors));

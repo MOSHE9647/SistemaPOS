@@ -31,6 +31,7 @@ function renderTable(subcategorias) {
     subcategorias.forEach(subcategoria => {
         let row = `<tr data-id="${subcategoria.ID}">
             <td data-field="nombre">${subcategoria.Nombre}</td>
+            <td data-field="descripcion">${subcategoria.Descripcion}</td>
             <td>
                 <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
                 <button onclick="deleteRow(${subcategoria.ID})">Eliminar</button>
@@ -96,12 +97,14 @@ function showCreateRow() {
     newRow.id = 'createRow';
     newRow.innerHTML = `
         <td data-field="nombre"><input type="text" required></td>
+        <td data-field="descripcion"><input type="text"></td>
         <td>
             <button onclick="createRow()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>
         </td>
     `;
-    tableBody.appendChild(newRow);
+    tableBody.insertBefore(newRow, tableBody.firstChild);
+    // tableBody.appendChild(newRow);
 }
 
 function createRow() {

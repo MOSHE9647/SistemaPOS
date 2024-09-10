@@ -177,6 +177,10 @@
 	define('PROVEEDOR_SUBCATEGORIA_ID','proveedorcategoriaid');
 	define('PROVEEDOR_SUBCATEGORIA_ESTADO','proveedorcategoriaestado');
 
+	define('TB_PROVEEDOR_CATEGORIA','tbproveedorcategoria');
+	define('PROVEEDOR_CATEGORIA_ID','proveedorcategoriaid');
+	define('PROVEEDOR_CATEGORIA_ESTADO','proveedorcategoriaestado');
+
 	// TABLA INTERMEDIA PARA Proveedor Y Direccion 'tbProveedorDireccion'
 	define('TB_PROVEEDOR_DIRECCION', 'tbproveedordireccion'); //<- Nombre de la Tabla
 	define('PROVEEDOR_DIRECCION_ID', 'proveedordireccionid');
