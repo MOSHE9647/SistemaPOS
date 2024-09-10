@@ -59,7 +59,7 @@
         <h2>Generador de Códigos de Barras</h2>
         
         <div id="message"></div>
-<!-- 
+        <!-- 
         <div class="productos-container">
             <label for="producto-select">Seleccione un Producto:</label>
             <select id="producto-select">
@@ -69,7 +69,8 @@
                 <option value="4">Producto Prueba 4</option>
                 <option value="5">Producto Prueba 5</option>
             </select>
-        </div> -->
+        </div> 
+        -->
 
         <div id="barcode-container">
             <div class="barcode">
