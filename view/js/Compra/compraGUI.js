@@ -45,6 +45,8 @@ function convertLongDateToISO(date) {
  * Renderiza la tabla con las compras proporcionadas.
  * 
  * @param {Array} compras - Un arreglo de objetos de compra.
+ * * @example
+ * 
  */
 function renderTable(compras) {
     const tableBody = document.getElementById('tableBody');
@@ -60,7 +62,7 @@ function renderTable(compras) {
             <tr data-id="${compra.ID}">
                 <td data-field="numerofactura">${compra.NumeroFactura}</td>
               
-                <td data-field="proveedornombre">${compra.ProveedorNombre}</td> <!-- Muestra el nombre del proveedor -->
+                <td data-field="proveedornombre">${compra.Proveedor}</td> <!-- Muestra el nombre del proveedor -->
                 <td data-field="montobruto">${montoBruto.toFixed(2)}</td>
                 <td data-field="montoneto">${montoNeto.toFixed(2)}</td>
                 <td data-field="tipopago">${compra.TipoPago}</td>
@@ -119,9 +121,15 @@ function makeRowEditable(row) {
             }
         } else {
          */  if (index < lastCellIndex) {
-            if (field === 'fechacreacion' || field === 'fechamodificacion') {
+        
+            if (field === 'proveedornombre') {
+                cell.innerHTML = `<select id="proveedorid-select" required></select>`;
+                loadOptions('proveedor', value);  // Cargar las opciones para el select de proveedor
+
+            } else if (field === 'fechacreacion' || field === 'fechamodificacion') {
                 const isoValue = convertLongDateToISO(value);
                 cell.innerHTML = `<input type="date" value="${isoValue}" min="${formattedToday}" required>`;
+
             } else if (field === 'tipopago') {
                 // Crear un combobox para los métodos de pago
                 cell.innerHTML = `
@@ -129,13 +137,8 @@ function makeRowEditable(row) {
                         <option value="efectivo" ${value === 'efectivo' ? 'selected' : ''}>Efectivo</option>
                         <option value="tarjeta" ${value === 'tarjeta' ? 'selected' : ''}>Tarjeta</option>
                         <option value="transferencia" ${value === 'transferencia' ? 'selected' : ''}>Transferencia</option>
-                    </select>
-                `;
-            } else if (field === 'proveedornombre') {
-                // Crear un combobox para los nombres de proveedores
-                cell.innerHTML = `<select id="proveedorid-select" required></select>`;
-                loadOptions('proveedor', row.dataset.proveedorid); // Carga las opciones del combobox de proveedores
-            } else {
+                    </select> `;
+            }  else {
                 cell.innerHTML = `<input type="text" value="${value}" required>`;
             }
         } else {
@@ -145,26 +148,23 @@ function makeRowEditable(row) {
             `;
         }
     });
+    // Cargar el select de proveedores después de que se haya añadido el select a la tabla
+    loadOptions('proveedor', row.querySelector('td[data-field="proveedornombre"]').innerText.trim());
 }
 
 /**
  * Carga las opciones para los comboboxes de producto y proveedor.
  * 
- * @param {string} field - El tipo de campo ('producto' o 'proveedor').
  * @param {string} selectedValue - El valor seleccionado actualmente.
  */
 
-function loadOptions(field, selectedValue) {
-    const url = field === 'proveedor'
-    ? '../controller/proveedorAction.php'
-    : '../controller/compraAction.php'; // Ajusta esto según tus necesidades
+function loadOptions( selectedValue) {
+    const url = '../controller/proveedorAction.php'; // URL del controlador para proveedores
+    const selectElement = document.getElementById('proveedorid-select');
 
     //const selectElement = document.getElementById(`${field}-select`);
-    const selectElement = document.getElementById(`${field}id-select`);
-    if (!selectElement) {
-        console.error('Elemento select no encontrado:', `${field}id-select`);
-        return;
-    }
+    //const selectElement = document.getElementById(`${field}id-select`);
+
     
     fetch(url)
         .then(response => response.json()) // Lee la respuesta como JSON
@@ -172,20 +172,19 @@ function loadOptions(field, selectedValue) {
             console.log('Respuesta cruda:', data); // Muestra la respuesta cruda
 
             // Extrae el array correcto basado en el campo
-            //const items = field === 'producto' ? data.listaProductos : data.listaProveedores;
-            let items;
-            if (field === 'proveedor') {
-                items = data.listaProveedores; // Asegúrate de que esta propiedad existe en la respuesta
-            } 
+            const items =   data.listaProveedores;
+            //let items;
+            //if (field === 'proveedor') {
+              //  items = data.listaProveedores;
+            //}
             
             if (!Array.isArray(items)) {
                 throw new Error('Datos recibidos no son un array');
             }
-
-             // Llena el select con las opciones
-             selectElement.innerHTML = items.map(item => `
-                <option value="${item.proveedorid}" ${item.proveedorid == selectedValue ? 'selected' : ''}>
-                    ${item.proveedornombre}
+             
+            selectElement.innerHTML = items.map(item => `
+                <option value="${item.ID}" ${item.ID == selectedValue ? 'selected' : ''}>
+                    ${item.Nombre}
                 </option>
             `).join('');
         })
@@ -217,7 +216,7 @@ function showCreateRow() {
 
     newRow.innerHTML = `
         <td data-field="numerofactura"><input type="text" required></td>
-       <td data-field="proveedorid">
+       <td data-field="proveedornombre">
             <select id="proveedorid-select" required></select>
         </td>
         <td data-field="montobruto"><input type="number" step="0.01" required></td>
@@ -243,7 +242,6 @@ function showCreateRow() {
 
     tableBody.insertBefore(newRow, tableBody.firstChild);
     loadOptions('proveedor', null);
-
 }
 
 

@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $compramontobruto = isset($_POST['compramontobruto']) ? $_POST['compramontobruto'] : 0;
     $compramontoneto = isset($_POST['compramontoneto']) ? $_POST['compramontoneto'] : 0;
     $compratipopago = isset($_POST['compratipopago']) ? $_POST['compratipopago'] : "";
-    $compraproveedorid = isset($_POST['compraproveedorid']) ? $_POST['compraproveedorid'] : 0;
+    $proveedorid = isset($_POST['proveedornombre']) ? $_POST['proveedornombre'] : 0;
     //$proveedornombre = isset($_POST['proveedornombre']) ? $_POST['proveedornombre'] : '';
     $comprafechacreacion = isset($_POST['comprafechacreacion']) ? $_POST['comprafechacreacion'] : '';
     $comprafechamodificacion = isset($_POST['comprafechamodificacion']) ? $_POST['comprafechamodificacion'] : '';
@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $compraBusiness = new CompraBusiness();
 
     // Crea y verifica que los datos de la compra sean correctos
-    $compra = new Compra($id, $compranumerofactura, $compramontobruto, $compramontoneto, $compratipopago, $compraproveedorid, $comprafechacreacion, $comprafechamodificacion);
+    $compra = new Compra($id, $compranumerofactura, $compramontobruto, $compramontoneto, $compratipopago, $proveedorid, $comprafechacreacion, $comprafechamodificacion);
     $check = $compraBusiness->validarCompra($compra, $accion != 'eliminar'); // Indica si se validan (o no) los campos además del ID
 
     // Si los datos son válidos se realiza la acción correspondiente

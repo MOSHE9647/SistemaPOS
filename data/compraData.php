@@ -51,7 +51,8 @@
                     $compraMontoBruto = $compra->getCompraMontoBruto();
                     $compraMontoNeto = $compra->getCompraMontoNeto();
                     $compraTipoPago = $compra->getCompraTipoPago();
-                    $compraProveedorId = $compra->getCompraProveedorId();
+                   // $compraProveedorId = $compra->getCompraProveedorId();
+                    $proveedorID = $compra->getProveedorID();
                     $compraFechaCreacion = $compra->getCompraFechaCreacion();
                     $compraFechaModificacion = $compra->getCompraFechaModificacion();
         
@@ -61,7 +62,8 @@
                       'isiddsss', // i: Entero, s: Cadena, d: Decimal
                     $nextId,
                     $compraNumeroFactura, 
-                    $compraProveedorId,
+                   // $compraProveedorId,
+                    $proveedorID,
                     $compraMontoBruto,
                     $compraMontoNeto,
                     $compraTipoPago,
@@ -121,7 +123,8 @@
                     $compraMontoBruto = $compra->getCompraMontoBruto();
                     $compraMontoNeto = $compra->getCompraMontoNeto();
                     $compraTipoPago = $compra->getCompraTipoPago();
-                    $compraProveedorId = $compra->getCompraProveedorId();
+                  //  $compraProveedorId = $compra->getCompraProveedorId();
+                  $proveedorID = $compra->getProveedorID();
                     $compraFechaCreacion = $compra->getCompraFechaCreacion();
                     $compraFechaModificacion = $compra->getCompraFechaModificacion();
         
@@ -130,7 +133,8 @@
                         $stmt,
                         'siddsssi', // s: String, d: Double (decimal), i: Integer
                         $compraNumeroFactura, 
-                        $compraProveedorId,
+                       // $compraProveedorId,
+                        $proveedorID,
                         $compraMontoBruto,
                         $compraMontoNeto,
                         $compraTipoPago,
@@ -335,7 +339,7 @@ public function getAllTBCompra() {
             SELECT 
                 c." . COMPRA_ID . ", 
                 c." . COMPRA_NUMERO_FACTURA . ",
-                p." . PROVEEDOR_NOMBRE . " AS ProveedorNombre,
+                pr.proveedornombre AS proveedorNombre,
                 c." . COMPRA_MONTO_BRUTO . ", 
                 c." . COMPRA_MONTO_NETO . ", 
                 c." . COMPRA_TIPO_PAGO . ", 
@@ -343,7 +347,7 @@ public function getAllTBCompra() {
                 c." . COMPRA_FECHA_MODIFICACION . ", 
                 c." . COMPRA_ESTADO . "
             FROM " . TB_COMPRA . " c
-            JOIN " . TB_PROVEEDOR . " p ON c." . COMPRA_PROVEEDOR_ID . " = p." . PROVEEDOR_ID . "
+            JOIN  tbproveedor  pr ON c." . COMPRA_PROVEEDOR_ID . " = pr.proveedorid
             WHERE c." . COMPRA_ESTADO . " != false
         ";
 
@@ -358,7 +362,7 @@ public function getAllTBCompra() {
             $currentCompra = new Compra(
                 $row[COMPRA_ID],                  
                 $row[COMPRA_NUMERO_FACTURA], 
-                $row['ProveedorNombre'],      
+                $row['proveedorNombre'], // Usar el nombre del proveedor   
                 $row[COMPRA_MONTO_BRUTO],     
                 $row[COMPRA_MONTO_NETO],      
                 $row[COMPRA_TIPO_PAGO],       
@@ -418,7 +422,7 @@ public function getPaginatedCompras($page, $size, $sort = null) {
             SELECT 
                 c." . COMPRA_ID . ", 
                 c." . COMPRA_NUMERO_FACTURA . ",
-                p." . PROVEEDOR_NOMBRE . " AS ProveedorNombre,
+                pr.proveedornombre AS proveedorNombre,
                 c." . COMPRA_MONTO_BRUTO . ", 
                 c." . COMPRA_MONTO_NETO . ", 
                 c." . COMPRA_TIPO_PAGO . ", 
@@ -426,11 +430,11 @@ public function getPaginatedCompras($page, $size, $sort = null) {
                 c." . COMPRA_FECHA_MODIFICACION . ", 
                 c." . COMPRA_ESTADO . "
             FROM " . TB_COMPRA . " c
-            JOIN " . TB_PROVEEDOR . " p ON c." . COMPRA_PROVEEDOR_ID . " = p." . PROVEEDOR_ID . "
+            JOIN tbproveedor pr ON c." . COMPRA_PROVEEDOR_ID .  " = pr.proveedorid
             WHERE c." . COMPRA_ESTADO . " != false
-            LIMIT ? OFFSET ?
+           
         ";
-
+        $querySelect .=  "LIMIT ? OFFSET ?";
         // Preparar la consulta y vincular los parámetros
         $stmt = mysqli_prepare($conn, $querySelect);
         mysqli_stmt_bind_param($stmt, "ii", $size, $offset);
@@ -450,7 +454,7 @@ public function getPaginatedCompras($page, $size, $sort = null) {
             $listaCompras[] = [
                 'ID' => $row[COMPRA_ID],                    
                 'NumeroFactura' => $row[COMPRA_NUMERO_FACTURA], 
-                'ProveedorNombre' => $row['ProveedorNombre'], 
+                'Proveedor' => $row['proveedorNombre'],
                 'MontoBruto' => $row[COMPRA_MONTO_BRUTO],   
                 'MontoNeto' => $row[COMPRA_MONTO_NETO],     
                 'TipoPago' => $row[COMPRA_TIPO_PAGO],       

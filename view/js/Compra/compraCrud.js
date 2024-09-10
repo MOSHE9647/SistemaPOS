@@ -18,10 +18,9 @@ function createCompra() {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
 
-        // Verifica si los campos requieren conversión de valores, como obtener los ID correctos
-        //if (fieldName === 'proveedornombre') {
-          //  value = document.getElementById('proveedorid-select').value; // Asegura que se obtiene el ID correcto
-        //} 
+        if (fieldName === 'proveedornombre') {
+            value = document.getElementById('proveedorid-select').value;
+        } 
         data[fieldName] = value;
     });
 
@@ -68,10 +67,9 @@ function updateCompra(id) {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
 
-        // Verifica si los campos requieren conversión de valores, como obtener los ID correctos
-        //if (fieldName === 'proveedornombre') {
-          //  value = document.getElementById('proveedorid-select').value; // Asegura que se obtiene el ID correcto
-        //}
+        if (fieldName === 'proveedornombre') {
+            value = document.getElementById('proveedorid-select').value;
+        }
 
         data[fieldName] = value;
     });
