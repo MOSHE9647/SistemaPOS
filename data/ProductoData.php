@@ -134,7 +134,7 @@
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'isdisss', // i: entero, s: Cadena
+                    'isdsisds', // i: entero, s: Cadena
                     $nextId,
                     $productoNombre,
                     $productoPrecioCompra,
@@ -211,7 +211,7 @@
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'ssssssi', // s: Cadena, i: Entero
+                    'sdsisdsi', // s: Cadena, i: Entero
                     $productoNombre,
                     $productoPrecioCompra,
                     $productoDescripcion,
