@@ -32,6 +32,7 @@
             <li> <a href="./view/loteView.php">Gestión de Lotes</a> </li>
             <li> <a href="./view/compraView.php">Gestión de Compras</a> </li>
             <li> <a href="./view/cuentaporpagarView.php">Gestión de cuentas por pagar</a> </li>
+            <li> <a href="./view/compradetalleView.php">Gestión de detalle de compras</a> </li>
 
             <h3>Tablas Intermedias</h3>
             <li> <a href="./view/productoSubcategoriaView.php">Gestión de Producto-Subcategorias</a> </li>
