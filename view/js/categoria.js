@@ -9,6 +9,7 @@ function fetchCategorias(page, size) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                console.log(data);
                 renderTable(data.listaCategorias);
                 currentPage = data.page;
                 totalPages = data.totalPages;
@@ -29,11 +30,11 @@ function fetchCategorias(page, size) {
 function renderTable(categorias) {
     let tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = '';
-
-    categorias.forEach(categoria => {
+    console.log(categorias);
+    categorias.forEach(categoria=> {
         let row = `<tr data-id="${categoria.ID}">
             <td data-field="nombre">${categoria.Nombre}</td>
-            <td data-field="estado">${categoria.Estado}</td>
+            <td data-field="descripcion">${categoria.Descripcion}</td>
             <td>
                 <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
                 <button onclick="deleteRow(${categoria.ID})">Eliminar</button>
@@ -72,6 +73,8 @@ function makeRowEditable(row) {
         let value = cells[i].innerText;
         if (cells[i].dataset.field === 'nombre' || cells[i].dataset.field === 'estado') {
             cells[i].innerHTML = `<input type="text" value="${value}" required>`;
+        }else{
+            cells[i].innerHTML = `<input type="text" value="${value}">`;
         }
     }
     let actionCell = cells[cells.length - 1];
@@ -88,13 +91,14 @@ function showCreateRow() {
     newRow.id = 'createRow';
     newRow.innerHTML = `
         <td data-field="nombre"><input type="text" required></td>
-        <td data-field="estado"><input type="text" required></td>
+        <td data-field="descripcion"><input type="text" ></td>
         <td>
             <button onclick="createRow()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>
         </td>
     `;
-    tableBody.appendChild(newRow);
+    tableBody.insertBefore(newRow, tableBody.firstChild);
+    // tableBody.appendChild(newRow);
 }
 
 // Función para crear una nueva categoría

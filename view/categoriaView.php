@@ -23,7 +23,7 @@
         <thead>
             <tr>
                 <th data-field="nombre">Nombre</th>
-                <th data-field="estado">Estado</th>
+                <th data-field="descripcion">Descripción</th>
                 <th>Acciones</th>
             </tr>
         </thead>

@@ -9,6 +9,7 @@ function fetchSubcategorias(page, size) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                console.log(data);
                 renderTable(data.listaSubcategorias);
                 currentPage = data.page;
                 totalPages = data.totalPages;

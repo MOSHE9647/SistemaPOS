@@ -174,13 +174,13 @@
 				// Creamos la lista con los datos obtenidos
 				$listaCategorias = [];
 				while ($row = mysqli_fetch_array($result)) {
-					$currentCategoria = new Categoria(
-						$row[CATEGORIA_ID],
-						$row[CATEGORIA_NOMBRE],
-						$row[CATEGORIA_DESCRIPCION],
-						$row[CATEGORIA_ESTADO]
-					);
-					array_push($listaCategorias, $currentCategoria);
+					$listaCategorias[] = [
+						"ID" =>$row[CATEGORIA_ID],
+						"Nombre"=>$row[CATEGORIA_NOMBRE],
+						"Descripcion" => $row[CATEGORIA_DESCRIPCION],
+						"Estado" => $row[CATEGORIA_ESTADO]
+					];
+					// array_push($listaCategorias, $currentCategoria);
 				}
 				return ["success" => true, "listaCategorias" => $listaCategorias];
 			} catch (Exception $e) {
@@ -256,13 +256,13 @@
 				// Creamos la lista con los datos obtenidos
 				$listaCategorias = [];
 				while ($row = mysqli_fetch_assoc($result)) {
-					$currentCategoria = new Categoria(
-						$row[CATEGORIA_ID],
-						$row[CATEGORIA_NOMBRE],
-						$row[CATEGORIA_DESCRIPCION],
-						$row[CATEGORIA_ESTADO]
-					);
-					array_push($listaCategorias, $currentCategoria);
+					$listaCategorias[] = [
+						"ID" =>$row[CATEGORIA_ID],
+						"Nombre"=>$row[CATEGORIA_NOMBRE],
+						"Descripcion" => $row[CATEGORIA_DESCRIPCION],
+						"Estado" => $row[CATEGORIA_ESTADO]
+					];
+					// array_push($listaCategorias, $currentCategoria);
 				}
 
 				return [
