@@ -9,6 +9,10 @@ class ProveedorProductoBusiness {
         $this->proveedorProductoData = new ProveedorProductoData();
     }
 
+
+
+
+    
     public function insertarProveedorProducto($proveedorId, $productoId) {
         try {
             return $this->proveedorProductoData->insertarProveedorProducto($proveedorId, $productoId);

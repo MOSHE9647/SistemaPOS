@@ -6,10 +6,413 @@
 
     class ProveedorProducto extends Data{
 
+        private $className;
         public function __construct(){
+            $this->className = get_class($this);
             parent::__construct();
         }
         
+        public function existeProveedorProducto($proveedorID = null, $productoID = null, $tbProveedor = false, $tbProducto = false){
+            $conn = null; $stmt = null;
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+
+                // Determina la tabla y construye la consulta base
+                $tableName = $tbProveedor ? TB_PROVEEDOR : ($tbProducto ? TB_PRODUCTO : TB_PROVEEDOR_PRODUCTO);
+                $queryCheck = "SELECT 1 FROM $tableName WHERE ";
+                $params = [];
+                $types = "";
+
+                if ($proveedorID && $productoID) {
+                    // Consulta para verificar si existe una asignación entre el proveedor y la dirección
+                    $queryCheck .= PROVEEDOR_ID . " = ? AND " .  PRODUCTO_ID . " = ? AND " . PROVEEDOR_SUBCATEGORIA_ESTADO . " != FALSE";
+                    $params = [$proveedorID, $productoID];
+                    $types = "ii";
+                } else if ($proveedorID) {
+                    // Consulta para verificar si existe un proveedor con el ID ingresado
+                    $estadoCampo = $tbProveedor ? PROVEEDOR_ESTADO :PROVEEDOR_PRODUCTO_ESTADO;
+                    $queryCheck .= PROVEEDOR_ID . " = ? AND $estadoCampo != FALSE";
+                    $params = [$proveedorID];
+                    $types = "i";
+                } else if ($productoID) {
+                    // Consulta para verificar si existe una dirección con el ID ingresado
+                    $estadoCampo = $tbProducto ? PRODUCTO_ESTADO : PROVEEDOR_PRODUCTO_ESTADO;
+                    $queryCheck .= PRODUCTO_ID . " = ? AND $estadoCampo != FALSE";
+                    $params = [$productoID];
+                    $types = "i";
+                } else {
+                    // Registrar parámetros faltantes y lanzar excepción
+                    $missingParamsLog = "Faltan parámetros para verificar la existencia del proveedor y/o producto:";
+                    if (!$proveedorID) $missingParamsLog .= " proveedorID [" . ($proveedorID ?? 'null') . "]";
+                    if (!$productoID) $missingParamsLog .= " productoID [" . ($productoID ?? 'null') . "]";
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    return ["success" => false, "message" => "No se proporcionaron los parámetros necesarios para realizar la verificación."];
+                }
+
+                // Prepara la consulta y ejecuta la verificación
+                $stmt = mysqli_prepare($conn, $queryCheck);
+                mysqli_stmt_bind_param($stmt, $types, ...$params);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+
+                // Verifica si existe algún registro con los criterios dados
+                if (mysqli_num_rows($result) > 0) {
+                    return ["success" => true, "exists" => true];
+                }
+
+                // Retorna false si no se encontraron resultados
+                return ["success" => true, "exists" => false, "message" => $message];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al verificar la existencia de producto y proveedor en la base de datos',
+                    $this->className
+                );
+        
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+            }
+        }
+
+        public function ExistenciaDeProveedorYProducto($idproveedor, $idproducto){
+            $check = $this->existeProveedorProducto($idproveedor,null,true);
+            if(!$check['success']){ return $check; }
+            if(!$check['exists']){
+                return ['success'=> false, 'message' => 'Este proveedor no existe'];
+            }
+            $check = $this->existeProveedorProducto(null,$idproducto,false,true);
+            if(!$check['success']){ return $check; }
+            if(!$check['exists']){
+                return ['success'=> false, 'message' => 'Este proveedor no existe'];
+            }
+            return ['success'=> true];
+        }
+
+        public function addProductoToProveedor($idproveedor, $idproducto, $conn = null){
+            $conexionExterna = false;
+            $stmt = null;
+            try{
+
+
+                $check = ExistenciaDeProveedorYProducto($idproveedor, $idproducto);
+                if(!$check['success']){
+                    return $check;
+                }
+
+                // Si no se proporcionó una conexión, crea una nueva
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $conexionExterna = true;
+                }
+                // Obtenemos el último ID de la tabla tbproveedordireccion
+                // generacion de id
+				$queryGetLastId = "SELECT MAX(" . PRODUCTO_ID . ") FROM " . TB_PROVEEDOR_PRODUCTO;
+				$idCont = mysqli_query($conn, $queryGetLastId);
+				$nextId = 1;
+				if ($row = mysqli_fetch_row($idCont)) {
+					$nextId = (int) trim($row[0]) + 1;
+				}
+
+                // Crea una consulta y un statement SQL para insertar el registro
+                $queryInsert = "INSERT INTO " . TB_PROVEEDOR_PRODUCTO . " ("
+                    . PROVEEDOR_PRODUCTO_ID . ", "
+                    . PROVEEDOR_ID . ", "
+                    . PRODUCTO_ID
+                    . ") VALUES (?, ?, ?)";
+                $stmt = mysqli_prepare($conn, $queryInsert);
+
+                // Prepara y ejecuta la consulta de inserción
+                mysqli_stmt_bind_param($stmt, 'iii', $nextId, $idproveedor, $idproducto);
+                $result = mysqli_stmt_execute($stmt);
+
+                return ["success" => true, "message" => "Producto asignada exitosamente al proveedor."];
+            }catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+				$userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al intentar asignarle un producto al proveedor en la base de datos',
+                    $this->className
+                );
+                return ["success" => false, "message" => $userMessage];
+			} finally{
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if ($conexionExterna && isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+            }
+
+
+        }
+
+        public function getDireccionesByProveedor($idproveedor, $json = false){
+            $conn = null; $stmt = null;
+
+            try {
+                
+                $check = $this->existeProveedorProducto($idproveedor, null, true);
+                if(!$check["success"]){ return $check;}
+                if(!$check["exists"]){
+                    return ['success' => false, 'message'=> 'El proveedor no existe en la base de datos.'];
+                }
+               
+                $check = $this->existeProveedorProducto($idproveedor);
+                if(!$check["success"]){ return $check; }
+                if(!$check["exists"]){
+                    return [ 'success' => false, 'message'=> 'Este proveedor no tiene productos asignados.'];
+                }
+
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+
+
+                // Consulta para obtener las direcciones de un proveedor
+				$querySelect = "
+                    SELECT
+                        P.*
+                    FROM " . TB_PRODUCTO . " P "
+                    . " INNER JOIN " . TB_PROVEEDOR_PRODUCTO. " PP ON P." . PRODUCTO_ID . " = PP." . PRODUCTO_ID . "
+                    WHERE
+                        PP." . PROVEEDOR_ID . " = ? AND 
+                        PP." . PROVEEDOR_PRODUCTO_ESTADO . " != FALSE; ";
+
+                // Preparar la consulta, vincular los parámetros y ejecutar la consulta
+                $stmt = mysqli_prepare($conn, $querySelect);
+                mysqli_stmt_bind_param($stmt, 'i', $idproveedor);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+
+                // Creamos la lista con los datos obtenidos
+                $productos = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    if($json){
+                        $productos[] = [
+                            "ID"            =>$row[PRODUCTO_ID],
+                            "Nombre"        =>$row[PRODUCTO_NOMBRE],
+                            "PrecioCompra"  =>$row[PRODUCTO_PRECIO_COMPRA],
+                            "PorcentajeGanancia" =>$row[PRODUCTO_PORCENTAJE_GANANCIA],
+                            "Descripcion"   =>$row[PRODUCTO_DESCRIPCION],
+                            "CodigoBarras"  =>$row[PRODUCTO_CODIGO_BARRAS_ID],
+                            "Imagen"        =>$row[PRODUCTO_IMAGEN],
+                            "Estado"        =>$row[PRODUCTO_ESTADO]
+                        ];
+                    }else{
+                        $productos[] = new Producto(
+                            $row[PRODUCTO_NOMBRE],
+                            $row[PRODUCTO_PRECIO_COMPRA],
+                            $row[PRODUCTO_CODIGO_BARRAS_ID],
+                            $row[PRODUCTO_IMAGEN],
+                            $row[PRODUCTO_PORCENTAJE_GANANCIA],
+                            $row[PRODUCTO_ID],
+                            $row[PRODUCTO_DESCRIPCION],
+                            $row[PRODUCTO_ESTADO]);
+                    }
+                }
+                return ["success" => true, "productos" => $productos];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al obtener la lista de productos del proveedor desde la base de datos',
+                    $this->className
+                );
+
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+            }
+        }
+
+        public function getPaginateProductoProveedor($idproveedor,$page,$size, $sort= null, $onlyActiveOrInactive = true, $deleted = false){
+            $conn = null; $stmt = null;
+
+            try {
+                // Validar los parámetros de paginación
+                if (!is_numeric($page) || $page < 1) {
+                    throw new Exception("El número de página debe ser un entero positivo.");
+                }
+                if (!is_numeric($size) || $size < 1) {
+                    throw new Exception("El tamaño de la página debe ser un entero positivo.");
+                }
+                $offset = ($page - 1) * $size;
+
+                $check = $this->existeProveedorProducto($idproveedor, null, true);
+                if(!$check["success"]){ return $check;}
+                if(!$check["exists"]){
+                    return ['success' => false, 'message'=> 'El proveedor no existe en la base de datos.'];
+                }
+
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+
+                // Consultar el total de registros
+                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_PROVEEDOR_PRODUCTO . " WHERE " . PROVEEDOR_ID . " = ? ";
+                if ($onlyActiveOrInactive) { $queryTotalCount .= " AND " . PROVEEDOR_PRODUCTO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+
+                // Preparar la consulta y ejecutarla
+                $stmt = mysqli_prepare($conn, $queryTotalCount);
+                mysqli_stmt_bind_param($stmt, 'i', $idproveedor);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                $totalRecords = (int) mysqli_fetch_assoc($result)["total"];
+                $totalPages = ceil($totalRecords / $size);
+
+                // Construir la consulta SQL para paginación
+                $querySelect = "
+                    SELECT
+                        P.*
+                    FROM " . TB_PRODUCTO . " P "
+                    . " INNER JOIN " . TB_PROVEEDOR_PRODUCTO. " PP ON P." . PRODUCTO_ID . " = PP." . PRODUCTO_ID . "
+                    WHERE PP." . PROVEEDOR_ID . " = ? ";
+                if ($onlyActiveOrInactive) { $querySelect .= " AND PP." . PROVEEDOR_PRODUCTO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+
+                // Añadir la cláusula de ordenamiento si se proporciona
+                if ($sort) { $querySelect .= "ORDER BY producto" . $sort . " "; }
+
+				// Añadir la cláusula de limitación y offset
+                $querySelect .= " LIMIT ? OFFSET ?";
+
+                // Preparar la consulta, vincular los parámetros y ejecutar la consulta
+                $stmt = mysqli_prepare($conn, $querySelect);
+                mysqli_stmt_bind_param($stmt, "iii", $idproveedor, $size, $offset);
+                mysqli_stmt_execute($stmt);
+
+                // Obtener los resultados de la consulta
+                $result = mysqli_stmt_get_result($stmt);
+
+                // Creamos la lista con los datos obtenidos
+                $productos = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $productos[] = [
+                        "ID"            =>$row[PRODUCTO_ID],
+                        "Nombre"        =>$row[PRODUCTO_NOMBRE],
+                        "PrecioCompra"  =>$row[PRODUCTO_PRECIO_COMPRA],
+                        "PorcentajeGanancia" =>$row[PRODUCTO_PORCENTAJE_GANANCIA],
+                        "Descripcion"   =>$row[PRODUCTO_DESCRIPCION],
+                        "CodigoBarras"  =>$row[PRODUCTO_CODIGO_BARRAS_ID],
+                        "Imagen"        =>$row[PRODUCTO_IMAGEN],
+                        "Estado"        =>$row[PRODUCTO_ESTADO]
+                    ];
+                }
+
+                return [
+                    "success" => true,
+                    "page" => $page,
+                    "size" => $size,
+                    "totalPages" => $totalPages,
+                    "totalRecords" => $totalRecords,
+                    "proveedor" => $idproveedor,
+                    "productos" => $productos
+                ];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al obtener la lista de direcciones del proveedor desde la base de datos',
+                    $this->className
+                );
+        
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+            }
+        }
+
+        public function removeProductoToProveedor($idproveedor, $idproducto,$conn = null){
+            $createdConnection = false; //<- Indica si la conexión se creó aquí o viene por parámetro
+            $stmt = null;
+
+            try {
+                // Verificar la existencia del proveedor y de la dirección en la base de datos
+                $check = $this->verificarExistenciaProveedorDireccion($proveedorID, $direccionID);
+                if (!$check['success']) { return $check; }
+
+                // Verificar si existe la asignación entre la dirección y el proveedor en la base de datos
+                $check = $this->existeProveedorDireccion($proveedorID, $direccionID);
+                if (!$check['success']) { return $check; }
+                if (!$check['exists']) {
+                    $message = "La dirección con ID [$direccionID] no está asignada al proveedor con ID [$proveedorID].";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ['success' => false, 'message' => "La dirección seleccionada no está asignada al proveedor."];
+                }
+
+                // Si no se proporcionó una conexión, crea una nueva
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+        
+                    // Desactivar el autocommit para manejar transacciones si la conexión fue creada aquí
+                    mysqli_autocommit($conn, false);
+                }
+
+                // Crea una consulta y un statement SQL para eliminar el registro (borrado logico)
+				$queryUpdate = 
+                    "UPDATE " . TB_PROVEEDOR_DIRECCION . 
+                    " SET " 
+                        . PROVEEDOR_DIRECCION_ESTADO . " = FALSE " .
+					"WHERE " 
+                        . PROVEEDOR_ID . " = ? AND " 
+                        . DIRECCION_ID . " = ?";
+				$stmt = mysqli_prepare($conn, $queryUpdate);
+                mysqli_stmt_bind_param($stmt, 'ii', $proveedorID, $direccionID);
+				mysqli_stmt_execute($stmt);
+
+                // Eliminar la dirección de la tabla tbDireccion
+                $queryUpdateDireccion = 
+                    "UPDATE " . TB_DIRECCION . 
+                    " SET " 
+                        . DIRECCION_ESTADO . " = FALSE " .
+                    "WHERE " 
+                        . DIRECCION_ID . " = ?";
+                $stmt = mysqli_prepare($conn, $queryUpdateDireccion);
+                mysqli_stmt_bind_param($stmt, 'i', $direccionID);
+                mysqli_stmt_execute($stmt);
+
+                // Confirmar la transacción si la conexión fue creada aquí
+                if ($createdConnection) {
+                    mysqli_commit($conn);
+                }
+		
+				// Devuelve el resultado de la operación
+				return ["success" => true, "message" => "Dirección eliminada exitosamente."];
+            } catch (Exception $e) {
+                // Revertir la transacción en caso de error si la conexión fue creada aquí
+                if ($createdConnection && isset($conn)) { mysqli_rollback($conn); }
+        
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al intentar eliminar la dirección del proveedor en la base de datos',
+                    $this->className
+                );
+        
+                return ["success" => false, "message" => $userMessage];
+			} finally {
+				// Cierra el statement y la conexión solo si fueron creados en esta función
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if ($createdConnection && isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+			}    
+
+        }
+
+
+
+
         private function obtenerNuevoId() {
             try {
                 $result = $this->getConnection();
@@ -184,10 +587,16 @@
                 }
         
                 return ["success" => true, "message" => "Guardado correctamente."];
-            } catch (Exception $e) {
-                error_log($e->getMessage());
-                return ["success" => false, "message" => $e->getMessage()];
-            } finally {
+            }  catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+				$userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al intentar asignarle Producto al proveedor en la base de datos',
+                    $this->className
+                );
+        
+                return ["success" => false, "message" => $userMessage];
+			}  finally {
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if (isset($conn)) { mysqli_close($conn); }
             }
@@ -229,10 +638,16 @@
                 }
         
                 return ["success" => true, "data" => $proveedorProductos];
-            } catch (Exception $e) {
-                error_log($e->getMessage());
-                return ["success" => false, "message" => $e->getMessage()];
-            } finally {
+            }catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+				$userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al obtener proveedor productos de la base de datos',
+                    $this->className
+                );
+        
+                return ["success" => false, "message" => $userMessage];
+			}  finally {
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if (isset($conn)) { mysqli_close($conn); }
             }
@@ -271,9 +686,15 @@
         
                 return ["success" => true, "message" => "Actualizado correctamente."];
             } catch (Exception $e) {
-                error_log($e->getMessage());
-                return ["success" => false, "message" => $e->getMessage()];
-            } finally {
+                // Manejo del error dentro del bloque catch
+				$userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al intentar actualizar producto proveedor en la base de datos',
+                    $this->className
+                );
+        
+                return ["success" => false, "message" => $userMessage];
+			}  finally {
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if (isset($conn)) { mysqli_close($conn); }
             }
@@ -286,19 +707,20 @@
                     throw new Exception($result["message"]);
                 }
                 $conn = $result["connection"];
-        
-                $query = "DELETE FROM " . TB_PROVEEDOR_PRODUCTO . " WHERE " . PROVEEDOR_PRODUCTO_ID . " = ?";
+
+                $query = "UPDATE " . TB_PROVEEDOR_PRODUCTO . 
+                "SET " .PROVEEDOR_PRODUCTO_ESTADO . " = false "   
+                . " WHERE " . PROVEEDOR_PRODUCTO_ID . " = ? ";
                 $stmt = mysqli_prepare($conn, $query);
                 if (!$stmt) {
                     throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
                 }
-        
                 mysqli_stmt_bind_param($stmt, 'i', $proveedorProductoId);
                 $success = mysqli_stmt_execute($stmt);
                 if (!$success) {
                     throw new Exception("Error al ejecutar la consulta: " . mysqli_error($conn));
                 }
-        
+
                 return ["success" => true, "message" => "Eliminado correctamente."];
             } catch (Exception $e) {
                 error_log($e->getMessage());
