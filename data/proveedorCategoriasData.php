@@ -274,7 +274,7 @@
                     FROM " . TB_CATEGORIA . " C "
                     . " INNER JOIN " . TB_PROVEEDOR_CATEGORIA. " PC ON C." . CATEGORIA_ID . " = PC." . CATEGORIA_ID . "
                     WHERE PC." . PROVEEDOR_ID . " = ? ";
-                if ($onlyActiveOrInactive) { $querySelect .= " AND PC." . PROVEEDOR_PRODUCTO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($onlyActiveOrInactive) { $querySelect .= " AND PC." . PROVEEDOR_CATEGORIA_ESTADO. " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 // Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) { $querySelect .= "ORDER BY producto" . $sort . " "; }

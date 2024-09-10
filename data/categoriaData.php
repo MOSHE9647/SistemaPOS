@@ -144,7 +144,7 @@
                     'Error al insertar categoria a la base de datos'
                 );
                 // Devolver mensaje amigable para el usuario
-                return ["success" => false, "message" => $userMessage];
+                return ["success" => false, "message" => $userMessage, "id"=>$nextId];
             } finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }

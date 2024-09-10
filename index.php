@@ -39,7 +39,7 @@
             <li> <a href="./view/proveedorDireccionView.php">Gestión de Proveedor-Direcciones</a> </li>
             <li> <a href="./view/proveedorTelefonoView.php">Gestión de Proveedor-Telefonos</a> </li>
             <li> <a href="./view/proveedorProductoView.php">Gestión de Proveedor-Productos</a> </li>
-
+            <li> <a href="./view/proveedorCategoriaView.php">Gestion de Proveedor-Categoria</a><li>
             <h3>Extras</h3>
             <li> <a href="" onclick="printBarcodes(10)">Imprimir Códigos de Barras</a> </li>
         

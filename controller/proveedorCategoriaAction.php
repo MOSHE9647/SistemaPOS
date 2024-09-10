@@ -34,15 +34,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
    $proveedorCategoriaBusiness = new ProveedorCategoriaBusiness();
-    if (isset($_GET['id'])) {
-        $proveedorProductoId = isset($_GET['id']) ?$_GET['id']:0;
-        $result =$proveedorCategoriaBusiness-> getAllCategoriasProveedor($proveedorProductoId);
+   $response = [];
+   Utils::writeLog("Id proveedor ... Listado",UTILS_LOG_FILE);
+    if (isset($_GET['proveedor'])) {
+        $proveedorProductoId = isset($_GET['proveedor']) ?$_GET['proveedor']:0;
+        $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+        $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
+        $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
+        // Validar los parámetros
+        if ($page < 1) $page = 1;
+        if ($size < 1) $size = 5;
+        // Obtiene las categoria de un proveedor en la base de datos.
+        $response = $proveedorCategoriaBusiness->getPaginateCategoriaProveedor($proveedorProductoId, $page, $size, $sort);
 
-        // $result =$proveedorCategoriaBusiness->obtenerProveedorProductoPorId($proveedorProductoId);
-        echo json_encode($result);
+        echo json_encode( $response);
     } else {
-        $result = $proveedorCategoriaBusiness->getAllCategoriasProveedor(0);
-        echo json_encode($result);
+        $response['success'] = false;
+        $response['message'] = 'Selecciona un proveedor';
+        echo json_encode($response);
     }
     exit();
 }
