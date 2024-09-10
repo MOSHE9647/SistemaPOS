@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 08-09-2024 a las 23:10:33
+-- Tiempo de generación: 10-09-2024 a las 11:30:46
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -49,7 +49,8 @@ INSERT INTO `tbcategoria` (`categoriaid`, `categorianombre`, `categoriadescripci
 (7, 'Monitors & Displays', 'Monitores y pantallas', 0),
 (8, 'Input Devices', 'Dispositivos de entrada', 1),
 (9, 'Home Appliances', 'Electrodomésticos para el hogar', 1),
-(10, 'Audio & Headphones', 'Audio y auriculares', 1);
+(10, 'Audio & Headphones', 'Audio y auriculares', 1),
+(11, 'ALIMENTOS', '', 1);
 
 -- --------------------------------------------------------
 
@@ -60,7 +61,7 @@ INSERT INTO `tbcategoria` (`categoriaid`, `categorianombre`, `categoriadescripci
 DROP TABLE IF EXISTS `tbcodigobarras`;
 CREATE TABLE `tbcodigobarras` (
   `codigobarrasid` int NOT NULL,
-  `codigobarrasnumero` int NOT NULL,
+  `codigobarrasnumero` varchar(13) NOT NULL,
   `codigobarrasfechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `codigobarrasfechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `codigobarrasestado` tinyint NOT NULL DEFAULT '1'
@@ -149,7 +150,8 @@ INSERT INTO `tbdireccion` (`direccionid`, `direccionprovincia`, `direccioncanton
 (1, 'Heredia', 'Sarapiquí', 'Horquetas', 'Urb Miraflores', 'Casa #37', 3.00, 1),
 (2, 'Alajuela', 'Zarcero', 'Guadalupe', 'Escalante', 'Casa #26', 20.00, 1),
 (3, 'Alajuela', 'San Carlos', 'Aguas Zarcas', 'Cascadia', '', 20.00, 0),
-(4, 'Guanacaste', 'Abangares', 'Sierra', 'Sierra', 'Casa #32', 5.00, 1);
+(4, 'Guanacaste', 'Abangares', 'Sierra', 'Sierra', 'Casa #32', 5.00, 1),
+(5, 'Heredia', 'Santo Domingo', 'Para', '', '', 20.59, 1);
 
 -- --------------------------------------------------------
 
@@ -368,7 +370,8 @@ INSERT INTO `tbproveedordireccion` (`proveedordireccionid`, `proveedorid`, `dire
 (1, 1, 1, 1),
 (2, 1, 2, 1),
 (3, 1, 3, 0),
-(4, 1, 4, 1);
+(4, 1, 4, 1),
+(5, 3, 5, 1);
 
 -- --------------------------------------------------------
 
@@ -404,7 +407,8 @@ CREATE TABLE `tbproveedortelefono` (
 
 INSERT INTO `tbproveedortelefono` (`proveedortelefonoid`, `proveedorid`, `telefonoid`, `proveedortelefonoestado`) VALUES
 (1, 1, 1, 1),
-(2, 1, 2, 0);
+(2, 1, 2, 0),
+(3, 1, 3, 1);
 
 -- --------------------------------------------------------
 
@@ -476,7 +480,8 @@ CREATE TABLE `tbtelefono` (
 
 INSERT INTO `tbtelefono` (`telefonoid`, `telefonotipo`, `telefonocodigopais`, `telefononumero`, `telefonoextension`, `telefonofechacreacion`, `telefonofechamodificacion`, `telefonoestado`) VALUES
 (1, 'Móvil', '+1-809', '257 998 5247', '', '2024-09-07 22:11:19', '2024-09-07 22:11:19', 1),
-(2, 'Móvil', '+503', '9728 6416', '', '2024-09-07 22:11:51', '2024-09-07 22:12:25', 0);
+(2, 'Móvil', '+503', '9728 6416', '', '2024-09-07 22:11:51', '2024-09-07 22:12:25', 0),
+(3, 'Móvil', '+593', '65 588 4412', '', '2024-09-10 09:21:51', '2024-09-10 09:21:51', 1);
 
 -- --------------------------------------------------------
 
