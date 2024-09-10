@@ -82,8 +82,6 @@
                 $transparent =   isset($_GET['trans'])    ? boolval($_GET['trans'])   : false;
                 $barcode =       isset($_GET['barcode'])  ? $_GET['barcode']          : null;
 
-                Utils::writeLog("Producto ID: $productoID, Scale: $scale, Text: $text, Transparent: $transparent, Barcode: " . ($barcode ? $barcode : 'null'));
-
                 // Verificar existencia de archivo de fuente
                 $fontPath = __DIR__ . '/../libs/barcode-1d/font/CascadiaMono.ttf';
                 if (!file_exists($fontPath)) {
