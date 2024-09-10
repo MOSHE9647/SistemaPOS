@@ -8,10 +8,10 @@ function renderTable(categorias) {
         let row = `
             <tr data-id="${categoria.ID}">
                 <td data-field="nombre">${categoria.Nombre}</td>
-                <td data-field="direccion">${categoria.Descripcion}</td>
+                <td data-field="descripcion">${categoria.Descripcion}</td>
                 <td>
-                    <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
-                    <button onclick="removeDireccionFromProveedor(${categoria.ID})">Eliminar</button>
+                    <button onclick=" makeRowEditable(this.parentNode.parentNode)">Editar</button>
+                    <button onclick="removeCategoriaFromProveedor(${categoria.ID})">Eliminar</button>
                 </td>
             </tr>
         `;
@@ -73,7 +73,7 @@ function makeRowEditable(row) {
     //     }
     // });
 
-    initializeSelects();
+        initializeSelects();
 }
 
 function showCreateRow() {
@@ -86,7 +86,7 @@ function showCreateRow() {
         <td data-field="nombre"><input type="text" required></td>
         <td data-field="descripcion"><input type="text"></td>
         <td>
-            <button onclick="addDireccionToProveedor()">Crear</button>
+            <button onclick="addCategoriaToProveedor()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>
         </td>
     `;

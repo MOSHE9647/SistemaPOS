@@ -17,7 +17,7 @@ async function createCategoria() {
         }
         data[fieldName] = value;
     });
-
+    console.log('>>>>    ' +data);
     try {
         let response = await fetch('../controller/categoriaAction.php', {
             method: 'POST',
@@ -73,7 +73,6 @@ function updateCategoria(id) {
         }
     })
     .catch(error => {
-        // Muestra el mensaje de error detallado
         showMessage(`Ocurrió un error al actualizar la dirección.<br>${error}`, 'error');
     });
 }
@@ -97,6 +96,7 @@ async function deleteCategoria(id) {
 
 async function addCategoriaToProveedor() {
     const response = await createCategoria();
+    console.log('-----> '+response);
     if (response.success) {
         console.log('Dirección creada con ID:', response.id);
     } else if (response.message) {

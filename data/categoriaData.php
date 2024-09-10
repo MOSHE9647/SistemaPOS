@@ -135,7 +135,7 @@
 					throw new Exception("Error al insertar la categoría");
 				}
 
-				return ["success" => true, "message" => "Categoría insertada exitosamente"];
+				return ["success" => true, "message" => "Categoría insertada exitosamente", "id"=> $nextId];
 			}catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(

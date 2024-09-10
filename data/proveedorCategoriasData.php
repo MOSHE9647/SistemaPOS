@@ -64,7 +64,7 @@
                 }
 
                 // Retorna false si no se encontraron resultados
-                return ["success" => true, "exists" => false, "message" => $message];
+                return ["success" => true, "exists" => false, "message" => 'No se encontraron resultados'];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
