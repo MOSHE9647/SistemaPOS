@@ -18,7 +18,8 @@ class CompraBusiness {
             $compraMontoBruto = $compra->getCompraMontoBruto();
             $compraMontoNeto = $compra->getCompraMontoNeto();
             $compraTipoPago = $compra->getCompraTipoPago();
-            $compraProveedorId = $compra->getCompraProveedorId();
+           // $compraProveedorId = $compra->getCompraProveedorId();
+            $proveedorid = $compra->getProveedorID();
             $compraFechaCreacion = $compra->getCompraFechaCreacion();
             $compraFechaModificacion = $compra->getCompraFechaModificacion();
             $compraEstado = $compra->getCompraEstado();
@@ -31,7 +32,7 @@ class CompraBusiness {
 
             // Si la validación de campos adicionales está activada, valida los otros campos
             if ($validarCamposAdicionales) {
-                if ($compraNumeroFactura === null || empty($compraNumeroFactura)) {
+                if ($compraNumeroFactura === null ) {
                     $errors[] = "El campo 'Número de factura' está vacío o no es válido.";
                     Utils::writeLog("El campo 'Número de factura [$compraNumeroFactura]' no es válido.", BUSINESS_LOG_FILE);
                 }
@@ -46,20 +47,24 @@ class CompraBusiness {
                     Utils::writeLog("El campo 'Monto neto [$compraMontoNeto]' no es válido.", BUSINESS_LOG_FILE);
                 }
 
-                if ($compraTipoPago === null || empty($compraTipoPago)) {
-                    $errors[] = "El campo 'Tipo de pago' está vacío o no es válido.";
-                    Utils::writeLog("El campo 'Tipo de pago [$compraTipoPago]' no es válido.", BUSINESS_LOG_FILE);
-                }
+                //if ($compraTipoPago === null || empty($compraTipoPago)) {
+                  //  $errors[] = "El campo 'Tipo de pago' está vacío o no es válido.";
+                    //Utils::writeLog("El campo 'Tipo de pago [$compraTipoPago]' no es válido.", BUSINESS_LOG_FILE);
+               // }
 
-                if ($compraProveedorId === null || !is_numeric($compraProveedorId) || $compraProveedorId < 0) {
-                    $errors[] = "El campo 'ID del proveedor' está vacío o no es válido.";
-                    Utils::writeLog("El campo 'ID del proveedor [$compraProveedorId]' no es válido.", BUSINESS_LOG_FILE);
-                }
+               // if ($compraProveedorId === null || !is_numeric($compraProveedorId) || $compraProveedorId < 0) {
+                    //$errors[] = "El campo 'ID del proveedor' está vacío o no es válido.";
+                  //  Utils::writeLog("El campo 'ID del proveedor [$compraProveedorId]' no es válido.", BUSINESS_LOG_FILE);
+               // }
+               if ($proveedorid === null || !is_numeric($proveedorid)) {
+                $errors[] = "El campo 'Proveedor ID' está vacío o no es válido.";
+                Utils::writeLog("El campo 'Proveedor ID [$proveedorid]' no es válido.", BUSINESS_LOG_FILE);
+            }
 
-                if ($compraFechaModificacion === null || empty($compraFechaModificacion)) {
-                    $errors[] = "El campo 'Fecha de modificacion' está vacío o no es válido.";
-                    Utils::writeLog("El campo 'Fecha de modificacion [$compraFechaModificacion]' no es válido.", BUSINESS_LOG_FILE);
-                }
+               // if ($compraFechaModificacion === null || empty($compraFechaModificacion)) {
+                 //   $errors[] = "El campo 'Fecha de modificacion' está vacío o no es válido.";
+                   // Utils::writeLog("El campo 'Fecha de modificacion [$compraFechaModificacion]' no es válido.", BUSINESS_LOG_FILE);
+                //}
             }
 
             // Lanza una excepción si hay errores
