@@ -226,7 +226,7 @@
 
             try {
                 // Verifica si existe un Código de Barras con el mismo ID en la BD
-                $check = $this->existeCodigoBarrasID($codigoBarrasID);
+                $check = $this->existeCodigoBarras($codigoBarrasID);
                 if (!$check["success"]) { return $check; } // Error al verificar la existencia
 				if (!$check["exists"]) { // No existe el código de barras
                     $message = "El código de barras con 'ID [$codigoBarrasID]' no existe en la base de datos.";

@@ -40,6 +40,9 @@
 
             <h3>Extras</h3>
             <li> <a href="" onclick="printBarcodes(10)">Imprimir Códigos de Barras</a> </li>
+        
+            <h3>Pruebas</h3>
+            <li> <a href="./test/prueba.php">Prueba de Código de Barras</a> </li>
         </ul>
     </body>
 </html>
