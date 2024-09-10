@@ -59,7 +59,7 @@
         <h2>Generador de Códigos de Barras</h2>
         
         <div id="message"></div>
-
+<!-- 
         <div class="productos-container">
             <label for="producto-select">Seleccione un Producto:</label>
             <select id="producto-select">
@@ -69,7 +69,7 @@
                 <option value="4">Producto Prueba 4</option>
                 <option value="5">Producto Prueba 5</option>
             </select>
-        </div>
+        </div> -->
 
         <div id="barcode-container">
             <div class="barcode">
@@ -78,6 +78,7 @@
                     id="barcodeText" type="text" maxlength="12" 
                     oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12);"
                     title="Ingrese hasta 12 dígitos numéricos"
+                    readonly disabled
                 />
                 <button onclick="generateBarcode()">Generar</button>
             </div>
@@ -115,9 +116,9 @@
 
             // Función para generar el código de barras
             function generateBarcode() {
-                const barcodeInput = document.getElementById('barcodeText').value = '';
-                const productoID = parseInt(document.getElementById('producto-select').value);
-                fetchBarcode(productoID, '');
+                // const barcodeInput = document.getElementById('barcodeText').value = '';
+                // const productoID = parseInt(document.getElementById('producto-select').value);
+                fetchBarcode(1, '');
             }
         </script>
     </body>
