@@ -10,10 +10,14 @@ let totalPages = 1;
 let pageSize = DEFAULT_PAGE_SIZE;
 
 function fetchCategoria(proveedorID, page, size, sort) {
+    console.log(page + '  '+ size +' '+ sort);
+
+
+
     fetch(`../controller/proveedorCategoriaAction.php?page=${page}&size=${size}&sort=${sort}&proveedor=${proveedorID}`)
         .then(response => response.json())
         .then(data => {
-            console.log(data);
+        console.log(data);
             if (data.success) {
                 renderTable(data.categorias);
                 proveedor = proveedorID;

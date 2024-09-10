@@ -277,7 +277,7 @@
                 if ($onlyActiveOrInactive) { $querySelect .= " AND PC." . PROVEEDOR_CATEGORIA_ESTADO. " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 // Añadir la cláusula de ordenamiento si se proporciona
-                if ($sort) { $querySelect .= "ORDER BY producto" . $sort . " "; }
+                if ($sort) { $querySelect .= "ORDER BY C.categoria" . $sort . " "; }
 
 				// Añadir la cláusula de limitación y offset
                 $querySelect .= " LIMIT ? OFFSET ?";
