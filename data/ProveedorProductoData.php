@@ -12,6 +12,7 @@
             parent::__construct();
         }
         
+
         public function existeProveedorProducto($proveedorID = null, $productoID = null, $tbProveedor = false, $tbProducto = false){
             $conn = null; $stmt = null;
             try {
@@ -151,7 +152,7 @@
 
         }
 
-        public function getDireccionesByProveedor($idproveedor, $json = false){
+        public function getProductoByProveedor($idproveedor, $json = false){
             $conn = null; $stmt = null;
 
             try {
@@ -394,7 +395,7 @@
 
 
 
-
+        //metodos viejos
         private function obtenerNuevoId() {
             try {
                 $result = $this->getConnection();

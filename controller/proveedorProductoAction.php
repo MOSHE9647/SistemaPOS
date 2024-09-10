@@ -2,20 +2,6 @@
 require_once __DIR__ . '/../service/proveedorProductoBusiness.php';
 require_once __DIR__ . '/../utils/Variables.php';
 
-// Función para validar los datos de ProveedorProducto
-function validarDatosProveedorProducto($proveedorId, $productoId) {
-    $errors = [];
-
-    if (empty($proveedorId) || !is_numeric($proveedorId)) {
-        $errors[] = "El campo 'Proveedor ID' no es válido.";
-    }
-
-    if (empty($productoId) || !is_numeric($productoId)) {
-        $errors[] = "El campo 'Producto ID' no es válido.";
-    }
-
-    return $errors;
-}
 
 $response = [];
 
@@ -24,13 +10,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $proveedorProductoId = isset($_POST['proveedorproductoid']) ? $_POST['proveedorproductoid'] : null;
     $proveedorId = $_POST['proveedorid'];
     $productoId = $_POST['productoid'];
-
     $proveedorProductoBusiness = new ProveedorProductoBusiness();
-
     switch($accion){
         case 'eliminar':
+            $response = $proveedorProductoBusiness->deleteProductoToProveedor($proveedorId,$productoId);
             break;
         case 'insertar':
+            $response = $proveedorProductoBusiness->addProductoProveedor($proveedorId, $productoId);
             break;
         case 'actualizar':
             break;
@@ -39,37 +25,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $response['message'] = "Accion no valida.";
             break;
     }
-    // if ($accion == 'eliminar') {
-    //     if (empty($proveedorProductoId) || !is_numeric($proveedorProductoId)) {
-    //         $response['success'] = false;
-    //         $response['message'] = "El ID de ProveedorProducto no puede estar vacío.";
-    //     } else {
-    //         $result = $proveedorProductoBusiness->eliminarProveedorProducto($proveedorProductoId);
-    //         $response['success'] = $result["success"];
-    //         $response['message'] = $result["message"];
-    //     }
-    // } else {
-    //     $validationErrors = validarDatosProveedorProducto($proveedorId, $productoId);
-
-    //     if (empty($validationErrors)) {
-    //         if ($accion == 'insertar') {
-    //             $result = $proveedorProductoBusiness->insertarProveedorProducto($proveedorId, $productoId);
-    //             $response['success'] = $result["success"];
-    //             $response['message'] = $result["message"];
-    //         } elseif ($accion == 'actualizar') {
-    //             $result = $proveedorProductoBusiness->actualizarProveedorProducto($proveedorProductoId, $proveedorId, $productoId);
-    //             $response['success'] = $result["success"];
-    //             $response['message'] = $result["message"];
-    //         } else {
-    //             $response['success'] = false;
-    //             $response['message'] = "Acción no válida.";
-    //         }
-    //     } else {
-    //         $response['success'] = false;
-    //         $response['message'] = implode(' ', $validationErrors);
-    //     }
-    // }
-
     header('Content-Type: application/json');
     echo json_encode($response);
     exit();
