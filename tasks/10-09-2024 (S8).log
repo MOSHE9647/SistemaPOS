@@ -1,0 +1,76 @@
+'DISTRIBUCION DE TRABAJOS'
+El trabajo se distribuirá de la siguiente manera:
+    
+    1. Jason:   Grupo 1     ['BACK']   , Exposición ['Tema D']
+    2. Javier:  Grupo 1     ['FRONT']  , Exposición ['Tema A']
+    3. Gonzalo: Grupo 2     ['BACK']   , Exposición ['Tema C']
+    4. Maikel:  Grupo 2 y 4 ['FULL']   , Exposición ['Tema E']
+    5. Isaac:   Grupo 3     ['FULL']   , Exposición ['Tema B']
+
+Para la exposición, a cada uno le va a tocar investigar acerca de su respectivo tema, los cuales son:
+    
+    1. 'Tema A': Las estructuras básicas y la programación estructurada por control.
+    2. 'Tema B': Comparación entre la programación imperativa secuencial y la programación algorítmica ('estructurada').
+    3. 'Tema C': Programación guiada por eventos ('event-driven programming') y programación guiada por flujo ('flow-driven programming').
+    4. 'Tema D': Modelo básico de la programación guiada por eventos.
+    5. 'Tema E': El problema del manejo de la estructura de control básica ('ciclo de atención de eventos').
+
+Para esta entrega, tanto 'Jason' como 'Gonzalo' van a trabajar con la parte del 'BACK' y 'Javier' va a trabajar con 
+la parte del 'FRONT' ('Vista'). En este caso, Isaac va a trabajar con ambas partes ('FULL'). 'Maikel' se va a encargar
+['FULL'] de las tablas nuevas que dio el profe en la reunión y de ayudarle a 'Gonzalo', junto a 'Javier', a solucionar
+los problemas que mencionó el profe y a arreglar lo que haya que arreglar en el 'FRONT'.
+
+'IMPORTANTE': LA RESPONSABILIDAD EN EL FRONT DEL GRUPO 2 ES DE 'MAIKEL', NO DE 'JAVIER'.
+
+Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos:
+1- Manejo de 'Errores' y 'Re-Estructuración' del Código:
+	1. 'Errores':
+        1. ['BACK']  Personalizar mensajes de Error.           [Uso de 'handleMysqlError()' y de 'Utils::writeLog()']
+	    2. ['BACK']  Especificación del porqué del Error.      [Uso de mensajes amigables y entendibles para el usuario]
+        3. ['BACK']  Validación de Variables.                  [Validar y devolver mensajes 'exactos' en caso de Error]
+        4. ['FRONT'] Mostrar el mensaje de error recibido.     [Uso de librerías para crear notificaciones emergentes]
+        5. ['BACK']  Validar que no se puedan repetir datos.   [Realizar las validaciones 'CORRECTAS' en el código]
+
+    2. 'Re-Estructuración':
+        1. ['FRONT'] Los inputs de las 'Tablas Principales' (las entidades en sí, no las intermedias) deben estar visibles desde que se carga la página.
+        1. ['FRONT'] Reemplazar el código de las tablas y del JS para utilizar librerias que se encarguen de esto. [Ej: 'DataTables']
+
+    [INFO] El punto 3 de 'Re-estructuración' todavía está en consideración, ya que todavía se están probando las librerías.
+
+2. Distribución de 'TABLAS' por Grupos ['Marcar los que ya tengan listos']:
+
+    |--------------------------------|---------------------------------------|---------------------------------|----------------------------------|
+    | Grupo 1 ('Jason y Javier')     | Grupo 2 ('Gonzalo, Maikel, Javier')   | Grupo 3 ('Isaac')               | Grupo 4 ('Maikel')               |
+    |--------------------------------|---------------------------------------|---------------------------------|----------------------------------|
+    | [ ] tbcompra                   | [0] tbproveedor                       | [ ] tbrol                       | [ ] tbmarca                      |
+    | [ ] tbcompradetalle            | [1] tbcategoria                       | [ ] tbusuario                   | [ ] tbpresentación               |
+    | [ ] tbcuentaporpagar           | [1] tbsubcategoria                    | [1] tbimpuesto                  |                                  |
+    | [1] tblote                     | [0] tbproveedorproducto               | [1] tbtelefono                  |                                  |
+    | [ ] tbproducto                 | [0] tbproveedorcategoria              | [1] tbdireccion                 |                                  |
+    |                                |                                       | [0] tbcodigobarras              |                                  |
+    |                                |                                       | [0] tbproductocategoria         |                                  |
+    |                                |                                       | [1] tbproductosubcategoria      |                                  |
+    |                                |                                       | [1] tbproveedortelefono         |                                  |
+    |                                |                                       | [1] tbproveedordireccion        |                                  |
+    |--------------------------------|---------------------------------------|---------------------------------|----------------------------------|
+
+[INFO] 
+    1. En el archivo 'Variables.php' Las variables de las tablas intermedias 'NO' necesitan llevar los ID's de las tablas que están juntando.
+       Ej: La tabla 'tbProveedorDireccion' no necesita que se le agreguen las variables 'proveedorid' ni 'direccionid' por que
+       estas variables ya existen como 'PROVEEDOR_ID' y 'DIRECCION_ID' en el archivo.
+
+[WARN]
+    1. Los campos 'fechacreacion', 'fechamodificacion' y 'estado' de todas las tablas tienen un valor por defecto, por lo tanto,
+       no es necesario que pasen estos datos al momento de hacer un 'INSERT' o un 'UPDATE', ya que estos campos se van a generar solos.
+       Por lo tanto, estos datos 'no los puede crear ni modificar el usuario'.
+       
+       Ej: En el caso de 'fechacreacion' y 'fechamodificacion' su valor por defecto es 'CURRENT_TIMESTAMP' el cual, si no le pasaron nada
+       al INSERT, se va a generar tomando la fecha y hora actual del sistema. En el caso de 'fechamodificacion', esta también se va a actualizar
+       por sí sola de la misma manera al momento de que hagan un UPDATE. En el caso de 'estado' su valor por defecto es un 1 ('TRUE'), y este
+       se va a asignar automáticamente al momento de hacer el INSERT o el UPDATE.
+
+[ERROR]
+    1. Hay que verificar que al ingresar o actualizar un registro que lleve decimales la cantidad de dígitos que tenga no supere
+       el límite que se le puso a la BD. Y, si es porcentaje, que no supere el 100%.
+    2. Eliminar permite eliminar un registro, pero si lo quiero crear de nuevo lo permite, cuando lo que debe hacer es mostrar los registros 
+       con bit de estado 0, para que el usuario lo pueda habilitar de nuevo.
