@@ -70,8 +70,8 @@
 	define('CUENTA_POR_PAGAR_MONTO_TOTAL', 'cuentaporpagarmontototal');
 	define('CUENTA_POR_PAGAR_MONTO_PAGADO', 'cuentaporpagarmontopagado');
 	define('CUENTA_POR_PAGAR_FECHA_PAGO', 'cuentaporpagarfechapago');
-	define('CUENTA_POR_PAGAR_NOTAS', 'cuentaporpagarnotas');
 	define('CUENTA_POR_PAGAR_ESTADO_CUENTA', 'cuentaporpagarestadocuenta'); //<- Pendiente, Pagada, Vencida
+	define('CUENTA_POR_PAGAR_NOTAS', 'cuentaporpagarnotas');
 	define('CUENTA_POR_PAGAR_ESTADO', 'cuentaporpagarestado');
 
 	// TABLA 'tbDireccion'
@@ -91,7 +91,8 @@
 	define('IMPUESTO_NOMBRE', 'impuestonombre');
 	define('IMPUESTO_VALOR', 'impuestovalor');
 	define('IMPUESTO_DESCRIPCION', 'impuestodescripcion');
-	define('IMPUESTO_FECHA_VIGENCIA', 'impuestofechavigencia');
+	define('IMPUESTO_FECHA_INICIO_VIGENCIA', 'impuestofechainiciovigencia');
+	define('IMPUESTO_FECHA_FIN_VIGENCIA', 'impuestofechafinvigencia');
 	define('IMPUESTO_ESTADO', 'impuestoestado');
 
 	// Tabla 'tbLote'
@@ -101,14 +102,32 @@
 	define('LOTE_FECHA_VENCIMIENTO','lotefechavencimiento');
 	define('LOTE_ESTADO','loteestado');
 
+	// TABLA 'tbMarca'
+	define('TB_MARCA', 'tbmarca'); //<- Nombre de la Tabla
+	define('MARCA_ID', 'marcaid');
+	define('MARCA_NOMBRE', 'marcanombre');
+	define('MARCA_DESCRIPCION', 'marcadescripcion');
+	define('MARCA_ESTADO', 'marcaestado');
+
+	// TABLA 'tbPresentacion'
+	define('TB_PRESENTACION', 'tbpresentacion'); //<- Nombre de la Tabla
+	define('PRESENTACION_ID', 'presentacionid');
+	define('PRESENTACION_NOMBRE', 'presentacionnombre');
+	define('PRESENTACION_DESCRIPCION', 'presentaciondescripcion');
+	define('PRESENTACION_ESTADO', 'presentacionestado');
+
 	// Tabla 'tbProducto'
 	define('TB_PRODUCTO','tbproducto'); //<- Nombre de la Tabla
 	define('PRODUCTO_ID','productoid');
+	define('PRODUCTO_CODIGO_BARRAS_ID','productocodigobarrasid');
 	define('PRODUCTO_NOMBRE','productonombre');
 	define('PRODUCTO_PRECIO_COMPRA','productopreciocompra');
 	define('PRODUCTO_PORCENTAJE_GANANCIA','productoporcentajeganancia');
 	define('PRODUCTO_DESCRIPCION','productodescripcion');
-	define('PRODUCTO_CODIGO_BARRAS_ID','productocodigobarrasid');
+	define('PRODUCTO_CATEGORIA_ID','productocateogoriaid');
+	define('PRODUCTO_SUBCATEGORIA_ID','productosubcategoriaid');
+	define('PRODUCTO_MARCA_ID','productomarcaid');
+	define('PRODUCTO_PRESENTACION_ID','productopresentacionid');
 	define('PRODUCTO_IMAGEN', 'productoimagen');
 	define('PRODUCTO_ESTADO','productoestado');
 
@@ -117,15 +136,17 @@
 	define('PROVEEDOR_ID', 'proveedorid');
 	define('PROVEEDOR_NOMBRE', 'proveedornombre'); 
 	define('PROVEEDOR_EMAIL', 'proveedoremail');
-	define('PROVEEDOR_FECHA_REGISTRO', 'proveedorfecharegistro');
+	define('PROVEEDOR_CATEGORIA_ID', 'proveedorcategoriaid');
+	define('PROVEEDOR_FECHA_CREACION', 'proveedorfechacreacion');
+	define('PROVEEDOR_FECHA_MODIFICACION', 'proveedorfechamodificacion');
 	define('PROVEEDOR_ESTADO', 'proveedorestado');
 
-	// TABLA 'tbRol'
-	define('TB_ROL', 'tbrol'); //<- Nombre de la Tabla
-	define('ROL_ID', 'rolid');
-	define('ROL_NOMBRE', 'rolnombre');
-	define('ROL_DESCRIPCION', 'roldescripcion');
-	define('ROL_ESTADO', 'rolestado');
+	// TABLA 'tbRolUsuario'
+	define('TB_ROL', 'tbrolusuario'); //<- Nombre de la Tabla
+	define('ROL_ID', 'rolusuarioid');
+	define('ROL_NOMBRE', 'rolusuarionombre');
+	define('ROL_DESCRIPCION', 'rolusuariodescripcion');
+	define('ROL_ESTADO', 'rolusuarioestado');
 
 	//Tabla 'tbSubCategoria'
 	define('TB_SUBCATEGORIA','tbsubcategoria');
@@ -137,7 +158,6 @@
 	// TABLA 'tbTelefono'
 	define('TB_TELEFONO', 'tbtelefono'); //<- Nombre de la Tabla
 	define('TELEFONO_ID', 'telefonoid');
-	define('TELEFONO_PROVEEDOR_ID', 'telefonoproveedorid');
 	define('TELEFONO_TIPO', 'telefonotipo');
 	define('TELEFONO_CODIGO_PAIS', 'telefonocodigopais');
 	define('TELEFONO_NUMERO', 'telefononumero');
@@ -150,43 +170,23 @@
 	define('TB_USUARIO', 'tbusuario'); //<- Nombre de la Tabla
 	define('USUARIO_ID', 'usuarioid');
 	define('USUARIO_NOMBRE', 'usuarionombre');
-	define('USUARIO_PRIMER_APELLIDO', 'usuarioprimerapellido');
-	define('USUARIO_SEGUNDO_APELLIDO', 'usuariosegundoapellido');
-	define('USUARIO_ROL_ID', 'usuariorolid');
+	define('USUARIO_APELLIDO_1', 'usuarioapellido1');
+	define('USUARIO_APELLIDO_2', 'usuarioapellido2');
+	define('USUARIO_ROL_ID', 'usuariorolusuarioid');
 	define('USUARIO_EMAIL', 'usuarioemail');
 	define('USUARIO_PASSWORD', 'usuariopassword');
-	define('USUARIO_NICKNAME', 'usuarionickname'); //<- 3 letras Nombre + 3 letras 1er Apellido + 3 letras 2do Apellido
 	define('USUARIO_FECHA_CREACION', 'usuariofechacreacion');
 	define('USUARIO_FECHA_MODIFICACION', 'usuariofechamodificacion');
 	define('USUARIO_ESTADO', 'usuarioestado');
 		
 	/*************** TABLAS INTERMEDIAS ***************/
 
-	// TABLA INTERMEDIA PARA Producto y Categoria 'tbProductoCategoria'
-	define('TB_PRODUCTO_CATEGORIA', 'tbproductocategoria'); //<- Nombre de la Tabla
-	define('PRODUCTO_CATEGORIA_ID', 'productocategoriaid'); //<- ID de la tabla intermedia
-	define('PRODUCTO_CATEGORIA_ESTADO', 'productocategoriaestado');
-
-	// TABLA INTERMEDIA PARA Producto y Subcategoria 'tbproductosubcategoria'
-	define('TB_PRODUCTO_SUBCATEGORIA','tbproductosubcategoria');
-	define('PRODUCTO_SUBCATEGORIA_ID','productosubcategoriaid');
-	define('PRODUCTO_SUBCATEGORIA_ESTADO','productosubcategoriaestado');
-
-	// TABLA INTERMEDIA PARA Prveedor y Categoria 'tbproveedorcategoria'
-	define('TB_PROVEEDOR_SUBCATEGORIA','tbproveedorcategoria');
-	define('PROVEEDOR_SUBCATEGORIA_ID','proveedorcategoriaid');
-	define('PROVEEDOR_SUBCATEGORIA_ESTADO','proveedorcategoriaestado');
-
-	define('TB_PROVEEDOR_CATEGORIA','tbproveedorcategoria');
-	define('PROVEEDOR_CATEGORIA_ID','proveedorcategoriaid');
-	define('PROVEEDOR_CATEGORIA_ESTADO','proveedorcategoriaestado');
-
 	// TABLA INTERMEDIA PARA Proveedor Y Direccion 'tbProveedorDireccion'
 	define('TB_PROVEEDOR_DIRECCION', 'tbproveedordireccion'); //<- Nombre de la Tabla
 	define('PROVEEDOR_DIRECCION_ID', 'proveedordireccionid');
 	define('PROVEEDOR_DIRECCION_ESTADO', 'proveedordireccionestado');
 
-	//TABLA INTERMEDIA PROVEEDOR-PRODUCTO
+	//TABLA INTERMEDIA PARA Proveedor Y Producto 'tbProveedorProducto
     define('TB_PROVEEDOR_PRODUCTO', 'tbproveedorproducto'); // Nombre de la Tabla
     define('PROVEEDOR_PRODUCTO_ID', 'proveedorproductoid'); // ID de la tabla proveedor-producto
 	define('PROVEEDOR_PRODUCTO_ESTADO', 'proveedorproductoestado');
@@ -195,5 +195,10 @@
     define('TB_PROVEEDOR_TELEFONO', 'tbproveedortelefono'); // Nombre de la Tabla
     define('PROVEEDOR_TELEFONO_ID', 'proveedortelefonoid'); // ID de la tabla proveedor-telefono
 	define('PROVEEDOR_TELEFONO_ESTADO', 'proveedortelefonoestado');
+
+	//TABLA INTERMEDIA PARA Usuario Y Telefono 'tbUsuarioTelefono'
+	define('TB_USUARIO_TELEFONO', 'tbusuariotelefono'); // Nombre de la Tabla
+	define('USUARIO_TELEFONO_ID', 'usuariotelefonoid'); // ID de la tabla usuario-telefono
+	define('USUARIO_TELEFONO_ESTADO', 'usuariotelefonoestado');
 
 ?>

@@ -1,8 +1,29 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Servidor: localhost
+-- Tiempo de generación: 11-09-2024 a las 21:05:36
+-- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
+-- Versión de PHP: 8.1.2-1ubuntu2.18
 
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Base de datos: `bdpuntoventa`
 --
+
+DROP DATABASE IF EXISTS `bdpuntoventa`;
+CREATE DATABASE `bdpuntoventa` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `bdpuntoventa`;
 
 -- --------------------------------------------------------
 
@@ -11,12 +32,13 @@
 --
 
 DROP TABLE IF EXISTS `tbcategoria`;
-CREATE TABLE `tbcategoria` (
+CREATE TABLE IF NOT EXISTS `tbcategoria` (
   `categoriaid` int NOT NULL,
   `categorianombre` varchar(100) NOT NULL,
   `categoriadescripcion` text,
-  `categoriaestado` tinyint NOT NULL DEFAULT '1'
-) ;
+  `categoriaestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`categoriaid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `tbcategoria`
@@ -32,8 +54,7 @@ INSERT INTO `tbcategoria` (`categoriaid`, `categorianombre`, `categoriadescripci
 (7, 'Monitors & Displays', 'Monitores y pantallas', 0),
 (8, 'Input Devices', 'Dispositivos de entrada', 1),
 (9, 'Home Appliances', 'Electrodomésticos para el hogar', 1),
-(10, 'Audio & Headphones', 'Audio y auriculares', 1),
-(11, 'ALIMENTOS', '', 1);
+(10, 'Audio & Headphones', 'Audio y auriculares', 1);
 
 -- --------------------------------------------------------
 
@@ -42,13 +63,14 @@ INSERT INTO `tbcategoria` (`categoriaid`, `categorianombre`, `categoriadescripci
 --
 
 DROP TABLE IF EXISTS `tbcodigobarras`;
-CREATE TABLE `tbcodigobarras` (
+CREATE TABLE IF NOT EXISTS `tbcodigobarras` (
   `codigobarrasid` int NOT NULL,
-  `codigobarrasnumero` varchar(13) NOT NULL,
+  `codigobarrasnumero` varchar(100) NOT NULL,
   `codigobarrasfechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `codigobarrasfechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `codigobarrasestado` tinyint NOT NULL DEFAULT '1'
-) ;
+  `codigobarrasestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`codigobarrasid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -57,17 +79,18 @@ CREATE TABLE `tbcodigobarras` (
 --
 
 DROP TABLE IF EXISTS `tbcompra`;
-CREATE TABLE `tbcompra` (
+CREATE TABLE IF NOT EXISTS `tbcompra` (
   `compraid` int NOT NULL,
-  `compranumerofactura` varchar(255) NOT NULL,
+  `compranumerofactura` varchar(100) NOT NULL,
   `compramontobruto` decimal(10,2) NOT NULL,
   `compramontoneto` decimal(10,2) NOT NULL,
-  `compratipopago` varchar(255) NOT NULL,
+  `compratipopago` varchar(50) NOT NULL,
   `compraproveedorid` int NOT NULL,
   `comprafechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `comprafechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `compraestado` tinyint NOT NULL DEFAULT '1'
-) ;
+  `compraestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`compraid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -76,7 +99,7 @@ CREATE TABLE `tbcompra` (
 --
 
 DROP TABLE IF EXISTS `tbcompradetalle`;
-CREATE TABLE `tbcompradetalle` (
+CREATE TABLE IF NOT EXISTS `tbcompradetalle` (
   `compradetalleid` int NOT NULL,
   `compradetallecompraid` int NOT NULL,
   `compradetalleloteid` int NOT NULL,
@@ -85,8 +108,9 @@ CREATE TABLE `tbcompradetalle` (
   `compradetallecantidad` int NOT NULL,
   `compradetallefechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `compradetallefechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `compradetalleestado` tinyint NOT NULL DEFAULT '1'
-) ;
+  `compradetalleestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`compradetalleid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -95,17 +119,18 @@ CREATE TABLE `tbcompradetalle` (
 --
 
 DROP TABLE IF EXISTS `tbcuentaporpagar`;
-CREATE TABLE `tbcuentaporpagar` (
+CREATE TABLE IF NOT EXISTS `tbcuentaporpagar` (
   `cuentaporpagarid` int NOT NULL,
   `cuentaporpagarcompradetalleid` int NOT NULL,
   `cuentaporpagarfechavencimiento` date NOT NULL,
   `cuentaporpagarmontototal` decimal(10,2) NOT NULL,
   `cuentaporpagarmontopagado` decimal(10,2) NOT NULL,
   `cuentaporpagarfechapago` date NOT NULL,
+  `cuentaporpagarestadocuenta` varchar(50) NOT NULL DEFAULT 'Pendiente',
   `cuentaporpagarnotas` text,
-  `cuentaporpagarestadocuenta` varchar(255) NOT NULL DEFAULT 'Pendiente',
-  `cuentaporpagarestado` tinyint NOT NULL DEFAULT '1'
-) ;
+  `cuentaporpagarestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`cuentaporpagarid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -114,16 +139,17 @@ CREATE TABLE `tbcuentaporpagar` (
 --
 
 DROP TABLE IF EXISTS `tbdireccion`;
-CREATE TABLE `tbdireccion` (
+CREATE TABLE IF NOT EXISTS `tbdireccion` (
   `direccionid` int NOT NULL,
   `direccionprovincia` varchar(100) NOT NULL,
   `direccioncanton` varchar(100) NOT NULL,
   `direcciondistrito` varchar(100) NOT NULL,
-  `direccionbarrio` varchar(100) DEFAULT NULL,
+  `direccionbarrio` varchar(100) DEFAULT '',
   `direccionsennas` text,
   `direcciondistancia` decimal(5,2) NOT NULL,
-  `direccionestado` tinyint NOT NULL DEFAULT '1'
-) ;
+  `direccionestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`direccionid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `tbdireccion`
@@ -143,28 +169,16 @@ INSERT INTO `tbdireccion` (`direccionid`, `direccionprovincia`, `direccioncanton
 --
 
 DROP TABLE IF EXISTS `tbimpuesto`;
-CREATE TABLE `tbimpuesto` (
+CREATE TABLE IF NOT EXISTS `tbimpuesto` (
   `impuestoid` int NOT NULL,
   `impuestonombre` varchar(100) NOT NULL,
   `impuestovalor` decimal(5,2) NOT NULL,
   `impuestodescripcion` text,
-  `impuestofechavigencia` date NOT NULL,
-  `impuestoestado` tinyint NOT NULL DEFAULT '1'
-) ;
-
---
--- Volcado de datos para la tabla `tbimpuesto`
---
-
-INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impuestodescripcion`, `impuestofechavigencia`, `impuestoestado`) VALUES
-(1, 'IVA', 13.00, '', '2024-08-01', 1),
-(2, 'IFJ', 10.00, '', '2024-08-20', 0),
-(3, 'IFK', 13.00, '', '2024-08-20', 0),
-(4, 'IJK', 20.00, '', '2024-09-04', 0),
-(5, 'MELI956124', 100.00, '.', '2024-09-03', 0),
-(6, 'IRF', 13.00, '', '2024-08-01', 1),
-(7, 'IVM', 5.00, '', '2024-09-07', 1),
-(8, 'IPJ', 6.00, '', '2024-09-04', 1);
+  `impuestofechainiciovigencia` date NOT NULL,
+  `impuestofechafinvigencia` date NOT NULL,
+  `impuestoestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`impuestoid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -173,12 +187,13 @@ INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impu
 --
 
 DROP TABLE IF EXISTS `tblote`;
-CREATE TABLE `tblote` (
+CREATE TABLE IF NOT EXISTS `tblote` (
   `loteid` int NOT NULL,
-  `lotecodigo` varchar(50) NOT NULL,
+  `lotecodigo` varchar(100) NOT NULL,
   `lotefechavencimiento` date NOT NULL,
-  `loteestado` tinyint NOT NULL DEFAULT '1'
-) ;
+  `loteestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`loteid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `tblote`
@@ -198,93 +213,55 @@ INSERT INTO `tblote` (`loteid`, `lotecodigo`, `lotefechavencimiento`, `loteestad
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `tbmarca`
+--
+
+DROP TABLE IF EXISTS `tbmarca`;
+CREATE TABLE IF NOT EXISTS `tbmarca` (
+  `marcaid` int NOT NULL,
+  `marcanombre` varchar(100) NOT NULL,
+  `marcadescripcion` text,
+  `marcaestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`marcaid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbpresentacion`
+--
+
+DROP TABLE IF EXISTS `tbpresentacion`;
+CREATE TABLE IF NOT EXISTS `tbpresentacion` (
+  `presentacionid` int NOT NULL,
+  `presentacionnombre` varchar(100) NOT NULL,
+  `presentaciondescripcion` text,
+  `presentacionestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`presentacionid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `tbproducto`
 --
 
 DROP TABLE IF EXISTS `tbproducto`;
-CREATE TABLE `tbproducto` (
+CREATE TABLE IF NOT EXISTS `tbproducto` (
   `productoid` int NOT NULL,
+  `productocodigobarrasid` int NOT NULL,
   `productonombre` varchar(100) NOT NULL,
   `productopreciocompra` decimal(10,2) NOT NULL,
   `productoporcentajeganancia` decimal(10,2) NOT NULL,
   `productodescripcion` text,
-  `productocodigobarrasid` int NOT NULL,
-  `productoimagen` text,
-  `productoestado` tinyint NOT NULL DEFAULT '1'
-) ;
-
---
--- Volcado de datos para la tabla `tbproducto`
---
-
-INSERT INTO `tbproducto` (`productoid`, `productonombre`, `productopreciocompra`, `productoporcentajeganancia`, `productodescripcion`, `productocodigobarrasid`, `productoimagen`, `productoestado`) VALUES
-(1, 'Laptop', 800.00, 20.00, 'Laptop de alta gama', 1001, '/img/productos/electronics/1_laptop.jpg', 1),
-(2, 'Smartphone', 400.00, 25.00, 'Smartphone con excelente cámara', 1002, '/img/productos/electronics/2_smartphone.jpg', 1),
-(3, 'Headphones', 50.00, 30.00, 'Auriculares con cancelación de ruido', 1003, '/img/productos/electronics/3_headphones.jpg', 1),
-(4, 'Smartwatch', 150.00, 15.00, 'Reloj inteligente resistente al agua', 1004, '/img/productos/electronics/4_smartwatch.jpg', 1),
-(5, 'Tablet', 250.00, 22.00, 'Tablet de alta resolución', 1005, '/img/productos/electronics/5_tablet.jpg', 1),
-(6, 'Camera', 600.00, 18.00, 'Cámara digital profesional', 1006, '/img/productos/electronics/6_camera.jpg', 1),
-(7, 'Printer', 120.00, 20.00, 'Impresora multifuncional', 1007, '/img/productos/electronics/7_printer.jpg', 1),
-(8, 'Monitor', 200.00, 25.00, 'Monitor de 27 pulgadas', 1008, '/img/productos/electronics/8_monitor.jpg', 1),
-(9, 'Keyboard', 30.00, 35.00, 'Teclado mecánico retroiluminado', 1009, '/img/productos/electronics/9_keyboard.jpg', 1),
-(10, 'Mouse', 20.00, 40.00, 'Mouse ergonómico', 1010, '/img/productos/electronics/10_mouse.jpg', 1);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `tbproductocategoria`
---
-
-DROP TABLE IF EXISTS `tbproductocategoria`;
-CREATE TABLE `tbproductocategoria` (
   `productocategoriaid` int NOT NULL,
-  `productoid` int NOT NULL,
-  `categoriaid` int NOT NULL,
-  `productocategoriaestado` tinyint NOT NULL DEFAULT '1'
-) ;
-
---
--- Volcado de datos para la tabla `tbproductocategoria`
---
-
-INSERT INTO `tbproductocategoria` (`productocategoriaid`, `productoid`, `categoriaid`, `productocategoriaestado`) VALUES
-(1, 1, 2, 1),
-(2, 2, 3, 1),
-(3, 3, 10, 1),
-(4, 4, 4, 1),
-(5, 5, 2, 1),
-(6, 6, 5, 1),
-(7, 7, 6, 1),
-(8, 8, 7, 1),
-(9, 9, 8, 1),
-(10, 10, 8, 1),
-(11, 1, 6, 0),
-(12, 1, 7, 0),
-(13, 1, 8, 1);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `tbproductosubcategoria`
---
-
-DROP TABLE IF EXISTS `tbproductosubcategoria`;
-CREATE TABLE `tbproductosubcategoria` (
   `productosubcategoriaid` int NOT NULL,
-  `productoid` int NOT NULL,
-  `subcategoriaid` int NOT NULL,
-  `productosubcategoriaestado` tinyint NOT NULL DEFAULT '1'
-) ;
-
---
--- Volcado de datos para la tabla `tbproductosubcategoria`
---
-
-INSERT INTO `tbproductosubcategoria` (`productosubcategoriaid`, `productoid`, `subcategoriaid`, `productosubcategoriaestado`) VALUES
-(1, 1, 6, 1),
-(2, 1, 7, 0),
-(3, 1, 8, 1),
-(4, 2, 12, 0);
+  `productomarcaid` int NOT NULL,
+  `productopresentacionid` int NOT NULL,
+  `productoimagen` text,
+  `productoestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`productoid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -293,43 +270,16 @@ INSERT INTO `tbproductosubcategoria` (`productosubcategoriaid`, `productoid`, `s
 --
 
 DROP TABLE IF EXISTS `tbproveedor`;
-CREATE TABLE `tbproveedor` (
+CREATE TABLE IF NOT EXISTS `tbproveedor` (
   `proveedorid` int NOT NULL,
   `proveedornombre` varchar(100) NOT NULL,
   `proveedoremail` varchar(100) NOT NULL,
-  `proveedorfecharegistro` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `proveedorestado` tinyint NOT NULL DEFAULT '1'
-) ;
-
---
--- Volcado de datos para la tabla `tbproveedor`
---
-
-INSERT INTO `tbproveedor` (`proveedorid`, `proveedornombre`, `proveedoremail`, `proveedorfecharegistro`, `proveedorestado`) VALUES
-(1, 'Proveedor A', 'proveedorA@example.com', '2024-09-06 18:11:45', 1),
-(2, 'Proveedor B', 'proveedorB@example.com', '2024-09-06 18:11:45', 1),
-(3, 'Proveedor C', 'proveedorC@example.com', '2024-09-06 18:11:45', 1),
-(4, 'Proveedor D', 'proveedorD@example.com', '2024-09-06 18:11:45', 1),
-(5, 'Proveedor E', 'proveedorE@example.com', '2024-09-06 18:11:45', 1),
-(6, 'Proveedor F', 'proveedorF@example.com', '2024-09-06 18:11:45', 1),
-(7, 'Proveedor G', 'proveedorG@example.com', '2024-09-06 18:11:45', 1),
-(8, 'Proveedor H', 'proveedorH@example.com', '2024-09-06 18:11:45', 1),
-(9, 'Proveedor I', 'proveedorI@example.com', '2024-09-06 18:11:45', 1),
-(10, 'Proveedor J', 'proveedorJ@example.com', '2024-09-06 18:11:45', 1);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `tbproveedorcategoria`
---
-
-DROP TABLE IF EXISTS `tbproveedorcategoria`;
-CREATE TABLE `tbproveedorcategoria` (
   `proveedorcategoriaid` int NOT NULL,
-  `proveedorid` int NOT NULL,
-  `categoriaid` int NOT NULL,
-  `proveedorcategoriaestado` tinyint NOT NULL DEFAULT '1'
-) ;
+  `proveedorfechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `proveedorfechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `proveedorestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`proveedorid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -338,23 +288,13 @@ CREATE TABLE `tbproveedorcategoria` (
 --
 
 DROP TABLE IF EXISTS `tbproveedordireccion`;
-CREATE TABLE `tbproveedordireccion` (
+CREATE TABLE IF NOT EXISTS `tbproveedordireccion` (
   `proveedordireccionid` int NOT NULL,
   `proveedorid` int NOT NULL,
   `direccionid` int NOT NULL,
-  `proveedordireccionestado` tinyint NOT NULL DEFAULT '1'
-) ;
-
---
--- Volcado de datos para la tabla `tbproveedordireccion`
---
-
-INSERT INTO `tbproveedordireccion` (`proveedordireccionid`, `proveedorid`, `direccionid`, `proveedordireccionestado`) VALUES
-(1, 1, 1, 1),
-(2, 1, 2, 1),
-(3, 1, 3, 0),
-(4, 1, 4, 1),
-(5, 3, 5, 1);
+  `proveedordireccionestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`proveedordireccionid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -363,12 +303,13 @@ INSERT INTO `tbproveedordireccion` (`proveedordireccionid`, `proveedorid`, `dire
 --
 
 DROP TABLE IF EXISTS `tbproveedorproducto`;
-CREATE TABLE `tbproveedorproducto` (
-  `provedorproductoid` int NOT NULL,
+CREATE TABLE IF NOT EXISTS `tbproveedorproducto` (
+  `proveedorproductoid` int NOT NULL,
   `proveedorid` int NOT NULL,
   `productoid` int NOT NULL,
-  `proveedorproductoestado` tinyint NOT NULL DEFAULT '1'
-) ;
+  `proveedorproductoestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`proveedorproductoid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -377,35 +318,28 @@ CREATE TABLE `tbproveedorproducto` (
 --
 
 DROP TABLE IF EXISTS `tbproveedortelefono`;
-CREATE TABLE `tbproveedortelefono` (
+CREATE TABLE IF NOT EXISTS `tbproveedortelefono` (
   `proveedortelefonoid` int NOT NULL,
   `proveedorid` int NOT NULL,
   `telefonoid` int NOT NULL,
-  `proveedortelefonoestado` tinyint(1) NOT NULL DEFAULT '1'
-) ;
-
---
--- Volcado de datos para la tabla `tbproveedortelefono`
---
-
-INSERT INTO `tbproveedortelefono` (`proveedortelefonoid`, `proveedorid`, `telefonoid`, `proveedortelefonoestado`) VALUES
-(1, 1, 1, 1),
-(2, 1, 2, 0),
-(3, 1, 3, 1);
+  `proveedortelefonoestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`proveedortelefonoid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `tbrol`
+-- Estructura de tabla para la tabla `tbrolusuario`
 --
 
-DROP TABLE IF EXISTS `tbrol`;
-CREATE TABLE `tbrol` (
-  `rolid` int NOT NULL,
-  `rolnombre` varchar(255) NOT NULL,
-  `roldescripcion` varchar(255) DEFAULT NULL,
-  `rolestado` tinyint NOT NULL DEFAULT '1'
-) ;
+DROP TABLE IF EXISTS `tbrolusuario`;
+CREATE TABLE IF NOT EXISTS `tbrolusuario` (
+  `rolusuarioid` int NOT NULL,
+  `rolusuarionombre` varchar(100) NOT NULL,
+  `rolusuariodescripcion` text,
+  `rolusuarioestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`rolusuarioid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -414,30 +348,14 @@ CREATE TABLE `tbrol` (
 --
 
 DROP TABLE IF EXISTS `tbsubcategoria`;
-CREATE TABLE `tbsubcategoria` (
+CREATE TABLE IF NOT EXISTS `tbsubcategoria` (
   `subcategoriaid` int NOT NULL,
+  `subcategoriacategoriaid` int NOT NULL,
   `subcategorianombre` varchar(100) NOT NULL,
   `subcategoriadescripcion` text,
-  `subcategoriaestado` tinyint NOT NULL DEFAULT '1'
-) ;
-
---
--- Volcado de datos para la tabla `tbsubcategoria`
---
-
-INSERT INTO `tbsubcategoria` (`subcategoriaid`, `subcategorianombre`, `subcategoriadescripcion`, `subcategoriaestado`) VALUES
-(1, 'Electrónica', 'Productos electrónicos', 1),
-(2, 'Computadoras', 'Equipos de computación', 1),
-(3, 'Accessorios', 'Accesorios de electrónica', 1),
-(4, 'Wearables', 'Dispositivos ponibles', 1),
-(5, 'Cámaras', 'Cámaras digitales', 0),
-(6, 'Impresoras', 'Impresoras y escáneres', 1),
-(7, 'Pantallas', 'Monitores y pantallas', 0),
-(8, 'Dispositivos de Entrada', 'Dispositivos de entrada', 1),
-(9, 'Dispositivos Móviles', 'Dispositivos móviles', 1),
-(10, 'Electrodomésticos', 'Electrodomésticos', 1),
-(11, 'Bebidas', '', 1),
-(12, 'Accesorios', 'Ninguna', 0);
+  `subcategoriaestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`subcategoriaid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -446,16 +364,17 @@ INSERT INTO `tbsubcategoria` (`subcategoriaid`, `subcategorianombre`, `subcatego
 --
 
 DROP TABLE IF EXISTS `tbtelefono`;
-CREATE TABLE `tbtelefono` (
+CREATE TABLE IF NOT EXISTS `tbtelefono` (
   `telefonoid` int NOT NULL,
   `telefonotipo` varchar(50) NOT NULL,
-  `telefonocodigopais` varchar(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `telefonocodigopais` varchar(10) NOT NULL,
   `telefononumero` varchar(20) NOT NULL,
   `telefonoextension` varchar(10) DEFAULT NULL,
   `telefonofechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `telefonofechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `telefonoestado` tinyint NOT NULL DEFAULT '1'
-) ;
+  `telefonoestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`telefonoid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `tbtelefono`
@@ -473,140 +392,36 @@ INSERT INTO `tbtelefono` (`telefonoid`, `telefonotipo`, `telefonocodigopais`, `t
 --
 
 DROP TABLE IF EXISTS `tbusuario`;
-CREATE TABLE `tbusuario` (
+CREATE TABLE IF NOT EXISTS `tbusuario` (
   `usuarioid` int NOT NULL,
-  `usuarionombre` varchar(255) NOT NULL,
-  `usuarioprimerapellido` varchar(255) NOT NULL,
-  `usuariosegundoapellido` varchar(255) NOT NULL,
-  `usuariorolid` int NOT NULL,
-  `usuarioemail` varchar(255) NOT NULL,
+  `usuarionombre` varchar(100) NOT NULL,
+  `usuarioapellido1` varchar(100) NOT NULL,
+  `usuarioapellido2` varchar(100) NOT NULL,
+  `usuariorolusuarioid` int NOT NULL,
+  `usuarioemail` varchar(100) NOT NULL,
   `usuariopassword` varchar(255) NOT NULL,
-  `usuarionickname` varchar(255) NOT NULL,
   `usuariofechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `usuariofechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `usuarioestado` tinyint NOT NULL DEFAULT '1'
-) ;
+  `usuarioestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`usuarioid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
 
 --
--- Índices para tablas volcadas
+-- Estructura de tabla para la tabla `tbusuariotelefono`
 --
 
---
--- Indices de la tabla `tbcategoria`
---
-ALTER TABLE `tbcategoria`
-  ADD PRIMARY KEY (`categoriaid`);
+DROP TABLE IF EXISTS `tbusuariotelefono`;
+CREATE TABLE IF NOT EXISTS `tbusuariotelefono` (
+  `usuariotelefonoid` int NOT NULL,
+  `usuarioid` int NOT NULL,
+  `telefonoid` int NOT NULL,
+  `usuariotelefonoestado` tinyint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`usuariotelefonoid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+COMMIT;
 
---
--- Indices de la tabla `tbcodigobarras`
---
-ALTER TABLE `tbcodigobarras`
-  ADD PRIMARY KEY (`codigobarrasid`);
-
---
--- Indices de la tabla `tbcompra`
---
-ALTER TABLE `tbcompra`
-  ADD PRIMARY KEY (`compraid`);
-
---
--- Indices de la tabla `tbcompradetalle`
---
-ALTER TABLE `tbcompradetalle`
-  ADD PRIMARY KEY (`compradetalleid`);
-
---
--- Indices de la tabla `tbcuentaporpagar`
---
-ALTER TABLE `tbcuentaporpagar`
-  ADD PRIMARY KEY (`cuentaporpagarid`);
-
---
--- Indices de la tabla `tbdireccion`
---
-ALTER TABLE `tbdireccion`
-  ADD PRIMARY KEY (`direccionid`);
-
---
--- Indices de la tabla `tbimpuesto`
---
-ALTER TABLE `tbimpuesto`
-  ADD PRIMARY KEY (`impuestoid`);
-
---
--- Indices de la tabla `tblote`
---
-ALTER TABLE `tblote`
-  ADD PRIMARY KEY (`loteid`);
-
---
--- Indices de la tabla `tbproducto`
---
-ALTER TABLE `tbproducto`
-  ADD PRIMARY KEY (`productoid`);
-
---
--- Indices de la tabla `tbproductocategoria`
---
-ALTER TABLE `tbproductocategoria`
-  ADD PRIMARY KEY (`productocategoriaid`);
-
---
--- Indices de la tabla `tbproductosubcategoria`
---
-ALTER TABLE `tbproductosubcategoria`
-  ADD PRIMARY KEY (`productosubcategoriaid`);
-
---
--- Indices de la tabla `tbproveedor`
---
-ALTER TABLE `tbproveedor`
-  ADD PRIMARY KEY (`proveedorid`);
-
---
--- Indices de la tabla `tbproveedorcategoria`
---
-ALTER TABLE `tbproveedorcategoria`
-  ADD PRIMARY KEY (`proveedorcategoriaid`);
-
---
--- Indices de la tabla `tbproveedordireccion`
---
-ALTER TABLE `tbproveedordireccion`
-  ADD PRIMARY KEY (`proveedordireccionid`);
-
---
--- Indices de la tabla `tbproveedorproducto`
---
-ALTER TABLE `tbproveedorproducto`
-  ADD PRIMARY KEY (`provedorproductoid`);
-
---
--- Indices de la tabla `tbproveedortelefono`
---
-ALTER TABLE `tbproveedortelefono`
-  ADD PRIMARY KEY (`proveedortelefonoid`);
-
---
--- Indices de la tabla `tbrol`
---
-ALTER TABLE `tbrol`
-  ADD PRIMARY KEY (`rolid`);
-
---
--- Indices de la tabla `tbsubcategoria`
---
-ALTER TABLE `tbsubcategoria`
-  ADD PRIMARY KEY (`subcategoriaid`);
-
---
--- Indices de la tabla `tbtelefono`
---
-ALTER TABLE `tbtelefono`
-  ADD PRIMARY KEY (`telefonoid`);
-
---
--- Indices de la tabla `tbusuario`
---
-ALTER TABLE `tbusuario`
-  ADD PRIMARY KEY (`usuarioid`);
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

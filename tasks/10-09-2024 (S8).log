@@ -39,26 +39,29 @@ Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos
 
 2. Distribución de 'TABLAS' por Grupos ['Marcar los que ya tengan listos']:
 
-    |--------------------------------|---------------------------------------|---------------------------------|----------------------------------|
-    | Grupo 1 ('Jason y Javier')     | Grupo 2 ('Gonzalo, Maikel, Javier')   | Grupo 3 ('Isaac')               | Grupo 4 ('Maikel')               |
-    |--------------------------------|---------------------------------------|---------------------------------|----------------------------------|
-    | [ ] tbcompra                   | [0] tbproveedor                       | [ ] tbrol                       | [ ] tbmarca                      |
-    | [ ] tbcompradetalle            | [1] tbcategoria                       | [ ] tbusuario                   | [ ] tbpresentación               |
-    | [ ] tbcuentaporpagar           | [1] tbsubcategoria                    | [1] tbimpuesto                  |                                  |
-    | [1] tblote                     | [0] tbproveedorproducto               | [1] tbtelefono                  |                                  |
-    | [ ] tbproducto                 |                                       | [1] tbdireccion                 |                                  |
-    |                                |                                       | [0] tbcodigobarras              |                                  |
-    |                                |                                       | [0] tbproductocategoria         |                                  |
-    |                                |                                       | [1] tbproductosubcategoria      |                                  |
-    |                                |                                       | [1] tbproveedortelefono         |                                  |
-    |                                |                                       | [1] tbproveedordireccion        |                                  |
-    |--------------------------------|---------------------------------------|---------------------------------|----------------------------------|
+    |------------------------------|---------------------------------------|------------------------------|---------------------------|
+    | Grupo 1 ('Jason y Javier')   | Grupo 2 ('Gonzalo, Maikel, Javier')   | Grupo 3 ('Isaac')            | Grupo 4 ('Maikel')        |
+    |------------------------------|---------------------------------------|------------------------------|---------------------------|
+    | [--] tbcompra                | [--] tbproveedor                      | [  ] tbrolusuario            | [  ] tbmarca              |
+    | [--] tbcompradetalle         | [--] tbcategoria                      | [  ] tbusuario               | [  ] tbpresentación       |
+    | [--] tbcuentaporpagar        | [--] tbsubcategoria                   | [--] tbimpuesto              |                           |
+    | [--] tblote                  | [--] tbproveedorproducto              | [--] tbtelefono              |                           |
+    | [--] tbproducto              |                                       | [--] tbdireccion             |                           |
+    |                              |                                       | [--] tbcodigobarras          |                           |
+    |                              |                                       | [--] tbproveedortelefono     |                           |
+    |                              |                                       | [--] tbproveedordireccion    |                           |
+    |                              |                                       | [  ] tbusuariotelefono       |                           |
+    |------------------------------|---------------------------------------|------------------------------|---------------------------|
+
+        [INFO] [00 = En proceso], [10 = BACK Terminado], [01 = FRONT Terminado], [11 = Completamente Terminado], [-- = Debe corregirse]
+        
+    E* 'Deben de marcar con las opciones anteriores las tablas según el estado en el que se encuentren'.
 
 [INFO] 
     1. En el archivo 'Variables.php' Las variables de las tablas intermedias 'NO' necesitan llevar los ID's de las tablas que están juntando.
        Ej: La tabla 'tbProveedorDireccion' no necesita que se le agreguen las variables 'proveedorid' ni 'direccionid' por que
        estas variables ya existen como 'PROVEEDOR_ID' y 'DIRECCION_ID' en el archivo.
-    2. Preguntar al profe si va a ser necesario agregar permisos a un usuario (dependiete) o si solamente va a tener permisos
+    2. Preguntar al profe si va a ser necesario agregar permisos a un usuario (dependiente) o si solamente va a tener permisos
        por defecto (por ejemplo, un usuario que solo puede hacer 'SELECT' y 'UPDATE' pero no 'DELETE' ni 'INSERT').
 
 [WARN]
@@ -70,6 +73,9 @@ Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos
        al INSERT, se va a generar tomando la fecha y hora actual del sistema. En el caso de 'fechamodificacion', esta también se va a actualizar
        por sí sola de la misma manera al momento de que hagan un UPDATE. En el caso de 'estado' su valor por defecto es un 1 ('TRUE'), y este
        se va a asignar automáticamente al momento de hacer el INSERT o el UPDATE.
+    2. Las opciones para el campo 'EstadoCuenta' en 'tbCuentaPorPagar' son 'Pendiente', 'Pagada', 'Vencida' y 'Anulada'. Por lo tanto, se debe de crear un
+       'select' en el FRONT que contenga estos valores quemados. El estado 'Pendiente' es el que se va a asignar por defecto al momento de crear
+        un registro nuevo en caso de no haberse proporcionado.
 
 [ERROR]
     1. Hay que verificar que al ingresar o actualizar un registro que lleve decimales la cantidad de dígitos que tenga no supere
