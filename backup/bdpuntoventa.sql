@@ -1,21 +1,4 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Servidor: localhost
--- Tiempo de generación: 10-09-2024 a las 11:30:46
--- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
--- Versión de PHP: 8.1.2-1ubuntu2.18
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Base de datos: `bdpuntoventa`
@@ -33,7 +16,7 @@ CREATE TABLE `tbcategoria` (
   `categorianombre` varchar(100) NOT NULL,
   `categoriadescripcion` text,
   `categoriaestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 --
 -- Volcado de datos para la tabla `tbcategoria`
@@ -65,7 +48,7 @@ CREATE TABLE `tbcodigobarras` (
   `codigobarrasfechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `codigobarrasfechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `codigobarrasestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 -- --------------------------------------------------------
 
@@ -84,7 +67,7 @@ CREATE TABLE `tbcompra` (
   `comprafechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `comprafechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `compraestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 -- --------------------------------------------------------
 
@@ -103,7 +86,7 @@ CREATE TABLE `tbcompradetalle` (
   `compradetallefechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `compradetallefechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `compradetalleestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 -- --------------------------------------------------------
 
@@ -122,7 +105,7 @@ CREATE TABLE `tbcuentaporpagar` (
   `cuentaporpagarnotas` text,
   `cuentaporpagarestadocuenta` varchar(255) NOT NULL DEFAULT 'Pendiente',
   `cuentaporpagarestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 -- --------------------------------------------------------
 
@@ -140,7 +123,7 @@ CREATE TABLE `tbdireccion` (
   `direccionsennas` text,
   `direcciondistancia` decimal(5,2) NOT NULL,
   `direccionestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 --
 -- Volcado de datos para la tabla `tbdireccion`
@@ -167,7 +150,7 @@ CREATE TABLE `tbimpuesto` (
   `impuestodescripcion` text,
   `impuestofechavigencia` date NOT NULL,
   `impuestoestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 --
 -- Volcado de datos para la tabla `tbimpuesto`
@@ -195,7 +178,7 @@ CREATE TABLE `tblote` (
   `lotecodigo` varchar(50) NOT NULL,
   `lotefechavencimiento` date NOT NULL,
   `loteestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 --
 -- Volcado de datos para la tabla `tblote`
@@ -228,7 +211,7 @@ CREATE TABLE `tbproducto` (
   `productocodigobarrasid` int NOT NULL,
   `productoimagen` text,
   `productoestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 --
 -- Volcado de datos para la tabla `tbproducto`
@@ -258,7 +241,7 @@ CREATE TABLE `tbproductocategoria` (
   `productoid` int NOT NULL,
   `categoriaid` int NOT NULL,
   `productocategoriaestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 --
 -- Volcado de datos para la tabla `tbproductocategoria`
@@ -291,7 +274,7 @@ CREATE TABLE `tbproductosubcategoria` (
   `productoid` int NOT NULL,
   `subcategoriaid` int NOT NULL,
   `productosubcategoriaestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 --
 -- Volcado de datos para la tabla `tbproductosubcategoria`
@@ -316,7 +299,7 @@ CREATE TABLE `tbproveedor` (
   `proveedoremail` varchar(100) NOT NULL,
   `proveedorfecharegistro` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `proveedorestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 --
 -- Volcado de datos para la tabla `tbproveedor`
@@ -346,7 +329,7 @@ CREATE TABLE `tbproveedorcategoria` (
   `proveedorid` int NOT NULL,
   `categoriaid` int NOT NULL,
   `proveedorcategoriaestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 -- --------------------------------------------------------
 
@@ -360,7 +343,7 @@ CREATE TABLE `tbproveedordireccion` (
   `proveedorid` int NOT NULL,
   `direccionid` int NOT NULL,
   `proveedordireccionestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 --
 -- Volcado de datos para la tabla `tbproveedordireccion`
@@ -385,7 +368,7 @@ CREATE TABLE `tbproveedorproducto` (
   `proveedorid` int NOT NULL,
   `productoid` int NOT NULL,
   `proveedorproductoestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 -- --------------------------------------------------------
 
@@ -399,7 +382,7 @@ CREATE TABLE `tbproveedortelefono` (
   `proveedorid` int NOT NULL,
   `telefonoid` int NOT NULL,
   `proveedortelefonoestado` tinyint(1) NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 --
 -- Volcado de datos para la tabla `tbproveedortelefono`
@@ -422,7 +405,7 @@ CREATE TABLE `tbrol` (
   `rolnombre` varchar(255) NOT NULL,
   `roldescripcion` varchar(255) DEFAULT NULL,
   `rolestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 -- --------------------------------------------------------
 
@@ -436,7 +419,7 @@ CREATE TABLE `tbsubcategoria` (
   `subcategorianombre` varchar(100) NOT NULL,
   `subcategoriadescripcion` text,
   `subcategoriaestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 --
 -- Volcado de datos para la tabla `tbsubcategoria`
@@ -472,7 +455,7 @@ CREATE TABLE `tbtelefono` (
   `telefonofechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `telefonofechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `telefonoestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 --
 -- Volcado de datos para la tabla `tbtelefono`
@@ -502,7 +485,7 @@ CREATE TABLE `tbusuario` (
   `usuariofechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `usuariofechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `usuarioestado` tinyint NOT NULL DEFAULT '1'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ;
 
 --
 -- Índices para tablas volcadas
@@ -627,8 +610,3 @@ ALTER TABLE `tbtelefono`
 --
 ALTER TABLE `tbusuario`
   ADD PRIMARY KEY (`usuarioid`);
-COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

@@ -46,7 +46,7 @@ Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos
     | [ ] tbcompradetalle            | [1] tbcategoria                       | [ ] tbusuario                   | [ ] tbpresentación               |
     | [ ] tbcuentaporpagar           | [1] tbsubcategoria                    | [1] tbimpuesto                  |                                  |
     | [1] tblote                     | [0] tbproveedorproducto               | [1] tbtelefono                  |                                  |
-    | [ ] tbproducto                 | [0] tbproveedorcategoria              | [1] tbdireccion                 |                                  |
+    | [ ] tbproducto                 |                                       | [1] tbdireccion                 |                                  |
     |                                |                                       | [0] tbcodigobarras              |                                  |
     |                                |                                       | [0] tbproductocategoria         |                                  |
     |                                |                                       | [1] tbproductosubcategoria      |                                  |
@@ -58,6 +58,8 @@ Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos
     1. En el archivo 'Variables.php' Las variables de las tablas intermedias 'NO' necesitan llevar los ID's de las tablas que están juntando.
        Ej: La tabla 'tbProveedorDireccion' no necesita que se le agreguen las variables 'proveedorid' ni 'direccionid' por que
        estas variables ya existen como 'PROVEEDOR_ID' y 'DIRECCION_ID' en el archivo.
+    2. Preguntar al profe si va a ser necesario agregar permisos a un usuario (dependiete) o si solamente va a tener permisos
+       por defecto (por ejemplo, un usuario que solo puede hacer 'SELECT' y 'UPDATE' pero no 'DELETE' ni 'INSERT').
 
 [WARN]
     1. Los campos 'fechacreacion', 'fechamodificacion' y 'estado' de todas las tablas tienen un valor por defecto, por lo tanto,

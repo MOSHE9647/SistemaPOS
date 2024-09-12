@@ -114,8 +114,9 @@
          *
          * @example
          * $path = "productos/" . Utils::generarURLCarpetaImagen(123, 456, 789);
-         * $ruta = $this->crearRutaImagen($path, "4_lapicero");
-         * echo "Ruta de la imagen: " . $ruta; --> "/../view/img/productos/123/456/789/4_lapicero"
+         * $nombreArchivo = Utils::generateCodeFromUUID(1) . "_" . $nombreProducto;
+         * $ruta = $this->crearRutaImagen($path, $nombreArchivo);
+         * echo "Ruta de la imagen: " . $ruta; --> "/../view/img/productos/123/456/789/8_lapicero.jpg"
          */
         public static function crearRutaImagen($path, $fileName) {
             $basePath = "/../view/img/";
