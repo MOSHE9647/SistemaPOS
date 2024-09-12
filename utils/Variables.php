@@ -1,7 +1,9 @@
 <?php
 
-	// ARCHIVO QUE CONTIENE EL NOMBRE DE LAS DISTINTAS VARIABLES
-	// ESTÁTICAS QUE SE VAN A ESTAR UTILIZANDO DENTRO DEL PROGRAMA
+	/* 
+	 * ARCHIVO QUE CONTIENE EL NOMBRE DE LAS DISTINTAS VARIABLES
+	 * ESTÁTICAS QUE SE VAN A ESTAR UTILIZANDO DENTRO DEL PROGRAMA
+	*/
 
 	// VARIABLES PARA LOG:
 	define('UTILS_LOG_FILE', 'utils-log.log');
@@ -151,6 +153,7 @@
 	//Tabla 'tbSubCategoria'
 	define('TB_SUBCATEGORIA','tbsubcategoria');
 	define('SUBCATEGORIA_ID','subcategoriaid');
+	define('SUBCATEGORIA_CATEGORIA_ID','subcategoriacategoriaid');
 	define('SUBCATEGORIA_NOMBRE','subcategorianombre');
 	define('SUBCATEGORIA_DESCRIPCION','subcategoriadescripcion');
 	define('SUBCATEGORIA_ESTADO','subcategoriaestado');
