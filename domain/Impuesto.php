@@ -5,33 +5,37 @@ class Impuesto {
     private $impuestoID;
     private $impuestoNombre;
     private $impuestoValor;
-    private $impuestoEstado;
     private $impuestoDescripcion;
-    private $impuestoFechaVigencia;
+    private $impuestoFechaInicioVigencia;
+    private $impuestoFechaFinVigencia;
+    private $impuestoEstado;
 
-    function __construct($impuestoNombre = "", $impuestoValor = 0.0, $impuestoFechaVigencia = null, 
-            $impuestoID = 0, $impuestoDescripcion = "", $impuestoEstado = true) {
+    function __construct($impuestoID = -1, $impuestoNombre = "", $impuestoValor = 0, $impuestoDescripcion = "", 
+            $impuestoFechaInicioVigencia = null, $impuestoFechaFinVigencia = null,  $impuestoEstado = true) {
         $this->impuestoID = $impuestoID;
         $this->impuestoNombre = strtoupper($impuestoNombre);
         $this->impuestoValor = $impuestoValor;
-        $this->impuestoEstado = $impuestoEstado;
         $this->impuestoDescripcion = $impuestoDescripcion;
-        $this->impuestoFechaVigencia = $impuestoFechaVigencia;
+        $this->impuestoFechaInicioVigencia = $impuestoFechaInicioVigencia;
+        $this->impuestoFechaFinVigencia = $impuestoFechaFinVigencia;
+        $this->impuestoEstado = $impuestoEstado;
     }
 
     function getImpuestoID() { return $this->impuestoID; }
     function getImpuestoNombre() { return $this->impuestoNombre; }
     function getImpuestoValor() { return $this->impuestoValor; }
-    function getImpuestoEstado() { return $this->impuestoEstado; }
     function getImpuestoDescripcion() { return $this->impuestoDescripcion; }
-    function getImpuestoFechaVigencia() { return $this->impuestoFechaVigencia; }
+    function getImpuestoFechaInicioVigencia() { return $this->impuestoFechaInicioVigencia; }
+    function getImpuestoFechaFinVigencia() { return $this->impuestoFechaFinVigencia; }
+    function getImpuestoEstado() { return $this->impuestoEstado; }
 
     function setImpuestoID($impuestoID) { $this->impuestoID = $impuestoID; }
     function setImpuestoNombre($impuestoNombre) { $this->impuestoNombre = $impuestoNombre; }
     function setImpuestoValor($impuestoValor) { $this->impuestoValor = $impuestoValor; }
     function setImpuestoEstado($impuestoEstado) { $this->impuestoEstado = $impuestoEstado; }
     function setImpuestoDescripcion($impuestoDescripcion) { $this->impuestoDescripcion = $impuestoDescripcion; }
-    function setImpuestoFechaVigencia($impuestoFechaVigencia) { $this->impuestoFechaVigencia = $impuestoFechaVigencia; }
+    function setImpuestoFechaInicioVigencia($impuestoFechaInicioVigencia) { $this->impuestoFechaInicioVigencia = $impuestoFechaInicioVigencia; }
+    function setImpuestoFechaFinVigencia($impuestoFechaFinVigencia) { $this->impuestoFechaFinVigencia = $impuestoFechaFinVigencia; }
     
     // Implementación del método __toString
     public function __toString() {
@@ -39,9 +43,10 @@ class Impuesto {
             "ID: " . $this->impuestoID . "\n" .
             "Nombre: " . $this->impuestoNombre . "\n" .
             "Valor: " . $this->impuestoValor . "\n" .
-            "Estado: " . ($this->impuestoEstado ? "Activo" : "Inactivo") . "\n" .
             "Descripción: " . $this->impuestoDescripcion . "\n" .
-            "Fecha de Vigencia: " . $this->impuestoFechaVigencia . "\n"
+            "Fecha Inicio de Vigencia: " . $this->impuestoFechaInicioVigencia . "\n" .
+            "Fecha Fin de Vigencia: " . $this->impuestoFechaFinVigencia . "\n" .
+            "Estado: " . ($this->impuestoEstado ? "Activo" : "Inactivo") . "\n"
         ;
     }
 

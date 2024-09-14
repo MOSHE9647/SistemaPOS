@@ -28,7 +28,8 @@
                 $impuestoID = $impuesto->getImpuestoID();
                 $nombre = $impuesto->getImpuestoNombre();
                 $valor = $impuesto->getImpuestoValor();
-                $fechaVigencia = $impuesto->getImpuestoFechaVigencia();
+                $fechaInicioVigencia = $impuesto->getImpuestoFechaInicioVigencia();
+                $fechaFinVigencia = $impuesto->getImpuestoFechaFinVigencia();
                 $errors = [];
 
                 // Verifica que el ID del impuesto sea válido
@@ -47,13 +48,21 @@
                         $errors[] = "El campo 'Valor' está vacío o no es válido. Revise que este sea un número y que sea mayor a 0 y menor o igual a 100";
                         Utils::writeLog("El campo 'Valor [$valor]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
-                    if (empty($fechaVigencia) || !Utils::validarFecha($fechaVigencia)) {
-                        $errors[] = "El campo 'Fecha Vigencia' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Fecha Vigencia [$fechaVigencia]' está vacío o no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    if (empty($fechaInicioVigencia) || !Utils::validarFecha($fechaInicioVigencia)) {
+                        $errors[] = "El campo 'Fecha Inicio Vigencia' está vacío o no es válido.";
+                        Utils::writeLog("El campo 'Fecha Inicio Vigencia [$fechaInicioVigencia]' está vacío o no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
-                    if (!Utils::fechaMenorOIgualAHoy($fechaVigencia)) {
-                        $errors[] = "El campo 'Fecha Vigencia' no puede ser una fecha mayor a la de hoy. Revise que la fecha sea menor o igual a la de hoy.";
-                        Utils::writeLog("El campo 'Fecha Vigencia [$fechaVigencia]' es mayor a la de hoy.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    if (!Utils::fechaMenorOIgualAHoy($fechaInicioVigencia)) {
+                        $errors[] = "El campo 'Fecha Inicio Vigencia' no puede ser una fecha mayor a la de hoy. Revise que la fecha sea menor o igual a la de hoy.";
+                        Utils::writeLog("El campo 'Fecha Inicio Vigencia [$fechaInicioVigencia]' es mayor a la de hoy.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    }
+                    if (empty($fechaFinVigencia) || !Utils::validarFecha($fechaFinVigencia)) {
+                        $errors[] = "El campo 'Fecha Fin Vigencia' está vacío o no es válido.";
+                        Utils::writeLog("El campo 'Fecha Fin Vigencia [$fechaFinVigencia]' está vacío o no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    }
+                    if (!Utils::fechaMayorOIgualAHoy($fechaFinVigencia)) {
+                        $errors[] = "El campo 'Fecha Fin Vigencia' no puede ser una fecha menor a la de hoy. Revise que la fecha sea mayor o igual a la de hoy.";
+                        Utils::writeLog("El campo 'Fecha Fin Vigencia [$fechaFinVigencia]' es menor a la de hoy.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
                 }
 

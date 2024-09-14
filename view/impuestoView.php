@@ -19,7 +19,8 @@
                     <select id="sortSelector">
                         <option value="nombre">Nombre</option>
                         <option value="valor">Valor</option>
-                        <option value="fechavigencia">Fecha</option>
+                        <option value="fechainiciovigencia">Inicio Vigencia</option>
+                        <option value="fechafinvigencia">Fin Vigencia</option>
                     </select>
                 </div>
 
@@ -33,12 +34,17 @@
                         <th data-field="nombre">Nombre</th>
                         <th data-field="valor">Valor</th>
                         <th data-field="descripcion">Descripción</th>
-                        <th data-field="fecha">Fecha Vigencia</th>
+                        <th data-field="fechaInicio">Inicio Vigencia</th>
+                        <th data-field="fechaFin">Fin Vigencia</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- Las filas se llenarán con JavaScript -->
+                    <tr>
+                        <td colspan = "6" style = "textalign: center; height: 50px;">
+                            No hay registros disponibles
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -52,7 +58,7 @@
                         <option value="20">20</option>
                         <option value="50">50</option>
                     </select>
-                    de <span id="totalRecords"></span> registros
+                    de <span id="totalRecords">0</span> registros
                 </div>
 
                 <!-- Controles de paginación -->

@@ -11,13 +11,14 @@
         $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : "";
         $valor = isset($_POST['valor']) ? $_POST['valor'] : 0;
         $descripcion = isset($_POST['descripcion']) ? $_POST['descripcion'] : "";
-        $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : "";
+        $fechaInicio = isset($_POST['fechaInicio']) ? $_POST['fechaInicio'] : "";
+        $fechaFin = isset($_POST['fechaFin']) ? $_POST['fechaFin'] : "";
 
         // Se crea el Service para las operaciones
         $impuestoBusiness = new ImpuestoBusiness();
 
         // Crea y verifica que los datos del impuesto sean correctos
-        $impuesto = new Impuesto($nombre, $valor, $fecha, $id, $descripcion);
+        $impuesto = new Impuesto($id, $nombre, $valor, $descripcion, $fechaInicio, $fechaFin);
         $check = $impuestoBusiness->validarImpuesto($impuesto, $accion != 'eliminar', $accion == 'insertar'); //<- Indica si se validan (o no) los campos además del ID
 
         // Si los datos son válidos se realiza acción correspondiente

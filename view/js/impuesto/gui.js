@@ -21,17 +21,29 @@ function renderTable(impuestos) {
     let tableBody = document.getElementById('tableBody');
     
     // Vaciar el cuerpo de la tabla
+    
+    // CAMBIAR PARA QUE MUESTRE LOS INPUTS DE CREACION DE UNA VEZ
     tableBody.innerHTML = '';
+
 
     // Recorrer cada impuesto en el arreglo
     impuestos.forEach(impuesto => {
+        // Formatear el valor para que solo muestre decimales si es necesario
+        let valorFormateado = parseFloat(impuesto.Valor);
+        if (valorFormateado % 1 === 0) {
+            valorFormateado = valorFormateado.toFixed(0);  // Si es entero, sin decimales
+        } else {
+            valorFormateado = valorFormateado.toFixed(2).replace(/\.?0+$/, '');  // Limitar a dos decimales y eliminar ceros innecesarios
+        }
+
         // Crear una fila para el impuesto
         let row = `
             <tr data-id="${impuesto.ID}">
                 <td data-field="nombre">${impuesto.Nombre}</td>
-                <td data-field="valor">${impuesto.Valor}%</td>
+                <td data-field="valor">${valorFormateado}%</td>
                 <td data-field="descripcion">${impuesto.Descripcion}</td>
-                <td data-field="fecha" data-iso="${impuesto.VigenciaISO}">${impuesto.Vigencia}</td>
+                <td data-field="fechaInicio" data-iso="${impuesto.InicioVigenciaISO}">${impuesto.InicioVigencia}</td>
+                <td data-field="fechaFin" data-iso="${impuesto.FinVigenciaISO}">${impuesto.FinVigencia}</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
                     <button onclick="deleteImpuesto(${impuesto.ID})">Eliminar</button>
@@ -67,9 +79,13 @@ function makeRowEditable(row) {
     
     // Definir funciones para manejar cada tipo de campo
     const fieldHandlers = {
-        'fecha': (value) => {
+        'fechaInicio': (value) => {
             // Crear un campo de fecha con el valor actual y una fecha máxima igual a la fecha actual
             return `<input type="date" value="${value}" max="${getCurrentDate()}" required>`;
+        },
+        'fechaFin': (value) => {
+            // Crear un campo de fecha con el valor actual y una fecha máxima igual a la fecha actual
+            return `<input type="date" value="${value}" min="${getCurrentDate()}" required>`;
         },
         'nombre': (value) => {
             // Crear un campo de texto con el valor actual
@@ -89,7 +105,7 @@ function makeRowEditable(row) {
         if (index < cells.length - 1) {
             // Obtener el campo y valor de la celda
             const field = cell.dataset.field;
-            const value = field === 'fecha' ? cell.dataset.iso : cell.innerText;
+            const value = (field === 'fechaInicio' || field === 'fechaFin') ? cell.dataset.iso : cell.innerText;
             // Obtener la función de manejo para el campo o una función default
             const handler = fieldHandlers[field] || ((v) => `<input type="text" value="${v}">`);
             // Reemplazar el contenido de la celda con el campo editable
@@ -133,7 +149,8 @@ function showCreateRow() {
         <td data-field="nombre"><input type="text" required></td>
         <td data-field="valor"><input type="number" min="0" step="0.01" required></td>
         <td data-field="descripcion"><input type="text"></td>
-        <td data-field="fecha"><input type="date" required max="${getCurrentDate()}"></td>
+        <td data-field="fechaInicio"><input type="date" required max="${getCurrentDate()}"></td>
+        <td data-field="fechaFin"><input type="date" required min="${getCurrentDate()}"></td>
         <td>
             <button onclick="createImpuesto()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>

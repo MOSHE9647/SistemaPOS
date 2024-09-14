@@ -92,6 +92,17 @@
             $fechaHoy = date("Y-m-d");
             return $fecha <= $fechaHoy;
         }
+
+        /**
+         * Verifica si una fecha es mayor o igual a la fecha actual.
+         *
+         * @param string $fecha La fecha a comparar.
+         * @return bool True si la fecha es mayor o igual a hoy, False en caso contrario.
+         */
+        public static function fechaMayorOIgualAHoy($fecha) {
+            $fechaHoy = date("Y-m-d");
+            return $fecha >= $fechaHoy;
+        }
         
         /**
          * Genera un código a partir de un UUID.

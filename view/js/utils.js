@@ -21,6 +21,8 @@ function showMessage(message, type) {
             container.classList.add('error');
         } else if (type === 'success') {
             container.classList.add('success');
+        } else if (type === 'info') {
+            container.classList.add('info');
         }
 
         container.classList.add('fade-in');

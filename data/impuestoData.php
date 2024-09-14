@@ -15,7 +15,7 @@
 			parent::__construct();
 		}
 
-        public function existeImpuesto($impuestoID = null, $impuestoNombre = null, $impuestoFecha = null, $update = false, $insert = false) {
+        public function existeImpuesto($impuestoID = null, $impuestoNombre = null, $update = false, $insert = false) {
             $conn = null; $stmt = null;
             
             try {
@@ -25,29 +25,29 @@
 				$conn = $result["connection"];
 
                 // Inicializa la consulta base
-				$queryCheck = "SELECT 1 FROM " . TB_IMPUESTO . " WHERE ";
+				$queryCheck = "SELECT " . IMPUESTO_ID . ", " . IMPUESTO_ESTADO . " FROM " . TB_IMPUESTO . " WHERE ";
 				$params = [];
 				$types = "";
 
                 // Consulta para verificar si existe un impuesto con el ID ingresado
                 if ($impuestoID && (!$update && !$insert)) {
-                    $queryCheck .= IMPUESTO_ID . " = ? AND " . IMPUESTO_ESTADO . " != FALSE";
+                    $queryCheck .= IMPUESTO_ID . " = ?";
 					$params[] = $impuestoID;
 					$types .= 'i';
                 }
 
                 // Consulta en caso de insertar para verificar si existe un impuesto con el nombre y fecha ingresados
-                else if ($insert && ($impuestoNombre && $impuestoFecha)) {
-                    $queryCheck .= IMPUESTO_NOMBRE . " = ? AND " . IMPUESTO_FECHA_VIGENCIA . " = ? AND " . IMPUESTO_ESTADO . " != FALSE";
-                    $params = [$impuestoNombre, $impuestoFecha];
-					$types .= 'ss';
+                else if ($insert && $impuestoNombre) {
+                    $queryCheck .= IMPUESTO_NOMBRE . " = ?";
+                    $params = [$impuestoNombre];
+					$types .= 's';
                 }
 
                 // Consulta en caso de actualizar para verificar si existe ya un impuesto con el mismo nombre y fecha además del que se va a actualizar
-                else if ($update && ($impuestoID && $impuestoNombre && $impuestoFecha)) {
-                    $queryCheck .= IMPUESTO_NOMBRE . " = ? AND " . IMPUESTO_FECHA_VIGENCIA . " = ? AND " . IMPUESTO_ESTADO . " != FALSE AND " . IMPUESTO_ID . " != ?";
-                    $params = [$impuestoNombre, $impuestoFecha, $impuestoID];
-                    $types .= 'ssi';
+                else if ($update && ($impuestoID && $impuestoNombre)) {
+                    $queryCheck .= IMPUESTO_NOMBRE . " = ? AND " . IMPUESTO_ID . " != ?";
+                    $params = [$impuestoNombre, $impuestoID];
+                    $types .= 'si';
                 }
 
                 // En caso de no cumplirse ninguna condicion
@@ -56,7 +56,6 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia del impuesto:";
                     if (!$impuestoID) $missingParamsLog .= " impuestoID [" . ($impuestoID ?? 'null') . "]";
                     if (!$impuestoNombre) $missingParamsLog .= " impuestoNombre [" . ($impuestoNombre ?? 'null') . "]";
-                    if (!$impuestoFecha) $missingParamsLog .= " impuestoFecha [" . ($impuestoFecha ?? 'null') . "]";
                     Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
                     throw new Exception("Faltan parámetros para verificar la existencia del impuesto.");
                 }
@@ -67,16 +66,16 @@
 				mysqli_stmt_execute($stmt);
 				$result = mysqli_stmt_get_result($stmt);
 
-                // Verifica si existe algún registro con los criterios dados
-				if (mysqli_num_rows($result) > 0) {
-					return ["success" => true, "exists" => true];
-				}
+                if ($row = mysqli_fetch_assoc($result)) {
+                    // Verificar si está inactivo (bit de estado en 0)
+                    $isInactive = $row[IMPUESTO_ESTADO] == 0;
+                    return ["success" => true, "exists" => true, "inactive" => $isInactive, "impuestoID" => $row[IMPUESTO_ID]];
+                }
 
                 // Retorna false si no se encontraron resultados
                 $messageParams = [];
                 if ($impuestoID) { $messageParams[] = "'ID [$impuestoID]'"; }
                 if ($impuestoNombre)  { $messageParams[] = "'Nombre [$impuestoNombre]'"; }
-                if ($impuestoFecha)  { $messageParams[] = "'Fecha [$impuestoFecha]'"; }
                 $params = implode(', ', $messageParams);
 
                 $message = "No se encontró ningún impuesto ($params) en la base de datos.";
@@ -106,17 +105,22 @@
             try {
                 // Obtener los nombres de las propiedades del objeto para verificación
                 $impuestoNombre = $impuesto->getImpuestoNombre();
-                $impuestoFechaVigencia = $impuesto->getImpuestoFechaVigencia();
 
                 // Verifica si ya existe un impuesto con el mismo nombre o fecha
-                $check = $this->existeImpuesto(null, $impuestoNombre, $impuestoFechaVigencia, false, true);
+                $check = $this->existeImpuesto(null, $impuestoNombre, false, true);
                 if (!$check["success"]) { return $check; } //<- Error al verificar la existencia
 
+                // En caso de ya existir el impuesto pero estar inactivo
+                if ($check["exists"] && $check["inactive"]) { 
+                    $message = "Ya existe un impuesto con el mismo nombre ($impuestoNombre) en la base de datos, pero está inactivo. Desea reactivarlo?";
+                    return ["success" => true, "message" => $message, "inactive" => $check["inactive"], "id" => $check["impuestoID"]];
+                }
+                
                 // En caso de ya existir el impuesto
                 if ($check["exists"]) {
-                    $message = "El impuesto con 'Nombre [$impuestoNombre]' y 'Fecha de Vigencia [$impuestoFechaVigencia]' ya existe en la base de datos.";
+                    $message = "El impuesto con 'Nombre [$impuestoNombre]' ya existe en la base de datos.";
 					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
-					return ['success' => false, 'message' => "Ya existe un impuesto con el mismo nombre y fecha de vigencia en la base de datos."];
+					return ['success' => false, 'message' => "Ya existe un impuesto con el mismo nombre en la base de datos."];
 				}
 
                 // Establece una conexión con la base de datos
@@ -141,23 +145,27 @@
                         . IMPUESTO_NOMBRE . ", "
                         . IMPUESTO_VALOR . ", "
                         . IMPUESTO_DESCRIPCION . ", "
-                        . IMPUESTO_FECHA_VIGENCIA . 
-                    ") VALUES (?, ?, ?, ?, ?)";
+                        . IMPUESTO_FECHA_INICIO_VIGENCIA . ", "
+                        . IMPUESTO_FECHA_FIN_VIGENCIA . 
+                    ") VALUES (?, ?, ?, ?, ?, ?)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
 
                 // Obtener los valores de las propiedades faltantes
                 $impuestoValor = $impuesto->getImpuestoValor();
 				$impuestoDescripcion = $impuesto->getImpuestoDescripcion();
+                $impuestoFechaInicioVigencia = $impuesto->getImpuestoFechaInicioVigencia();
+                $impuestoFechaFinVigencia = $impuesto->getImpuestoFechaFinVigencia();
 
                 // Asigna los valores a cada '?' de la consulta
 				mysqli_stmt_bind_param(
 					$stmt,
-					'issss', // i: Entero, s: Cadena
+					'isssss', // i: Entero, s: Cadena
 					$nextId,
 					$impuestoNombre,
 					$impuestoValor,
 					$impuestoDescripcion,
-					$impuestoFechaVigencia
+					$impuestoFechaInicioVigencia,
+					$impuestoFechaFinVigencia
 				);
 
                 // Ejecuta la consulta de inserción
@@ -187,7 +195,6 @@
                 // Obtener el ID del impuesto
 				$impuestoID = $impuesto->getImpuestoID();
                 $impuestoNombre = $impuesto->getImpuestoNombre();
-                $impuestoFechaVigencia = $impuesto->getImpuestoFechaVigencia();
 
                 // Verifica si el impuesto existe en la base de datos
                 $checkID = $this->existeImpuesto($impuestoID);
@@ -199,12 +206,12 @@
                 }
 
                 // Verifica que no exista otro impuesto con la misma información
-                $check = $this->existeImpuesto($impuestoID, $impuestoNombre, $impuestoFechaVigencia, true);
+                $check = $this->existeImpuesto($impuestoID, $impuestoNombre, true);
                 if (!$check["success"]) { return $check; } //<- Error al verificar la existencia
                 if ($check["exists"]) { //<- El impuesto existe
-                    $message = "Ya existe un impuesto con el mismo Nombre ['$impuestoNombre'] y Fecha de Vigencia ['$impuestoFechaVigencia'].";
+                    $message = "Ya existe un impuesto con el mismo Nombre ['$impuestoNombre'].";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
-					return ['success' => false, 'message' => "Ya existe un impuesto con el mismo nombre y fecha de vigencia en la base de datos."];
+					return ['success' => false, 'message' => "Ya existe un impuesto con el mismo nombre ($impuestoNombre) en la base de datos."];
                 }
 
                 // Establece una conexion con la base de datos
@@ -219,22 +226,27 @@
                         IMPUESTO_NOMBRE . " = ?, " . 
                         IMPUESTO_VALOR . " = ?, " .
                         IMPUESTO_DESCRIPCION . " = ?, " .
-                        IMPUESTO_FECHA_VIGENCIA . " = ? " .
+                        IMPUESTO_FECHA_INICIO_VIGENCIA . " = ?, " .
+                        IMPUESTO_FECHA_FIN_VIGENCIA . " = ?, " .
+                        IMPUESTO_ESTADO . " = TRUE " .
                     "WHERE " . IMPUESTO_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
 
                 // Obtener los valores de las propiedades faltantes
                 $impuestoValor = $impuesto->getImpuestoValor();
                 $impuestoDescripcion = $impuesto->getImpuestoDescripcion();
+                $impuestoFechaInicioVigencia = $impuesto->getImpuestoFechaInicioVigencia();
+                $impuestoFechaFinVigencia = $impuesto->getImpuestoFechaFinVigencia();
 
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
 					$stmt,
-					'ssssi', // s: Cadena, i: Entero
+					'sssssi', // s: Cadena, i: Entero
 					$impuestoNombre,
 					$impuestoValor,
 					$impuestoDescripcion,
-					$impuestoFechaVigencia,
+					$impuestoFechaInicioVigencia,
+					$impuestoFechaFinVigencia,
 					$impuestoID
 				);
 
@@ -279,7 +291,7 @@
 				$conn = $result["connection"];
 
                 // Crea una consulta y un statement SQL para eliminar el registro (borrado logico)
-				$queryDelete = "UPDATE " . TB_IMPUESTO . " SET " . IMPUESTO_ESTADO . " = false WHERE " . IMPUESTO_ID . " = ?";
+				$queryDelete = "UPDATE " . TB_IMPUESTO . " SET " . IMPUESTO_ESTADO . " = FALSE WHERE " . IMPUESTO_ID . " = ?";
 				$stmt = mysqli_prepare($conn, $queryDelete);
 				mysqli_stmt_bind_param($stmt, 'i', $impuestoID);
 
@@ -316,7 +328,7 @@
 
                 // Crea una consulta SQL para obtener todos los impuestos
                 $querySelect = "SELECT * FROM " . TB_IMPUESTO;
-                if ($onlyActiveOrInactive) { $querySelect .= " WHERE " . IMPUESTO_ESTADO . " != " . ($deleted ? "true" : "false"); }
+                if ($onlyActiveOrInactive) { $querySelect .= " WHERE " . IMPUESTO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); }
 				$result = mysqli_query($conn, $querySelect);
 
                 // Creamos la lista con los datos obtenidos
@@ -327,8 +339,10 @@
                         'Nombre' => $row[IMPUESTO_NOMBRE],
                         'Valor' => $row[IMPUESTO_VALOR],
                         'Descripcion' => $row[IMPUESTO_DESCRIPCION],
-                        'VigenciaISO' => Utils::formatearFecha($row[IMPUESTO_FECHA_VIGENCIA], 'Y-MM-dd'),
-                        'Vigencia' => Utils::formatearFecha($row[IMPUESTO_FECHA_VIGENCIA]),
+                        'InicioVigenciaISO' => Utils::formatearFecha($row[IMPUESTO_FECHA_INICIO_VIGENCIA], 'Y-MM-dd'),
+                        'InicioVigencia' => Utils::formatearFecha($row[IMPUESTO_FECHA_INICIO_VIGENCIA]),
+                        'FinVigenciaISO' => Utils::formatearFecha($row[IMPUESTO_FECHA_FIN_VIGENCIA], 'Y-MM-dd'),
+                        'FinVigencia' => Utils::formatearFecha($row[IMPUESTO_FECHA_FIN_VIGENCIA]),
                         'Estado' => $row[IMPUESTO_ESTADO]
                     ];
                 }
@@ -371,7 +385,7 @@
 
 				// Consultar el total de registros
                 $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_IMPUESTO . " ";
-                if ($onlyActiveOrInactive) { $queryTotalCount .= "WHERE " . IMPUESTO_ESTADO . " != " . ($deleted ? "true" : "false") . " "; }
+                if ($onlyActiveOrInactive) { $queryTotalCount .= "WHERE " . IMPUESTO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 // Ejecutar la consulta y obtener el total de registros
                 $totalResult = mysqli_query($conn, $queryTotalCount);
@@ -381,7 +395,7 @@
 
 				// Construir la consulta SQL para paginación
                 $querySelect = "SELECT * FROM " . TB_IMPUESTO . " ";
-                if ($onlyActiveOrInactive) { $querySelect .= "WHERE " . IMPUESTO_ESTADO . " != " . ($deleted ? "true" : "false") . " "; }
+                if ($onlyActiveOrInactive) { $querySelect .= "WHERE " . IMPUESTO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
 				// Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) { $querySelect .= "ORDER BY impuesto" . $sort . " "; }
@@ -407,8 +421,10 @@
 						'Nombre' => $row[IMPUESTO_NOMBRE],
 						'Valor' => $row[IMPUESTO_VALOR],
 						'Descripcion' => $row[IMPUESTO_DESCRIPCION],
-						'VigenciaISO' => Utils::formatearFecha($row[IMPUESTO_FECHA_VIGENCIA], 'Y-MM-dd'),
-						'Vigencia' => Utils::formatearFecha($row[IMPUESTO_FECHA_VIGENCIA]),
+                        'InicioVigenciaISO' => Utils::formatearFecha($row[IMPUESTO_FECHA_INICIO_VIGENCIA], 'Y-MM-dd'),
+                        'InicioVigencia' => Utils::formatearFecha($row[IMPUESTO_FECHA_INICIO_VIGENCIA]),
+                        'FinVigenciaISO' => Utils::formatearFecha($row[IMPUESTO_FECHA_FIN_VIGENCIA], 'Y-MM-dd'),
+                        'FinVigencia' => Utils::formatearFecha($row[IMPUESTO_FECHA_FIN_VIGENCIA]),
 						'Estado' => $row[IMPUESTO_ESTADO]
 					];
 				}
@@ -457,7 +473,7 @@
                 $conn = $result["connection"];
 
                 // Crea una consulta SQL para obtener el impuesto
-                $querySelect = "SELECT * FROM " . TB_IMPUESTO . " WHERE " . IMPUESTO_ID . " = ? AND " . IMPUESTO_ESTADO . " != false";
+                $querySelect = "SELECT * FROM " . TB_IMPUESTO . " WHERE " . IMPUESTO_ID . " = ? AND " . IMPUESTO_ESTADO . " != FALSE";
                 $stmt = mysqli_prepare($conn, $querySelect);
 
                 // Asignar los parámetros y ejecutar la consulta
@@ -475,17 +491,20 @@
                             'Nombre' => $row[IMPUESTO_NOMBRE],
                             'Valor' => $row[IMPUESTO_VALOR],
                             'Descripcion' => $row[IMPUESTO_DESCRIPCION],
-                            'VigenciaISO' => Utils::formatearFecha($row[IMPUESTO_FECHA_VIGENCIA], 'Y-MM-dd'),
-                            'Vigencia' => Utils::formatearFecha($row[IMPUESTO_FECHA_VIGENCIA]),
+                            'InicioVigenciaISO' => Utils::formatearFecha($row[IMPUESTO_FECHA_INICIO_VIGENCIA], 'Y-MM-dd'),
+                            'InicioVigencia' => Utils::formatearFecha($row[IMPUESTO_FECHA_INICIO_VIGENCIA]),
+                            'FinVigenciaISO' => Utils::formatearFecha($row[IMPUESTO_FECHA_FIN_VIGENCIA], 'Y-MM-dd'),
+                            'FinVigencia' => Utils::formatearFecha($row[IMPUESTO_FECHA_FIN_VIGENCIA]),
                             'Estado' => $row[IMPUESTO_ESTADO]
                         ];
                     } else {
                         $impuesto = new Impuesto(
+                            $row[IMPUESTO_ID],
                             $row[IMPUESTO_NOMBRE],
                             $row[IMPUESTO_VALOR],
-                            $row[IMPUESTO_FECHA_VIGENCIA],
-                            $row[IMPUESTO_ID],
                             $row[IMPUESTO_DESCRIPCION],
+                            $row[IMPUESTO_FECHA_INICIO_VIGENCIA],
+                            $row[IMPUESTO_FECHA_FIN_VIGENCIA],
                             $row[IMPUESTO_ESTADO]
                         );
                     }

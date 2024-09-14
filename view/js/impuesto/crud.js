@@ -21,22 +21,14 @@
  * @returns {void}
  */
 function createImpuesto() {
-    // Obtener la fila de creación de impuesto
-    let row = document.getElementById('createRow');
-    
-    // Obtener los campos de entrada de la fila
-    let inputs = row.querySelectorAll('input');
-    
-    // Crear un objeto para almacenar los datos a enviar al servidor
-    let data = { accion: 'insertar' };
+    let row = document.getElementById('createRow'); //<- Obtener la fila de creación de impuesto
+    let inputs = row.querySelectorAll('input'); //<- Obtener los campos de entrada de la fila
+    let data = { accion: 'insertar' }; //<- Objeto para almacenar los datos a enviar al servidor
 
     // Recorrer cada campo de entrada y agregarlo al objeto de datos
     inputs.forEach(input => {
-        // Obtener el nombre del campo (nombre o valor)
-        let fieldName = input.closest('td').dataset.field;
-        
-        // Obtener el valor del campo
-        let value = input.value;
+        let fieldName = input.closest('td').dataset.field; //<- Obtener el nombre del campo (nombre, fecha o valor)
+        let value = input.value; //<- Obtener el valor del campo
 
         // Convertir el campo 'valor' a un número decimal con 2 lugares decimales
         if (fieldName === 'valor') {
@@ -59,20 +51,20 @@ function createImpuesto() {
     .then(data => {
         // Si la solicitud es exitosa
         if (data.success) {
-            // Mostrar mensaje de éxito
-            showMessage(data.message, 'success');
-            
-            // Recargar los datos de impuestos para reflejar la creación del nuevo impuesto
-            fetchImpuestos(currentPage, pageSize, sort);
-            
-            // Eliminar la fila de creación de impuesto
-            document.getElementById('createRow').remove();
-            
-            // Mostrar el botón de creación de impuesto nuevamente
-            document.getElementById('createButton').style.display = 'inline-block';
+            // Si el impuesto no está inactivo
+            if (!data.inactive) {
+                showMessage(data.message, 'success'); //<- Mostrar mensaje de éxito
+                fetchImpuestos(currentPage, pageSize, sort); //<- Recargar los datos de impuestos para reflejar la creación
+                document.getElementById('createRow').remove(); //<- Eliminar la fila de creación
+                document.getElementById('createButton').style.display = 'inline-block'; //<- Mostrar el botón de crear
+                return;
+            }
+
+            // Actualizar el impuesto con los nuevos datos
+            if (data.inactive && confirm(data.message)) { updateImpuesto(data.id, true); }
+            else { showMessage('No se agregó el impuesto', 'info'); }
         } else {
-            // Mostrar mensaje de error
-            showMessage(data.message, 'error');
+            showMessage(data.message, 'error'); //<- Mostrar mensaje de error
         }
     })
     .catch(error => {
@@ -96,23 +88,26 @@ function createImpuesto() {
  * 
  * @returns {void}
  */
-function updateImpuesto(id) {
-    // Obtener la fila del impuesto con el id especificado
-    let row = document.querySelector(`tr[data-id='${id}']`);
-    
-    // Obtener los campos de entrada de la fila
-    let inputs = row.querySelectorAll('input');
-    
-    // Crear un objeto para almacenar los datos a enviar al servidor
-    let data = { accion: 'actualizar', id: id };
+function updateImpuesto(id, reactivate = false) {
+    let row;
+    if (!reactivate) {
+        row = document.querySelector(`tr[data-id='${id}']`); //<- Obtener la fila de la tabla con el id especificado
+    } else {
+        row = document.getElementById('createRow'); //<- Obtener la fila de creación de impuesto
+    }
+
+    // Si no se encuentra la fila, salir de la función
+    if (!row) {
+        showMessage('No se encontró la fila del impuesto del impuesto a actualizar', 'error'); 
+        return; 
+    }
+    let inputs = row.querySelectorAll('input'); //<- Obtener los campos de entrada de la fila
+    let data = { accion: 'actualizar', id: id }; //<- Objeto para almacenar los datos a enviar al servidor
 
     // Recorrer cada campo de entrada y agregarlo al objeto de datos
     inputs.forEach(input => {
-        // Obtener el nombre del campo (nombre o valor)
-        let fieldName = input.closest('td').dataset.field;
-        
-        // Obtener el valor del campo
-        let value = input.value;
+        let fieldName = input.closest('td').dataset.field; //<- Obtener el nombre del campo (nombre, fecha o valor)
+        let value = input.value; //<- Obtener el valor del campo
 
         // Convertir el campo 'valor' a un número decimal con 2 lugares decimales
         if (fieldName === 'valor') {
@@ -135,14 +130,10 @@ function updateImpuesto(id) {
     .then(data => {
         // Si la solicitud es exitosa
         if (data.success) {
-            // Mostrar mensaje de éxito
-            showMessage(data.message, 'success');
-            
-            // Recargar los datos de impuestos para reflejar la actualización
-            fetchImpuestos(currentPage, pageSize, sort);
+            showMessage(data.message, 'success'); //<- Mostrar mensaje de éxito
+            fetchImpuestos(currentPage, pageSize, sort); //<- Recargar los datos de impuestos para reflejar la actualización
         } else {
-            // Mostrar mensaje de error
-            showMessage(data.message, 'error');
+            showMessage(data.message, 'error'); //<- Mostrar mensaje de error
         }
     })
     .catch(error => {
@@ -181,11 +172,8 @@ function deleteImpuesto(id) {
         .then(data => {
             // Si la solicitud es exitosa
             if (data.success) {
-                // Mostrar mensaje de éxito
-                showMessage(data.message, 'success');
-                
-                // Recargar los datos de impuestos para reflejar la eliminación
-                fetchImpuestos(currentPage, pageSize, sort);
+                showMessage(data.message, 'success'); //<- Mostrar mensaje de éxito
+                fetchImpuestos(currentPage, pageSize, sort); //<- Recargar los datos de impuestos para reflejar la eliminación
             } else {
                 // Mostrar mensaje de error
                 showMessage(data.message, 'error');

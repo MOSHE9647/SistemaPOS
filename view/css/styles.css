@@ -124,12 +124,16 @@ input, select {
     opacity: 0; /* Desaparece con una transición suave */
 }
 
+.info {
+    background-color: hsl(207, 82%, 92%);
+    color: #2673d1;
+}
 .error {
-    background-color: #f8d7da;
+    background-color: hsl(355, 70%, 91%);
     color: #721c24;
 }
 .success {
-    background-color: #d4edda;
+    background-color: hsl(134, 41%, 88%);
     color: #155724;
 }
 
