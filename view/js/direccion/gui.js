@@ -16,8 +16,12 @@
 function renderTable(direcciones) {
     let tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = '';
+    showCreateRow();
 
     direcciones.forEach(direccion => {
+        // Formatear el valor para que solo muestre decimales si es necesario
+        let valorFormateado = formatearDecimal(direccion.Distancia);
+
         let row = `
             <tr data-id="${direccion.ID}">
                 <td data-field="provincia">${direccion.Provincia}</td>
@@ -25,7 +29,7 @@ function renderTable(direcciones) {
                 <td data-field="distrito">${direccion.Distrito}</td>
                 <td data-field="barrio">${direccion.Barrio}</td>
                 <td data-field="sennas">${direccion.Sennas}</td>
-                <td data-field="distancia">${direccion.Distancia} km</td>
+                <td data-field="distancia">${valorFormateado} km</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
                     <button onclick="deleteDireccion(${direccion.ID})">Eliminar</button>
@@ -36,6 +40,7 @@ function renderTable(direcciones) {
     });
 
     checkEmptyTable();
+    initializeSelects();
 }
 
 /**

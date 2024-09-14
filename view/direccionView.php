@@ -41,7 +41,11 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- Las filas se llenan dinámicamente con JavaScript -->
+                    <tr>
+                        <td colspan = "7" style = "textalign: center; height: 50px;">
+                            No hay registros disponibles
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -67,8 +71,8 @@
         <a href="../index.php" class="menu-button">Regresar al Menú</a>
         <script src="./js/utils.js"></script>                   <!-- Utiles para mostrar notificaciones y demás           -->
         <script src="./js/direccion/gui.js"></script>           <!-- Manejo dinámico de la página                         -->
-        <script src="./js/direccion/pagination.js"></script>    <!-- Métodos para Paginación                              -->
         <script src="./js/direccion/selects.js"></script>       <!-- Carga de Provincias, Cantones y Distritos            -->
+        <script src="./js/direccion/pagination.js"></script>    <!-- Métodos para Paginación                              -->
         <script src="./js/direccion/crud.js"></script>          <!-- Creación, Actualización y Eliminación de Direcciones -->
     </body>
 </html>

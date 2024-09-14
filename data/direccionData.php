@@ -15,7 +15,7 @@
 			parent::__construct();
 		}
 
-        private function direccionExiste($direccionID) {
+        private function existeDireccion($direccionID) {
             $conn = null; $stmt = null;
             
             try {
@@ -31,7 +31,7 @@
                 $conn = $result["connection"];
 
                 // Crea una consulta y un statement SQL para buscar el registro
-                $queryCheck = "SELECT * FROM " . TB_DIRECCION . " WHERE " . DIRECCION_ID . " = ? AND " . DIRECCION_ESTADO . " != false";
+                $queryCheck = "SELECT 1 FROM " . TB_DIRECCION . " WHERE " . DIRECCION_ID . " = ? AND " . DIRECCION_ESTADO . " != false";
                 $stmt = mysqli_prepare($conn, $queryCheck);
 
                 // Asignar los parámetros y ejecutar la consulta
@@ -147,7 +147,7 @@
                 $direccionID = $direccion->getDireccionID();
 
                 // Verificar si existe el ID y que el Estado no sea false
-                $check = $this->direccionExiste($direccionID);
+                $check = $this->existeDireccion($direccionID);
                 if (!$check["success"]) { return $check; } // Error al verificar la existencia
                 if (!$check["exists"]) { // No existe la dirección
                     $message = "La dirección con 'ID [$direccionID]' no existe en la base de datos.";
@@ -220,7 +220,7 @@
         public function deleteDireccion($direccionID) {
             try {
                 // Verificar si existe el ID y que el Estado no sea false
-                $check = $this->direccionExiste($direccionID);
+                $check = $this->existeDireccion($direccionID);
                 if (!$check["success"]) { return $check; } // Error al verificar la existencia
                 if (!$check["exists"]) { // No existe la dirección
                     $message = "La dirección con 'ID [$direccionID]' no existe en la base de datos.";
@@ -402,7 +402,7 @@
 
             try {
                 // Verificar si existe el ID y que el Estado no sea false
-                $check = $this->direccionExiste($direccionID);
+                $check = $this->existeDireccion($direccionID);
                 if (!$check["success"]) { return $check; } // Error al verificar la existencia
                 if (!$check["exists"]) { // No existe la dirección
                     $message = "La dirección con 'ID [$direccionID]' no existe en la base de datos.";

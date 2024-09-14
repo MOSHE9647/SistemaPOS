@@ -44,8 +44,19 @@ function initializeSelects() {
     });
 
     // Añadir event listeners para actualizar los selects dependientes
-    document.getElementById('provincia-select').addEventListener('change', loadCantones);
-    document.getElementById('canton-select').addEventListener('change', loadDistritos);
+    const provinciaSelect = document.getElementById('provincia-select');
+    if (!provinciaSelect) {
+        showMessage('No se encontró el select de provincias.', 'error');
+        return;
+    };
+    provinciaSelect.addEventListener('change', loadCantones);
+
+    const cantonSelect = document.getElementById('canton-select');
+    if (!cantonSelect) {
+        showMessage('No se encontró el select de cantones.', 'error');
+        return;
+    };
+    cantonSelect.addEventListener('change', loadDistritos);
 }
 
 /**

@@ -45,8 +45,8 @@ Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos
     | [--] tbcompra                | [--] tbproveedor                      | [  ] tbrolusuario            | [  ] tbmarca              |
     | [--] tbcompradetalle         | [--] tbcategoria                      | [  ] tbusuario               | [  ] tbpresentación       |
     | [--] tbcuentaporpagar        | [--] tbsubcategoria                   | [11] tbimpuesto              |                           |
-    | [--] tblote                  | [--] tbproveedorproducto              | [--] tbtelefono              |                           |
-    | [--] tbproducto              |                                       | [--] tbdireccion             |                           |
+    | [--] tblote                  | [--] tbproveedorproducto              | [00] tbtelefono              |                           |
+    | [--] tbproducto              |                                       | [11] tbdireccion             |                           |
     |                              |                                       | [--] tbcodigobarras          |                           |
     |                              |                                       | [--] tbproveedortelefono     |                           |
     |                              |                                       | [--] tbproveedordireccion    |                           |

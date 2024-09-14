@@ -14,11 +14,11 @@
         function __construct($direccionID = 0, $direccionProvincia = "", $direccionCanton = "", $direccionDistrito = "", 
                 $direccionBarrio = "", $direccionSennas = "", $direccionDistancia = 0, $direccionEstado = true) {
             $this->direccionID = $direccionID;
-            $this->direccionProvincia = $direccionProvincia;
-            $this->direccionCanton = $direccionCanton;
-            $this->direccionDistrito = $direccionDistrito;
-            $this->direccionBarrio = $direccionBarrio;
-            $this->direccionSennas = $direccionSennas;
+            $this->direccionProvincia = strtoupper($direccionProvincia);
+            $this->direccionCanton = strtoupper($direccionCanton);
+            $this->direccionDistrito = strtoupper($direccionDistrito);
+            $this->direccionBarrio = strtoupper($direccionBarrio);
+            $this->direccionSennas = strtoupper($direccionSennas);
             $this->direccionDistancia = $direccionDistancia;
             $this->direccionEstado = $direccionEstado;
         }

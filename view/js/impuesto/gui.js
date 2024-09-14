@@ -19,22 +19,13 @@
 function renderTable(impuestos) {
     // Obtener el cuerpo de la tabla
     let tableBody = document.getElementById('tableBody');
-    
-    // Vaciar el cuerpo de la tabla
-    tableBody.innerHTML = '';
-
-    // Mostrar la fila de creación
-    showCreateRow();
+    tableBody.innerHTML = ''; //<- Vaciar el cuerpo de la tabla
+    showCreateRow(); //<- Mostrar la fila para crear un nuevo impuesto
 
     // Recorrer cada impuesto en el arreglo
     impuestos.forEach(impuesto => {
         // Formatear el valor para que solo muestre decimales si es necesario
-        let valorFormateado = parseFloat(impuesto.Valor);
-        if (valorFormateado % 1 === 0) {
-            valorFormateado = valorFormateado.toFixed(0);  // Si es entero, sin decimales
-        } else {
-            valorFormateado = valorFormateado.toFixed(2).replace(/\.?0+$/, '');  // Limitar a dos decimales y eliminar ceros innecesarios
-        }
+        let valorFormateado = formatearDecimal(impuesto.Valor);
 
         // Crear una fila para el impuesto
         let row = `
@@ -55,6 +46,7 @@ function renderTable(impuestos) {
         tableBody.innerHTML += row;
     });
 
+    // Verificar si la tabla está vacía
     checkEmptyTable();
 }
 

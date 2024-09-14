@@ -157,3 +157,14 @@ function checkEmptyTable() {
         tableBody.appendChild(row);
     }
 }
+
+function formatearDecimal(numero) {
+    // Formatear el valor para que solo muestre decimales si es necesario
+    let valorFormateado = parseFloat(numero);
+    if (valorFormateado % 1 === 0) {
+        valorFormateado = valorFormateado.toFixed(0);  // Si es entero, sin decimales
+    } else {
+        valorFormateado = valorFormateado.toFixed(2).replace(/\.?0+$/, '');  // Limitar a dos decimales y eliminar ceros innecesarios
+    }
+    return valorFormateado;
+}
