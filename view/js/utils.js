@@ -157,6 +157,3 @@ function checkEmptyTable() {
         tableBody.appendChild(row);
     }
 }
-
-// Llama a la función después de cargar la tabla
-checkEmptyTable();

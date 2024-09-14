@@ -21,10 +21,10 @@ function renderTable(impuestos) {
     let tableBody = document.getElementById('tableBody');
     
     // Vaciar el cuerpo de la tabla
-    
-    // CAMBIAR PARA QUE MUESTRE LOS INPUTS DE CREACION DE UNA VEZ
     tableBody.innerHTML = '';
 
+    // Mostrar la fila de creación
+    showCreateRow();
 
     // Recorrer cada impuesto en el arreglo
     impuestos.forEach(impuesto => {
