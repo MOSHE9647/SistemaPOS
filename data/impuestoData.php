@@ -99,6 +99,51 @@
             }
         }
 
+        public function verificarTotalPorcentaje($valorAInsertar) {
+            $conn = null;
+
+            try {
+                // Establece una conexión con la base de datos
+				$result = $this->getConnection();
+				if (!$result["success"]) { throw new Exception($result["message"]); }
+				$conn = $result["connection"];
+
+                // Crea una consulta SQL para obtener el total de porcentaje de los impuestos
+                $querySelect = "SELECT SUM(" . IMPUESTO_VALOR . ") AS total FROM " . TB_IMPUESTO . " WHERE " . IMPUESTO_ESTADO . " != FALSE";
+                $result = mysqli_query($conn, $querySelect);
+
+                // Verifica si existe algún registro con los criterios dados
+                if ($row = mysqli_fetch_assoc($result)) {
+                    $total = (float) $row['total'];
+
+                    // Verifica si el total de porcentaje de los impuestos es mayor a 100
+                    $valorTotal = $total + $valorAInsertar;
+                    if ($valorTotal > 100) {
+                        $message = "El porcentaje total de los impuestos supera el 100% permitido.";
+                        $logMessage = "$message (Valor actual: $total%, Valor a insertar: $valorAInsertar%, Total: $valorTotal%)";
+                        Utils::writeLog($logMessage, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        return ["success" => true, "check" => false, "message" => "$message (Total: $valorTotal%, Valor a insertar: $valorAInsertar%)"];
+                    }
+                }
+
+                // Retorna true si el total de porcentaje de los impuestos es menor o igual a 100 o si no hay impuestos en la base de datos
+                return ["success" => true, "check" => true];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener el total de porcentaje de los impuestos desde la base de datos',
+                    $this->className
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cerrar la conexión y liberar recursos
+                if (isset($conn) && $conn) { mysqli_close($conn); }
+            }
+        }
+
         public function insertImpuesto($impuesto) {
             $conn = null; $stmt = null;
             
@@ -122,6 +167,13 @@
 					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
 					return ['success' => false, 'message' => "Ya existe un impuesto con el mismo nombre en la base de datos."];
 				}
+
+                // Verifica que el total de porcentaje de los impuestos no supere el 100%
+                $checkTotal = $this->verificarTotalPorcentaje($impuesto->getImpuestoValor());
+                if (!$checkTotal["success"]) { return $checkTotal; } //<- Error al verificar el total de porcentaje
+                if (!$checkTotal["check"]) { //<- Total de porcentaje mayor a 100%
+                    return ["success" => false, "message" => $checkTotal["message"]]; 
+                }
 
                 // Establece una conexión con la base de datos
 				$result = $this->getConnection();
@@ -212,6 +264,13 @@
                     $message = "Ya existe un impuesto con el mismo Nombre ['$impuestoNombre'].";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
 					return ['success' => false, 'message' => "Ya existe un impuesto con el mismo nombre ($impuestoNombre) en la base de datos."];
+                }
+
+                // Verifica que el total de porcentaje de los impuestos no supere el 100%
+                $checkTotal = $this->verificarTotalPorcentaje($impuesto->getImpuestoValor());
+                if (!$checkTotal["success"]) { return $checkTotal; } //<- Error al verificar el total de porcentaje
+                if (!$checkTotal["check"]) { //<- Total de porcentaje mayor a 100%
+                    return ["success" => false, "message" => $checkTotal["message"]]; 
                 }
 
                 // Establece una conexion con la base de datos
