@@ -66,8 +66,21 @@ function renderTable(impuestos) {
  * @returns {void}
  */
 function makeRowEditable(row) {
+    cancelCreate(); // Cancelar la creación de un nuevo impuesto
+    cancelEdit(); // Cancelar la edición de un impuesto existente
+
+    // Almacenar los datos originales en un atributo data
+    row.dataset.originalData = JSON.stringify({
+        nombre: row.querySelector('[data-field="nombre"]').textContent,
+        valor: row.querySelector('[data-field="valor"]').textContent,
+        descripcion: row.querySelector('[data-field="descripcion"]').textContent,
+        fechaInicio: row.querySelector('[data-field="fechaInicio"]').dataset.iso,
+        fechaFin: row.querySelector('[data-field="fechaFin"]').dataset.iso
+    });
+
     // Seleccionar todas las celdas de la fila
     const cells = row.querySelectorAll('td');
+    row.setAttribute('id', 'editRow');
     
     // Definir funciones para manejar cada tipo de campo
     const fieldHandlers = {
@@ -126,6 +139,8 @@ function makeRowEditable(row) {
  * @returns {void}
  */
 function showCreateRow() {
+    cancelEdit();
+
     // Ocultar el botón de crear
     document.getElementById('createButton').style.display = 'none';
 
@@ -164,8 +179,31 @@ function showCreateRow() {
  * @returns {void}
  */
 function cancelEdit() {
-    // Recargar datos de impuestos para cancelar la edición
-    fetchImpuestos(currentPage, pageSize, sort);
+    // Restaurar los datos originales de la fila de edición
+    const editRow = document.getElementById('editRow');
+    if (editRow && editRow.dataset.originalData) {
+        const originalData = JSON.parse(editRow.dataset.originalData);
+
+        editRow.querySelector('[data-field="nombre"]').innerHTML = originalData.nombre;
+        editRow.querySelector('[data-field="valor"]').innerHTML = originalData.valor;
+        editRow.querySelector('[data-field="descripcion"]').innerHTML = originalData.descripcion;
+        editRow.querySelector('[data-field="fechaInicio"]').innerHTML = originalData.fechaInicio;
+        editRow.querySelector('[data-field="fechaFin"]').innerHTML = originalData.fechaFin;
+
+        // Eliminar el atributo data-original-data
+        delete editRow.dataset.originalData;
+
+        // Restaurar los botones de la fila
+        const cells = editRow.querySelectorAll('td');
+        const lastCellIndex = cells.length - 1;
+        cells[lastCellIndex].innerHTML = `
+            <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
+            <button onclick="deleteImpuesto(${editRow.dataset.id})">Eliminar</button>
+        `;
+
+        // Eliminar el atributo id de la fila de edición
+        editRow.removeAttribute('id');
+    }
 }
 
 /**
@@ -180,8 +218,10 @@ function cancelEdit() {
  */
 function cancelCreate() {
     // Eliminar la fila de creación
-    document.getElementById('createRow').remove();
+    const createRow = document.getElementById('createRow');
+    if (createRow) createRow.remove();
 
     // Mostrar el botón de crear
-    document.getElementById('createButton').style.display = 'inline-block';
+    const createButton = document.getElementById('createButton');
+    if (createButton) createButton.style.display = 'inline-block';
 }

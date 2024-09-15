@@ -98,7 +98,7 @@ function updateImpuesto(id, reactivate = false) {
 
     // Si no se encuentra la fila, salir de la función
     if (!row) {
-        showMessage('No se encontró la fila del impuesto del impuesto a actualizar', 'error'); 
+        showMessage('No se encontró la fila del impuesto a actualizar', 'error'); 
         return; 
     }
     let inputs = row.querySelectorAll('input'); //<- Obtener los campos de entrada de la fila

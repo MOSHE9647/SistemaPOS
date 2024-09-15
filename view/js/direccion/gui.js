@@ -52,8 +52,22 @@ function renderTable(direcciones) {
  * makeRowEditable(document.getElementById('fila1'));
  */
 function makeRowEditable(row) {
+    cancelCreate(); // Cancelar la creación de una nueva dirección
+    cancelEdit(); // Cancelar la edición de una dirección existente
+
+    // Almacenar los datos originales en un atributo data
+    row.dataset.originalData = JSON.stringify({
+        provincia: row.querySelector('[data-field="provincia"]').textContent,
+        canton: row.querySelector('[data-field="canton"]').textContent,
+        distrito: row.querySelector('[data-field="distrito"]').textContent,
+        barrio: row.querySelector('[data-field="barrio"]').textContent,
+        sennas: row.querySelector('[data-field="sennas"]').textContent,
+        distancia: row.querySelector('[data-field="distancia"]').textContent
+    });
+
     const cells = row.querySelectorAll('td');
     const lastCellIndex = cells.length - 1;
+    row.setAttribute('id', 'editRow');
 
     const fieldHandlers = {
         'barrio': (value) => `<input type="text" value="${value}">`,
@@ -94,6 +108,7 @@ function makeRowEditable(row) {
  * showCreateRow();
  */
 function showCreateRow() {
+    cancelEdit(); // Cancelar la edición de una dirección existente
     document.getElementById('createButton').style.display = 'none';
 
     let tableBody = document.getElementById('tableBody');
@@ -137,7 +152,32 @@ function showCreateRow() {
  * cancelEdit();
  */
 function cancelEdit() {
-    fetchDirecciones(currentPage, pageSize, sort); // Recargar datos para cancelar la edición
+    // Restaurar los datos originales de la fila de edición
+    const editRow = document.getElementById('editRow');
+    if (editRow && editRow.dataset.originalData) {
+        const originalData = JSON.parse(editRow.dataset.originalData);
+
+        editRow.querySelector('[data-field="provincia"]').innerHTML = originalData.provincia;
+        editRow.querySelector('[data-field="canton"]').innerHTML = originalData.canton;
+        editRow.querySelector('[data-field="distrito"]').innerHTML = originalData.distrito;
+        editRow.querySelector('[data-field="barrio"]').innerHTML = originalData.barrio;
+        editRow.querySelector('[data-field="sennas"]').innerHTML = originalData.sennas;
+        editRow.querySelector('[data-field="distancia"]').innerHTML = originalData.distancia;
+
+        // Eliminar el atributo data-original-data
+        delete editRow.dataset.originalData;
+
+        // Restaurar los botones de la fila
+        const cells = editRow.querySelectorAll('td');
+        const lastCellIndex = cells.length - 1;
+        cells[lastCellIndex].innerHTML = `
+            <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
+            <button onclick="deleteDireccion(${editRow.dataset.id})">Eliminar</button>
+        `;
+
+        // Eliminar el id de la fila de edición
+        editRow.removeAttribute('id');
+    }
 }
 
 /**
@@ -148,6 +188,11 @@ function cancelEdit() {
  * cancelCreate();
  */
 function cancelCreate() {
-    document.getElementById('createRow').remove();
-    document.getElementById('createButton').style.display = 'inline-block';
+    // Eliminar la fila de creación
+    const createRow = document.getElementById('createRow');
+    if (createRow) createRow.remove();
+
+    // Mostrar el botón de crear
+    const createButton = document.getElementById('createButton');
+    if (createButton) createButton.style.display = 'inline-block';
 }

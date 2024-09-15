@@ -39,7 +39,11 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- Las filas se llenan dinámicamente con JavaScript -->
+                    <tr>
+                        <td colspan = "6" style = "textalign: center; height: 50px;">
+                            No hay registros disponibles
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 

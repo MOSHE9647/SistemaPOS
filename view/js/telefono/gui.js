@@ -22,6 +22,7 @@ function renderTable(telefonos) {
     
     // Vaciar el cuerpo de la tabla
     tableBody.innerHTML = '';
+    showCreateRow();
 
     // Recorrer cada telefono en el arreglo
     telefonos.forEach(telefono => {
@@ -45,6 +46,13 @@ function renderTable(telefonos) {
     });
 
     checkEmptyTable();
+
+    // Llenar los selects después de que la fila esté preparada
+    initializeSelects();
+
+    // Formatear el número de teléfono ingresado
+    document.getElementById('numero').addEventListener('input', manejarInput);
+    document.getElementById('codigo-select').addEventListener('change', manejarInput); // Actualizar al cambiar el país
 }
 
 /**
@@ -63,8 +71,21 @@ function renderTable(telefonos) {
  * @returns {void}
  */
 function makeRowEditable(row) {
+    cancelCreate();
+    cancelEdit();
+
+    // Almacenar los datos originales en un atributo data
+    row.dataset.originalData = JSON.stringify({
+        tipo: row.querySelector('[data-field="tipo"]').textContent,
+        codigo: row.querySelector('[data-field="codigo"]').textContent,
+        numero: row.querySelector('[data-field="numero"]').textContent,
+        extension: row.querySelector('[data-field="extension"]').textContent,
+        creacion: row.querySelector('[data-field="creacion"]').textContent
+    });
+
     const cells = row.querySelectorAll('td');
     const lastCellIndex = cells.length - 1;
+    row.setAttribute('id', 'editRow');
 
     const fieldHandlers = {
         'numero': (value) => `<input type="text" id="numero" value="${value}" required>`,
@@ -112,6 +133,8 @@ function makeRowEditable(row) {
  * @returns {void}
  */
 function showCreateRow() {
+    cancelEdit();
+
     // Ocultar el botón de crear
     document.getElementById('createButton').style.display = 'none';
 
@@ -165,8 +188,31 @@ function showCreateRow() {
  * @returns {void}
  */
 function cancelEdit() {
-    // Recargar datos de telefonos para cancelar la edición
-    fetchTelefonos(currentPage, pageSize, sort);
+    // Restaurar los datos originales de la fila de edición
+    const editRow = document.getElementById('editRow');
+    if (editRow && editRow.dataset.originalData) {
+        const originalData = JSON.parse(editRow.dataset.originalData);
+
+        editRow.querySelector('[data-field="tipo"]').innerHTML = originalData.tipo;
+        editRow.querySelector('[data-field="codigo"]').innerHTML = originalData.codigo;
+        editRow.querySelector('[data-field="numero"]').innerHTML = originalData.numero;
+        editRow.querySelector('[data-field="extension"]').innerHTML = originalData.extension;
+        editRow.querySelector('[data-field="creacion"]').innerHTML = originalData.creacion;
+
+        // Eliminar el atributo data-original-data
+        delete editRow.dataset.originalData;
+        
+        // Restaurar los botones de la fila
+        const cells = editRow.querySelectorAll('td');
+        const lastCellIndex = cells.length - 1;
+        cells[lastCellIndex].innerHTML = `
+            <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
+            <button onclick="deleteTelefono(${editRow.dataset.id})">Eliminar</button>
+        `;
+
+        // Eliminar el id de la fila de edición
+        editRow.removeAttribute('id');
+    }
 }
 
 /**
@@ -181,8 +227,10 @@ function cancelEdit() {
  */
 function cancelCreate() {
     // Eliminar la fila de creación
-    document.getElementById('createRow').remove();
+    const createRow = document.getElementById('createRow');
+    if (createRow) createRow.remove();
 
     // Mostrar el botón de crear
-    document.getElementById('createButton').style.display = 'inline-block';
+    const createButton = document.getElementById('createButton');
+    if (createButton) createButton.style.display = 'inline-block';
 }

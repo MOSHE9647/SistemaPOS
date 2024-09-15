@@ -25,27 +25,27 @@
                 $conn = $result["connection"];
         
                 // Inicializa la consulta base
-                $queryCheck = "SELECT 1 FROM " . TB_TELEFONO . " WHERE ";
+                $queryCheck = "SELECT " . TELEFONO_ID . ", " . TELEFONO_ESTADO . " FROM " . TB_TELEFONO . " WHERE ";
                 $params = [];
                 $types = "";
         
                 // Consulta para verificar si existe un telefono con el ID ingresado
                 if ($telefonoID && (!$update && !$insert)) {
-                    $queryCheck .= TELEFONO_ID . " = ? AND " . TELEFONO_ESTADO . " != FALSE";
+                    $queryCheck .= TELEFONO_ID . " = ?";
                     $params[] = $telefonoID;
                     $types .= 'i';
                 }
                 
                 // Consulta en caso de insertar para verificar si existe un telefono con el código y número ingresados
                 else if ($insert && ($telefonoCodigoPais && $telefonoNumero)) {
-                    $queryCheck .= TELEFONO_CODIGO_PAIS . " = ? AND " . TELEFONO_NUMERO . " = ? AND " . TELEFONO_ESTADO . " != FALSE";
+                    $queryCheck .= TELEFONO_CODIGO_PAIS . " = ? AND " . TELEFONO_NUMERO . " = ?";
                     $params = [$telefonoCodigoPais, $telefonoNumero];
                     $types .= 'ss';
                 }
                 
                 // Consulta en caso de actualizar para verificar si existe ya un telefono con el mismo código y número además del que se va a actualizar
                 else if ($update && ($telefonoID && $telefonoCodigoPais && $telefonoNumero)) {
-                    $queryCheck .= TELEFONO_CODIGO_PAIS . " = ? AND " . TELEFONO_NUMERO . " = ? AND " . TELEFONO_ESTADO . " != FALSE AND " . TELEFONO_ID . " != ?";
+                    $queryCheck .= TELEFONO_CODIGO_PAIS . " = ? AND " . TELEFONO_NUMERO . " = ? AND " . TELEFONO_ID . " != ?";
                     $params = [$telefonoCodigoPais, $telefonoNumero, $telefonoID];
                     $types .= 'ssi';
                 }
@@ -67,8 +67,10 @@
                 $result = mysqli_stmt_get_result($stmt);
         
                 // Verifica si existe algún registro con los criterios dados
-                if (mysqli_num_rows($result) > 0) {
-                    return ["success" => true, "exists" => true];
+                if ($row = mysqli_fetch_assoc($result)) {
+                    // Verificar si está inactivo (bit de estado en 0)
+                    $isInactive = $row[TELEFONO_ESTADO] == 0;
+                    return ["success" => true, "exists" => true, "inactive" => $isInactive, "telefonoID" => $row[TELEFONO_ID]];
                 }
         
                 // Retorna false si no se encontraron resultados
@@ -111,6 +113,12 @@
                 $check = $this->existeTelefono(null, $telefonoCodigoPais, $telefonoNumero, false, true);
                 if (!$check['success']) { return $check; } //<- Error al verificar la existencia
                 
+                // En caso de ya existir el telefono pero estar inactivo
+                if ($check['exists'] && $check['inactive']) {
+                    $message = "Ya existe un telefono con el mismo número ($telefonoCodigoPais $telefonoNumero) en la base de datos, pero está inactivo. Desea reactivarlo?";
+                    return ["success" => true, "message" => $message, "inactive" => $check["inactive"], "id" => $check['telefonoID']];
+                }
+
                 // En caso de ya existir el telefono
                 if ($check['exists']) {
                     $message = "El telefono con 'Código [$telefonoCodigoPais]' y 'Número [$telefonoNumero]' ya existe en la base de datos.";
@@ -217,7 +225,8 @@
                         TELEFONO_TIPO . " = ?, " .
                         TELEFONO_CODIGO_PAIS . " = ?, " .
                         TELEFONO_NUMERO . " = ?, " .
-                        TELEFONO_EXTENSION . " = ? " .
+                        TELEFONO_EXTENSION . " = ?, " .
+                        TELEFONO_ESTADO . " = TRUE " .
                     "WHERE " . TELEFONO_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
 

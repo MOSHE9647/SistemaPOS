@@ -15,14 +15,9 @@
  * @returns {void}
  */
 function createTelefono() {
-    // Obtener la fila de creación de telefono
-    let row = document.getElementById('createRow');
-    
-    // Obtener los campos de entrada de la fila
-    let inputs = row.querySelectorAll('input, select');
-    
-    // Crear un objeto para almacenar los datos a enviar al servidor
-    let data = { accion: 'insertar' };
+    let row = document.getElementById('createRow'); // Obtener la fila de creación de telefono
+    let inputs = row.querySelectorAll('input, select'); // Obtener los campos de entrada de la fila
+    let data = { accion: 'insertar' }; // Crear un objeto para almacenar los datos a enviar al servidor
 
     // Recorrer cada campo de entrada y agregarlo al objeto de datos
     inputs.forEach(input => {
@@ -45,17 +40,17 @@ function createTelefono() {
     .then(data => {
         // Si la solicitud es exitosa
         if (data.success) {
-            // Mostrar mensaje de éxito
-            showMessage(data.message, 'success');
-            
-            // Recargar los datos de telefonos para reflejar la creación del nuevo telefono
-            fetchTelefonos(currentPage, pageSize, sort);
-            
-            // Eliminar la fila de creación de telefono
-            document.getElementById('createRow').remove();
-            
-            // Mostrar el botón de creación de telefono nuevamente
-            document.getElementById('createButton').style.display = 'inline-block';
+            if (!data.inactive) {
+                showMessage(data.message, 'success'); // Mostrar mensaje de éxito
+                fetchTelefonos(currentPage, pageSize, sort); // Recargar los datos de telefonos para reflejar la creación
+                document.getElementById('createRow').remove(); // Eliminar la fila de creación
+                document.getElementById('createButton').style.display = 'inline-block'; // Mostrar el botón de crear
+                return;
+            }
+
+            // Actualizar el telefono con los nuevos datos
+            if (data.inactive && confirm(data.message)) { updateTelefono(data.id, true); }
+            else { showMessage('No se agregó el teléfono', 'info'); }
         } else {
             // Mostrar mensaje de error
             showMessage(data.message, 'error');
@@ -81,15 +76,21 @@ function createTelefono() {
  * 
  * @returns {void}
  */
-function updateTelefono(id) {
-    // Obtener la fila del telefono con el id especificado
-    let row = document.querySelector(`tr[data-id='${id}']`);
-    
-    // Obtener los campos de entrada de la fila
-    let inputs = row.querySelectorAll('input, select');
-    
-    // Crear un objeto para almacenar los datos a enviar al servidor
-    let data = { accion: 'actualizar', id: id };
+function updateTelefono(id, reactivate = false) {
+    let row;
+    if (!reactivate) {
+        row = document.querySelector(`tr[data-id='${id}']`); //<- Obtener la fila de la tabla con el id especificado
+    } else {
+        row = document.getElementById('createRow'); //<- Obtener la fila de creación de telefono
+    }
+
+    // Si no se encuentra la fila, salir de la función
+    if (!row) {
+        showMessage('No se encontró la fila del teléfono a actualizar', 'error'); 
+        return; 
+    }
+    let inputs = row.querySelectorAll('input, select'); // Obtener los campos de entrada de la fila
+    let data = { accion: 'actualizar', id: id }; // Crear un objeto para almacenar los datos a enviar al servidor
 
     // Recorrer cada campo de entrada y agregarlo al objeto de datos
     inputs.forEach(input => {
@@ -112,14 +113,10 @@ function updateTelefono(id) {
     .then(data => {
         // Si la solicitud es exitosa
         if (data.success) {
-            // Mostrar mensaje de éxito
-            showMessage(data.message, 'success');
-            
-            // Recargar los datos de telefonos para reflejar la actualización
-            fetchTelefonos(currentPage, pageSize, sort);
+            showMessage(data.message, 'success'); // Mostrar mensaje de éxito
+            fetchTelefonos(currentPage, pageSize, sort); // Recargar los datos de telefonos para reflejar la actualización
         } else {
-            // Mostrar mensaje de error
-            showMessage(data.message, 'error');
+            showMessage(data.message, 'error'); // Mostrar mensaje de error
         }
     })
     .catch(error => {
