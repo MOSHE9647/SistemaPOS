@@ -35,7 +35,7 @@
                 $types = "";
                 if ($proveedorID !== null && !$update) {
                     // Verificar existencia por ID y que el estado no sea false
-                    $queryCheck .= PROVEEDOR_ID . " = ? AND " . PROVEEDOR_ESTADO . " != false";
+                    $queryCheck .= PROVEEDOR_ID . " = ? "; //" AND " . PROVEEDOR_ESTADO . " != false";
                     $params[] = $proveedorID;
                     $types .= 'i';
                 } elseif ($proveedorNombre !== null && $proveedorEmail !== null && !$update) {
@@ -335,6 +335,7 @@
                 if($check['exists']){
                     throw new Exception("El nombre del proveedor ya existe.");
                 }
+                
                 //verificacion email
                 $check = $this->emailProveedorExiste($proveedorEmail,$proveedorID);
                 if(!$check['success']){

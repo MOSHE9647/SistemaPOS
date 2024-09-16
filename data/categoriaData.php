@@ -29,7 +29,7 @@
 				
 				if ($categoriaID !== null) {
 					// Verificar existencia por ID y que el estado no sea false
-					$queryCheck .= CATEGORIA_ID . " = ? AND " . CATEGORIA_ESTADO . " != false";
+					$queryCheck .= CATEGORIA_ID . " = ? "; //"AND " . CATEGORIA_ESTADO . " != false";
 					$params[] = $categoriaID;
 					$types .= 'i';
 				} elseif ($categoriaNombre !== null) {
@@ -67,8 +67,74 @@
 			}
 		}
 
+		public function nombreCategoriaExiste($categoriaNombre,$categoriaID= null){
+			$response = [];
+			try {
+				// Establece una conexión con la base de datos
+				$result = $this->getConnection();
+				if (!$result["success"]) { throw new Exception($result["message"]); }
+				$conn = $result["connection"];
+
+				// Inicializa la consulta base
+				$queryCheck = "SELECT * FROM " . TB_CATEGORIA . " WHERE ";
+				$params = [];
+				$types = "";
+				
+				if ($categoriaNombre !== null && $categoriaID !== null) {
+					// Verificar existencia por ID y que el estado no sea false
+					$queryCheck .= CATEGORIA_NOMBRE . " = ? AND " . CATEGORIA_ESTADO . " != false AND " . CATEGORIA_ID ." <> ? ";
+					$params[] = $categoriaNombre;
+					$params[] = $categoriaID;
+					$types .= 'si';
+				} elseif ($categoriaNombre !== null) {
+					// Verificar existencia por nombre
+					$queryCheck .= CATEGORIA_NOMBRE . " = ? ";
+					$params[] = $categoriaNombre;
+					$types .= 's';
+				} else {
+					throw new Exception("Se requiere al menos un parámetro: categoriaID o categoriaNombre");
+				}
+
+				$stmt = mysqli_prepare($conn, $queryCheck);
+				if (!$stmt) {
+					throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
+				}
+
+				// Asignar los parámetros y ejecutar la consulta
+				mysqli_stmt_bind_param($stmt, $types, ...$params);
+				mysqli_stmt_execute($stmt);
+				$result = mysqli_stmt_get_result($stmt);
+
+				// Verifica si existe algún registro con los criterios dados
+				if (mysqli_num_rows($result) > 0) {
+                    if ($row = mysqli_fetch_assoc($result)) {
+                        // Verificar si está inactivo (bit de estado en 0)
+                        $isInactive = $row[CATEGORIA_ESTADO] == 0;
+                        $response = ["success" => true, "exists" => true, "inactive" => $isInactive, "id" => $row[CATEGORIA_ID]];
+                    }
+				}else{
+					$response =  ["success" => true, "exists" => false];
+				}
+			} catch (Exception $e) {
+				$userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al verificar la existencia del nombre del proveedor en la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                $response =  ["success" => false, "message" => $userMessage];
+			} finally {
+				// Cierra la conexión y el statement
+				if (isset($stmt)) { mysqli_stmt_close($stmt); }
+				if (isset($conn)) { mysqli_close($conn); }
+			}
+
+			return $response;
+		}
+
 		// Método para insertar una nueva categoría
 		public function insertCategoria($categoria) {
+			$response = [];
 			try {
 				// Obtener los valores de las propiedades del objeto
 				$categoriaNombre = $categoria->getCategoriaNombre();
@@ -80,14 +146,25 @@
 					throw new Exception("El nombre de la categoría está vacío");
 				}
 
+
+				$check = $this->nombreCategoriaExiste($categoriaNombre);
+				if(!$check['success']){
+					return $check;
+				}
+				if($check['exists'] && $check["inactive"]){
+					return ["success" => true, "message"=>"Hay una categoria con el nombre [$categoriaNombre] incativo, ¿Deseas reactivarlo?", "id"=>$check["id"]];
+				}
+				if($check['exists']){
+					throw new Exception("El nombre de la categoria ya existe.");
+				}
 				// Verifica si la categoría ya existe
-				$check = $this->categoriaExiste(null, $categoriaNombre);
-				if (!$check["success"]) {
-					return $check; // Error al verificar la existencia
-				}
-				if ($check["exists"]) {
-					throw new Exception("Ya existe una categoría con el mismo nombre");
-				}
+				// $check = $this->categoriaExiste(null, $categoriaNombre);
+				// if (!$check["success"]) {
+				// 	return $check; // Error al verificar la existencia
+				// }
+				// if ($check["exists"]) {
+				// 	throw new Exception("Ya existe una categoría con el mismo nombre");
+				// }
 
 				// Establece una conexión con la base de datos
 				$result = $this->getConnection();
@@ -135,7 +212,7 @@
 					throw new Exception("Error al insertar la categoría");
 				}
 
-				return ["success" => true, "message" => "Categoría insertada exitosamente", "id"=> $nextId];
+				$response = ["success" => true, "message" => "Categoría insertada exitosamente", "id"=> $nextId];
 			}catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
@@ -144,16 +221,18 @@
                     'Error al insertar categoria a la base de datos'
                 );
                 // Devolver mensaje amigable para el usuario
-                return ["success" => false, "message" => $userMessage, "id"=>$nextId];
+                $response = ["success" => false, "message" => $userMessage, "id"=>$nextId];
             } finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
 				if (isset($conn)) { mysqli_close($conn); }
 			}
+			return $response;
 		}
 
 		// Método para obtener todas las categorías activas
 		public function getAllCategorias() {
+			$response = [];
 			try {
 				// Establece una conexión con la base de datos
 				$result = $this->getConnection();
@@ -182,7 +261,7 @@
 					];
 					// array_push($listaCategorias, $currentCategoria);
 				}
-				return ["success" => true, "listaCategorias" => $listaCategorias];
+				$response = ["success" => true, "listaCategorias" => $listaCategorias];
 			} catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
@@ -191,15 +270,17 @@
                     'Error al listar las categorias de la base de datos'
                 );
                 // Devolver mensaje amigable para el usuario
-                return ["success" => false, "message" => $userMessage];
+                $response = ["success" => false, "message" => $userMessage];
             }  finally {
 				// Cierra la conexión y el statement
 				if (isset($conn)) { mysqli_close($conn); }
 			}
+			return $response;
 		}
 
 		// Método para obtener categorías con paginación
 		public function getPaginatedCategorias($page, $size, $sort = null) {
+			$response = [];
 			try {
 				// Validar los parámetros de paginación
                 if (!is_numeric($page) || $page < 1) {
@@ -265,7 +346,7 @@
 					// array_push($listaCategorias, $currentCategoria);
 				}
 
-				return [
+				$response = [
 					"success" => true,
 					"page" => $page,
 					"size" => $size,
@@ -281,16 +362,18 @@
                     'Error al listar las categorias de la base de datos'
                 );
                 // Devolver mensaje amigable para el usuario
-                return ["success" => false, "message" => $userMessage];
+                $response = ["success" => false, "message" => $userMessage];
             }  finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
 				if (isset($conn)) { mysqli_close($conn); }
 			}
+			return $response;
 		}
 
 		// Método para actualizar una categoría existente
 		public function updateCategoria($categoria) {
+			$response = [];
 			try {
 				$categoriaID = $categoria->getCategoriaID();
 				$categoriaNombre = $categoria->getCategoriaNombre();
@@ -308,6 +391,14 @@
 				}
 				if (!$check["exists"]) {
 					throw new Exception("No existe una categoría con el ID proporcionado");
+				}
+				//verificar nombre categoria
+				$check = $this->nombreCategoriaExiste($categoriaNombre, $categoriaID);
+				if(!$check['success']){
+					return $check;
+				}
+				if($check['exists']){
+					throw new Exception("El nombre de la categoria ya existe.");
 				}
 
 				// Establece una conexión con la base de datos
@@ -343,7 +434,7 @@
 					throw new Exception("Error al actualizar la categoría");
 				}
 
-				return ["success" => true, "message" => "Categoría actualizada exitosamente"];
+				$response = ["success" => true, "message" => "Categoría actualizada exitosamente"];
 			}catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
@@ -352,20 +443,23 @@
                     'Error al actualizar la categoria a la base de datos'
                 );
                 // Devolver mensaje amigable para el usuario
-                return ["success" => false, "message" => $userMessage];
+                $response = ["success" => false, "message" => $userMessage];
             } finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
 				if (isset($conn)) { mysqli_close($conn); }
 			}
+			return $response;
 		}
 
 		// Método para eliminar (desactivar) una categoría
 		public function deleteCategoria($categoriaID) {
+			$response = [];
+
 			try {
 				// Verifica que el ID de la categoría no esté vacío
 				if (empty($categoriaID)) {
-					throw new Exception("El ID de la categoría está vacío");
+					throw new Exception("El ID de la categoría está vacío.");
 				}
 
 				// Verifica si la categoría ya existe
@@ -374,14 +468,12 @@
 					return $check; // Error al verificar la existencia
 				}
 				if (!$check["exists"]) {
-					throw new Exception("No existe una categoría con el ID proporcionado");
+					throw new Exception("No existe una categoría con el ID proporcionado.");
 				}
 
 				// Establece una conexión con la base de datos
 				$result = $this->getConnection();
-				if (!$result["success"]) {
-					throw new Exception($result["message"]);
-				}
+				if (!$result["success"]) { throw new Exception($result["message"]); }
 				$conn = $result["connection"];
 
 				// Crea la consulta SQL para desactivar la categoría
@@ -406,7 +498,7 @@
 					throw new Exception("Error al eliminar la categoría");
 				}
 
-				return ["success" => true, "message" => "Categoría eliminada exitosamente"];
+				$response = ["success" => true, "message" => "Categoría eliminada exitosamente"];
 			}catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
@@ -415,12 +507,13 @@
                     'Error al eliminar la categoria a la base de datos'
                 );
                 // Devolver mensaje amigable para el usuario
-                return ["success" => false, "message" => $userMessage];
+                $response = ["success" => false, "message" => $userMessage];
             }finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
 				if (isset($conn)) { mysqli_close($conn); }
 			}
+			return $response;
 		}
 	}
 ?>
