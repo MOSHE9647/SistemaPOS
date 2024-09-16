@@ -225,7 +225,7 @@
                     return $check;
                 }
                 if($check['exists'] && $check["inactive"]){
-                    return ["success"=>true, "message"=>"Hay un proveedor con el nombre [$proveedorNombre] inactivo <br> ¿Deseas reactivarlo?","id"=>$check['id']];
+                    return ["success"=>true, "message"=>"Hay un proveedor con el nombre [$proveedorNombre] inactivo, ¿Deseas reactivarlo?","id"=>$check['id']];
                 }
                 if($check['exists']){
                     throw new Exception("El nombre del proveedor ya existe.");
@@ -465,14 +465,18 @@
                 $listaProveedores = [];
                 while ($row = mysqli_fetch_assoc($result)) {
 
+                    $telefonos =[];
+                    $direcciones =[];
+
+
                     $resultTelefonos =  $this->proveedorTelefonoData->getTelefonosByProveedor( $row[PROVEEDOR_ID],true);
                     if($resultTelefonos['success']){
-                        $telefonos = $resultTelefonos['telefonos'];
+                        $telefonos = (array_key_exists('telefonos',$resultTelefonos))?$resultTelefonos['telefonos']:[];
                     }
 
                     $resultDireccion = $this->proveedorDireccionData->getDireccionesByProveedor($row[PROVEEDOR_ID],true);
                     if($resultDireccion["success"]){
-                        $direcciones = $resultDireccion['direcciones'];
+                        $direcciones = (array_key_exists('direcciones',$resultDireccion))?$resultDireccion['direcciones']:[];
                     }
                     $listaProveedores[] = [
                         'ID' => $row[PROVEEDOR_ID],
@@ -551,17 +555,17 @@
 
 				$listaProveedores = [];
 				while ($row = mysqli_fetch_assoc($result)) {
-                    $telefonos = [];
-                    $direcciones = [];
-
+                    $telefonos =[];
+                    $direcciones =[];
+                    
                     $resultTelefonos =  $this->proveedorTelefonoData->getTelefonosByProveedor( $row[PROVEEDOR_ID],true);
-
                     if($resultTelefonos['success']){
-                        $telefonos = $resultTelefonos['telefonos'];
+                        $telefonos = (array_key_exists('telefonos',$resultTelefonos))?$resultTelefonos['telefonos']:[];
                     }
+
                     $resultDireccion = $this->proveedorDireccionData->getDireccionesByProveedor($row[PROVEEDOR_ID],true);
                     if($resultDireccion["success"]){
-                        $direcciones = $resultDireccion['direcciones'];
+                        $direcciones = (array_key_exists('direcciones',$resultDireccion))?$resultDireccion['direcciones']:[];
                     }
 
 					$listaProveedores[] = [
