@@ -45,26 +45,23 @@
         $_SESSION[SESSION_USER_REGISTRATION_DATE] = $usuario->getUsuarioFechaCreacion();
         $_SESSION[SESSION_AUTHENTICATED] = true;
 
+        // Crea la respuesta de éxito
+        $response['success'] = true;
+        $response['message'] = 'Sesión iniciada correctamente. Redirigiendo...';
+
         // Redirige a la URL de origen si existe
         if (isset($_SESSION[SESSION_ORIGIN_URL])) {
+            // Obtiene la URL de origen y la elimina de la sesión
             $url_origen = $_SESSION[SESSION_ORIGIN_URL];
             unset($_SESSION[SESSION_ORIGIN_URL]); // Elimina la URL de origen para evitar redirecciones futuras no deseadas
-            header("Location: $url_origen");
+            
+            // Agrega la URL de origen a la respuesta
+            $response['redirect'] = $url_origen;
+            header('Content-Type: application/json');
+            echo json_encode($response);
         } else {
             // Redirige a index.php si no hay URL de origen
-            // header('Location: index.php');
-            $response['success'] = true;
-            $response['message'] = 'Inicio de sesión exitoso.';
-            $response['usuario'] = [
-                'id' => $_SESSION[SESSION_USER_ID],
-                'nombre' => $_SESSION[SESSION_USER_NAME],
-                'apellido1' => $_SESSION[SESSION_USER_LAST_NAME_1],
-                'apellido2' => $_SESSION[SESSION_USER_LAST_NAME_2],
-                'correo' => $_SESSION[SESSION_USER_EMAIL],
-                'rol' => $_SESSION[SESSION_USER_ROLE],
-                'fecha_creacion' => $_SESSION[SESSION_USER_REGISTRATION_DATE]
-            ];
-
+            $response['redirect'] = 'index.php';
             header('Content-Type: application/json');
             echo json_encode($response);
         }

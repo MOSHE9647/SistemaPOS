@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Cuentas por Pagar | POSFusion</title>
     <link rel="stylesheet" href="./css/styles.css">
-    <!-- Toastr -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 </head>
 <body>
     <h2>Lista de Cuentas por Pagar</h2>
@@ -58,7 +56,7 @@
 
     <a href="../index.php" class="menu-button">Regresar al Menú</a>
 
-    <!-- Toastr Scripts -->
+    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 

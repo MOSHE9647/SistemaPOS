@@ -14,6 +14,8 @@
 	define('SESSION_USER_ROLE', 'usuario_rol');
 	define('SESSION_USER_REGISTRATION_DATE', 'usuario_fecha_registro');
 	define('SESSION_AUTHENTICATED', 'autenticado');
+	define('SESSION_ACCESS_DENIED', 'acceso_denegado');
+	define('SESSION_LOGGED_OUT', 'logged_out');
 	define('SESSION_ORIGIN_URL', 'url_origen');
 
 	// VARIABLES PARA ROLES DE USUARIO:
@@ -25,6 +27,7 @@
 	define('UTILS_LOG_FILE', 'utils-log.log');
 	define('DATA_LOG_FILE', 'database-log.log');
 	define('BUSINESS_LOG_FILE', 'business-log.log');
+	define('CONTROLLER_LOG_FILE', 'controller-log.log');
 	define('ERROR_MESSAGE', 'ERROR');
 	define('INFO_MESSAGE', 'INFO');
 	define('WARN_MESSAGE', 'WARN');

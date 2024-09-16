@@ -6,7 +6,7 @@
         <title>Generar Código de Barras</title>
 
         <!-- Toastr -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+        
 
         <!-- Estilos personalizados -->
         <link rel="stylesheet" href="./css/styles.css">
@@ -91,7 +91,7 @@
             <img id="barcodeImage" alt="Código de Barras" style="display: none;" />
         </div>
 
-        <!-- Toastr Scripts -->
+        <!-- Scripts -->
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 

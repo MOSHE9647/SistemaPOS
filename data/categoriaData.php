@@ -119,7 +119,7 @@
 				$userMessage = $this->handleMysqlError(
                     $e->getCode(), 
                     $e->getMessage(),
-                    'Error al verificar la existencia del nombre del proveedor en la base de datos'
+                    'Error al verificar la existencia del nombre de la categoria en la base de datos'
                 );
                 // Devolver mensaje amigable para el usuario
                 $response =  ["success" => false, "message" => $userMessage];
