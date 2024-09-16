@@ -5,6 +5,22 @@
 	 * ESTÁTICAS QUE SE VAN A ESTAR UTILIZANDO DENTRO DEL PROGRAMA
 	*/
 
+	// VARIABLES PARA EL MANEJO DE SESIONES:
+	define('SESSION_USER_ID', 'usuario_id');
+	define('SESSION_USER_NAME', 'usuario_nombre');
+	define('SESSION_USER_LAST_NAME_1', 'usuario_apellido1');
+	define('SESSION_USER_LAST_NAME_2', 'usuario_apellido2');
+	define('SESSION_USER_EMAIL', 'usuario_email');
+	define('SESSION_USER_ROLE', 'usuario_rol');
+	define('SESSION_USER_REGISTRATION_DATE', 'usuario_fecha_registro');
+	define('SESSION_AUTHENTICATED', 'autenticado');
+	define('SESSION_ORIGIN_URL', 'url_origen');
+
+	// VARIABLES PARA ROLES DE USUARIO:
+	define('ROL_ADMIN', 1);
+	define('ROL_DEPENDIENTE', 2);
+	define('ROL_CLIENTE', 3);
+
 	// VARIABLES PARA LOG:
 	define('UTILS_LOG_FILE', 'utils-log.log');
 	define('DATA_LOG_FILE', 'database-log.log');
