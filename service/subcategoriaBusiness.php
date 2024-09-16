@@ -9,7 +9,13 @@
            try{
                 $id = $subcategoria->getSubcategoriaId();
                 $nombre = $subcategoria->getSubcategoriaNombre();
+                $categoria= $subcategoria->getSubcategoriaCategoriaId();
                 $errors = [];
+                if(empty($categoria) || !is_numeric($categoria) || $categoria <=0){
+                    $errors[] = "El ID de la scategoria está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
+                    Utils::writeLog("El ID '[$categoria]' de la categoria no es válido.", BUSINESS_LOG_FILE);  
+                }
+
                 if($verificarid && (empty($id) || $id <= 0 || !is_numeric($id))){
                     $errors[] = "El ID de la subcategoria está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
                     Utils::writeLog("El ID '[$id]' de la subcategoria no es válido.", BUSINESS_LOG_FILE);   
