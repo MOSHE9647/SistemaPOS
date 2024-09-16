@@ -22,16 +22,17 @@
         <table>
             <thead>
                 <tr>
-                    <th data-field="compranumerofactura">Número de Factura</th>
+                    <th data-field="numerofactura">Número de Factura</th>
                     <th data-field="proveedornombre">Proveedor</th>
-                    <th data-field="compramontobruto">Monto Bruto</th>
-                    <th data-field="compramontoneto">Monto Neto</th>
-                    <th data-field="compratipopago">Tipo de Pago</th>
-                    <th data-field="comprafechacreacion">Fecha de Creación</th>
-                    <th data-field="comprafechamodificacion">Fecha de Modificación</th>
+                    <th data-field="montobruto">Monto Bruto</th>
+                    <th data-field="montoneto">Monto Neto</th>
+                    <th data-field="tipopago">Tipo de Pago</th>
+                    <th data-field="fechacreacion">Fecha de Creación</th>
+                    <th data-field="fechamodificacion">Fecha de Modificación</th>
                     <th>Acciones</th>
                 </tr>
-            </thead>
+
+
             <tbody id="tableBody">
                 <!-- Las filas se llenan dinámicamente con JavaScript -->
             </tbody>

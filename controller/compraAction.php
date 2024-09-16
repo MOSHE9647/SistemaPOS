@@ -9,14 +9,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Datos recibidos en la solicitud (Form)
     $id = isset($_POST['id']) ? $_POST['id'] : 0;
-    $compranumerofactura = isset($_POST['compranumerofactura']) ? $_POST['compranumerofactura'] : "";
-    $compramontobruto = isset($_POST['compramontobruto']) ? $_POST['compramontobruto'] : 0;
-    $compramontoneto = isset($_POST['compramontoneto']) ? $_POST['compramontoneto'] : 0;
-    $compratipopago = isset($_POST['compratipopago']) ? $_POST['compratipopago'] : "";
+    $compranumerofactura = isset($_POST['numerofactura']) ? $_POST['numerofactura'] : "";
+    $compramontobruto = isset($_POST['montobruto']) ? $_POST['montobruto'] : 0;
+    $compramontoneto = isset($_POST['montoneto']) ? $_POST['montoneto'] : 0;
+    $compratipopago = isset($_POST['tipopago']) ? $_POST['tipopago'] : "";
     $proveedorid = isset($_POST['proveedornombre']) ? $_POST['proveedornombre'] : 0;
     //$proveedornombre = isset($_POST['proveedornombre']) ? $_POST['proveedornombre'] : '';
-    $comprafechacreacion = isset($_POST['comprafechacreacion']) ? $_POST['comprafechacreacion'] : '';
-    $comprafechamodificacion = isset($_POST['comprafechamodificacion']) ? $_POST['comprafechamodificacion'] : '';
+    $comprafechacreacion = isset($_POST['fechacreacion']) ? $_POST['fechacreacion'] : '';
+    $comprafechamodificacion = isset($_POST['fechamodificacion']) ? $_POST['fechamodificacion'] : '';
     
     // Se crea el Service para las operaciones
     $compraBusiness = new CompraBusiness();

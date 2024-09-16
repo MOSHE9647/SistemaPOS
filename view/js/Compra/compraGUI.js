@@ -58,11 +58,14 @@ function renderTable(compras) {
          const montoBruto = isNaN(parseFloat(compra.MontoBruto)) ? 0 : parseFloat(compra.MontoBruto);
          const montoNeto = isNaN(parseFloat(compra.MontoNeto)) ? 0 : parseFloat(compra.MontoNeto);
          //<td data-field="proveedorid">${compra.ProveedorID}</td>
+         const proveedor = compra.Proveedor ? compra.Proveedor : 'No disponible';
+
         const row = `
-            <tr data-id="${compra.ID}">
+          
+            <tr data-id="${compra.ID}" data-provider-id="${compra.Proveedor}">
                 <td data-field="numerofactura">${compra.NumeroFactura}</td>
               
-                <td data-field="proveedornombre">${compra.Proveedor}</td> <!-- Muestra el nombre del proveedor -->
+                <td data-field="proveedornombre">${compra.Proveedor}</td> 
                 <td data-field="montobruto">${montoBruto.toFixed(2)}</td>
                 <td data-field="montoneto">${montoNeto.toFixed(2)}</td>
                 <td data-field="tipopago">${compra.TipoPago}</td>
@@ -97,6 +100,7 @@ function formatDate(date) {
  * @example
  * makeRowEditable(document.getElementById('fila1'));
  */
+
 function makeRowEditable(row) {
     const cells = row.querySelectorAll('td');
     const lastCellIndex = cells.length - 1;
@@ -108,37 +112,36 @@ function makeRowEditable(row) {
     const dd = String(today.getDate()).padStart(2, '0');
     const formattedToday = `${yyyy}-${mm}-${dd}`;
 
+
+       // Obtener el ID del proveedor de los atributos de la fila
+       const providerId = row.getAttribute('data-provider-id');
+
+       // Mensaje de depuración para verificar que se está obteniendo el ID correcto
+       console.log("Proveedor ID en makeRowEditable:", providerId);
+
+       
     cells.forEach((cell, index) => {
         const value = cell.innerText.trim();
         const field = cell.dataset.field;
 
-        /*if (index < lastCellIndex) {
-            if (field === 'fechacreacion' || field === 'fechamodificacion') {
-                const isoValue = convertLongDateToISO(value);
-                cell.innerHTML = `<input type="date" value="${isoValue}" min="${formattedToday}" required>`;
-            } else {
-                cell.innerHTML = `<input type="text" value="${value}" required>`;
-            }
-        } else {
-         */  if (index < lastCellIndex) {
-        
+        if (index < lastCellIndex) {
             if (field === 'proveedornombre') {
-                cell.innerHTML = `<select id="proveedorid-select" required></select>`;
-                loadOptions('proveedor', value);  // Cargar las opciones para el select de proveedor
-
+                // Cambiamos el contenido de la celda a un select
+                cell.innerHTML = `<select id='proveedorid-select' required></select>`;
+                // Carga las opciones del select utilizando el ID del proveedor
+                loadOptions(providerId);
             } else if (field === 'fechacreacion' || field === 'fechamodificacion') {
                 const isoValue = convertLongDateToISO(value);
                 cell.innerHTML = `<input type="date" value="${isoValue}" min="${formattedToday}" required>`;
-
             } else if (field === 'tipopago') {
                 // Crear un combobox para los métodos de pago
-                cell.innerHTML = `
+                cell.innerHTML = ` 
                     <select required>
                         <option value="efectivo" ${value === 'efectivo' ? 'selected' : ''}>Efectivo</option>
                         <option value="tarjeta" ${value === 'tarjeta' ? 'selected' : ''}>Tarjeta</option>
                         <option value="transferencia" ${value === 'transferencia' ? 'selected' : ''}>Transferencia</option>
-                    </select> `;
-            }  else {
+                    </select>`;
+            } else {
                 cell.innerHTML = `<input type="text" value="${value}" required>`;
             }
         } else {
@@ -148,50 +151,41 @@ function makeRowEditable(row) {
             `;
         }
     });
-    // Cargar el select de proveedores después de que se haya añadido el select a la tabla
-    loadOptions('proveedor', row.querySelector('td[data-field="proveedornombre"]').innerText.trim());
+
+   
 }
 
-/**
- * Carga las opciones para los comboboxes de producto y proveedor.
- * 
- * @param {string} selectedValue - El valor seleccionado actualmente.
- */
 
-function loadOptions( selectedValue) {
-    const url = '../controller/proveedorAction.php'; // URL del controlador para proveedores
-    const selectElement = document.getElementById('proveedorid-select');
 
-    //const selectElement = document.getElementById(`${field}-select`);
-    //const selectElement = document.getElementById(`${field}id-select`);
+function loadOptions(selectedProviderId) {
+    console.log("Cargando proveedores para el ID:", selectedProviderId);  // Depuración
 
-    
-    fetch(url)
-        .then(response => response.json()) // Lee la respuesta como JSON
+    fetch('../controller/proveedorAction.php?accion=listarCompraProveedores')
+        .then(response => response.json())
         .then(data => {
-            console.log('Respuesta cruda:', data); // Muestra la respuesta cruda
-
-            // Extrae el array correcto basado en el campo
-            const items =   data.listaProveedores;
-            //let items;
-            //if (field === 'proveedor') {
-              //  items = data.listaProveedores;
-            //}
-            
-            if (!Array.isArray(items)) {
-                throw new Error('Datos recibidos no son un array');
+            if (!data.success) {
+                throw new Error(data.message || 'Error al cargar proveedores');
             }
-             
-            selectElement.innerHTML = items.map(item => `
-                <option value="${item.ID}" ${item.ID == selectedValue ? 'selected' : ''}>
-                    ${item.Nombre}
-                </option>
-            `).join('');
+
+            const selectElement = document.getElementById('proveedorid-select');
+            selectElement.innerHTML = '<option value="">-- Seleccionar --</option>';  // Limpiar opciones existentes
+
+            data.listaCompraProveedores.forEach(proveedor => {
+                const isSelected = proveedor.ID == selectedProviderId; // Asegúrate de comparar correctamente
+                const option = new Option(proveedor.Nombre, proveedor.ID, isSelected, isSelected);
+                selectElement.appendChild(option);
+            });
         })
         .catch(error => {
-            console.error('Error al cargar opciones:', error);
+            console.error('Error al cargar proveedores:', error);
         });
 }
+
+
+
+
+
+
 
 /**
  * Muestra la fila para crear un nuevo lote.
@@ -228,12 +222,12 @@ function showCreateRow() {
                 <option value="transferencia">Transferencia</option>
             </select>
         </td>
-        <td data-field="fechacreacion">
-            <input type="date" value="${formattedToday}" required>
-        </td>
-        <td data-field="fechamodificacion">
-            <input type="date" value="${formattedToday}" required>
-        </td>
+       <td data-field="fechacreacion">
+        <input type="date" value="${formattedToday}" required>
+    </td>
+    <td data-field="fechamodificacion">
+        <input type="date" value="${formattedToday}" required>
+    </td>
         <td>
             <button onclick="createCompra()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>
@@ -241,8 +235,10 @@ function showCreateRow() {
     `;
 
     tableBody.insertBefore(newRow, tableBody.firstChild);
-    loadOptions('proveedor', null);
+    // Cargar opciones para el combobox en la fila de creación
+    loadOptions();
 }
+
 
 
 

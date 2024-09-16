@@ -7,6 +7,26 @@
  * @example
  * showMessage('Dirección creada con éxito', 'success');
  */
+
+function showMessage(message, type = 'info') {
+    // Asegúrate de que 'message' no sea undefined
+    if (typeof message !== 'string') {
+        console.error('Mensaje no válido:', message);
+        return;
+    }
+
+    const messageParts = message.split('<br>'); // Aquí es donde ocurre el error
+
+    // Resto de la lógica para mostrar mensajes, probablemente usando Toastr
+    if (type === 'error') {
+        toastr.error(messageParts.join('\n'));
+    } else if (type === 'success') {
+        toastr.success(messageParts.join('\n'));
+    } else {
+        toastr.info(messageParts.join('\n'));
+    }
+}
+
 function showMessage(message, type) {
     toastr.options = {
         "closeButton": true,
