@@ -98,7 +98,7 @@
                 $queryCheck = "SELECT * FROM " . TB_PROVEEDOR . " WHERE ";
                 $params = [];
                 $types = "";
-                Utils::writeLog("Nombre 109 $nombre");
+
                 if ($nombre !== null && $proveedorID !== null) {
                     // Verificar existencia por nombre y email
                     $queryCheck .= PROVEEDOR_NOMBRE . " = ?  AND " . PROVEEDOR_ESTADO . " != false AND ". PROVEEDOR_ID . " <> ? ";
@@ -107,7 +107,7 @@
                     $types .= 'si';
                 }elseif ($nombre !== null) {
                     // Verificar existencia por nombre y email
-                    $queryCheck .= PROVEEDOR_NOMBRE . " = ? AND " . PROVEEDOR_ESTADO . " != false ";
+                    $queryCheck .= PROVEEDOR_NOMBRE . " = ? ";
                     $params[] = $nombre;
                     $types .= 's';  
                 }else {
@@ -124,7 +124,12 @@
                 
                 // Verifica si existe algún registro con los criterios dados
                 if (mysqli_num_rows($result) > 0) {
-                    $response = ["success" => true, "exists" => true];
+                 
+                    if ($row = mysqli_fetch_assoc($result)) {
+                        // Verificar si está inactivo (bit de estado en 0)
+                        $isInactive = $row[PROVEEDOR_ESTADO] == 0;
+                        $response = ["success" => true, "exists" => true, "inactive" => $isInactive, "id" => $row[PROVEEDOR_ID]];
+                    }
                 }else{
                     $response = ["success" => true, "exists" => false];
                 }
@@ -219,9 +224,13 @@
                 if(!$check['success']){
                     return $check;
                 }
+                if($check['exists'] && $check["inactive"]){
+                    return ["success"=>true, "message"=>"Hay un proveedor con el nombre [$proveedorNombre] inactivo <br> ¿Deseas reactivarlo?","id"=>$check['id']];
+                }
                 if($check['exists']){
                     throw new Exception("El nombre del proveedor ya existe.");
                 }
+
                 //verificacion email
                 $check = $this->emailProveedorExiste($proveedorEmail);
                 if(!$check['success']){
