@@ -16,7 +16,6 @@
                 $proveedorID = $proveedor->getProveedorID();
                 $nombre = $proveedor->getProveedorNombre();
                 $email = $proveedor->getProveedorEmail();
-                $telefono = $proveedor->getProveedorTelefono(); // Obtener teléfono
                 $errors = [];
 
                 // Verifica que el ID del proveedor sea válido
@@ -35,18 +34,6 @@
                         $errors[] = "El campo 'Correo' no es válido. Debe digitar un correo electrónico válido (Ej: ejemplo@correo.com).";
                         Utils::writeLog("[Proveedor] El campo 'Email [$email]' no es válido.", BUSINESS_LOG_FILE);
                     }
-                    // if (empty($fechaRegistro) || !Utils::validarFecha($fechaRegistro)) {
-                    //     $errors[] = "El campo 'Fecha Registro' está vacío o no es válido.";
-                    //     Utils::writeLog("[Proveedor] El campo 'Fecha Registro [$fechaRegistro]' está vacío o no es válido.", BUSINESS_LOG_FILE);
-                    // }
-                    // if (!Utils::fechaMenorOIgualAHoy($fechaRegistro)) {
-                    //     $errors[] = "El campo 'Fecha Registro' no puede ser una fecha mayor a la de hoy. Revise que la fecha sea menor o igual a la de hoy.";
-                    //     Utils::writeLog("[Proveedor] El campo 'Fecha Registro [$fechaRegistro]' es mayor a la de hoy.", BUSINESS_LOG_FILE);
-                    // }
-                    // if (empty($telefono) || !preg_match("/^[0-9\-\+\(\) ]+$/", $telefono)) {
-                    //     $errors[] = "El campo 'Teléfono' no es válido. Debe ingresar un número de teléfono válido.";
-                    //     Utils::writeLog("[Proveedor] El campo 'Teléfono [$telefono]' no es válido.", BUSINESS_LOG_FILE);
-                    // }
                 }
 
                 // Lanza una excepción si hay errores
@@ -70,7 +57,6 @@
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
-
             return $this->proveedorData->insertProveedor($proveedor);
         }
 
