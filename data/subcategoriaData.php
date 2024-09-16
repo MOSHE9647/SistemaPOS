@@ -320,6 +320,7 @@
                 if(empty($nombre_subcategoria)){
                     throw new Exception("¡El nombre de la subcategoria esta vacia!");
                 }
+                
                 $check = $this->VerificarExisteSubcategoria($id_subcategoria);
                 if(!$check['success']){
                     return $check;
