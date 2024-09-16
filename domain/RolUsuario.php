@@ -2,27 +2,27 @@
 
     class RolUsuario {
         
-        public $id;
-        public $nombre;
-        public $descripcion;
-        public $estado;
+        public $rolID;
+        public $rolNombre;
+        public $rolDescripcion;
+        public $rolEstado;
 
-        public function __construct($id = -1, $nombre = "", $descripcion = "", $estado = true) {
-            $this->id = $id;
-            $this->nombre = strtoupper($nombre);
-            $this->descripcion = $descripcion;
-            $this->estado = $estado;
+        public function __construct($rolID = -1, $rolNombre = "", $rolDescripcion = "", $rolEstado = true) {
+            $this->rolID = $rolID;
+            $this->rolNombre = strtoupper($rolNombre);
+            $this->rolDescripcion = $rolDescripcion;
+            $this->rolEstado = $rolEstado;
         }
 
-        public function setRolID($id) { $this->id = $id; }
-        public function setRolNombre($nombre) { $this->nombre = strtoupper($nombre); }
-        public function setRolDescripcion($descripcion) { $this->descripcion = $descripcion; }
-        public function setRolEstado($estado) { $this->estado = $estado; }
+        public function setRolID($rolID) { $this->rolID = $rolID; }
+        public function setRolNombre($rolNombre) { $this->rolNombre = strtoupper($rolNombre); }
+        public function setRolDescripcion($rolDescripcion) { $this->rolDescripcion = $rolDescripcion; }
+        public function setRolEstado($rolEstado) { $this->rolEstado = $rolEstado; }
 
-        public function getRolID() { return $this->id; }
-        public function getRolNombre() { return $this->nombre; }
-        public function getRolDescripcion() { return $this->descripcion; }
-        public function getRolEstado() { return $this->estado; }
+        public function getRolID() { return $this->rolID; }
+        public function getRolNombre() { return $this->rolNombre; }
+        public function getRolDescripcion() { return $this->rolDescripcion; }
+        public function getRolEstado() { return $this->rolEstado; }
 
         public function __toString() {
             return $this->nombre;
