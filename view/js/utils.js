@@ -2,38 +2,54 @@
  * Muestra un mensaje al usuario.
  * 
  * @param {string} message - El texto del mensaje que se desea mostrar.
- * @param {string} type - El tipo de mensaje (error o success).
+ * @param {string} type - El tipo de mensaje (error, success o info).
  * @description Muestra un mensaje en la pantalla con el texto y tipo especificados, y lo oculta después de unos segundos.
  * @example
  * showMessage('Dirección creada con éxito', 'success');
  */
 function showMessage(message, type) {
-    let container = document.getElementById('message');
-    if (container != null) {
-        container.innerHTML = message;
-        
-        // Primero eliminamos las clases relacionadas con mensajes anteriores
-        container.classList.remove('error', 'success', 'fade-out');
-        
-        // Agregamos las clases apropiadas según el tipo
-        container.classList.add('message');
-        if (type === 'error') {
-            container.classList.add('error');
-        } else if (type === 'success') {
-            container.classList.add('success');
-        } else if (type === 'info') {
-            container.classList.add('info');
-        }
-
-        container.classList.add('fade-in');
-        
-        // Oculta el mensaje después de unos segundos
-        setTimeout(() => {
-            container.classList.replace('fade-in', 'fade-out');
-        }, 5000); // Tiempo durante el cual el mensaje es visible
-    } else {
-        alert(message);
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": true,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "10000",
+        "extendedTimeOut": "5000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
     }
+
+    // Separar el mensaje en partes si contiene '<br>'
+    const messages = message.split('<br>');
+
+    // Iterar sobre cada mensaje y mostrarlo en el tipo correspondiente
+    messages.forEach((msg) => {
+        msg = msg.trim(); // Eliminar espacios en blanco adicionales
+
+        switch (type) {
+            case 'error':
+                toastr.error(msg, 'Error');
+                break;
+            case 'success':
+                toastr.success(msg, 'Éxito');
+                break;
+            case 'warning':
+                toastr.warning(msg, 'Advertencia');
+                break;
+            case 'info':
+                toastr.info(msg, 'Información');
+                break;
+            default:
+                toastr.info(msg);
+                break;
+        }
+    });
 }
 
 /**

@@ -549,13 +549,4 @@
 
     }
 
-    // $prueba = new ProveedorTelefonoData();
-    // Validar ID's en el Service:
-    // $result = $prueba->existeProveedorTelefono(2, 4, false, false);
-    // $result = $prueba->addTelefonoToProveedor(10, 11);
-    // $result = $prueba->removeTelefonoFromProveedor(10, 11);
-    // $result = $prueba->getTelefonosByProveedor(10, true);
-    // var_dump($result);
-    // echo json_encode($result);
-
 ?>

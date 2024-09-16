@@ -48,7 +48,7 @@ Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos
     | [--] tblote                  | [--] tbproveedorproducto              | [11] tbtelefono              |                           |
     | [--] tbproducto              |                                       | [11] tbdireccion             |                           |
     |                              |                                       | [--] tbcodigobarras          |                           |
-    |                              |                                       | [--] tbproveedortelefono     |                           |
+    |                              |                                       | [00] tbproveedortelefono     |                           |
     |                              |                                       | [--] tbproveedordireccion    |                           |
     |                              |                                       | [  ] tbusuariotelefono       |                           |
     |------------------------------|---------------------------------------|------------------------------|---------------------------|

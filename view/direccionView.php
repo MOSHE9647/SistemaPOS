@@ -5,6 +5,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Gestión de Direcciones | POSFusion</title>
         <link rel="stylesheet" href="./css/styles.css">
+        <!-- Toastr -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
     </head>
     <body>
         <h2>Lista de Direcciones</h2>
@@ -69,6 +71,12 @@
         </div>
 
         <a href="../index.php" class="menu-button">Regresar al Menú</a>
+
+        <!-- Toastr Scripts -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+        <!-- Scripts del Archivo -->
         <script src="./js/utils.js"></script>                   <!-- Utiles para mostrar notificaciones y demás           -->
         <script src="./js/direccion/gui.js"></script>           <!-- Manejo dinámico de la página                         -->
         <script src="./js/direccion/selects.js"></script>       <!-- Carga de Provincias, Cantones y Distritos            -->

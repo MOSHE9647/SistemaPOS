@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Compras | POSFusion</title>
     <link rel="stylesheet" href="./css/styles.css">
+        <!-- Toastr -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 </head>
 <body>
     <h2>Lista de Compras</h2>
@@ -55,6 +57,10 @@
     </div>
 
     <a href="../index.php" class="menu-button">Regresar al Menú</a>
+
+    <!-- Toastr Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     
     <!-- Scripts de JavaScript -->
     <script src="./js/utils.js"></script>                   <!-- Utiles para mostrar notificaciones y demás           -->

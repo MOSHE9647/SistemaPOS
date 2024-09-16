@@ -101,42 +101,6 @@ input, select {
     margin: 0 10px; /* Espacio entre los botones */
 }
 
-#message {
-    max-width: 500px;
-    margin: auto;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    text-align: center;
-    margin-bottom: 20px;
-
-    transition: max-height 0.5s, opacity 0.5s ease-out; /* Duración y tipo de transición */
-    opacity: 0; /* Inicialmente no visible */
-}
-
-#message.fade-in {
-    max-height: auto;
-    opacity: 1; /* Aparece con una transición suave */
-}
-
-#message.fade-out {
-    max-height: 0;
-    opacity: 0; /* Desaparece con una transición suave */
-}
-
-.info {
-    background-color: hsl(207, 82%, 92%);
-    color: #2673d1;
-}
-.error {
-    background-color: hsl(355, 70%, 91%);
-    color: #721c24;
-}
-.success {
-    background-color: hsl(134, 41%, 88%);
-    color: #155724;
-}
-
 .menu-button {
     display: block;
     width: max-content;
@@ -148,4 +112,18 @@ input, select {
     border-radius: 5px;
     text-decoration: none;
     color: black;
+}
+
+/* Estilos personalizados para el contenedor */
+.toast {
+    font-family: 'Segoe UI', sans-serif;  /* Cambiar la fuente */
+    font-size: 16px;                   /* Cambiar el tamaño de la fuente */
+    border-radius: 8px;                /* Redondear los bordes */
+    color: white;                      /* Cambiar el color del texto */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Añadir sombra */
+}
+
+/* Cambiar la barra de progreso */
+.toast-progress {
+    background-color: #f8f9fa !important;  /* Color de la barra de progreso */
 }
