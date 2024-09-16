@@ -16,6 +16,7 @@
                 $proveedorID = $proveedor->getProveedorID();
                 $nombre = $proveedor->getProveedorNombre();
                 $email = $proveedor->getProveedorEmail();
+                $categorid = $proveedor->getProveedorCategoria();
                 $errors = [];
 
                 // Verifica que el ID del proveedor sea válido
@@ -33,6 +34,10 @@
                     if ($email === null || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                         $errors[] = "El campo 'Correo' no es válido. Debe digitar un correo electrónico válido (Ej: ejemplo@correo.com).";
                         Utils::writeLog("[Proveedor] El campo 'Email [$email]' no es válido.", BUSINESS_LOG_FILE);
+                    }
+                    if ($categorid=== null || empty($categorid)) {
+                        $errors[] = "El campo 'Categoria' no es válido.";
+                        Utils::writeLog("[Proveedor] El campo 'Categoriaid [$categoriaid]' no es válido.", BUSINESS_LOG_FILE);
                     }
                 }
 

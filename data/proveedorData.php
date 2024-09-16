@@ -21,7 +21,7 @@
         }
 
         // Función para verificar si un proveedor con el mismo nombre ya existe en la bd
-        public function proveedorExiste($proveedorID = null, $proveedorNombre = null, $proveedorEmail = null) {
+        public function proveedorExiste($proveedorID = null, $proveedorNombre = null, $proveedorEmail = null, $update = false) {
             $response  = [];//para retornar el resultado y asi no se salte el cierre de la conexion
             try {
                 // Establece una conexión con la base de datos
@@ -33,19 +33,26 @@
                 $queryCheck = "SELECT * FROM " . TB_PROVEEDOR . " WHERE ";
                 $params = [];
                 $types = "";
-                
-                if ($proveedorID !== null) {
+                if ($proveedorID !== null && !$update) {
                     // Verificar existencia por ID y que el estado no sea false
                     $queryCheck .= PROVEEDOR_ID . " = ? AND " . PROVEEDOR_ESTADO . " != false";
                     $params[] = $proveedorID;
                     $types .= 'i';
-                } elseif ($proveedorNombre !== null && $proveedorEmail !== null) {
+                } elseif ($proveedorNombre !== null && $proveedorEmail !== null && !$update) {
                     // Verificar existencia por nombre y email
                     $queryCheck .= PROVEEDOR_NOMBRE . " = ? OR (" . PROVEEDOR_EMAIL . " = ? AND " . PROVEEDOR_ESTADO . " != false)";
                     $params[] = $proveedorNombre;
                     $params[] = $proveedorEmail;
                     $types .= 'ss';
-                } else {
+                }elseif ($proveedorNombre !== null && $proveedorEmail !== null && $update) {
+                    // Verificar existencia por nombre y email
+                    $queryCheck .= PROVEEDOR_NOMBRE . " = ? OR (" . PROVEEDOR_EMAIL . " = ? AND " . PROVEEDOR_ESTADO . " != false) AND ". PROVEEDOR_ID ." <> ? ";
+                    $params[] = $proveedorNombre;
+                    $params[] = $proveedorEmail;
+                    $params[] = $proveedorID;
+                    $types .= 'ssi';
+                
+                }else {
                     $message = "No se proporcionaron todos los parametros necesarios para verificar el proveedor.";
 					Utils::writeLog("$message. Parámetros: 'proveedorID [$proveedorID]', 'proveedorNombre [$proveedorNombre]', 'proveedorEmail [$proveedorEmail]'", DATA_LOG_FILE);
 					throw new Exception($message);
@@ -79,7 +86,123 @@
             }
             return $response;
         }
+        public function nombreProveedorExiste($nombre,$proveedorID = null){
+            $response  = [];//para retornar el resultado y asi no se salte el cierre de la conexion
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+                
+                // Inicializa la consulta base
+                $queryCheck = "SELECT * FROM " . TB_PROVEEDOR . " WHERE ";
+                $params = [];
+                $types = "";
+                Utils::writeLog("Nombre 109 $nombre");
+                if ($nombre !== null && $proveedorID !== null) {
+                    // Verificar existencia por nombre y email
+                    $queryCheck .= PROVEEDOR_NOMBRE . " = ?  AND " . PROVEEDOR_ESTADO . " != false AND ". PROVEEDOR_ID . " <> ? ";
+                    $params[] = $nombre;
+                    $params[] = $proveedorID;
+                    $types .= 'si';
+                }elseif ($nombre !== null) {
+                    // Verificar existencia por nombre y email
+                    $queryCheck .= PROVEEDOR_NOMBRE . " = ? AND " . PROVEEDOR_ESTADO . " != false ";
+                    $params[] = $nombre;
+                    $types .= 's';  
+                }else {
+                    $message = "No se proporciono el nombre del proveedor.";
+					Utils::writeLog("$message. Parámetros: 'Nombre'[$nombre] ", DATA_LOG_FILE);
+					throw new Exception($message);
+                }
+                $stmt = mysqli_prepare($conn, $queryCheck);
+                
+                // Asignar los parámetros y ejecutar la consulta
+                mysqli_stmt_bind_param($stmt, $types, ...$params);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                
+                // Verifica si existe algún registro con los criterios dados
+                if (mysqli_num_rows($result) > 0) {
+                    $response = ["success" => true, "exists" => true];
+                }else{
+                    $response = ["success" => true, "exists" => false];
+                }
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al verificar la existencia del nombre del proveedor en la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                $response =  ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn)) { mysqli_close($conn); }
+            }
+            return $response;
 
+        }
+        public function emailProveedorExiste($email, $proveedorID = null){
+            $response  = [];//para retornar el resultado y asi no se salte el cierre de la conexion
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+                
+                // Inicializa la consulta base
+                $queryCheck = "SELECT * FROM " . TB_PROVEEDOR . " WHERE ";
+                $params = [];
+                $types = "";
+
+                if ($email !== null && $proveedorID !== null) {
+                    // Verificar existencia por nombre y email
+                    $queryCheck .= PROVEEDOR_EMAIL . " = ?  AND " . PROVEEDOR_ESTADO . " != false AND ". PROVEEDOR_ID . " <> ? ";
+                    $params[] = $email;
+                    $params[] = $proveedorID;
+                    $types .= 'si';
+                }elseif ($email !== null) {
+                    // Verificar existencia por nombre y email
+                    $queryCheck .= PROVEEDOR_EMAIL . " = ? AND " . PROVEEDOR_ESTADO . " != false ";
+                    $params[] = $email;
+                    $types .= 's';  
+                }else {
+                    $message = "No se proporciono el email del proveedor.";
+					Utils::writeLog("$message. Parámetros: '' ", DATA_LOG_FILE);
+					throw new Exception($message);
+                }
+                $stmt = mysqli_prepare($conn, $queryCheck);
+                
+                // Asignar los parámetros y ejecutar la consulta
+                mysqli_stmt_bind_param($stmt, $types, ...$params);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                
+                // Verifica si existe algún registro con los criterios dados
+                if (mysqli_num_rows($result) > 0) {
+                    $response = ["success" => true, "exists" => true];
+                }else{
+                    $response = ["success" => true, "exists" => false];
+                }
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al verificar la existencia del nombre del proveedor en la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                $response =  ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn)) { mysqli_close($conn); }
+            }
+            return $response;
+        }
         public function insertProveedor($proveedor){
             $response = [];
             try {
@@ -89,17 +212,25 @@
                 $telefonoNumero = $proveedor->getProveedorTelefono();
                 $direccionID = $proveedor->getProveedorDireccionId();
                 $idcategoria = $proveedor->getProveedorCategoria();
-                Utils::writeLog("92 id >> $idcategoria",UTILS_LOG_FILE);
+                Utils::writeLog("Nombre > $proveedorNombre",UTILS_LOG_FILE);
                 // Verifica si el proveedor ya existe
-                $check = $this->proveedorExiste(null, $proveedorNombre, $proveedorEmail);
-                if (!$check["success"]) {
-                    return $check; // Error al verificar la existencia
+                // Verificacion nombre
+                $check = $this->nombreProveedorExiste($proveedorNombre);
+                if(!$check['success']){
+                    return $check;
                 }
-                if ($check["exists"]) {
-                    Utils::writeLog("El proveedor 'Nombre [$proveedorNombre], Correo [$proveedorEmail]' ya existe en la base de datos.", DATA_LOG_FILE);
-					throw new Exception("Ya existe un proveedor con el mismo nombre o correo electrónico.");
+                if($check['exists']){
+                    throw new Exception("El nombre del proveedor ya existe.");
                 }
-                Utils::writeLog("id >> $idcategoria",UTILS_LOG_FILE);
+                //verificacion email
+                $check = $this->emailProveedorExiste($proveedorEmail);
+                if(!$check['success']){
+                    return $check;
+                }
+                if($check['exists']){
+                    throw new Exception("El email del proveedor ya existe.");
+                }
+                //Verificacion categoria
                 $check = $this->categoriaData->categoriaExiste($idcategoria);
                 if(!$check['success']){
                     return  $check;
@@ -175,6 +306,7 @@
                 // Obtener el Nombre y el Email del proveedor
                 $proveedorNombre = $proveedor->getProveedorNombre(); 
                 $proveedorEmail = $proveedor->getProveedorEmail();
+                $idcategoria = $proveedor->getProveedorCategoria();
 
                 // Verifica si el proveedor ya existe
                 $check = $this->proveedorExiste($proveedorID);
@@ -186,14 +318,29 @@
 					throw new Exception("No existe ningún proveedor en la base de datos que coincida con la información proporcionada.");
                 }
 
-                // Verifica que no exista un proveedor con el mismo nombre o email
-                $check = $this->proveedorExiste(null, $proveedorNombre, $proveedorEmail);
-                if (!$check["success"]) {
-                    return $check; // Error al verificar la existencia
+                // Verificacion nombre
+                $check = $this->nombreProveedorExiste($proveedorNombre,$proveedorID);
+                if(!$check['success']){
+                    return $check;
                 }
-                if ($check["exists"]) {
-                    Utils::writeLog("El proveedor 'Nombre [$proveedorNombre], Correo [$proveedorEmail]' ya existe en la base de datos.", DATA_LOG_FILE);
-					throw new Exception("Ya existe un proveedor con el mismo nombre o correo electrónico.");
+                if($check['exists']){
+                    throw new Exception("El nombre del proveedor ya existe.");
+                }
+                //verificacion email
+                $check = $this->emailProveedorExiste($proveedorEmail,$proveedorID);
+                if(!$check['success']){
+                    return $check;
+                }
+                if($check['exists']){
+                    throw new Exception("El email del proveedor ya existe.");
+                }
+
+                $check = $this->categoriaData->categoriaExiste($idcategoria);
+                if(!$check['success']){
+                    return  $check;
+                }
+                if(!$check["exists"]){
+                    throw new Exception("La categoria a asignar no existe o no es valido.");
                 }
 
                 // Establece una conexion con la base de datos
@@ -207,16 +354,18 @@
                     "UPDATE " . TB_PROVEEDOR . 
                     " SET " . 
                         PROVEEDOR_NOMBRE . " = ?, " . 
-                        PROVEEDOR_EMAIL . " = ?, " .                    
+                        PROVEEDOR_EMAIL . " = ?, " .
+                        PROVEEDOR_CATEGORIA_ID . " = ?, " .                    
                         PROVEEDOR_ESTADO . " = true " .
-                    "WHERE " . PROVEEDOR_ID . " = ?";
+                    "WHERE " . PROVEEDOR_ID . " = ? ";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
 
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'ssi', // s: Cadena, i: Entero
+                    'ssii', // s: Cadena, i: Entero
                     $proveedorNombre,
                     $proveedorEmail,
+                    $idcategoria,
                     $proveedorID
                 );
                 // Ejecuta la consulta de actualización
@@ -322,8 +471,10 @@
                         'Email' => $row[PROVEEDOR_EMAIL],
                         'Telefonos' => (!empty($telefonos))? $telefonos: 'Este proveedor no tiene telefonos registrados',
                         'Direcciones'=>(!empty($direcciones))?$direcciones : 'Este proveedor no posee direcciones',               
-                        'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO], 'Y-MM-dd'),
-						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_REGISTRO]),
+                        'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_CREACION], 'Y-MM-dd'),
+						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_CREACION]),
+                        'FechaModificacionISO'=>Utils::formatearFecha($row[PROVEEDOR_FECHA_MODIFICACION],'Y-MM-dd'),
+                        'FechaModificacion'=>Utils::formatearFecha($row[PROVEEDOR_FECHA_MODIFICACION]),
                         'Estado' => $row[PROVEEDOR_ESTADO]
                     ];
                 }
@@ -412,6 +563,8 @@
                         'Direcciones'=>(!empty($direcciones))?$direcciones : 'Este proveedor no posee direcciones',                              
 						'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_CREACION], 'Y-MM-dd'),
 						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_CREACION]),
+                        'FechaModificacionISO'=>Utils::formatearFecha($row[PROVEEDOR_FECHA_MODIFICACION],'Y-MM-dd'),
+                        'FechaModificacion'=>Utils::formatearFecha($row[PROVEEDOR_FECHA_MODIFICACION]),
 						'Estado' => $row[PROVEEDOR_ESTADO]
 					];
 				}
