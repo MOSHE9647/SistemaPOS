@@ -1,0 +1,15 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css");
+
+/* Estilos personalizados para el contenedor */
+.toast {
+    font-family: 'Segoe UI', sans-serif;  /* Cambiar la fuente */
+    font-size: 16px;                   /* Cambiar el tamaño de la fuente */
+    border-radius: 8px;                /* Redondear los bordes */
+    color: white;                      /* Cambiar el color del texto */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Añadir sombra */
+}
+
+/* Cambiar la barra de progreso */
+.toast-progress {
+    background-color: #f8f9fa !important;  /* Color de la barra de progreso */
+}

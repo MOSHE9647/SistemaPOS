@@ -1,6 +1,7 @@
 <?php
 
     require_once __DIR__ . '/../service/proveedorTelefonoBusiness.php';
+    require_once __DIR__ . '/../utils/Utils.php';
 
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -74,6 +75,7 @@
                     if ($size < 1) $size = 5;
     
                     // Obtiene los teléfonos de un proveedor en la base de datos.
+                    Utils::writeLog("GET: $page, $size, $sort, $onlyActiveOrInactive, $deleted", CONTROLLER_LOG_FILE, INFO_MESSAGE, "proveedorTelefonoAction");
                     $response = $proveedorTelefonoBusiness->getPaginatedTelefonosByProveedor($proveedorID, $page, $size, $sort, $onlyActiveOrInactive, $deleted);
                     break;
             }

@@ -1,15 +1,28 @@
+<?php
+
+    require_once __DIR__ . '/../auth/auth.php'; // Verifica la autenticación y los roles
+
+    // Solo los usuarios con rol de administrador (por ejemplo, RolID = 1) pueden acceder
+    if (!verificarRol([ROL_ADMIN])) { // 1 = Rol de Administrador
+        // Si el usuario no tiene el rol adecuado, cierra la sesión y redirige a la página de inicio de sesión
+        $_SESSION[SESSION_ACCESS_DENIED] = true;
+        $INDEX_PAGE = "./../index.php";
+        header("Location: $INDEX_PAGE");
+        exit();
+    }
+
+?>
+
 <!DOCTYPE html>
 <html lang="es-cr">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Gestión de Direcciones | POSFusion</title>
+        <title>Gestión de Usuarios | POSFusion</title>
         <link rel="stylesheet" href="./css/styles.css">
-        <!-- Toastr -->
-        
     </head>
     <body>
-        <h2>Lista de Direcciones</h2>
+        <h2>Lista de Usuarios</h2>
 
         <div id="message"></div>
 
@@ -18,33 +31,33 @@
                 <div id="paginationSort">
                     Ordenar por:
                     <select id="sortSelector">
-                        <option value="provincia">Provincia</option>
-                        <option value="canton">Canton</option>
-                        <option value="distrito">Distrito</option>
-                        <option value="barrio">Barrio</option>
-                        <option value="distancia">Distancia</option>
+                        <option value="nombre">Nombre</option>
+                        <option value="apellido1">Prim. Apellido</option>
+                        <option value="apellido2">Seg. Apellido</option>
+                        <option value="email">Correo</option>
+                        <option value="fechacreacion">Fecha Registro</option>
                     </select>
                 </div>
 
-                <!-- Botón para crear nueva dirección -->
+                <!-- Botón para crear nuevo Usuario -->
                 <button id="createButton" onclick="showCreateRow()">Crear</button>
             </div>
 
             <table>
                 <thead>
                     <tr>
-                        <th data-field="provincia">Provincia</th>
-                        <th data-field="canton">Cantón</th>
-                        <th data-field="distrito">Distrito</th>
-                        <th data-field="barrio">Barrio</th>
-                        <th data-field="senas">Señas</th>
-                        <th data-field="distancia">Distancia</th>
+                        <th data-field="nombre">Tipo de Número</th>
+                        <th data-field="apellido1">Código de País</th>
+                        <th data-field="apellido2">Número</th>
+                        <th data-field="correo">Extensión</th>
+                        <th data-field="password">Fecha de Creación</th>
+                        <th data-field="rol">Rol</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
                     <tr>
-                        <td colspan = "7" style = "textalign: center; height: 50px;">
+                        <td colspan = "7" style = "text-align: center; height: 50px;">
                             No hay registros disponibles
                         </td>
                     </tr>
@@ -52,6 +65,7 @@
             </table>
 
             <div class="pagination-container">
+                <!-- Selector de tamaño de página -->
                 <div id="paginationSize">
                     Mostrando:
                     <select id="pageSizeSelector">
@@ -62,6 +76,8 @@
                     </select>
                     de <span id="totalRecords"></span> registros
                 </div>
+
+                <!-- Controles de paginación -->
                 <div id="paginationControls">
                     <button id="prevPage" onclick="changePage(currentPage - 1)">Anterior</button>
                     <span id="pageInfo">Página <span id="currentPage">1</span> de <span id="totalPages">1</span></span>
@@ -76,11 +92,11 @@
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
         
-        <!-- Scripts del Archivo -->
-        <script src="./js/utils.js"></script>                   <!-- Utiles para mostrar notificaciones y demás           -->
-        <script src="./js/direccion/gui.js"></script>           <!-- Manejo dinámico de la página                         -->
-        <script src="./js/direccion/selects.js"></script>       <!-- Carga de Provincias, Cantones y Distritos            -->
-        <script src="./js/direccion/pagination.js"></script>    <!-- Métodos para Paginación                              -->
-        <script src="./js/direccion/crud.js"></script>          <!-- Creación, Actualización y Eliminación de Direcciones -->
+        <!-- Scripts propios -->
+        <script src="./view/js/utils.js"></script>
+        <script src="./js/usuario/gui.js"></script>
+        <script src="./js/usuario/pagination.js"></script>
+        <script src="./js/usuario/selects.js"></script>
+        <script src="./js/usuario/crud.js"></script>
     </body>
 </html>
