@@ -40,7 +40,8 @@
                 
                 if ($proveedorID && $telefonoID) {
                     // Consulta para verificar si existe una asignación entre el proveedor y el teléfono
-                    $queryCheck .= PROVEEDOR_ID . " = ? AND " . TELEFONO_ID . " = ? AND " . PROVEEDOR_TELEFONO_ESTADO . " != FALSE";
+                    $queryCheck = "SELECT " . PROVEEDOR_TELEFONO_ID . ", " . PROVEEDOR_TELEFONO_ESTADO . " FROM " . TB_PROVEEDOR_TELEFONO . " WHERE ";
+                    $queryCheck .= PROVEEDOR_ID . " = ? AND " . TELEFONO_ID . " = ?";
                     $params = [$proveedorID, $telefonoID];
                     $types = "ii";
                 } elseif ($proveedorID) {
@@ -71,7 +72,11 @@
                 $result = mysqli_stmt_get_result($stmt);
         
                 // Verifica si existe algún registro con los criterios dados
-                if (mysqli_num_rows($result) > 0) {
+                if ($row = mysqli_fetch_assoc($result)) {
+                    if ($proveedorID && $telefonoID) {
+                        $isInactive = $row[PROVEEDOR_TELEFONO_ESTADO] == 0;
+                        return ["success" => true, "exists" => true, "inactive" => $isInactive, 'id' => $row[PROVEEDOR_TELEFONO_ID]];
+                    }
                     return ["success" => true, "exists" => true];
                 }
         
@@ -142,18 +147,40 @@
                 // Verificar si el teléfono ya está asignado a algún proveedor
                 $checkID = $this->existeProveedorTelefono(null, $telefonoID);
                 if (!$checkID["success"]) { return $checkID; }
+               
+                // Si el teléfono ya está asignado a un proveedor, no se puede asignar
                 if ($checkID["exists"]) {
                     $message = "El teléfono con ID [$telefonoID] ya está asignado a otro proveedor.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
                     return ['success' => false, 'message' => "El teléfono seleccionado ya está asignado a un proveedor."];
                 }
-        
+
+                // Verificar si existe la asignacion entre el proveedor y el telefono
+                $check = $this->existeProveedorTelefono($proveedorID, $telefonoID);
+                if (!$check["success"]) { return $check; }
+
                 // Si no se proporcionó una conexión, crea una nueva
                 if (is_null($conn)) {
                     $result = $this->getConnection();
                     if (!$result["success"]) { throw new Exception($result["message"]); }
                     $conn = $result["connection"];
                     $createdConnection = true;
+                }
+
+                // Si la asignación ya existe, pero está inactiva, se reactiva
+                if ($check["exists"] && $check["inactive"]) {
+                    $queryUpdate = 
+                        "UPDATE " . TB_PROVEEDOR_TELEFONO . 
+                        " SET " 
+                            . PROVEEDOR_TELEFONO_ESTADO . " = TRUE " .
+                        "WHERE " 
+                            . PROVEEDOR_ID . " = ? AND " 
+                            . TELEFONO_ID . " = ?";
+                    $stmt = mysqli_prepare($conn, $queryUpdate);
+                    mysqli_stmt_bind_param($stmt, "ii", $proveedorID, $telefonoID);
+                    mysqli_stmt_execute($stmt);
+        
+                    return ["success" => true, "message" => "Teléfono asignado exitosamente al proveedor."];
                 }
         
                 // Obtenemos el último ID de la tabla tbproveedortelefono

@@ -6,7 +6,7 @@
         <title>Gestión de Teléfonos de Proveedores | POSFusion</title>
         <link rel="stylesheet" href="./css/styles.css">
         <!-- Toastr -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+        
 
         <style>
             .proveedores-container {

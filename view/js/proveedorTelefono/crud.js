@@ -101,7 +101,7 @@ function updateTelefono(id, reactivate = false) {
         // Si la solicitud es exitosa
         if (data.success) {
             showMessage(data.message, 'success'); // Mostrar mensaje de éxito
-            fetchTelefonos(currentPage, pageSize, sort); // Recargar los datos de telefonos para reflejar la actualización
+            fetchTelefonos(proveedor, currentPage, pageSize, sort); // Recargar los datos de telefonos para reflejar la actualización
         } else {
             showMessage(data.message, 'error'); // Mostrar mensaje de error
         }

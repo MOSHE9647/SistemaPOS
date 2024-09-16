@@ -64,6 +64,11 @@
         </div>
 
         <a href="../index.php" class="menu-button">Regresar al Menú</a>
+
+        <!-- Scripts -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        
         <script src="./js/utils.js"></script>                   <!-- Utiles para mostrar notificaciones y demás           -->
         <script src="./js/proveedor/gui.js"></script>           <!-- Manejo dinámico de la página                         -->
         <script src="./js/proveedor/pagination.js"></script>    <!-- Métodos para Paginación                              -->
