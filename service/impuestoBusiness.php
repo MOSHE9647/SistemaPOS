@@ -15,7 +15,7 @@
 
         public function validarImpuestoID($impuestoID) {
             if ($impuestoID === null || !is_numeric($impuestoID) || $impuestoID < 0) {
-                Utils::writeLog("El ID [$impuestoID] del impuesto no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'ID [$impuestoID]' del impuesto no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                 return ["is_valid" => false, "message" => "El ID del impuesto está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
             }
 

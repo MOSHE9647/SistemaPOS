@@ -36,7 +36,7 @@
 					$types .= 'i';
                 }
 
-                // Consulta en caso de insertar para verificar si existe un impuesto con el nombre y fecha ingresados
+                // Consulta en caso de insertar para verificar si existe un impuesto con el nombre ingresado
                 else if ($insert && $impuestoNombre) {
                     $queryCheck .= IMPUESTO_NOMBRE . " = ?";
                     $params = [$impuestoNombre];
@@ -261,7 +261,7 @@
                 $check = $this->existeImpuesto($impuestoID, $impuestoNombre, true);
                 if (!$check["success"]) { return $check; } //<- Error al verificar la existencia
                 if ($check["exists"]) { //<- El impuesto existe
-                    $message = "Ya existe un impuesto con el mismo Nombre ['$impuestoNombre'].";
+                    $message = "Ya existe un impuesto con el mismo 'Nombre [$impuestoNombre]' en la base de datos.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
 					return ['success' => false, 'message' => "Ya existe un impuesto con el mismo nombre ($impuestoNombre) en la base de datos."];
                 }
@@ -339,7 +339,7 @@
                 $check = $this->existeImpuesto($impuestoID);
                 if (!$check["success"]) { return $check; } //<- Error al verificar la existencia
                 if (!$check["exists"]) { //<- El impuesto no existe
-					$message = "El impuesto con ID [$impuestoID] no existe en la base de datos.";
+					$message = "El impuesto con 'ID [$impuestoID]' no existe en la base de datos.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
                     return ['success' => false, 'message' => "El impuesto seleccionado no existe en la base de datos."];
                 }
