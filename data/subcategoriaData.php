@@ -1,13 +1,16 @@
 <?php
     require_once 'data.php';
     require_once __DIR__ . '/../domain/Subcategoria.php';
+    require_once __DIR__ .'/../data/categoriaData.php';
     require_once __DIR__ . '/../utils/Utils.php';
     require_once __DIR__ . '/../utils/Variables.php';
 
     class SubcategoriaData extends Data {
+        private $categoriaData;
         // Constructor
 		public function __construct() {
 			parent::__construct();
+            $this->categoriaData = new CategoriaData();
         }
         function VerificarExisteSubcategoria($subcategoria_id = null, $subcategoria_nombre = null, $update = false){
             try {
@@ -321,6 +324,18 @@
                 if(!$check['success']){
                     return $check;
                 }
+                if(empty($categoriaID)){
+                    throw new Exception("El id de la categoria seleccionada esta vacia.");
+                }
+
+                $check = $this->categoriaData->categoriaExiste($categoriaID);
+                if(!$check['success']){
+                    return $check;
+                }
+                if(!$check['exists']){
+                    throw new Exception('No existe el id de categoria seleccionado');
+                }
+
 
                 if(!$check['exists']){
                     throw new Exception("No existe el id de la subcategoria en la base de datos.");
@@ -405,6 +420,13 @@
                 }
                 if(empty($categoriaID)){
                     throw new Exception("¡El id de la categoria esta vacia!");
+                }
+                $check = $this->categoriaData->categoriaExiste($categoriaID);
+                if(!$check['success']){
+                    return $check;
+                }
+                if(!$check['exists']){
+                    throw new Exception('No existe el id de categoria seleccionado');
                 }
 
                 $check = $this->nombreSubcategoriaExiste($nombre,$categoriaID);
