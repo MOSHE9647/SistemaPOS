@@ -27,18 +27,20 @@
                     <th data-field="lotefechavencimiento">Fecha de Vencimiento</th>
                     <th>Acciones</th>
                 </tr>
+
                 <tr id="createRow">
-        <td data-field="lotecodigo">
-            <input type="text" name="lotecodigo" placeholder="Código del lote" required />
-        </td>
-        <td data-field="lotefechavencimiento">
-            <input type="date" name="lotefechavencimiento" min="<?= date('Y-m-d'); ?>" required />
-        </td>
-        <!-- Otros campos... -->
-        <td>
-            <button onclick="createLote()">Guardar</button>
-        </td>
-    </tr>
+                <td data-field="lotecodigo">
+                <input type="text" name="lotecodigo" placeholder="Código del lote" required />
+                </td>
+                <td data-field="lotefechavencimiento">
+                <input type="date" name="lotefechavencimiento" min="<?= date('Y-m-d'); ?>" required />
+                </td>
+                <!-- Otros campos... -->
+                 <td>
+              <button onclick="createLote()">Guardar</button>
+              </td>
+            </tr>
+            
             </thead>
             <tbody id="tableBody">
                 <!-- Las filas se llenan dinámicamente con JavaScript -->

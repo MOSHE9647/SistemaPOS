@@ -49,7 +49,7 @@
         exit();
     }
 
-    if ($_SERVER["REQUEST_METHOD"] == "GET") {
+    /*if ($_SERVER["REQUEST_METHOD"] == "GET") {
         if (isset($_GET['accion']) && $_GET['accion'] === 'listarProveedores') {
             $proveedorBusiness = new ProveedorBusiness();
             $result = $proveedorBusiness->getAllTBProveedor();
@@ -74,5 +74,49 @@
         echo json_encode($result);
         exit();
     }
+
+    if ($_SERVER["REQUEST_METHOD"] == "GET") {
+        if (isset($_GET['accion']) && $_GET['accion'] === 'listarCompraProveedores') {
+            $proveedorBusiness = new ProveedorBusiness();
+            $result = $proveedorBusiness->getAllTBCompraProveedor();
+            header('Content-Type: application/json');
+            echo json_encode($result);
+            exit();
+        }
+    }*/
+    if ($_SERVER["REQUEST_METHOD"] == "GET") {
+        if (isset($_GET['accion']) && $_GET['accion'] === 'listarProveedores') {
+            $proveedorBusiness = new ProveedorBusiness();
+            $result = $proveedorBusiness->getAllTBProveedor();
+            header('Content-Type: application/json');
+            echo json_encode($result);
+            exit();
+        }
+    
+        if (isset($_GET['accion']) && $_GET['accion'] === 'listarCompraProveedores') {
+            $proveedorBusiness = new ProveedorBusiness();
+            $result = $proveedorBusiness->getAllTBCompraProveedor();
+            header('Content-Type: application/json');
+            echo json_encode($result);
+            exit();
+        }
+    
+        // Obtener parámetros de la solicitud GET
+        $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+        $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
+        $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
+    
+        // Validar los parámetros
+        if ($page < 1) $page = 1;
+        if ($size < 1) $size = 5;
+    
+        $proveedorBusiness = new ProveedorBusiness();
+        $result = $proveedorBusiness->getPaginatedProveedores($page, $size, $sort);
+    
+        header('Content-Type: application/json');
+        echo json_encode($result);
+        exit();
+    }
+    
 
 ?>

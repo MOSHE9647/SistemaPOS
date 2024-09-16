@@ -19,23 +19,40 @@
                         throw new Exception($result["message"]);
                     }
                     $conn = $result["connection"];
-                   // if ($this->loteExists($lote->getLoteCodigo())) {
-                      //  return ["success" => false, "message" => "Ya existe un lote con el mismo código."];
-                    //}
+            
                     // Obtiene el último ID de la tabla tblote
                     $queryGetLastId = "SELECT MAX(" . COMPRA_ID . ") FROM " . TB_COMPRA;
                     $idCont = mysqli_query($conn, $queryGetLastId);
                     $nextId = 1;
-        
+            
                     // Calcula el siguiente ID para la nueva entrada
                     if ($row = mysqli_fetch_row($idCont)) {
                         $nextId = (int) trim($row[0]) + 1;
                     }
-          
-                    // Crea una consulta y un statement SQL para insertar el registro
+            
+                    // Obtener los valores de las propiedades del objeto $compra
+                    $compraNumeroFactura = $compra->getCompraNumeroFactura();
+                    $compraMontoBruto = $compra->getCompraMontoBruto();
+                    $compraMontoNeto = $compra->getCompraMontoNeto();
+                    $compraTipoPago = $compra->getCompraTipoPago();
+                    $proveedorID = $compra->getProveedorID();
+                    $compraFechaCreacion = $compra->getCompraFechaCreacion();
+                    $compraFechaModificacion = $compra->getCompraFechaModificacion();
+            
+                    // Si la fecha de creación está vacía, asignar la fecha actual
+                    if (empty($compraFechaCreacion)) {
+                        $compraFechaCreacion = date('Y-m-d H:i:s'); // Formato de fecha y hora actual
+                    }
+
+                     // Si la fecha de modificación está vacía, asignar la fecha actual
+        if (empty($compraFechaModificacion)) {
+            $compraFechaModificacion = date('Y-m-d H:i:s'); // Formato de fecha y hora actual
+        }
+            
+                    // Crea una consulta SQL para insertar el registro
                     $queryInsert = "INSERT INTO " . TB_COMPRA . " ("
                         . COMPRA_ID . ", "
-                        . COMPRA_NUMERO_FACTURA . ", " 
+                        . COMPRA_NUMERO_FACTURA . ", "
                         . COMPRA_PROVEEDOR_ID . ", "
                         . COMPRA_MONTO_BRUTO . ", "
                         . COMPRA_MONTO_NETO . ", "
@@ -45,34 +62,27 @@
                         . COMPRA_ESTADO
                         . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, true)";
                     $stmt = mysqli_prepare($conn, $queryInsert);
-        
-                    // Obtener los valores de las propiedades del objeto $lote
-                    $compraNumeroFactura = $compra->getCompraNumeroFactura();
-                    $compraMontoBruto = $compra->getCompraMontoBruto();
-                    $compraMontoNeto = $compra->getCompraMontoNeto();
-                    $compraTipoPago = $compra->getCompraTipoPago();
-                   // $compraProveedorId = $compra->getCompraProveedorId();
-                    $proveedorID = $compra->getProveedorID();
-                    $compraFechaCreacion = $compra->getCompraFechaCreacion();
-                    $compraFechaModificacion = $compra->getCompraFechaModificacion();
-        
+            
                     // Asigna los valores a cada '?' de la consulta
                     mysqli_stmt_bind_param(
                         $stmt,
-                      'isiddsss', // i: Entero, s: Cadena, d: Decimal
-                    $nextId,
-                    $compraNumeroFactura, 
-                   // $compraProveedorId,
-                    $proveedorID,
-                    $compraMontoBruto,
-                    $compraMontoNeto,
-                    $compraTipoPago,
-                    $compraFechaCreacion,
-                    $compraFechaModificacion,
+                        'isiddsss', // i: Entero, s: Cadena, d: Decimal
+                        $nextId,
+                        $compraNumeroFactura, 
+                        $proveedorID,
+                        $compraMontoBruto,
+                        $compraMontoNeto,
+                        $compraTipoPago,
+                        $compraFechaCreacion,
+                        $compraFechaModificacion
                     );
-        
+            
                     // Ejecuta la consulta de inserción
                     $result = mysqli_stmt_execute($stmt);
+                    if (!$result) {
+                        throw new Exception("Error al insertar la compra: " . mysqli_error($conn));
+                    }
+            
                     return ["success" => true, "message" => "Compra insertada exitosamente"];
                 } catch (Exception $e) {
                     // Manejo del error dentro del bloque catch
@@ -81,7 +91,7 @@
                         $e->getMessage(),
                         'Error al insertar la compra en la base de datos'
                     );
-        
+            
                     // Devolver mensaje amigable para el usuario
                     return ["success" => false, "message" => $userMessage];
                 } finally {
