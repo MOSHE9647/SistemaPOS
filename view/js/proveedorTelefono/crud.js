@@ -23,19 +23,13 @@ async function createTelefono() {
         return { message: 'No se encontró la fila de creación de teléfono.' };
     }
 
-    // Obtener los campos de entrada de la fila
-    const inputs = row.querySelectorAll('input, select');
-    
-    // Crear un objeto para almacenar los datos a enviar al servidor
-    const data = { accion: 'insertar' };
+    const inputs = row.querySelectorAll('input, select'); // Obtener los campos de entrada de la fila
+    const data = { accion: 'insertar' }; // Crear un objeto para almacenar los datos a enviar al servidor
 
     // Recorrer cada campo de entrada y agregarlo al objeto de datos
     inputs.forEach(input => {
-        // Obtener el nombre del campo (nombre o valor)
-        const fieldName = input.closest('td').dataset.field;
-
-        // Agregar el campo al objeto de datos
-        data[fieldName] = input.value;
+        const fieldName = input.closest('td').dataset.field; // Obtener el nombre del campo (nombre o valor)
+        data[fieldName] = input.value; // Agregar el campo al objeto de datos
     });
 
     try {
@@ -69,15 +63,21 @@ async function createTelefono() {
  * 
  * @returns {void}
  */
-function updateTelefono(id) {
-    // Obtener la fila del telefono con el id especificado
-    let row = document.querySelector(`tr[data-id='${id}']`);
-    
-    // Obtener los campos de entrada de la fila
-    let inputs = row.querySelectorAll('input, select');
-    
-    // Crear un objeto para almacenar los datos a enviar al servidor
-    let data = { accion: 'actualizar', id: id };
+function updateTelefono(id, reactivate = false) {
+    let row;
+    if (!reactivate) {
+        row = document.querySelector(`tr[data-id='${id}']`); //<- Obtener la fila de la tabla con el id especificado
+    } else {
+        row = document.getElementById('createRow'); //<- Obtener la fila de creación de telefono
+    }
+
+    // Si no se encuentra la fila, salir de la función
+    if (!row) {
+        showMessage('No se encontró la fila del teléfono a actualizar', 'error'); 
+        return; 
+    }
+    let inputs = row.querySelectorAll('input, select'); // Obtener los campos de entrada de la fila
+    let data = { accion: 'actualizar', id: id }; // Crear un objeto para almacenar los datos a enviar al servidor
 
     // Recorrer cada campo de entrada y agregarlo al objeto de datos
     inputs.forEach(input => {
@@ -100,18 +100,10 @@ function updateTelefono(id) {
     .then(data => {
         // Si la solicitud es exitosa
         if (data.success) {
-            // Mostrar mensaje de éxito
-            showMessage(data.message, 'success');
-            
-            // Obtener el id del proveedor
-            const proveedor = document.getElementById('proveedor-select').value;
-            const proveedorID = parseInt(proveedor);
-
-            // Recargar los datos de telefonos para reflejar la actualización
-            fetchTelefonos(proveedorID, currentPage, pageSize, sort);
+            showMessage(data.message, 'success'); // Mostrar mensaje de éxito
+            fetchTelefonos(currentPage, pageSize, sort); // Recargar los datos de telefonos para reflejar la actualización
         } else {
-            // Mostrar mensaje de error
-            showMessage(data.message, 'error');
+            showMessage(data.message, 'error'); // Mostrar mensaje de error
         }
     })
     .catch(error => {
@@ -155,12 +147,18 @@ async function deleteTelefono(id) {
 
 async function addTelefonoToProveedor() {
     const response = await createTelefono();
-    if (response.success) {
-        console.log('Teléfono creado con ID:', response.id);
-    } else if (response.message) {
-        console.error('Error al crear el teléfono:', response.message);
+
+    if (!response.success) {
         showMessage(response.message, 'error');
         return;
+    }
+
+    if (response.inactive) {
+        if (confirm(response.message)) { updateTelefono(response.id, true); }
+        else { 
+            showMessage('No se le agregó el teléfono al proveedor.', 'info'); 
+            return;
+        }
     }
 
     // Obtener el id del proveedor
@@ -186,25 +184,15 @@ async function addTelefonoToProveedor() {
     .then(data => {
         // Si la solicitud es exitosa
         if (data.success) {
-            // Mostrar mensaje de éxito
-            showMessage(data.message, 'success');
-            
-            // Recargar los datos de telefonos para reflejar la creación del nuevo telefono
-            fetchTelefonos(proveedorID, currentPage, pageSize, sort);
-            
-            // Eliminar la fila de creación de telefono
-            document.getElementById('createRow').remove();
-            
-            // Mostrar el botón de creación de telefono nuevamente
-            document.getElementById('createButton').style.display = 'inline-block';
+            showMessage(data.message, 'success'); // Mostrar mensaje de éxito
+            fetchTelefonos(proveedorID, currentPage, pageSize, sort); // Recargar los datos de telefonos para reflejar la actualización
+            document.getElementById('createRow').remove(); // Eliminar la fila de creación de telefono
+            document.getElementById('createButton').style.display = 'inline-block'; // Mostrar el botón de crear
         } else {
             // Mostrar mensaje de error
             showMessage(data.message, 'error');
             deleteTelefono(response.id).then(data => {
-                if (data.success) {
-                    console.log('Teléfono eliminado después del fallo');
-                } else if (data.message) {
-                    console.error('Error al eliminar el teléfono:', data.message);
+                if (!data.success) {
                     showMessage(data.message, 'error');
                     return;
                 }
@@ -215,13 +203,10 @@ async function addTelefonoToProveedor() {
         // Mostrar mensaje de error detallado
         showMessage(`Ocurrió un error al añadirle el teléfono al proveedor.<br>${error}`, 'error');
         deleteTelefono(response.id).then(data => {
-            if (data.success) {
-                console.log('Teléfono eliminado después del fallo');
-            } else if (data.message) {
-                console.error('Error al eliminar el teléfono:', data.message);
+            if (!data.success) {
                 showMessage(data.message, 'error');
                 return;
-            }
+            } 
         });
     });
 }
@@ -252,11 +237,8 @@ function removeTelefonoFromProveedor(telefonoID) {
         .then(data => {
             // Si la solicitud es exitosa
             if (data.success) {
-                // Mostrar mensaje de éxito
-                showMessage(data.message, 'success');
-
-                // Recargar los datos de telefonos para reflejar la eliminación
-                fetchTelefonos(proveedorID, currentPage, pageSize, sort);
+                showMessage(data.message, 'success'); // Mostrar mensaje de éxito
+                fetchTelefonos(proveedorID, currentPage, pageSize, sort); // Recargar los datos de telefonos para reflejar la actualización
             } else {
                 // Mostrar mensaje de error
                 showMessage(data.message, 'error');
