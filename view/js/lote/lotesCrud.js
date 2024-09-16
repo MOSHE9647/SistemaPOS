@@ -15,18 +15,12 @@ function createLote() {
     let data = { accion: 'insertar' };
 
     inputs.forEach(input => {
-        let fieldName = input.closest('td').dataset.field;
-        let value = input.value;
+        let fieldName = input.closest('td').dataset.field; // Obtener el nombre del campo desde el atributo 'data-field'
+        let value = input.value; // Obtener el valor ingresado
 
-        // Obtener ID del proveedor y del producto
-       // if (fieldName === 'productonombre') {
-         //   value = document.getElementById('productoid-select').value;
-        //} 
-
-       
-
-        data[fieldName] = value;
+        data[fieldName] = value; // Añadir los valores al objeto 'data'
     });
+
     console.log('Datos enviados para crear lote:', data); // Mensaje de depuración
 
     fetch('../controller/loteAction.php', {
@@ -41,9 +35,9 @@ function createLote() {
         console.log('Respuesta del servidor al crear lote:', data); // Mensaje de depuración
         if (data.success) {
             showMessage(data.message, 'success');
-            fetchLotes(currentPage, pageSize);
-            document.getElementById('createRow').remove();
-            document.getElementById('createButton').style.display = 'inline-block';
+            fetchLotes(currentPage, pageSize); // Recargar la lista de lotes
+            // Limpiar los campos de entrada después de crear el lote
+            inputs.forEach(input => input.value = '');
         } else {
             showMessage(data.message, 'error');
         }
@@ -110,27 +104,27 @@ function createLote() {
 }
 */
 
+/**
+ * Actualiza un lote existente.
+ * 
+ * @param {number} id - El ID del lote que se desea actualizar.
+ * @description Envía una solicitud POST al servidor para actualizar el lote con los datos ingresados en la fila de edición.
+ * @example
+ * updateLote(123);
+ */
 function updateLote(id) {
     let row = document.querySelector(`tr[data-id='${id}']`);
     let inputs = row.querySelectorAll('input, select');
     let data = { accion: 'actualizar', id: id };
 
     inputs.forEach(input => {
-        let fieldName = input.closest('td').dataset.field;
-        let value = input.value;
+        let fieldName = input.closest('td').dataset.field; // Obtener el nombre del campo
+        let value = input.value; // Obtener el valor ingresado
 
-        // Obtener ID del proveedor y del producto
-     //   if (fieldName === 'productonombre') {
-       //     value = document.getElementById('productoid-select').value;
-        //}
-    
-
-
-
-        data[fieldName] = value;
+        data[fieldName] = value; // Añadir los valores al objeto 'data'
     });
 
-    console.log('Datos enviados:', data); // Para depuración
+    console.log('Datos enviados para actualizar lote:', data); // Para depuración
 
     fetch('../controller/loteAction.php', {
         method: 'POST',
@@ -143,7 +137,7 @@ function updateLote(id) {
     .then(data => {
         if (data.success) {
             showMessage(data.message, 'success');
-            fetchLotes(currentPage, pageSize);
+            fetchLotes(currentPage, pageSize); // Recargar la lista de lotes actualizada
         } else {
             showMessage(data.message, 'error');
         }
@@ -174,15 +168,15 @@ function deleteLote(id) {
         .then(data => {
             if (data.success) {
                 showMessage(data.message, 'success');
-                fetchLotes(currentPage, pageSize); // Recargar datos para reflejar la eliminación del lote
+                fetchLotes(currentPage, pageSize); // Recargar la lista de lotes actualizada
             } else {
                 showMessage(data.message, 'error');
             }
         })
         .catch(error => {
-            // Muestra el mensaje de error detallado
             showMessage(`Ocurrió un error al eliminar el lote.<br>${error}`, 'error');
         });
     }
 }
+
 
