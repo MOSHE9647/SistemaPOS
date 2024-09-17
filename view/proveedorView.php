@@ -19,7 +19,7 @@
                     <select id="sortSelector">
                         <option value="nombre">Nombre</option>
                         <option value="email">Correo</option>
-                        <option value="tipo">Tipo</option>
+                        <option value="categoriaid">Categoria</option>
                         <option value="fecharegistro">Fecha</option>
                     </select>
                 </div>
@@ -33,14 +33,18 @@
                     <tr>
                         <th data-field="nombre">Nombre</th> 
                         <th data-field="email">Email</th>
-                        <th data-field="tipo">Tipo</th>  
-                        <th data-field="telefono">Telefono</th> <!-- Nuevo encabezado para el teléfono -->                
+                        <th data-field="categoria">Categoria</th>              
                         <th data-field="fecha">Fecha de Registro</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
                     <!-- Las filas se llenan dinámicamente con JavaScript -->
+                    <tr>
+                        <td colspan = "6" style = "textalign: center; height: 50px;">
+                            No hay registros disponibles
+                        </td>
+                    </tr>
                 </tbody>
             </table>
 
@@ -70,8 +74,9 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
         
         <script src="./js/utils.js"></script>                   <!-- Utiles para mostrar notificaciones y demás           -->
-        <script src="./js/proveedor/gui.js"></script>           <!-- Manejo dinámico de la página                         -->
+        <script src="./js/proveedor/selects.js"></script>       <!-- Métodos para llenar los selects de la página         -->
         <script src="./js/proveedor/pagination.js"></script>    <!-- Métodos para Paginación                              -->
+        <script src="./js/proveedor/gui.js"></script>           <!-- Manejo dinámico de la página                         -->
         <script src="./js/proveedor/crud.js"></script>          <!-- Creación, Actualización y Eliminación de Proveedores -->
     </body>
 </html>

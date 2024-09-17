@@ -17,16 +17,8 @@
  * @returns {void}
  */
 function renderTable(proveedores) {
-    console.log("Proveedores a renderizar:", proveedores); // Verifica la lista de proveedores
-    console.log("Proveedor actual:", proveedores); // Verifica los datos del proveedor
-    console.log("tele actual:", proveedores.telefono); // Verifica los datos del proveedor
-
-
-    // Obtener el cuerpo de la tabla
-    let tableBody = document.getElementById('tableBody');
-    console.log("Elemento tableBody:", tableBody);
-    // Vaciar el cuerpo de la tabla
-    tableBody.innerHTML = '';
+    let tableBody = document.getElementById('tableBody'); // Obtener el cuerpo de la tabla
+    tableBody.innerHTML = ''; // Vaciar el cuerpo de la tabla
 
     // Recorrer cada proveedor en el arreglo
     proveedores.forEach(proveedor => {
@@ -35,9 +27,8 @@ function renderTable(proveedores) {
             <tr data-id="${proveedor.ID}">
                 <td data-field="nombre">${proveedor.Nombre}</td>
                 <td data-field="email">${proveedor.Email}</td>
-                <td data-field="tipo">${proveedor.Tipo}</td>
-               <td data-field="telefono">${proveedor.Telefono || 'No disponible'}</td> 
-                <td data-field="fecha" data-iso="${proveedor.FechaISO}">${proveedor.Fecha}</td>
+                <td data-field="categoria" data-id="${proveedor.CategoriaID}">${proveedor.CategoriaNombre}</td>
+                <td data-field="creacion" data-iso="${proveedor.FechaISO}">${proveedor.Fecha}</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
                     <button onclick="deleteProveedor(${proveedor.ID})">Eliminar</button>
@@ -47,7 +38,6 @@ function renderTable(proveedores) {
         
         // Agregar la fila al cuerpo de la tabla
         tableBody.innerHTML += row;
-        console.log("Fila agregada:", row); // Verifica la fila agregada
     });
 
     // Verificar si la tabla está vacía
@@ -70,57 +60,54 @@ function renderTable(proveedores) {
  * @returns {void}
  */
 function makeRowEditable(row) {
-    // Seleccionar todas las celdas de la fila
+    cancelCreate();
+    cancelEdit();
+
+    // Almacenar los datos originales en un atributo data
+    row.dataset.originalData = JSON.stringify({
+        nombre: row.querySelector('[data-field="nombre"]').textContent,
+        email: row.querySelector('[data-field="email"]').textContent,
+        categoria: row.querySelector('[data-field="categoria"]').textContent,
+        creacion: row.querySelector('[data-field="creacion"]').textContent
+    });
+
+    // Obtener las celdas de la fila
     const cells = row.querySelectorAll('td');
-    const proveedorId = row.dataset.id; // Obtener el ID del proveedor
-    
-    // Definir funciones para manejar cada tipo de campo
+    const lastCellIndex = cells.length - 1;
+    row.setAttribute('id', 'editRow');
+
+    // Definir los manejadores de campos para cada tipo de dato
     const fieldHandlers = {
-        'fecha': (value) => {
-            // Crear un campo de fecha con el valor actual y una fecha máxima igual a la fecha actual
-            return `<input type="date" value="${value}" max="${getCurrentDate()}" required>`;
-        },
-        'nombre': (value) => {
-            // Crear un campo de texto con el valor actual
-            return `<input type="text" value="${value}" required>`;
-        },
-        'email': (value) => {
-            // Crear un campo de tipo email con el valor actual y restricciones de tipo de email
-            return `<input type="email" value="${value}" required>`;
-        },
-       'telefono': (value) => {
-            // Crear un campo de combobox para los teléfonos
-            return `
-                <select id="telefonoSelect">
-                    <option value="">Selecciona un teléfono</option>
-                </select>`;
-        }
-        
+        'nombre': (value) => `<input type="text" id="nombre" value="${value}" required>`,
+        'email': (value) => `<input type="email" id="email" value="${value}" required>`,
+        'creacion': (value) => `<input type="date" value="${value}" disabled>`
     };
 
     // Recorrer cada celda de la fila
     cells.forEach((cell, index) => {
-        // Excluir la última columna
-        if (index < cells.length - 1) {
-            // Obtener el campo y valor de la celda
-            const field = cell.dataset.field;
-            const value = field === 'fecha' ? cell.dataset.iso : cell.innerText;
+        const value = cell.dataset.value;
+        const field = cell.dataset.field;
+        const text = 
+            field === 'creacion' ? cell.dataset.iso : 
+            (field === 'categoria' ? cell.dataset.id : cell.innerText.trim());
 
-            
-            // Obtener la función de manejo para el campo o una función default
-            const handler = fieldHandlers[field] || ((v) => `<input type="text" value="${v}">`);
-            // Reemplazar el contenido de la celda con el campo editable
-            cell.innerHTML = handler(value);
+        if (index < lastCellIndex) {
+            const handler = fieldHandlers[field] || ((v, t) => `
+                <select data-field="${field}" id="${field}-select" required>
+                    <option value="${v}">${t}</option>
+                </select>
+            `);
+            cell.innerHTML = value != null ? handler(value, text) : handler(text, text);
+        } else {
+            cell.innerHTML = `
+                <button onclick="updateProveedor(${row.dataset.id})">Guardar</button>
+                <button onclick="cancelEdit(${row.dataset.id})">Cancelar</button>
+            `;
         }
     });
 
-    // Obtener la última celda de la fila
-    const actionCell = cells[cells.length - 1];
-    // Reemplazar el contenido de la celda con botones para guardar o cancelar
-    actionCell.innerHTML = `
-        <button onclick="updateProveedor(${row.dataset.id})">Guardar</button>
-        <button onclick="cancelEdit(${row.dataset.id})">Cancelar</button>
-    `;
+    // Llenar los selects después de que la fila esté preparada
+    initializeSelects();
 }
 
 /**
@@ -135,6 +122,8 @@ function makeRowEditable(row) {
  * @returns {void}
  */
 function showCreateRow() {
+    cancelEdit();
+
     // Ocultar el botón de crear
     document.getElementById('createButton').style.display = 'none';
 
@@ -149,9 +138,12 @@ function showCreateRow() {
     newRow.innerHTML = `
         <td data-field="nombre"><input type="text" required></td>
         <td data-field="email"><input type="email" required></td>
-        <td data-field="tipo"><input type="text"></td>
-         <td data-field="telefono"><input type="text" required></td>
-        <td data-field="fecha"><input type="date" required max="${getCurrentDate()}"></td>
+        <td data-field="categoria">
+            <select id="categoria-select" required>
+                <option value="">-- Seleccionar --</option>
+            </select>
+        </td>
+        <td data-field="creacion"><input type="date" value="${getCurrentDate()}" disabled></td>
         <td>
             <button onclick="createProveedor()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>
@@ -160,6 +152,9 @@ function showCreateRow() {
 
     // Insertar la nueva fila al principio del cuerpo de la tabla
     tableBody.insertBefore(newRow, tableBody.firstChild);
+
+    //Llenar los selects después de que la fila esté preparada
+    initializeSelects();
 }
 
 /**
@@ -173,8 +168,30 @@ function showCreateRow() {
  * @returns {void}
  */
 function cancelEdit() {
-    // Recargar datos de proveedores para cancelar la edición
-    fetchProveedores(currentPage, pageSize, sort);
+    // Restaurar los datos originales de la fila de edición
+    const editRow = document.getElementById('editRow');
+    if (editRow && editRow.dataset.originalData) {
+        const originalData = JSON.parse(editRow.dataset.originalData);
+
+        editRow.querySelector('[data-field="nombre"]').innerHTML = originalData.nombre;
+        editRow.querySelector('[data-field="email"]').innerHTML = originalData.email;
+        editRow.querySelector('[data-field="categoria"]').innerHTML = originalData.categoria;
+        editRow.querySelector('[data-field="creacion"]').innerHTML = originalData.creacion;
+
+        // Eliminar el atributo data-original-data
+        delete editRow.dataset.originalData;
+        
+        // Restaurar los botones de la fila
+        const cells = editRow.querySelectorAll('td');
+        const lastCellIndex = cells.length - 1;
+        cells[lastCellIndex].innerHTML = `
+            <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
+            <button onclick="deleteProveedor(${editRow.dataset.id})">Eliminar</button>
+        `;
+
+        // Eliminar el id de la fila de edición
+        editRow.removeAttribute('id');
+    }
 }
 
 /**
@@ -189,8 +206,10 @@ function cancelEdit() {
  */
 function cancelCreate() {
     // Eliminar la fila de creación
-    document.getElementById('createRow').remove();
+    const createRow = document.getElementById('createRow');
+    if (createRow) createRow.remove();
 
     // Mostrar el botón de crear
-    document.getElementById('createButton').style.display = 'inline-block';
+    const createButton = document.getElementById('createButton');
+    if (createButton) createButton.style.display = 'inline-block';
 }

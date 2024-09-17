@@ -214,8 +214,6 @@
                 // Obtener los valores de las propiedades del objeto
                 $proveedorNombre = $proveedor->getProveedorNombre();
                 $proveedorEmail = $proveedor->getProveedorEmail();
-                $telefonoNumero = $proveedor->getProveedorTelefono();
-                $direccionID = $proveedor->getProveedorDireccionId();
                 $idcategoria = $proveedor->getProveedorCategoria();
                 Utils::writeLog("Nombre > $proveedorNombre",UTILS_LOG_FILE);
                 // Verifica si el proveedor ya existe
@@ -225,7 +223,7 @@
                     return $check;
                 }
                 if($check['exists'] && $check["inactive"]){
-                    return ["success"=>true, "message"=>"Hay un proveedor con el nombre [$proveedorNombre] inactivo, ¿Deseas reactivarlo?","id"=>$check['id']];
+                    return ["success"=>true, "inactive" => true, "message"=>"Hay un proveedor con el nombre [$proveedorNombre] inactivo, ¿Deseas reactivarlo?","id"=>$check['id']];
                 }
                 if($check['exists']){
                     throw new Exception("El nombre del proveedor ya existe.");
@@ -268,9 +266,8 @@
                     . PROVEEDOR_ID . ", "
                     . PROVEEDOR_NOMBRE . ", "
                     . PROVEEDOR_EMAIL . ", "
-                    . PROVEEDOR_CATEGORIA_ID . ", "
-                    . PROVEEDOR_ESTADO . " "
-                    . ") VALUES (?, ?, ?, ?, true)";
+                    . PROVEEDOR_CATEGORIA_ID
+                    . ") VALUES (?, ?, ?, ?)";
 				$stmt = mysqli_prepare($conn, $queryInsert);
         
                 mysqli_stmt_bind_param(
@@ -459,32 +456,23 @@
                 $conn = $result["connection"];
 
                 // Obtenemos la lista de Proveedores
-                $querySelect = "SELECT * FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false ";
+                $querySelect = 
+                    "SELECT P.*, C." . CATEGORIA_NOMBRE . " 
+                    FROM " . TB_PROVEEDOR . " P 
+                    INNER JOIN " . TB_CATEGORIA . " C 
+                    ON P." . PROVEEDOR_CATEGORIA_ID . " = C." . CATEGORIA_ID . " 
+                    WHERE P." . PROVEEDOR_ESTADO . " != false ";
                 $result = mysqli_query($conn, $querySelect);
 
                 // Creamos la lista con los datos obtenidos
                 $listaProveedores = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-
-                    $telefonos =[];
-                    $direcciones =[];
-
-
-                    $resultTelefonos =  $this->proveedorTelefonoData->getTelefonosByProveedor( $row[PROVEEDOR_ID],true);
-                    if($resultTelefonos['success']){
-                        $telefonos = (array_key_exists('telefonos',$resultTelefonos))?$resultTelefonos['telefonos']:[];
-                    }
-
-                    $resultDireccion = $this->proveedorDireccionData->getDireccionesByProveedor($row[PROVEEDOR_ID],true);
-                    if($resultDireccion["success"]){
-                        $direcciones = (array_key_exists('direcciones',$resultDireccion))?$resultDireccion['direcciones']:[];
-                    }
                     $listaProveedores[] = [
                         'ID' => $row[PROVEEDOR_ID],
                         'Nombre' => $row[PROVEEDOR_NOMBRE],
                         'Email' => $row[PROVEEDOR_EMAIL],
-                        'Telefonos' => (!empty($telefonos))? $telefonos: 'Este proveedor no tiene telefonos registrados',
-                        'Direcciones'=>(!empty($direcciones))?$direcciones : 'Este proveedor no posee direcciones',               
+                        'CategoriaID' => $row[PROVEEDOR_CATEGORIA_ID],
+                        'CategoriaNombre' => $row[CATEGORIA_NOMBRE],
                         'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_CREACION], 'Y-MM-dd'),
 						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_CREACION]),
                         'FechaModificacionISO'=>Utils::formatearFecha($row[PROVEEDOR_FECHA_MODIFICACION],'Y-MM-dd'),
@@ -575,7 +563,12 @@
                 $totalPages = ceil($totalRecords / $size);
 
 				// Construir la consulta SQL para paginación
-                $querySelect = "SELECT * FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false ";
+                $querySelect = 
+                    "SELECT P.*, C." . CATEGORIA_NOMBRE . " 
+                    FROM " . TB_PROVEEDOR . " P 
+                    INNER JOIN " . TB_CATEGORIA . " C 
+                    ON P." . PROVEEDOR_CATEGORIA_ID . " = C." . CATEGORIA_ID . " 
+                    WHERE P." . PROVEEDOR_ESTADO . " != false ";
 
 				// Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) {
@@ -597,31 +590,18 @@
 
 				$listaProveedores = [];
 				while ($row = mysqli_fetch_assoc($result)) {
-                    $telefonos =[];
-                    $direcciones =[];
-                    
-                    $resultTelefonos =  $this->proveedorTelefonoData->getTelefonosByProveedor( $row[PROVEEDOR_ID],true);
-                    if($resultTelefonos['success']){
-                        $telefonos = (array_key_exists('telefonos',$resultTelefonos))?$resultTelefonos['telefonos']:[];
-                    }
-
-                    $resultDireccion = $this->proveedorDireccionData->getDireccionesByProveedor($row[PROVEEDOR_ID],true);
-                    if($resultDireccion["success"]){
-                        $direcciones = (array_key_exists('direcciones',$resultDireccion))?$resultDireccion['direcciones']:[];
-                    }
-
 					$listaProveedores[] = [
-						'ID' => $row[PROVEEDOR_ID],
-						'Nombre' => $row[PROVEEDOR_NOMBRE],
-						'Email' => $row[PROVEEDOR_EMAIL],
-                        'Telefonos'=>(!empty($telefonos))? $telefonos: 'Este proveedor no tiene telefonos registrados', 
-                        'Direcciones'=>(!empty($direcciones))?$direcciones : 'Este proveedor no posee direcciones',                              
-						'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_CREACION], 'Y-MM-dd'),
+                        'ID' => $row[PROVEEDOR_ID],
+                        'Nombre' => $row[PROVEEDOR_NOMBRE],
+                        'Email' => $row[PROVEEDOR_EMAIL],
+                        'CategoriaID' => $row[PROVEEDOR_CATEGORIA_ID],            
+                        'CategoriaNombre' => $row[CATEGORIA_NOMBRE],            
+                        'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_CREACION], 'Y-MM-dd'),
 						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_CREACION]),
                         'FechaModificacionISO'=>Utils::formatearFecha($row[PROVEEDOR_FECHA_MODIFICACION],'Y-MM-dd'),
                         'FechaModificacion'=>Utils::formatearFecha($row[PROVEEDOR_FECHA_MODIFICACION]),
-						'Estado' => $row[PROVEEDOR_ESTADO]
-					];
+                        'Estado' => $row[PROVEEDOR_ESTADO]
+                    ];
 				}
 
 				$response = [
