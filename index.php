@@ -69,22 +69,32 @@
         <!-- Muestra un mensaje de error en caso de acceso denegado -->
         <script defer>
             <?php
+                // Obtiene el estado de la sesión
                 $accessDenied = isset($_SESSION[SESSION_ACCESS_DENIED]) ? $_SESSION[SESSION_ACCESS_DENIED] : false;
                 $loggedOut = isset($_GET[SESSION_LOGGED_OUT]) ? boolval($_GET[SESSION_LOGGED_OUT]) : false;
 
+                // Crear variables JavaScript
                 echo $accessDenied ? "const accessDenied = true;" : "const accessDenied = false;";
                 echo $loggedOut ? "const loggedOut = true;" : "const loggedOut = false;";
-                unset($_SESSION[SESSION_ACCESS_DENIED]);
+
+                // Elimina las variables de sesión
+                if ($accessDenied) unset($_SESSION[SESSION_ACCESS_DENIED]);
             ?>
 
             // Obtiene el mensaje correspondiente
             const message = 
                 accessDenied ? 'No tiene permiso para acceder a esta página' : 
                 (loggedOut ? 'Se ha cerrado la sesión' : null);
+
             if (message !== null) { 
                 // Muestra el mensaje
                 const type = accessDenied ? 'error' : 'info';
                 showMessage(message, type);
+
+                // Elimina el parámetro de la URL después de mostrar el mensaje
+                const url = new URL(window.location);
+                url.searchParams.delete('<?= SESSION_LOGGED_OUT ?>');  // Elimina el parámetro de la URL
+                window.history.replaceState({}, '', url);  // Reemplaza la URL actual sin el parámetro
             }
         </script>
 

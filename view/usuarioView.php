@@ -46,18 +46,19 @@
             <table>
                 <thead>
                     <tr>
-                        <th data-field="nombre">Tipo de Número</th>
-                        <th data-field="apellido1">Código de País</th>
-                        <th data-field="apellido2">Número</th>
-                        <th data-field="correo">Extensión</th>
-                        <th data-field="password">Fecha de Creación</th>
+                        <th data-field="nombre">Nombre</th>
+                        <th data-field="apellido1">Prim. Apellido</th>
+                        <th data-field="apellido2">Seg. Apellido</th>
+                        <th data-field="correo">Correo</th>
+                        <th data-field="password">Contraseña</th>
                         <th data-field="rol">Rol</th>
+                        <th data-field="creacion">Fecha Registro</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
                     <tr>
-                        <td colspan = "7" style = "text-align: center; height: 50px;">
+                        <td colspan = "8" style = "text-align: center; height: 50px;">
                             No hay registros disponibles
                         </td>
                     </tr>
@@ -93,7 +94,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
         
         <!-- Scripts propios -->
-        <script src="./view/js/utils.js"></script>
+        <script src="./js/utils.js"></script>
         <script src="./js/usuario/gui.js"></script>
         <script src="./js/usuario/pagination.js"></script>
         <script src="./js/usuario/selects.js"></script>

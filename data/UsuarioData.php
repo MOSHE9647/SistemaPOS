@@ -153,10 +153,8 @@
                         . USUARIO_APELLIDO_2 . ", "
                         . USUARIO_ROL_ID . ", "
                         . USUARIO_EMAIL . ", "
-                        . USUARIO_PASSWORD . ", "
-                        . USUARIO_FECHA_CREACION . ", "
-                        . USUARIO_FECHA_MODIFICACION . 
-                    ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        . USUARIO_PASSWORD . 
+                    ") VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
 
                 // Obtener los valores de las propiedades faltantes
@@ -165,22 +163,18 @@
                 $usuarioApellido2 = $usuario->getUsuarioApellido2();
                 $usuarioRolID = $usuario->getUsuarioRolID();
                 $usuarioPassword = password_hash($usuario->getUsuarioPassword(), PASSWORD_BCRYPT);
-                $usuarioFechaCreacion = $usuario->getUsuarioFechaCreacion()->format('Y-m-d H:i:s');
-                $usuarioFechaModificacion = $usuario->getUsuarioFechaModificacion()->format('Y-m-d H:i:s');
 
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt, 
-                    "isssissss", 
+                    "isssiss", 
                     $nextId, 
                     $usuarioNombre, 
                     $usuarioApellido1, 
                     $usuarioApellido2, 
                     $usuarioRolID, 
                     $usuarioEmail, 
-                    $usuarioPassword, 
-                    $usuarioFechaCreacion, 
-                    $usuarioFechaModificacion
+                    $usuarioPassword
                 );
 
                 // Ejecuta la consulta de inserción
@@ -358,24 +352,27 @@
                 $conn = $result["connection"];
 
                 // Inicializa la consulta base
-                $querySelect = "SELECT * FROM " . TB_USUARIO;
-                if ($onlyActiveOrInactive) { $querySelect .= " WHERE " . USUARIO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); }
+                $querySelect = "SELECT U.*, R." . ROL_NOMBRE . " FROM " . TB_USUARIO . " U INNER JOIN " . TB_ROL . " R ON U." . USUARIO_ROL_ID . " = R." . ROL_ID;
+                if ($onlyActiveOrInactive) { $querySelect .= " WHERE U." . USUARIO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); }
                 $result = mysqli_query($conn, $querySelect);
 
                 // Crea un array para almacenar los usuarios
                 $usuarios = [];
                 while ($row = mysqli_fetch_assoc($result)) {
                     $usuarios [] = [
-                        "ID" => $row[USUARIO_ID],
-                        "Nombre" => $row[USUARIO_NOMBRE],
-                        "Apellido1" => $row[USUARIO_APELLIDO_1],
-                        "Apellido2" => $row[USUARIO_APELLIDO_2],
-                        "RolID" => $row[USUARIO_ROL_ID],
-                        "Email" => $row[USUARIO_EMAIL],
-                        "Password" => $row[USUARIO_PASSWORD],
-                        "FechaCreacion" => $row[USUARIO_FECHA_CREACION],
-                        "FechaModificacion" => $row[USUARIO_FECHA_MODIFICACION],
-                        "Estado" => $row[USUARIO_ESTADO]
+                    "ID" => $row[USUARIO_ID],
+                    "Nombre" => $row[USUARIO_NOMBRE],
+                    "Apellido1" => $row[USUARIO_APELLIDO_1],
+                    "Apellido2" => $row[USUARIO_APELLIDO_2],
+                    "RolID" => $row[USUARIO_ROL_ID],
+                    "RolNombre" => $row[ROL_NOMBRE],
+                    "Email" => $row[USUARIO_EMAIL],
+                    "Password" => $row[USUARIO_PASSWORD],
+                    "Creacion" => Utils::formatearFecha($row[USUARIO_FECHA_CREACION]),
+                    "CreacionISO" => Utils::formatearFecha($row[USUARIO_FECHA_CREACION], "Y-MM-dd"),
+                    "Modificacion" => Utils::formatearFecha($row[USUARIO_FECHA_MODIFICACION]),
+                    "ModificacionISO" => Utils::formatearFecha($row[USUARIO_FECHA_MODIFICACION], "Y-MM-dd"),
+                    "Estado" => $row[USUARIO_ESTADO]
                     ];
                 }
 
@@ -388,7 +385,7 @@
                     'Ocurrió un error al obtener los usuarios de la base de datos',
                     $this->className
                 );
-        
+            
                 // Devolver mensaje amigable para el usuario
                 return ["success" => false, "message" => $userMessage];
             } finally {
@@ -426,9 +423,9 @@
                 $totalPages = ceil($totalRecords / $size);
 
                 // Construir la consulta SQL para paginación
-                $querySelect = "SELECT * FROM " . TB_USUARIO . " ";
-                if ($onlyActiveOrInactive) { $querySelect .= " WHERE " . USUARIO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
-                if ($sort) { $querySelect .= " ORDER BY " . $sort . " "; }
+                $querySelect = "SELECT U.*, R." . ROL_NOMBRE . " FROM " . TB_USUARIO . " U INNER JOIN " . TB_ROL . " R ON U." . USUARIO_ROL_ID . " = R." . ROL_ID;
+                if ($onlyActiveOrInactive) { $querySelect .= " WHERE U." . USUARIO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($sort) { $querySelect .= " ORDER BY usuario" . $sort . " "; }
                 $querySelect .= " LIMIT ? OFFSET ?";
 
                 // Preparar la consulta SQL y asignar los parámetros
@@ -443,16 +440,19 @@
                 $usuarios = [];
                 while ($row = mysqli_fetch_assoc($result)) {
                     $usuarios [] = [
-                        "ID" => $row[USUARIO_ID],
-                        "Nombre" => $row[USUARIO_NOMBRE],
-                        "Apellido1" => $row[USUARIO_APELLIDO_1],
-                        "Apellido2" => $row[USUARIO_APELLIDO_2],
-                        "RolID" => $row[USUARIO_ROL_ID],
-                        "Email" => $row[USUARIO_EMAIL],
-                        "Password" => $row[USUARIO_PASSWORD],
-                        "FechaCreacion" => $row[USUARIO_FECHA_CREACION],
-                        "FechaModificacion" => $row[USUARIO_FECHA_MODIFICACION],
-                        "Estado" => $row[USUARIO_ESTADO]
+                    "ID" => $row[USUARIO_ID],
+                    "Nombre" => $row[USUARIO_NOMBRE],
+                    "Apellido1" => $row[USUARIO_APELLIDO_1],
+                    "Apellido2" => $row[USUARIO_APELLIDO_2],
+                    "RolID" => $row[USUARIO_ROL_ID],
+                    "RolNombre" => $row[ROL_NOMBRE],
+                    "Email" => $row[USUARIO_EMAIL],
+                    "Password" => $row[USUARIO_PASSWORD],
+                    'Creacion' => Utils::formatearFecha($row[USUARIO_FECHA_CREACION]),
+                    'CreacionISO' => Utils::formatearFecha($row[USUARIO_FECHA_CREACION], 'Y-MM-dd'),
+                    'Modificacion' => Utils::formatearFecha($row[USUARIO_FECHA_MODIFICACION]),
+                    'ModificacionISO' => Utils::formatearFecha($row[USUARIO_FECHA_MODIFICACION], 'Y-MM-dd'),
+                    "Estado" => $row[USUARIO_ESTADO]
                     ];
                 }
 
@@ -472,7 +472,7 @@
                     'Ocurrió un error al obtener los usuarios de la base de datos',
                     $this->className
                 );
-        
+            
                 // Devolver mensaje amigable para el usuario
                 return ["success" => false, "message" => $userMessage];
             } finally {
@@ -524,8 +524,10 @@
                             "RolID" => $row[USUARIO_ROL_ID],
                             "Email" => $row[USUARIO_EMAIL],
                             "Password" => $row[USUARIO_PASSWORD],
-                            "FechaCreacion" => $row[USUARIO_FECHA_CREACION],
-                            "FechaModificacion" => $row[USUARIO_FECHA_MODIFICACION],
+                            'Creacion' => Utils::formatearFecha($row[USUARIO_FECHA_CREACION]),
+                            'CreacionISO' => Utils::formatearFecha($row[USUARIO_FECHA_CREACION], 'Y-MM-dd'),
+                            'Modificacion' => Utils::formatearFecha($row[USUARIO_FECHA_MODIFICACION]),
+                            'ModificacionISO' => Utils::formatearFecha($row[USUARIO_FECHA_MODIFICACION], 'Y-MM-dd'),
                             "Estado" => $row[USUARIO_ESTADO]
                         ];
                     } else {
@@ -608,8 +610,10 @@
                             "RolID" => $row[USUARIO_ROL_ID],
                             "Email" => $row[USUARIO_EMAIL],
                             "Password" => $row[USUARIO_PASSWORD],
-                            "FechaCreacion" => $row[USUARIO_FECHA_CREACION],
-                            "FechaModificacion" => $row[USUARIO_FECHA_MODIFICACION],
+                            'Creacion' => Utils::formatearFecha($row[USUARIO_FECHA_CREACION]),
+                            'CreacionISO' => Utils::formatearFecha($row[USUARIO_FECHA_CREACION], 'Y-MM-dd'),
+                            'Modificacion' => Utils::formatearFecha($row[USUARIO_FECHA_MODIFICACION]),
+                            'ModificacionISO' => Utils::formatearFecha($row[USUARIO_FECHA_MODIFICACION], 'Y-MM-dd'),
                             "Estado" => $row[USUARIO_ESTADO]
                         ];
                     } else {
