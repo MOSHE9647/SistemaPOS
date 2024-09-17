@@ -3,19 +3,19 @@
 // ************************************************************************************************ //
 
 /**
- * Crea un nuevo rol enviando una solicitud POST al servidor.
+ * Crea un nuevo categoria enviando una solicitud POST al servidor.
  * 
  * @description Esta función recopila los datos de los campos de entrada en el elemento #createRow.
- *              Si la solicitud es exitosa, muestra un mensaje de éxito, recarga los datos de rols y elimina la fila de creación.
+ *              Si la solicitud es exitosa, muestra un mensaje de éxito, recarga los datos de categorias y elimina la fila de creación.
  *              Si la solicitud falla, muestra un mensaje de error.
  * 
  * @example
- * createRol();
+ * createCategoria();
  * 
  * @returns {void}
  */
-function createRol() {
-    let row = document.getElementById('createRow'); // Obtener la fila de creación de rol
+function createCategoria() {
+    let row = document.getElementById('createRow'); // Obtener la fila de creación de categoria
     let inputs = row.querySelectorAll('input'); // Obtener los campos de entrada de la fila
     let data = { accion: 'insertar' }; // Crear un objeto para almacenar los datos a enviar al servidor
 
@@ -29,7 +29,7 @@ function createRol() {
     });
 
     // Enviar la solicitud POST al servidor
-    fetch('../controller/rolUsuarioAction.php', {
+    fetch('../controller/categoriaAction.php', {
         method: 'POST',
         body: new URLSearchParams(data),
         headers: {
@@ -42,15 +42,15 @@ function createRol() {
         if (data.success) {
             if (!data.inactive) {
                 showMessage(data.message, 'success'); // Mostrar mensaje de éxito
-                fetchRoles(currentPage, pageSize, sort); // Recargar los datos de rols para reflejar la creación
+                fetchCategorias(currentPage, pageSize, sort); // Recargar los datos de categorias para reflejar la creación
                 document.getElementById('createRow').remove(); // Eliminar la fila de creación
                 document.getElementById('createButton').style.display = 'inline-block'; // Mostrar el botón de crear
                 return;
             }
 
-            // Actualizar el rol con los nuevos datos
-            if (data.inactive && confirm(data.message)) { updateRol(data.id, true); }
-            else { showMessage('No se agregó el rol', 'info'); }
+            // Actualizar el categoria con los nuevos datos
+            if (data.inactive && confirm(data.message)) { updateCategoria(data.id, true); }
+            else { showMessage('No se agregó el categoria', 'info'); }
         } else {
             // Mostrar mensaje de error
             showMessage(data.message, 'error');
@@ -58,35 +58,35 @@ function createRol() {
     })
     .catch(error => {
         // Mostrar mensaje de error detallado
-        showMessage(`Ocurrió un error al crear el nuevo rol.<br>${error}`, 'error');
+        showMessage(`Ocurrió un error al crear el nuevo categoria.<br>${error}`, 'error');
     });
 }
 
 /**
- * Actualiza un rol existente enviando una solicitud POST al servidor.
+ * Actualiza un categoria existente enviando una solicitud POST al servidor.
  * 
  * @description Esta función recopila los datos de los campos de entrada en la fila con el id especificado.
- *              Si la solicitud es exitosa, muestra un mensaje de éxito y recarga los datos de rols para reflejar la actualización.
+ *              Si la solicitud es exitosa, muestra un mensaje de éxito y recarga los datos de categorias para reflejar la actualización.
  *              Si la solicitud falla, muestra un mensaje de error.
  * 
- * @param {number} id - El id del rol a actualizar
+ * @param {number} id - El id del categoria a actualizar
  * 
  * @example
- * updateRol(1); // Actualizar el rol con id 1
+ * updateCategoria(1); // Actualizar el categoria con id 1
  * 
  * @returns {void}
  */
-function updateRol(id, reactivate = false) {
+function updateCategoria(id, reactivate = false) {
     let row;
     if (!reactivate) {
         row = document.querySelector(`tr[data-id='${id}']`); //<- Obtener la fila de la tabla con el id especificado
     } else {
-        row = document.getElementById('createRow'); //<- Obtener la fila de creación de rol
+        row = document.getElementById('createRow'); //<- Obtener la fila de creación de categoria
     }
 
     // Si no se encuentra la fila, salir de la función
     if (!row) {
-        showMessage('No se encontró la fila del rol a actualizar', 'error'); 
+        showMessage('No se encontró la fila del categoria a actualizar', 'error'); 
         return; 
     }
     let inputs = row.querySelectorAll('input'); // Obtener los campos de entrada de la fila
@@ -102,7 +102,7 @@ function updateRol(id, reactivate = false) {
     });
 
     // Enviar la solicitud POST al servidor
-    fetch('../controller/rolUsuarioAction.php', {
+    fetch('../controller/categoriaAction.php', {
         method: 'POST',
         body: new URLSearchParams(data),
         headers: {
@@ -114,37 +114,37 @@ function updateRol(id, reactivate = false) {
         // Si la solicitud es exitosa
         if (data.success) {
             showMessage(data.message, 'success'); // Mostrar mensaje de éxito
-            fetchRoles(currentPage, pageSize, sort); // Recargar los datos de rols para reflejar la actualización
+            fetchCategorias(currentPage, pageSize, sort); // Recargar los datos de categorias para reflejar la actualización
         } else {
             showMessage(data.message, 'error'); // Mostrar mensaje de error
         }
     })
     .catch(error => {
         // Mostrar mensaje de error detallado
-        showMessage(`Ocurrió un error al actualizar el rol.<br>${error}`, 'error');
+        showMessage(`Ocurrió un error al actualizar el categoria.<br>${error}`, 'error');
     });
 }
 
 /**
- * Elimina un rol existente enviando una solicitud POST al servidor.
+ * Elimina un categoria existente enviando una solicitud POST al servidor.
  * 
- * @description Esta función solicita confirmación al usuario antes de eliminar el rol.
- *              Si el usuario confirma, envía una solicitud POST al servidor con el id del rol a eliminar.
- *              Si la solicitud es exitosa, muestra un mensaje de éxito y recarga los datos de rols para reflejar la eliminación.
+ * @description Esta función solicita confirmación al usuario antes de eliminar el categoria.
+ *              Si el usuario confirma, envía una solicitud POST al servidor con el id del categoria a eliminar.
+ *              Si la solicitud es exitosa, muestra un mensaje de éxito y recarga los datos de categorias para reflejar la eliminación.
  *              Si la solicitud falla, muestra un mensaje de error.
  * 
- * @param {number} id - El id del rol a eliminar
+ * @param {number} id - El id del categoria a eliminar
  * 
  * @example
- * deleteRol(1); // Eliminar el rol con id 1
+ * deleteCategoria(1); // Eliminar el categoria con id 1
  * 
  * @returns {void}
  */
-function deleteRol(id) {
-    // Solicitar confirmación al usuario antes de eliminar el rol
-    if (confirm('¿Estás seguro de que deseas eliminar este rol?')) {
-        // Enviar la solicitud POST al servidor con el id del rol a eliminar
-        fetch('../controller/rolUsuarioAction.php', {
+function deleteCategoria(id) {
+    // Solicitar confirmación al usuario antes de eliminar el categoria
+    if (confirm('¿Estás seguro de que deseas eliminar este categoria?')) {
+        // Enviar la solicitud POST al servidor con el id del categoria a eliminar
+        fetch('../controller/categoriaAction.php', {
             method: 'POST',
             body: new URLSearchParams({ accion: 'eliminar', id: id }),
             headers: {
@@ -158,8 +158,8 @@ function deleteRol(id) {
                 // Mostrar mensaje de éxito
                 showMessage(data.message, 'success');
                 
-                // Recargar los datos de rols para reflejar la eliminación
-                fetchRoles(currentPage, pageSize, sort);
+                // Recargar los datos de categorias para reflejar la eliminación
+                fetchCategorias(currentPage, pageSize, sort);
             } else {
                 // Mostrar mensaje de error
                 showMessage(data.message, 'error');
@@ -167,7 +167,7 @@ function deleteRol(id) {
         })
         .catch(error => {
             // Mostrar mensaje de error detallado
-            showMessage(`Ocurrió un error al eliminar el rol.<br>${error}`, 'error');
+            showMessage(`Ocurrió un error al eliminar el categoria.<br>${error}`, 'error');
         });
     }
 }

@@ -3,20 +3,20 @@
 // ************************************************************ //
 
 /**
- * Renderiza la tabla de roles con los datos proporcionados.
+ * Renderiza la tabla de categorias con los datos proporcionados.
  * 
- * @description Esta función vacía el cuerpo de la tabla y luego recorre cada rol en el arreglo,
+ * @description Esta función vacía el cuerpo de la tabla y luego recorre cada categoria en el arreglo,
  *              creando una fila para cada uno con los datos correspondientes.
- *              Cada fila incluye botones para editar y eliminar el rol.
+ *              Cada fila incluye botones para editar y eliminar el categoria.
  * 
- * @param {Array} roles - El arreglo de roles a renderizar
+ * @param {Array} categorias - El arreglo de categorias a renderizar
  * 
  * @example
  * renderTable([...]);
  * 
  * @returns {void}
  */
-function renderTable(roles) {
+function renderTable(categorias) {
     // Obtener el cuerpo de la tabla
     let tableBody = document.getElementById('tableBody');
     
@@ -24,16 +24,16 @@ function renderTable(roles) {
     tableBody.innerHTML = '';
     showCreateRow();
 
-    // Recorrer cada rol en el arreglo
-    roles.forEach(rol => {
-        // Crear una fila para el rol
+    // Recorrer cada categoria en el arreglo
+    categorias.forEach(categoria => {
+        // Crear una fila para el categoria
         let row = `
-            <tr data-id="${rol.ID}">
-                <td data-field="nombre">${rol.Nombre}</td>
-                <td data-field="descripcion">${rol.Descripcion}</td>
+            <tr data-id="${categoria.ID}">
+                <td data-field="nombre">${categoria.Nombre}</td>
+                <td data-field="descripcion">${categoria.Descripcion}</td>
                 <td>
                     <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
-                    <button onclick="deleteRol(${rol.ID})">Eliminar</button>
+                    <button onclick="deleteCategoria(${categoria.ID})">Eliminar</button>
                 </td>
             </tr>
         `;
@@ -46,7 +46,7 @@ function renderTable(roles) {
 }
 
 /**
- * Hace editable una fila de la tabla de roles.
+ * Hace editable una fila de la tabla de categorias.
  * 
  * @description Esta función selecciona todas las celdas de la fila y, para cada una,
  *              reemplaza su contenido con un campo de entrada editable correspondiente al tipo de dato.
@@ -84,7 +84,7 @@ function makeRowEditable(row) {
             cell.innerHTML = handler(value);
         } else {
             cell.innerHTML = `
-                <button onclick="updateRol(${row.dataset.id})">Guardar</button>
+                <button onclick="updateCategoria(${row.dataset.id})">Guardar</button>
                 <button onclick="cancelEdit(${row.dataset.id})">Cancelar</button>
             `;
         }
@@ -92,10 +92,10 @@ function makeRowEditable(row) {
 }
 
 /**
- * Muestra una fila para crear un nuevo rol en la tabla.
+ * Muestra una fila para crear un nuevo categoria en la tabla.
  * 
  * @description Esta función oculta el botón de crear y crea una nueva fila en la tabla con campos editables
- *              para ingresar los datos del nuevo rol. La fila incluye botones para crear o cancelar.
+ *              para ingresar los datos del nuevo categoria. La fila incluye botones para crear o cancelar.
  * 
  * @example
  * showCreateRow();
@@ -120,7 +120,7 @@ function showCreateRow() {
         <td data-field="nombre"><input type="text" required></td>
         <td data-field="descripcion"><input type="text"></td>
         <td>
-            <button onclick="createRol()">Crear</button>
+            <button onclick="createCategoria()">Crear</button>
             <button onclick="cancelCreate()">Cancelar</button>
         </td>
     `;
@@ -130,9 +130,9 @@ function showCreateRow() {
 }
 
 /**
- * Cancela la edición de un rol.
+ * Cancela la edición de un categoria.
  * 
- * @description Esta función recarga los datos de roles para cancelar la edición actual.
+ * @description Esta función recarga los datos de categorias para cancelar la edición actual.
  * 
  * @example
  * cancelEdit();
@@ -156,7 +156,7 @@ function cancelEdit() {
         const lastCellIndex = cells.length - 1;
         cells[lastCellIndex].innerHTML = `
             <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
-            <button onclick="deleteRol(${editRow.dataset.id})">Eliminar</button>
+            <button onclick="deleteCategoria(${editRow.dataset.id})">Eliminar</button>
         `;
 
         // Eliminar el id de la fila de edición
@@ -165,7 +165,7 @@ function cancelEdit() {
 }
 
 /**
- * Cancela la creación de un nuevo rol.
+ * Cancela la creación de un nuevo categoria.
  * 
  * @description Esta función elimina la fila de creación y muestra el botón de crear.
  * 
