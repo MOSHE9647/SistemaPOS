@@ -14,7 +14,7 @@
     <div class="table-container">
         <div class="table-header">
             <!-- Botón para crear nueva cuenta por pagar -->
-            <button id="createButton" onclick="showCreateRow()">Crear</button>
+            <!--<button id="createButton" onclick="showCreateRow()">Crear</button> -->
         </div>
 
         <table>

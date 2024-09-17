@@ -17,7 +17,12 @@ function createCuentaPorPagar() {
     inputs.forEach(input => {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
-  
+// Validar si el campo es 'compradetalleid' y verificar si es un número
+//if (fieldName === 'compradetalleid' && isNaN(value)) {
+    //showMessage('El campo Compra Detalle solo debe contener números', 'error');
+  //  valid = false; // Indica que hay un error
+    //return;
+//}
         data[fieldName] = value;
     });
     console.log('Datos enviados para crear cuenta por pagar:', data); // Mensaje de depuración
@@ -29,22 +34,30 @@ function createCuentaPorPagar() {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        // Verifica que la respuesta es JSON
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
     .then(data => {
         console.log('Respuesta del servidor al crear cuenta por pagar:', data); // Mensaje de depuración
         if (data.success) {
             showMessage(data.message, 'success');
             fetchCuentaPorPagar(currentPage, pageSize);
             document.getElementById('createRow').remove();
-            document.getElementById('createButton').style.display = 'inline-block';
+           // document.getElementById('createButton').style.display = 'inline-block';
         } else {
             showMessage(data.message, 'error');
         }
     })
     .catch(error => {
-        showMessage(`Ocurrió un error al crear la nueva cuenta por pagar.<br>${error}`, 'error');
+        console.error('Error en la creación de la cuenta por pagar:', error);
+        showMessage(`Ocurrió un error al crear la nueva cuenta por pagar.<br>${error.message}`, 'error');
     });
 }
+
 
 /**
  * Actualiza una cuenta por pagar existente.
@@ -98,7 +111,14 @@ function updateCuentaPorPagar(id) {
  * deleteCuentaPorPagar(123);
  */
 function deleteCuentaPorPagar(id) {
+    if (!id || id <= 0) {
+        showMessage('El ID no es válido', 'error');
+        return;
+    }
+
     if (confirm('¿Estás seguro de que deseas eliminar esta cuenta por pagar?')) {
+        console.log('ID que se va a eliminar:', id); // Depuración
+
         fetch('../controller/CuentaPorPagarAction.php', {
             method: 'POST',
             body: new URLSearchParams({ accion: 'eliminar', id: id }),
@@ -121,3 +141,5 @@ function deleteCuentaPorPagar(id) {
         });
     }
 }
+
+

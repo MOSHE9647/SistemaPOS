@@ -10,7 +10,36 @@ class CuentaPorPagarData extends Data {
     public function __construct() {
         parent::__construct();
     }
-
+    public function cuentaPorPagarCompraDetalleIdExiste($cuentaPorPagarCompraDetalleID) {
+        try {
+            // Establece una conexión con la base de datos
+            $result = $this->getConnection();
+            if (!$result["success"]) {
+                throw new Exception($result["message"]);
+            }
+            $conn = $result["connection"];
+    
+            // Crea una consulta SQL para verificar si existe el `cuentaPorPagarCompraDetalleID`
+            $queryCheck = "SELECT COUNT(*) FROM " . TB_CUENTA_POR_PAGAR . " WHERE " . CUENTA_POR_PAGAR_COMPRA_DETALLE_ID . " = ? AND " . CUENTA_POR_PAGAR_ESTADO . " != false";
+            $stmt = mysqli_prepare($conn, $queryCheck);
+    
+            // Asigna el parámetro y ejecuta la consulta
+            mysqli_stmt_bind_param($stmt, "i", $cuentaPorPagarCompraDetalleID);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+    
+            // Verificar si hay resultados
+            $count = mysqli_fetch_row($result)[0];
+            return $count > 0;
+    
+        } catch (Exception $e) {
+            return ["success" => false, "message" => $e->getMessage()];
+        } finally {
+            if (isset($stmt)) { mysqli_stmt_close($stmt); }
+            if (isset($conn)) { mysqli_close($conn); }
+        }
+    }
+    
     public function insertCuentaPorPagar($cuentaPorPagar) {
         try {
             // Establece una conexión con la base de datos
@@ -19,26 +48,35 @@ class CuentaPorPagarData extends Data {
                 throw new Exception($result["message"]);
             }
             $conn = $result["connection"];
+    
+             // Verificar si el `cuentaPorPagarCompraDetalleID` ya existe
+        if ($this->cuentaPorPagarCompraDetalleIdExiste($cuentaPorPagar->getCuentaPorPagarCompraDetalleID())) {
+            return ["success" => false, "message" => "Ya existe una cuenta por pagar con el mismo Compra Detalle ID."];
+        }
+            
+     // Obtiene el último ID de la tabla tblote
+     $queryGetLastId = "SELECT MAX(" . CUENTA_POR_PAGAR_ID . ") FROM " . TB_CUENTA_POR_PAGAR;
+     $idCont = mysqli_query($conn, $queryGetLastId);
+     $nextId = 1;
 
-            // Verifica si ya existe una cuenta por pagar con el mismo ID
-            if ($this->cuentaPorPagarExiste($cuentaPorPagar->getCuentaPorPagarID())) {
-                return ["success" => false, "message" => "Ya existe una cuenta por pagar con el mismo ID."];
-            }
-
+     // Calcula el siguiente ID para la nueva entrada
+     if ($row = mysqli_fetch_row($idCont)) {
+         $nextId = (int) trim($row[0]) + 1;
+     }
             // Crea una consulta y un statement SQL para insertar el registro
-            $queryInsert = "INSERT INTO " . TB_CUENTA_POR_PAGAR . " ("
-                . CUENTA_POR_PAGAR_ID . ", "
+            $queryInsert = "INSERT INTO " . TB_CUENTA_POR_PAGAR . " (" 
+                . CUENTA_POR_PAGAR_ID . ", " 
                 . CUENTA_POR_PAGAR_COMPRA_DETALLE_ID . ", "                  
-                . CUENTA_POR_PAGAR_FECHA_VENCIMIENTO . ", "
-                . CUENTA_POR_PAGAR_MONTO_TOTAL . ", "
-                . CUENTA_POR_PAGAR_MONTO_PAGADO . ", "
-                . CUENTA_POR_PAGAR_FECHA_PAGO . ", "
-                . CUENTA_POR_PAGAR_NOTAS . ", "
-                . CUENTA_POR_PAGAR_ESTADO_CUENTA . ", "
-                . CUENTA_POR_PAGAR_ESTADO
+                . CUENTA_POR_PAGAR_FECHA_VENCIMIENTO . ", " 
+                . CUENTA_POR_PAGAR_MONTO_TOTAL . ", " 
+                . CUENTA_POR_PAGAR_MONTO_PAGADO . ", " 
+                . CUENTA_POR_PAGAR_FECHA_PAGO . ", " 
+                . CUENTA_POR_PAGAR_NOTAS . ", " 
+                . CUENTA_POR_PAGAR_ESTADO_CUENTA . ", " 
+                . CUENTA_POR_PAGAR_ESTADO 
                 . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = mysqli_prepare($conn, $queryInsert);
-
+    
             // Obtener los valores de las propiedades del objeto $cuentaPorPagar
             $cuentaPorPagarID = $cuentaPorPagar->getCuentaPorPagarID();
             $cuentaPorPagarCompraDetalleID = $cuentaPorPagar->getCuentaPorPagarCompraDetalleID();
@@ -49,12 +87,16 @@ class CuentaPorPagarData extends Data {
             $cuentaPorPagarNotas = $cuentaPorPagar->getCuentaPorPagarNotas();
             $cuentaPorPagarEstadoCuenta = $cuentaPorPagar->getCuentaPorPagarEstadoCuenta();
             $cuentaPorPagarEstado = $cuentaPorPagar->getCuentaPorPagarEstado();
+    // Asegurarse de que estos valores no sean nulos
+    $cuentaPorPagarEstadoCuenta = !empty($cuentaPorPagar->getCuentaPorPagarEstadoCuenta()) ? $cuentaPorPagar->getCuentaPorPagarEstadoCuenta() : 'Pendiente';
+    $cuentaPorPagarNotas = !empty($cuentaPorPagar->getCuentaPorPagarNotas()) ? $cuentaPorPagar->getCuentaPorPagarNotas() : 'Sin Notas';
+    $cuentaPorPagarEstado = $cuentaPorPagar->getCuentaPorPagarEstado();
 
             // Asigna los valores a cada '?' de la consulta
             mysqli_stmt_bind_param(
                 $stmt,
                 'iisddssss', // i: Entero, d: Doble, s: Cadena
-                $cuentaPorPagarID,
+                $nextId,
                 $cuentaPorPagarCompraDetalleID,
                 $cuentaPorPagarFechaVencimiento,
                 $cuentaPorPagarMontoTotal,
@@ -64,27 +106,20 @@ class CuentaPorPagarData extends Data {
                 $cuentaPorPagarEstadoCuenta,
                 $cuentaPorPagarEstado
             );
-
+    
             // Ejecuta la consulta de inserción
             $result = mysqli_stmt_execute($stmt);
             return ["success" => true, "message" => "Cuenta por pagar insertada exitosamente"];
         } catch (Exception $e) {
             // Manejo del error dentro del bloque catch
-            $userMessage = $this->handleMysqlError(
-                $e->getCode(), 
-                $e->getMessage(),
-                'Error al insertar la cuenta por pagar en la base de datos'
-            );
-
-            // Devolver mensaje amigable para el usuario
-            return ["success" => false, "message" => $userMessage];
+            return ["success" => false, "message" => $e->getMessage()];
         } finally {
             // Cierra el statement y la conexión si están definidos
             if (isset($stmt)) { mysqli_stmt_close($stmt); }
             if (isset($conn)) { mysqli_close($conn); }
         }
     }
-
+    
     public function updateCuentaPorPagar($cuentaPorPagar) {
         try {
             // Establece una conexión con la base de datos
@@ -322,38 +357,33 @@ class CuentaPorPagarData extends Data {
                 throw new Exception($result["message"]);
             }
             $conn = $result["connection"];
-            
-            // Crea una consulta y un statement SQL para buscar el registro
+        
+            // Crea una consulta SQL que verifica solo las cuentas activas
             $queryCheck = "SELECT * FROM " . TB_CUENTA_POR_PAGAR . " WHERE " . CUENTA_POR_PAGAR_ID . " = ? AND " . CUENTA_POR_PAGAR_ESTADO . " != false";
             $stmt = mysqli_prepare($conn, $queryCheck);
-            
-            // Asigna los parámetros y ejecuta la consulta
+        
+            // Asigna el parámetro y ejecuta la consulta
             mysqli_stmt_bind_param($stmt, "i", $cuentaPorPagarID);
             mysqli_stmt_execute($stmt);
             $result = mysqli_stmt_get_result($stmt);
-            
+        
             // Verifica si existe algún registro con los criterios dados
             if (mysqli_num_rows($result) > 0) {
-                return ["success" => true, "exists" => true];
+                $existingRow = mysqli_fetch_assoc($result);
+                return ["success" => true, "exists" => true, "data" => $existingRow]; // Devuelve los datos si existe
             }
-            
+        
             return ["success" => true, "exists" => false];
         } catch (Exception $e) {
-            // Manejo del error dentro del bloque catch
-            $userMessage = $this->handleMysqlError(
-                $e->getCode(), 
-                $e->getMessage(),
-                'Error al verificar la existencia de la cuenta por pagar en la base de datos'
-            );
-            
-            // Devolver mensaje amigable para el usuario
-            return ["success" => false, "message" => $userMessage];
+            return ["success" => false, "message" => $e->getMessage()];
         } finally {
-            // Cierra la conexión y el statement
+            // Cierra la conexión y el statement si están definidos
             if (isset($stmt)) { mysqli_stmt_close($stmt); }
             if (isset($conn)) { mysqli_close($conn); }
         }
     }
+    
+    
 
     public function deleteCuentaPorPagar($cuentaPorPagarID) {
         try {

@@ -18,7 +18,7 @@ function formatMonto(monto) {
     return !isNaN(parsedMonto) ? parsedMonto.toFixed(2) : '0.00';
 }
 
-function renderTable(cuentasPorPagar) {
+/*function renderTable(cuentasPorPagar) {
     let tableBody = document.getElementById('tableBody');
     tableBody.innerHTML = ''; // Limpia la tabla
 
@@ -37,7 +37,7 @@ function renderTable(cuentasPorPagar) {
             <td data-field="estadocuenta">${cuenta.EstadoCuenta || 'Desconocido'}</td>
             <td>
                 <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
-                <button onclick="deleteCuentaPorPagar(${cuenta.id})">Eliminar</button>
+                <button onclick="deleteCuentaPorPagar(${cuenta.ID})">Eliminar</button>
             </td>
         </tr>
         `;
@@ -45,6 +45,61 @@ function renderTable(cuentasPorPagar) {
     });
 
     checkEmptyTable();
+}
+*/
+function renderTable(cuentasPorPagar) {
+    let tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = ''; // Limpia la tabla
+
+    // Renderizar la fila de creación siempre visible al inicio de la tabla
+    renderCreateRow();
+
+    // Renderizar las demás filas
+    cuentasPorPagar.forEach(cuenta => {
+        let montoTotalFormatted = formatMonto(cuenta.MontoTotal);
+        let montoPagadoFormatted = formatMonto(cuenta.MontoPagado);
+
+        let row = `
+        <tr data-id="${cuenta.ID}">
+            <td data-field="compradetalleid">${cuenta.CompraDetalleID || 'Sin ID'}</td>
+            <td data-field="fechavencimiento">${cuenta.FechaVencimiento || 'Sin fecha'}</td>
+            <td data-field="montototal">${montoTotalFormatted}</td>
+            <td data-field="montopagado">${montoPagadoFormatted}</td>
+            <td data-field="fechapago">${cuenta.FechaPago || 'Sin fecha'}</td>
+            <td data-field="notas">${cuenta.Notas || 'Sin notas'}</td>
+            <td data-field="estadocuenta">${cuenta.EstadoCuenta || 'Desconocido'}</td>
+            <td>
+                <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
+                <button onclick="deleteCuentaPorPagar(${cuenta.ID})">Eliminar</button>
+            </td>
+        </tr>
+        `;
+        tableBody.innerHTML += row;
+    });
+
+    checkEmptyTable();
+}
+function renderCreateRow() {
+    let tableBody = document.getElementById('tableBody');
+    let newRow = document.createElement('tr');
+    newRow.id = 'createRow';
+
+    newRow.innerHTML = `
+        <td data-field="compradetalleid"><input type="text" required></td>
+        <td data-field="fechavencimiento"><input type="date" required></td>
+        <td data-field="montototal"><input type="number" step="0.01" required></td>
+        <td data-field="montopagado"><input type="number" step="0.01" required></td>
+        <td data-field="fechapago"><input type="date" required></td>
+        <td data-field="notas"><input type="text" required></td>
+        <td data-field="estadocuenta"><input type="text" required></td>
+        <td>
+            <button onclick="createCuentaPorPagar()">Guardar</button>
+            <button onclick="cancelCreate()">Cancelar</button>
+        </td>
+    `;
+
+    // Inserta la fila de creación al inicio de la tabla
+    tableBody.insertBefore(newRow, tableBody.firstChild);
 }
 
 /**
