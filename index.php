@@ -42,8 +42,8 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
         <script src="./view/js/utils.js"></script>
         <script>
-            function printBarcodes(count) {
-                const url = `/pdf/printBarcodes.php?count=${count}`;
+            function printBarcodes(count, productoID) {
+                const url = `/pdf/printBarcodes.php?count=${count}&producto=${productoID}`;
                 window.open(url, '_blank', 'width=800,height=1300');
             }
 
@@ -111,7 +111,7 @@
                 generateLinks($intermediateTables);
             ?>
             <h3>Extras</h3>
-            <li><a href="#" onclick="printBarcodes(10)">Imprimir Códigos de Barras</a></li>
+            <li><a href="#" onclick="printBarcodes(10, 2)">Imprimir Códigos de Barras</a></li>
             <li><a href="./view/generarCodigoBarrasView.php">Generar Código de Barras</a></li>
             
             <h3>Perfil</h3>
