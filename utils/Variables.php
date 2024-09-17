@@ -16,6 +16,7 @@
 	define('SESSION_AUTHENTICATED', 'autenticado');
 	define('SESSION_ACCESS_DENIED', 'acceso_denegado');
 	define('SESSION_LOGGED_OUT', 'logged_out');
+	define('SESSION_LOGGED_IN', 'logged_in');
 	define('SESSION_ORIGIN_URL', 'url_origen');
 
 	// VARIABLES PARA ROLES DE USUARIO:
