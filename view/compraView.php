@@ -6,7 +6,7 @@
     <title>Gestión de Compras | POSFusion</title>
     <link rel="stylesheet" href="./css/styles.css">
         <!-- Toastr -->
-        
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
 </head>
 <body>
     <h2>Lista de Compras</h2>
@@ -32,7 +32,26 @@
                     <th>Acciones</th>
                 </tr>
 
-
+<!--tr id="createRow">
+                    <td><input type="text" id="newNumeroFactura" placeholder="Número de Factura"></td>
+                    <td><input type="text" id="newProveedor" placeholder="Proveedor"></td>
+                    <td><input type="number" id="newMontoBruto" placeholder="Monto Bruto"></td>
+                    <td><input type="number" id="newMontoNeto" placeholder="Monto Neto"></td>
+                    <td>
+                        <select id="newTipoPago">
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Transferencia">Transferencia</option>
+                        </select>
+                    </td>
+                    <td>N/A</td>
+                    <td>N/A</td>
+                    <td>
+                        <button onclick="createCompra()">Guardar</button>
+                        <button onclick="cancelarCrearCompra()">Cancelar</button>
+                    </td>
+                </tr>-->
+            </thead>
             <tbody id="tableBody">
                 <!-- Las filas se llenan dinámicamente con JavaScript -->
             </tbody>
@@ -59,12 +78,12 @@
 
     <a href="../index.php" class="menu-button">Regresar al Menú</a>
 
-    <!-- Scripts -->
+    <!-- Toastr Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
+    
     <!-- Scripts de JavaScript -->
-    <script src="./js/utils.js"></script>                  <!-- Utiles para mostrar notificaciones y demás           -->
+    <script src="./js/utils.js"></script>                   <!-- Utiles para mostrar notificaciones y demás           -->
     <script src="./js/compra/compraGUI.js"></script>       <!-- Manejo dinámico de la página                         -->
     <script src="./js/compra/compraPagination.js"></script><!-- Métodos para Paginación                              -->
     <script src="./js/compra/compraCrud.js"></script>      <!-- Creación, Actualización y Eliminación de Compras     -->
