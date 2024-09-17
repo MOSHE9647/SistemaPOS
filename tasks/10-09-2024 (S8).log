@@ -42,14 +42,14 @@ Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos
     |------------------------------|---------------------------------------|------------------------------|---------------------------|
     | Grupo 1 ('Jason y Javier')   | Grupo 2 ('Gonzalo, Maikel, Javier')   | Grupo 3 ('Isaac')            | Grupo 4 ('Maikel')        |
     |------------------------------|---------------------------------------|------------------------------|---------------------------|
-    | [--] tbcompra                | [10] tbproveedor                      | [10] tbrolusuario            | [  ] tbmarca              |
-    | [--] tbcompradetalle         | [10] tbcategoria                      | [10] tbusuario               | [  ] tbpresentación       |
+    | [--] tbcompra                | [10] tbproveedor                      | [11] tbrolusuario            | [  ] tbmarca              |
+    | [--] tbcompradetalle         | [10] tbcategoria                      | [11] tbusuario               | [  ] tbpresentación       |
     | [--] tbcuentaporpagar        | [10] tbsubcategoria                   | [11] tbimpuesto              |                           |
     | [--] tblote                  | [--] tbproveedorproducto              | [11] tbtelefono              |                           |
     | [--] tbproducto              |                                       | [11] tbdireccion             |                           |
     |                              |                                       | [10] tbcodigobarras          |                           |
-    |                              |                                       | [00] tbproveedortelefono     |                           |
-    |                              |                                       | [10] tbproveedordireccion    |                           |
+    |                              |                                       | [11] tbproveedortelefono     |                           |
+    |                              |                                       | [11] tbproveedordireccion    |                           |
     |                              |                                       | [  ] tbusuariotelefono       |                           |
     |------------------------------|---------------------------------------|------------------------------|---------------------------|
 

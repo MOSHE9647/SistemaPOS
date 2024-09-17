@@ -361,7 +361,7 @@
                 if ($onlyActiveOrInactive) { $querySelect .= " WHERE " . ROL_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 // Agregar ordenamiento si se especifica
-                if ($sort) { $querySelect .= " ORDER BY " . $sort . " "; }
+                if ($sort) { $querySelect .= " ORDER BY rolusuario" . $sort . " "; }
 
                 // Agregar límite y desplazamiento
                 $querySelect .= " LIMIT ? OFFSET ?";

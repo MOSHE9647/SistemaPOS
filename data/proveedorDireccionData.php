@@ -17,6 +17,7 @@
             $conn = null; $stmt = null;
 
             try {
+                $missingParamsLog="";
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) { throw new Exception($result["message"]); }
@@ -66,7 +67,7 @@
                 }
 
                 // Retorna false si no se encontraron resultados
-                return ["success" => true, "exists" => false, "message" => $message];
+                return ["success" => true, "exists" => false, "message" => $missingParamsLog];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(

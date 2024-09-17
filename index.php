@@ -1,6 +1,26 @@
 <?php
     require_once __DIR__ . '/utils/Variables.php';
     session_start();
+
+    // Función para generar un mensaje basado en los parámetros de sesión
+    function getSessionMessage() {
+        if (isset($_SESSION[SESSION_ACCESS_DENIED])) {
+            unset($_SESSION[SESSION_ACCESS_DENIED]);
+            return ['message' => 'No tiene permiso para acceder a esta página', 'type' => 'error'];
+        }
+        if (isset($_GET[SESSION_LOGGED_OUT])) {
+            return ['message' => 'Se ha cerrado la sesión', 'type' => 'info'];
+        }
+        if (isset($_GET[SESSION_LOGGED_IN])) {
+            return ['message' => 'Sesión iniciada correctamente', 'type' => 'success'];
+        }
+        return null;
+    }
+
+    $sessionMessage = getSessionMessage();
+
+    // Parámetros que deben ser eliminados de la URL después de ser utilizados
+    $urlParamsToRemove = [SESSION_LOGGED_OUT, SESSION_LOGGED_IN];
 ?>
 
 <!DOCTYPE html>
@@ -17,76 +37,89 @@
             }
         </style>
 
+        <!-- Scripts -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+        <script src="./view/js/utils.js"></script>
         <script>
             function printBarcodes(count) {
                 const url = `/pdf/printBarcodes.php?count=${count}`;
                 window.open(url, '_blank', 'width=800,height=1300');
             }
+
+            // Función para eliminar múltiples parámetros de la URL
+            function removeUrlParams(params) {
+                const url = new URL(window.location);
+                params.forEach(param => url.searchParams.delete(param)); // Elimina cada parámetro
+                window.history.replaceState({}, '', url); // Reemplaza la URL sin los parámetros
+            }
+
+            // Ejecutar si hay un mensaje de sesión
+            document.addEventListener("DOMContentLoaded", function() {
+                <?php if ($sessionMessage): ?>
+                    showMessage('<?= $sessionMessage['message'] ?>', '<?= $sessionMessage['type'] ?>');
+
+                    // Elimina los parámetros de sesión una vez usados
+                    removeUrlParams(<?= json_encode($urlParamsToRemove) ?>);
+                <?php endif; ?>
+            });
         </script>
     </head>
     <body>
-        <h2>Administración de CRUDS <?php //echo gethostname() ?></h2>
+        <h2>Administración de CRUDS</h2>
         <ul>
-            <h3>Tablas Principales</h3>
-            <li> <a href="./view/usuarioView.php">Gestión de Usuarios</a> </li>
-            <li> <a href="./view/impuestoView.php">Gestión de Impuestos</a> </li>
-            <li> <a href="./view/proveedorView.php">Gestión de Proveedores</a> </li>
-            <li> <a href="./view/direccionView.php">Gestion de Direcciones</a> </li>
-            <li> <a href="./view/productoView.php">Gestión de Productos</a> </li>
-            <li> <a href="./view/telefonoView.php">Gestión de Telefonos</a> </li>
-            <li> <a href="./view/categoriaView.php">Gestion de Categorias</a> </li>
-            <li> <a href="./view/subcategoriaView.php">Gestión de Subcategorias</a> </li>
-            <li> <a href="./view/loteView.php">Gestión de Lotes</a> </li>
-            <li> <a href="./view/compraView.php">Gestión de Compras</a> </li>
-            <li> <a href="./view/cuentaporpagarView.php">Gestión de cuentas por pagar</a> </li>
-            <li> <a href="./view/compradetalleView.php">Gestión de detalle de compras</a> </li>
-
-            <h3>Tablas Intermedias</h3>
-            <li> <a href="./view/productoSubcategoriaView.php">Gestión de Producto-Subcategorias</a> </li>
-            <li> <a href="./view/proveedorDireccionView.php">Gestión de Proveedor-Direcciones</a> </li>
-            <li> <a href="./view/proveedorTelefonoView.php">Gestión de Proveedor-Telefonos</a> </li>
-            <li> <a href="./view/proveedorProductoView.php">Gestión de Proveedor-Productos</a> </li>
-            <li> <a href="./view/proveedorCategoriaView.php">Gestion de Proveedor-Categoria</a><li>
-            <h3>Extras</h3>
-            <li> <a href="" onclick="printBarcodes(10)">Imprimir Códigos de Barras</a> </li>
-        
-            <h3>Pruebas</h3>
-            <li> <a href="./view/generarCodigoBarrasView.php">Prueba de Código de Barras</a> </li>
-            
             <?php
-                if (isset($_SESSION[SESSION_AUTHENTICATED]) && $_SESSION[SESSION_AUTHENTICATED] === true) {
-                    echo '<h3>Perfil</h3>';
-                    echo '<li> <a href="./view/auth/logout.php">Cerrar Sesión</a> </li>';
+                // Array de enlaces principales
+                $mainTables = [
+                    'auth/login.php' => 'Iniciar Sesión',
+                    'rolUsuarioView.php' => 'Gestión de Roles de Usuario',
+                    'usuarioView.php' => 'Gestión de Usuarios',
+                    'impuestoView.php' => 'Gestión de Impuestos',
+                    'proveedorView.php' => 'Gestión de Proveedores',
+                    'direccionView.php' => 'Gestión de Direcciones',
+                    'productoView.php' => 'Gestión de Productos',
+                    'telefonoView.php' => 'Gestión de Teléfonos',
+                    'categoriaView.php' => 'Gestión de Categorías',
+                    'subcategoriaView.php' => 'Gestión de Subcategorías',
+                    'loteView.php' => 'Gestión de Lotes',
+                    'compraView.php' => 'Gestión de Compras',
+                    'cuentaporpagarView.php' => 'Gestión de Cuentas por Pagar',
+                    'compradetalleView.php' => 'Gestión de Detalle de Compras',
+                ];
+
+                // Array de enlaces intermedios
+                $intermediateTables = [
+                    'productoSubcategoriaView.php' => 'Gestión de Producto-Subcategorías',
+                    'proveedorDireccionView.php' => 'Gestión de Proveedor-Direcciones',
+                    'proveedorTelefonoView.php' => 'Gestión de Proveedor-Teléfonos',
+                    'proveedorProductoView.php' => 'Gestión de Proveedor-Productos',
+                    'proveedorCategoriaView.php' => 'Gestión de Proveedor-Categoría',
+                ];
+
+                // Función para generar la lista de enlaces
+                function generateLinks($links) {
+                    foreach ($links as $file => $label) {
+                        echo "<li><a href=\"./view/$file\">$label</a></li>";
+                    }
                 }
+
+                // Imprimir secciones de enlaces
+                echo "<h3>Tablas Principales</h3>";
+                generateLinks($mainTables);
+
+                echo "<h3>Tablas Intermedias</h3>";
+                generateLinks($intermediateTables);
             ?>
+            <h3>Extras</h3>
+            <li><a href="#" onclick="printBarcodes(10)">Imprimir Códigos de Barras</a></li>
+
+            <h3>Pruebas</h3>
+            <li><a href="./view/generarCodigoBarrasView.php">Prueba de Código de Barras</a></li>
+
+            <?php if (isset($_SESSION[SESSION_AUTHENTICATED]) && $_SESSION[SESSION_AUTHENTICATED] === true): ?>
+                <h3>Perfil</h3>
+                <li><a href="./view/auth/logout.php">Cerrar Sesión</a></li>
+            <?php endif; ?>
         </ul>
-
-        <!-- Scripts -->
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-        <script src="./view/js/utils.js"></script>
-
-        <!-- Muestra un mensaje de error en caso de acceso denegado -->
-        <script defer>
-            <?php
-                $accessDenied = isset($_SESSION[SESSION_ACCESS_DENIED]) ? $_SESSION[SESSION_ACCESS_DENIED] : false;
-                $loggedOut = isset($_GET[SESSION_LOGGED_OUT]) ? boolval($_GET[SESSION_LOGGED_OUT]) : false;
-
-                echo $accessDenied ? "const accessDenied = true;" : "const accessDenied = false;";
-                echo $loggedOut ? "const loggedOut = true;" : "const loggedOut = false;";
-                unset($_SESSION[SESSION_ACCESS_DENIED]);
-            ?>
-
-            // Obtiene el mensaje correspondiente
-            const message = 
-                accessDenied ? 'No tiene permiso para acceder a esta página' : 
-                (loggedOut ? 'Se ha cerrado la sesión' : null);
-            if (message !== null) { 
-                // Muestra el mensaje
-                const type = accessDenied ? 'error' : 'info';
-                showMessage(message, type);
-            }
-        </script>
-
     </body>
 </html>

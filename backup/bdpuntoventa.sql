@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 11-09-2024 a las 21:05:36
+-- Tiempo de generación: 16-09-2024 a las 18:58:23
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -22,7 +22,7 @@ SET time_zone = "+00:00";
 --
 
 DROP DATABASE IF EXISTS `bdpuntoventa`;
-CREATE DATABASE `bdpuntoventa` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+CREATE DATABASE IF NOT EXISTS `bdpuntoventa` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 USE `bdpuntoventa`;
 
 -- --------------------------------------------------------
@@ -160,7 +160,9 @@ INSERT INTO `tbdireccion` (`direccionid`, `direccionprovincia`, `direccioncanton
 (2, 'Alajuela', 'Zarcero', 'Guadalupe', 'Escalante', 'Casa #26', 20.00, 1),
 (3, 'Alajuela', 'San Carlos', 'Aguas Zarcas', 'Cascadia', '', 20.00, 0),
 (4, 'Guanacaste', 'Abangares', 'Sierra', 'Sierra', 'Casa #32', 5.00, 1),
-(5, 'Heredia', 'Santo Domingo', 'Para', '', '', 20.59, 1);
+(5, 'Heredia', 'Santo Domingo', 'Para', '', '', 20.59, 1),
+(6, 'CARTAGO', 'TURRIALBA', 'TURRIALBA', '', '', 15.00, 0),
+(7, 'HEREDIA', 'SAN PABLO', 'SAN PABLO', '', '', 20.00, 1);
 
 -- --------------------------------------------------------
 
@@ -179,6 +181,16 @@ CREATE TABLE IF NOT EXISTS `tbimpuesto` (
   `impuestoestado` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`impuestoid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Volcado de datos para la tabla `tbimpuesto`
+--
+
+INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impuestodescripcion`, `impuestofechainiciovigencia`, `impuestofechafinvigencia`, `impuestoestado`) VALUES
+(1, 'IVA', 13.00, 'Impuesto al Valor Agregado', '2024-09-15', '2024-09-30', 1),
+(2, 'IVM', 20.00, 'Impuesto al Valor Monetario', '2024-09-14', '2024-11-21', 1),
+(3, 'IMP', 13.20, 'Impuesto al Mejor Personaje', '2024-09-14', '2024-12-05', 1),
+(4, 'IMJ', 23.55, 'Impuesto al Mejor Jugador', '2024-09-14', '2025-04-25', 1);
 
 -- --------------------------------------------------------
 
@@ -281,6 +293,13 @@ CREATE TABLE IF NOT EXISTS `tbproveedor` (
   PRIMARY KEY (`proveedorid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Volcado de datos para la tabla `tbproveedor`
+--
+
+INSERT INTO `tbproveedor` (`proveedorid`, `proveedornombre`, `proveedoremail`, `proveedorcategoriaid`, `proveedorfechacreacion`, `proveedorfechamodificacion`, `proveedorestado`) VALUES
+(1, 'Proveedor 1', 'proveedor1@ejemplo.com', 1, '2024-09-15 18:07:39', '2024-09-15 18:07:39', 1);
+
 -- --------------------------------------------------------
 
 --
@@ -295,6 +314,13 @@ CREATE TABLE IF NOT EXISTS `tbproveedordireccion` (
   `proveedordireccionestado` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`proveedordireccionid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Volcado de datos para la tabla `tbproveedordireccion`
+--
+
+INSERT INTO `tbproveedordireccion` (`proveedordireccionid`, `proveedorid`, `direccionid`, `proveedordireccionestado`) VALUES
+(1, 1, 7, 1);
 
 -- --------------------------------------------------------
 
@@ -326,6 +352,18 @@ CREATE TABLE IF NOT EXISTS `tbproveedortelefono` (
   PRIMARY KEY (`proveedortelefonoid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Volcado de datos para la tabla `tbproveedortelefono`
+--
+
+INSERT INTO `tbproveedortelefono` (`proveedortelefonoid`, `proveedorid`, `telefonoid`, `proveedortelefonoestado`) VALUES
+(1, 1, 1, 1),
+(2, 1, 2, 1),
+(3, 1, 3, 1),
+(4, 1, 4, 1),
+(5, 1, 5, 1),
+(6, 1, 6, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -340,6 +378,15 @@ CREATE TABLE IF NOT EXISTS `tbrolusuario` (
   `rolusuarioestado` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`rolusuarioid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Volcado de datos para la tabla `tbrolusuario`
+--
+
+INSERT INTO `tbrolusuario` (`rolusuarioid`, `rolusuarionombre`, `rolusuariodescripcion`, `rolusuarioestado`) VALUES
+(1, 'ADMIN', 'Usuario administrador', 1),
+(2, 'DEPENDIENTE', 'Dependiente del Negocio', 1),
+(3, 'CLIENTE', '', 1);
 
 -- --------------------------------------------------------
 
@@ -382,8 +429,11 @@ CREATE TABLE IF NOT EXISTS `tbtelefono` (
 
 INSERT INTO `tbtelefono` (`telefonoid`, `telefonotipo`, `telefonocodigopais`, `telefononumero`, `telefonoextension`, `telefonofechacreacion`, `telefonofechamodificacion`, `telefonoestado`) VALUES
 (1, 'Móvil', '+1-809', '257 998 5247', '', '2024-09-07 22:11:19', '2024-09-07 22:11:19', 1),
-(2, 'Móvil', '+503', '9728 6416', '', '2024-09-07 22:11:51', '2024-09-07 22:12:25', 0),
-(3, 'Móvil', '+593', '65 588 4412', '', '2024-09-10 09:21:51', '2024-09-10 09:21:51', 1);
+(2, 'Fax', '+503', '9728 6416', '', '2024-09-07 22:11:51', '2024-09-14 17:19:50', 1),
+(3, 'Móvil', '+593', '65 588 4412', '', '2024-09-10 09:21:51', '2024-09-10 09:21:51', 1),
+(4, 'Fax', '+506', '6421 2950', '', '2024-09-11 20:28:23', '2024-09-16 16:14:18', 1),
+(5, 'Móvil', '+502', '5972 3158', '', '2024-09-14 17:08:22', '2024-09-14 17:08:22', 1),
+(6, 'Móvil', '+51', '5679 8524', '', '2024-09-14 17:48:35', '2024-09-14 17:48:35', 1);
 
 -- --------------------------------------------------------
 
@@ -405,6 +455,14 @@ CREATE TABLE IF NOT EXISTS `tbusuario` (
   `usuarioestado` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`usuarioid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Volcado de datos para la tabla `tbusuario`
+--
+
+INSERT INTO `tbusuario` (`usuarioid`, `usuarionombre`, `usuarioapellido1`, `usuarioapellido2`, `usuariorolusuarioid`, `usuarioemail`, `usuariopassword`, `usuariofechacreacion`, `usuariofechamodificacion`, `usuarioestado`) VALUES
+(1, 'Isaac', 'Herrera', 'Pastrana', 1, 'isaacmhp2001@gmail.com', '$2y$10$WIq4w2R83lzCkfa9L3NaK.9lZs.OyELxxAC/sqU3Rl4sxzlJboxgm', '2024-09-15 23:17:43', '2024-09-16 17:56:00', 1),
+(2, 'Admin', 'Adminson', 'Adminsen', 1, 'admin@admin.com', '$2y$10$SNR/eRRpbLE2RvM3WBLHReJLD8up0CXMuveEL7Z70fj6xV7A.V0Ai', '2024-09-16 17:49:31', '2024-09-16 17:56:18', 1);
 
 -- --------------------------------------------------------
 
