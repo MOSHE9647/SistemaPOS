@@ -24,7 +24,7 @@ function createProveedor() {
     let row = document.getElementById('createRow');
     
     // Obtener los campos de entrada de la fila
-    let inputs = row.querySelectorAll('input');
+    let inputs = row.querySelectorAll('input, select');
     
     // Crear un objeto para almacenar los datos a enviar al servidor
     let data = { accion: 'insertar' };
@@ -41,6 +41,8 @@ function createProveedor() {
         data[fieldName] = value;
     });
 
+    console.log(data);
+
     // Enviar la solicitud POST al servidor
     fetch('../controller/proveedorAction.php', {
         method: 'POST',
@@ -53,17 +55,17 @@ function createProveedor() {
     .then(data => {
         // Si la solicitud es exitosa
         if (data.success) {
-            // Mostrar mensaje de éxito
-            showMessage(data.message, 'success');
-            
-            // Recargar los datos de proveedors para reflejar la creación del nuevo proveedor
-            fetchProveedores(currentPage, pageSize, sort);
-            
-            // Eliminar la fila de creación de proveedor
-            document.getElementById('createRow').remove();
-            
-            // Mostrar el botón de creación de proveedor nuevamente
-            document.getElementById('createButton').style.display = 'inline-block';
+            if (!data.inactive) {
+                showMessage(data.message, 'success'); // Mostrar mensaje de éxito
+                fetchProveedores(currentPage, pageSize, sort); // Recargar los datos de proveedores para reflejar la creación
+                document.getElementById('createRow').remove(); // Eliminar la fila de creación
+                document.getElementById('createButton').style.display = 'inline-block'; // Mostrar el botón de crear
+                return;
+            }
+
+            // Actualizar el proveedor con los nuevos datos
+            if (data.inactive && confirm(data.message)) { updateProveedor(data.id, true); }
+            else { showMessage('No se agregó el proveedor', 'info'); }
         } else {
             // Mostrar mensaje de error
             showMessage(data.message, 'error');
@@ -89,15 +91,21 @@ function createProveedor() {
  * 
  * @returns {void}
  */
-function updateProveedor(id) {
-    // Obtener la fila del proveedor con el id especificado
-    let row = document.querySelector(`tr[data-id='${id}']`);
-    
-    // Obtener los campos de entrada de la fila
-    let inputs = row.querySelectorAll('input');
-    
-    // Crear un objeto para almacenar los datos a enviar al servidor
-    let data = { accion: 'actualizar', id: id };
+function updateProveedor(id, reactivate = false) {
+    let row;
+    if (!reactivate) {
+        row = document.querySelector(`tr[data-id='${id}']`); //<- Obtener la fila de la tabla con el id especificado
+    } else {
+        row = document.getElementById('createRow'); //<- Obtener la fila de creación de proveedor
+    }
+
+    // Si no se encuentra la fila, salir de la función
+    if (!row) {
+        showMessage('No se encontró la fila del proveedor a actualizar', 'error'); 
+        return; 
+    }
+    let inputs = row.querySelectorAll('input, select'); // Obtener los campos de entrada de la fila
+    let data = { accion: 'actualizar', id: id }; // Crear un objeto para almacenar los datos a enviar al servidor
 
     // Recorrer cada campo de entrada y agregarlo al objeto de datos
     inputs.forEach(input => {
@@ -142,8 +150,8 @@ function updateProveedor(id) {
 /**
  * Elimina un proveedor existente enviando una solicitud POST al servidor.
  * 
- * @description Esta función solicita confirmación al usuario antes de eliminar el proveedor.
- *              Si el usuario confirma, envía una solicitud POST al servidor con el id del proveedor a eliminar.
+ * @description Esta función solicita confirmación al proveedor antes de eliminar el proveedor.
+ *              Si el proveedor confirma, envía una solicitud POST al servidor con el id del proveedor a eliminar.
  *              Si la solicitud es exitosa, muestra un mensaje de éxito y recarga los datos de proveedors para reflejar la eliminación.
  *              Si la solicitud falla, muestra un mensaje de error.
  * 
@@ -155,7 +163,7 @@ function updateProveedor(id) {
  * @returns {void}
  */
 function deleteProveedor(id) {
-    // Solicitar confirmación al usuario antes de eliminar el proveedor
+    // Solicitar confirmación al proveedor antes de eliminar el proveedor
     if (confirm('¿Estás seguro de que deseas eliminar este proveedor?')) {
         // Enviar la solicitud POST al servidor con el id del proveedor a eliminar
         fetch('../controller/proveedorAction.php', {

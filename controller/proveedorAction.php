@@ -9,7 +9,7 @@
         $id = isset($_POST['id']) ? $_POST['id'] : 0;
         $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : "";
         $email = isset($_POST['email']) ? $_POST['email'] : "";
-        $idcategoria = isset($_POST['categoriaid'])?$_POST['categoriaid']:0;
+        $idcategoria = isset($_POST['categoria'])?$_POST['categoria']:0;
 
         // Se crea el Service para las operaciones
         $proveedorBusiness = new ProveedorBusiness();
