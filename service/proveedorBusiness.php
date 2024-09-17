@@ -91,7 +91,7 @@
             return $this->proveedorData->getAllTBProveedor();
         }
 
-       public function getAllTBCompraProveedor() {
+        public function getAllTBCompraProveedor() {
             return $this->proveedorData->getAllTBCompraProveedor();
         }
 

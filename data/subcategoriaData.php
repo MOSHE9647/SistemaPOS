@@ -435,7 +435,7 @@
                     return $check;
                 }
                 if($check['exists'] && $check['inactive']){
-                    return ["success" => true, "message"=>"Hay una subcategoria con el nombre [$nombre] incativo, ¿Deseas reactivarlo?", "id"=>$check["id"]];
+                    return ["success" => true,"inactive" => $check['inactive'], "message"=>"Hay una subcategoria con el nombre [$nombre] incativo, ¿Deseas reactivarlo?", "id"=>$check["id"]];
                 }
                 if($check['exists']){
                     throw new Exception("El nombre de la subcategoria ya existe.");
