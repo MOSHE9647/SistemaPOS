@@ -71,7 +71,6 @@
             <?php
                 // Array de enlaces principales
                 $mainTables = [
-                    'auth/login.php' => 'Iniciar Sesión',
                     'rolUsuarioView.php' => 'Gestión de Roles de Usuario',
                     'usuarioView.php' => 'Gestión de Usuarios',
                     'impuestoView.php' => 'Gestión de Impuestos',
@@ -112,13 +111,13 @@
             ?>
             <h3>Extras</h3>
             <li><a href="#" onclick="printBarcodes(10)">Imprimir Códigos de Barras</a></li>
-
-            <h3>Pruebas</h3>
-            <li><a href="./view/generarCodigoBarrasView.php">Prueba de Código de Barras</a></li>
-
+            <li><a href="./view/generarCodigoBarrasView.php">Generar Código de Barras</a></li>
+            
+            <h3>Perfil</h3>
             <?php if (isset($_SESSION[SESSION_AUTHENTICATED]) && $_SESSION[SESSION_AUTHENTICATED] === true): ?>
-                <h3>Perfil</h3>
                 <li><a href="./view/auth/logout.php">Cerrar Sesión</a></li>
+            <?php else: ?>
+                <li><a href="./view/auth/login.php">Iniciar Sesión</a></li>
             <?php endif; ?>
         </ul>
     </body>
