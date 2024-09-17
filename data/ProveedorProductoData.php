@@ -223,7 +223,7 @@
                     return $check;
                 }
                 if($check['exists'] && $check['inactive']){
-                    return ['success' => true, "message" => "Ya existe el producto registrado para este proveedor, ¿Deseas reactivarlo?","id"=>$check['id'] ];
+                    return ['success' => true, "inactive" => $check['inactive'],"message" => "Ya existe el producto registrado para este proveedor, ¿Deseas reactivarlo?","id"=>$check['id'] ];
                 }
                 if($check['exists']){
                     throw new Exception("Ya existe la relacion del producto con este proveedor.");

@@ -16,7 +16,7 @@
                 $proveedorID = $proveedor->getProveedorID();
                 $nombre = $proveedor->getProveedorNombre();
                 $email = $proveedor->getProveedorEmail();
-                $categorid = $proveedor->getProveedorCategoria();
+                $categoriaID = $proveedor->getProveedorCategoria();
                 $errors = [];
 
                 // Verifica que el ID del proveedor sea válido
@@ -35,9 +35,9 @@
                         $errors[] = "El campo 'Correo' no es válido. Debe digitar un correo electrónico válido (Ej: ejemplo@correo.com).";
                         Utils::writeLog("[Proveedor] El campo 'Email [$email]' no es válido.", BUSINESS_LOG_FILE);
                     }
-                    if ($categorid=== null || empty($categorid)) {
+                    if ($categoriaID=== null || empty($categoriaID)) {
                         $errors[] = "El campo 'Categoria' no es válido.";
-                        Utils::writeLog("[Proveedor] El campo 'Categoriaid [$categoriaid]' no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("[Proveedor] El campo 'Categoriaid [$categoriaID]' no es válido.", BUSINESS_LOG_FILE);
                     }
                 }
 
@@ -91,7 +91,7 @@
             return $this->proveedorData->getAllTBProveedor();
         }
 
-       public function getAllTBCompraProveedor() {
+        public function getAllTBCompraProveedor() {
             return $this->proveedorData->getAllTBCompraProveedor();
         }
 

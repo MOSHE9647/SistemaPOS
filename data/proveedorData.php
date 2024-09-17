@@ -495,46 +495,46 @@
             return $response;
         }
             
-            public function getAllTBCompraProveedor() {
-                $response = [];
-                try {
-                    // Establece una conexion con la base de datos
-                    $result = $this->getConnection();
-                    if (!$result["success"]) {
-                        throw new Exception($result["message"]);
-                    }
-                    $conn = $result["connection"];
-            
-                    // Obtenemos solo el ID y el Nombre de los Proveedores
-                    $querySelect = "SELECT " . PROVEEDOR_ID . ", " . PROVEEDOR_NOMBRE . " FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false";
-                    $result = mysqli_query($conn, $querySelect);
-            
-                    // Creamos la lista con solo los ID y Nombre
-                    $listaCompraProveedores = [];
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        $listaCompraProveedores[] = [
-                            'ID' => $row[PROVEEDOR_ID],
-                            'Nombre' => $row[PROVEEDOR_NOMBRE],
-                        ];
-                    }
-            
-                    $response = ["success" => true, "listaCompraProveedores" => $listaCompraProveedores];
-                } catch (Exception $e) {
-                    // Manejo del error dentro del bloque catch
-                    $userMessage = $this->handleMysqlError(
-                        $e->getCode(), 
-                        $e->getMessage(),
-                        'Error al obtener la lista de proveedores desde la base de datos'
-                    );
-                    // Devolver mensaje amigable para el usuario
-                    $response = ["success" => false, "message" => $userMessage];
-                } finally {
-                    // Cerramos la conexion
-                    if (isset($conn)) { mysqli_close($conn); }
+        public function getAllTBCompraProveedor() {
+            $response = [];
+            try {
+                // Establece una conexion con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
                 }
-                return $response;
+                $conn = $result["connection"];
+        
+                // Obtenemos solo el ID y el Nombre de los Proveedores
+                $querySelect = "SELECT " . PROVEEDOR_ID . ", " . PROVEEDOR_NOMBRE . " FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false";
+                $result = mysqli_query($conn, $querySelect);
+        
+                // Creamos la lista con solo los ID y Nombre
+                $listaCompraProveedores = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $listaCompraProveedores[] = [
+                        'ID' => $row[PROVEEDOR_ID],
+                        'Nombre' => $row[PROVEEDOR_NOMBRE],
+                    ];
+                }
+        
+                $response = ["success" => true, "listaCompraProveedores" => $listaCompraProveedores];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al obtener la lista de proveedores desde la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                $response = ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cerramos la conexion
+                if (isset($conn)) { mysqli_close($conn); }
             }
-            
+            return $response;
+        }
+        
 
         public function getPaginatedProveedores($page, $size, $sort = null) {
             $response = [];
