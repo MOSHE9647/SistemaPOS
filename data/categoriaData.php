@@ -152,7 +152,7 @@
 					return $check;
 				}
 				if($check['exists'] && $check["inactive"]){
-					return ["success" => true, "message"=>"Hay una categoria con el nombre [$categoriaNombre] incativo, ¿Deseas reactivarlo?", "id"=>$check["id"]];
+					return ["success" => true, "inactive" => true, "message"=>"Hay una categoria con el nombre [$categoriaNombre] incativo, ¿Deseas reactivarlo?", "id"=>$check["id"]];
 				}
 				if($check['exists']){
 					throw new Exception("El nombre de la categoria ya existe.");

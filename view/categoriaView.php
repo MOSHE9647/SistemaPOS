@@ -70,8 +70,11 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    
-    <!-- Scripts del Archivo -->
-    <script src="./js/categoria.js"></script>
+
+    <!-- Scripts propios -->
+    <script src="./js/utils.js"></script>
+    <script src="./js/categoria/gui.js"></script>
+    <script src="./js/categoria/pagination.js"></script>
+    <script src="./js/categoria/crud.js"></script>
 </body>
 </html>
