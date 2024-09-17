@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de subcategorias | POSFusion</title>
+    <title>Gestión de SubCategorías | POSFusion</title>
     <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
 
-    <h2>Lista de Subcategorias</h2>
+    <h2>Lista de SubCategorías</h2>
 
     <div id="message"></div>
 
@@ -18,10 +18,11 @@
                 Ordenar por:
                 <select id="sortSelector">
                     <option value="nombre">Nombre</option>
+                    <option value="descripcion">Descripción</option>
                 </select>
             </div>
 
-            <!-- Botón para crear nuevo impuesto -->
+            <!-- Botón para crear nuevo Usuario -->
             <button id="createButton" onclick="showCreateRow()">Crear</button>
         </div>
 
@@ -34,7 +35,11 @@
                 </tr>
             </thead>
             <tbody id="tableBody">
-                <!-- Las filas se cargarán dinámicamente con JavaScript -->
+                <tr>
+                    <td colspan = "3" style = "text-align: center; height: 50px;">
+                        No hay registros disponibles
+                    </td>
+                </tr>
             </tbody>
         </table>
 
@@ -48,7 +53,7 @@
                     <option value="20">20</option>
                     <option value="50">50</option>
                 </select>
-                de <span id="totalRecords"></span> registros.
+                de <span id="totalRecords"></span> registros
             </div>
 
             <!-- Controles de paginación -->
@@ -61,6 +66,12 @@
     </div>
 
     <a href="../index.php" class="menu-button">Regresar al Menú</a>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    <!-- Scripts del Archivo -->
     <script src="./js/subcategoria.js"></script>
 </body>
 </html>
