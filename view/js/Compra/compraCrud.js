@@ -67,35 +67,39 @@ function updateCompra(id) {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
 
+        // Asegúrate de obtener el valor correcto del proveedor
         if (fieldName === 'proveedornombre') {
-            value = document.getElementById('proveedorid-select').value;
+            value = document.getElementById(`proveedorid-select-${id}`).value; // Obtener el valor correcto del select de proveedores
         }
 
         data[fieldName] = value;
     });
 
-    console.log('Datos enviados para actualizar compra:', data); // Para depuración
+    console.log('Datos enviados para actualizar compra:', data); // Depuración
 
     fetch('../controller/compraAction.php', {
         method: 'POST',
-        body: new URLSearchParams(data),
+        body: new URLSearchParams(data), // Convierte los datos al formato URL para enviarlos correctamente
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Respuesta del servidor:', data); // Depuración
         if (data.success) {
-            showMessage(data.message, 'success');
-            fetchCompras(currentPage, pageSize);
+            showMessage(data.message, 'success'); // Muestra un mensaje de éxito
+            fetchCompras(currentPage, pageSize); // Recarga la tabla de compras para reflejar los cambios
         } else {
-            showMessage(data.message, 'error');
+            showMessage(data.message, 'error'); // Muestra el mensaje de error del servidor
         }
     })
     .catch(error => {
-        showMessage(`Ocurrió un error al actualizar la compra.<br>${error}`, 'error');
+        console.error('Error al actualizar la compra:', error); // Mensaje de error detallado
+        showMessage(`Ocurrió un error al actualizar la compra.<br>${error}`, 'error'); // Muestra un mensaje de error en la interfaz
     });
 }
+
 
 /**
  * Elimina una compra existente.

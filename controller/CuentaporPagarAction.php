@@ -33,6 +33,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             case 'insertar':
                 // Inserta la cuenta por pagar en la base de datos
                 $response = $cuentaPorPagarBusiness->insertCuentaPorPagar($cuentaPorPagar);
+                  // Obtener el último ID insertado si la inserción fue exitosa
+    
                 break;
             case 'actualizar':
                 // Actualiza la información de la cuenta por pagar en la base de datos
@@ -76,5 +78,28 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     echo json_encode($response);
     exit();
 }
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $accion = $_POST['accion'];
+    $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
+
+    // Agregar depuración para ver si el ID es correcto
+    error_log("El ID recibido es: " . $id);
+
+    if ($accion === 'eliminar') {
+        if ($id <= 0) {
+            echo json_encode([
+                "success" => false,
+                "message" => "El ID no puede estar vacío o ser menor a 0."
+            ]);
+            exit();
+        }
+
+        $cuentaPorPagarBusiness = new CuentaPorPagarBusiness();
+        $response = $cuentaPorPagarBusiness->deleteCuentaPorPagar($id);
+        echo json_encode($response);
+        exit();
+    }
+}
+
 
 ?>

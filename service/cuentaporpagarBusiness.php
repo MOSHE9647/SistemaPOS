@@ -29,13 +29,15 @@ class CuentaPorPagarBusiness {
                 $errors[] = "El ID de cuenta por pagar está vacío o no es válido. Revise que sea un número y que sea mayor a 0";
                 Utils::writeLog("El ID [$cuentaporpagarid] de cuenta por pagar no es válido.", BUSINESS_LOG_FILE);
             }
-
+           
+            
             // Si la validación de campos adicionales está activada, valida los otros campos
             if ($validarCamposAdicionales) {
-                if ($cuentaporpagarcompradetalleid === null || !is_numeric($cuentaporpagarcompradetalleid)) {
-                    $errors[] = "El campo 'ID de detalle de compra' está vacío o no es válido.";
+               if ($cuentaporpagarcompradetalleid === null || !is_numeric($cuentaporpagarcompradetalleid) || intval($cuentaporpagarcompradetalleid) <= 0) {
+                    $errors[] = "El campo Compra Detalle solo puede contener números.";
                     Utils::writeLog("El campo 'ID de detalle de compra [$cuentaporpagarcompradetalleid]' no es válido.", BUSINESS_LOG_FILE);
                 }
+                
 
                 if ($cuentaporpagarfechavencimiento === null || empty($cuentaporpagarfechavencimiento)) {
                     $errors[] = "El campo 'Fecha de vencimiento' está vacío o no es válido.";

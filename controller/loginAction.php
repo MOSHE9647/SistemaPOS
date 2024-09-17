@@ -61,7 +61,7 @@
             echo json_encode($response);
         } else {
             // Redirige a index.php si no hay URL de origen
-            $response['redirect'] = 'index.php';
+            $response['redirect'] = '../../index.php?' . SESSION_LOGGED_IN . '=true';
             header('Content-Type: application/json');
             echo json_encode($response);
         }

@@ -1,28 +1,13 @@
-<?php
-
-    require_once __DIR__ . '/../auth/auth.php'; // Verifica la autenticación y los roles
-
-    // Solo los usuarios con rol de administrador (por ejemplo, RolID = 1) pueden acceder
-    if (!verificarRol([ROL_ADMIN])) { // 1 = Rol de Administrador
-        // Si el usuario no tiene el rol adecuado, cierra la sesión y redirige a la página de inicio de sesión
-        $_SESSION[SESSION_ACCESS_DENIED] = true;
-        $INDEX_PAGE = "./../index.php";
-        header("Location: $INDEX_PAGE");
-        exit();
-    }
-
-?>
-
 <!DOCTYPE html>
 <html lang="es-cr">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Gestión de Usuarios | POSFusion</title>
+        <title>Gestión de Roles de Usuario | POSFusion</title>
         <link rel="stylesheet" href="./css/styles.css">
     </head>
     <body>
-        <h2>Lista de Usuarios</h2>
+        <h2>Lista de Roles de Usuario</h2>
 
         <div id="message"></div>
 
@@ -32,10 +17,7 @@
                     Ordenar por:
                     <select id="sortSelector">
                         <option value="nombre">Nombre</option>
-                        <option value="apellido1">Prim. Apellido</option>
-                        <option value="apellido2">Seg. Apellido</option>
-                        <option value="email">Correo</option>
-                        <option value="fechacreacion">Fecha Registro</option>
+                        <option value="descripcion">Descripción</option>
                     </select>
                 </div>
 
@@ -47,18 +29,13 @@
                 <thead>
                     <tr>
                         <th data-field="nombre">Nombre</th>
-                        <th data-field="apellido1">Prim. Apellido</th>
-                        <th data-field="apellido2">Seg. Apellido</th>
-                        <th data-field="correo">Correo</th>
-                        <th data-field="password">Contraseña</th>
-                        <th data-field="rol">Rol</th>
-                        <th data-field="creacion">Fecha Registro</th>
+                        <th data-field="apellido1">Descripción</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
                     <tr>
-                        <td colspan = "8" style = "text-align: center; height: 50px;">
+                        <td colspan = "3" style = "text-align: center; height: 50px;">
                             No hay registros disponibles
                         </td>
                     </tr>
@@ -95,9 +72,8 @@
         
         <!-- Scripts propios -->
         <script src="./js/utils.js"></script>
-        <script src="./js/usuario/gui.js"></script>
-        <script src="./js/usuario/pagination.js"></script>
-        <script src="./js/usuario/selects.js"></script>
-        <script src="./js/usuario/crud.js"></script>
+        <script src="./js/rolUsuario/gui.js"></script>
+        <script src="./js/rolUsuario/pagination.js"></script>
+        <script src="./js/rolUsuario/crud.js"></script>
     </body>
 </html>
