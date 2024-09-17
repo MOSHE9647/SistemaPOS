@@ -50,7 +50,7 @@ Cada quien se va a encargar de realizar lo siguiente en sus respectivos códigos
     |                              |                                       | [10] tbcodigobarras          |                           |
     |                              |                                       | [11] tbproveedortelefono     |                           |
     |                              |                                       | [11] tbproveedordireccion    |                           |
-    |                              |                                       | [  ] tbusuariotelefono       |                           |
+    |                              |                                       | [11] tbusuariotelefono       |                           |
     |------------------------------|---------------------------------------|------------------------------|---------------------------|
 
         [INFO] [00 = En proceso], [10 = BACK Terminado], [01 = FRONT Terminado], [11 = Completamente Terminado], [-- = Debe corregirse]
