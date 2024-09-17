@@ -175,10 +175,14 @@ function makeRowEditable(row) {
                         <option value="tarjeta" ${value === 'tarjeta' ? 'selected' : ''}>Tarjeta</option>
                         <option value="transferencia" ${value === 'transferencia' ? 'selected' : ''}>Transferencia</option>
                     </select>`;
-            } else {
-                // Si es un campo de texto o número, mostrar un input editable
-                cell.innerHTML = `<input type="text" value="${value}" required>`;
-            }
+                } else if (field === 'montobruto' || field === 'montoneto') {
+                    // Convertir montos a inputs numéricos
+                    const numberValue = parseFloat(value) || 0; // Asegurarse de manejar correctamente valores numéricos
+                    cell.innerHTML = `<input type="number" step="0.01" value="${numberValue.toFixed(2)}" required>`;
+                } else {
+                    // Si es un campo de texto o número, mostrar un input editable
+                    cell.innerHTML = `<input type="text" value="${value}" required>`;
+                }
         } else {
             // Última celda: botones para guardar o cancelar
             cell.innerHTML = `
