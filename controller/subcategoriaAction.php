@@ -8,9 +8,12 @@
         $id_subcategoria = isset($_POST['id']) ? $_POST['id'] : -1;
         $nombre_subcategoria = isset($_POST['nombre']) ? $_POST['nombre']: "";
         $descripcion = isset($_POST['descripcion'])?$_POST['descripcion']:"";
-        $categoriaid = isset($_POST['categoriaid'])?$_POST['categoriaid']:0;
+        $categoriaid = isset($_POST['categoria'])?$_POST['categoria']:0;
+        
         $subcategoriaBusiness = new SubcategoriaBusiness();
         $subcategoria = new Subcategoria($nombre_subcategoria,$categoriaid ,$descripcion,$id_subcategoria);
+
+        Utils::writeLog("$nombre_subcategoria,$categoriaid ,$descripcion,$id_subcategoria", UTILS_LOG_FILE);
 
         switch($accion){
             case 'eliminar':

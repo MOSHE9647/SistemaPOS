@@ -29,6 +29,14 @@ class Subcategoria{
     public function setSubcategoriaEstado($subcategoria_estado) { $this->subcategoria_estado = $subcategoria_estado; }
     public function setSubcategoriaDescripcion($subcategoria_descripcion) { $this->subcategoria_descripcion = $subcategoria_descripcion; }
     public function setSubcategoriaCategoriaId( $sucategoria_categoria_id){$this->sucategoria_categoria_id = $sucategoria_categoria_id;}
+
+    public function __toString() {
+        return "Subcategoria: [ID: " . $this->subcategoria_id . 
+               ", Nombre: " . $this->subcategoria_nombre . 
+               ", Descripción: " . $this->subcategoria_descripcion . 
+               ", Categoría ID: " . $this->sucategoria_categoria_id . 
+               ", Estado: " . ($this->subcategoria_estado ? 'Activo' : 'Inactivo') . "]";
+    }
 }
 
 
