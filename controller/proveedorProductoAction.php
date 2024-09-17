@@ -20,6 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $response = $proveedorProductoBusiness->addProductoProveedor($proveedorId, $productoId);
             break;
         case 'actualizar':
+            $response = $proveedorProductoBusiness->updateProveedorProducto($proveedorProductoId,$proveedorId,$productoId);
             break;
         default:
             $response['success'] = false;

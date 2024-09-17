@@ -91,6 +91,105 @@
             }
         }
 
+        public function existeRelacionProveedorProducto($proveedorID,$productoID, $idproductoproveedor = null){
+            $response = [];
+            $conn = null; $stmt = null;
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+
+                $queryCheck = "SELECT * FROM ". TB_PROVEEDOR_PRODUCTO . " WHERE ";
+                $params = [];
+                $types = "";
+
+                if($idproductoproveedor !== null){
+                    $queryCheck .= PROVEEDOR_PRODUCTO_ID . " <> ? AND ";
+                    $params[] = $idproductoproveedor;
+                    $types .= "i";
+                }
+                if ($proveedorID !== null && $productoID !== null) {
+                    $queryCheck .= PROVEEDOR_ID . " = ? AND " . PRODUCTO_ID . " = ? ";
+                    $params[] = $proveedorID;
+                    $params[] = $productoID;
+                    $types .= "ii";
+                }
+
+                // Prepara la consulta y ejecuta la verificación
+                $stmt = mysqli_prepare($conn, $queryCheck);
+                mysqli_stmt_bind_param($stmt, $types, ...$params);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                // Verifica si existe algún registro con los criterios dados
+                if (mysqli_num_rows($result) > 0) {
+                    if ($row = mysqli_fetch_assoc($result)) {
+                        // Verificar si está inactivo (bit de estado en 0)
+                        $isInactive = $row[PROVEEDOR_PRODUCTO_ESTADO] == 0;
+                        $response = ["success" => true, "exists" => true, "inactive" => $isInactive, "id" => $row[PROVEEDOR_PRODUCTO_ID]];
+                    }
+                }else{
+                        $response = ["success" => true, "exists" => false];
+                }
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError($e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al verificar la existencia de producto y proveedor en la base de datos',
+                    $this->className
+                );
+        
+                $response = ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+            }
+            return $response;
+        }
+        public function existeIdproveedorProducto($idproductproveedor){
+            $response = [];
+            $conn = null; $stmt = null;
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+
+                $queryCheck = "SELECT * FROM ". TB_PROVEEDOR_PRODUCTO . " WHERE " . PROVEEDOR_PRODUCTO_ID . " = ? ";
+                $params = [$idproductproveedor];
+                $types = "i";
+                // Prepara la consulta y ejecuta la verificación
+                $stmt = mysqli_prepare($conn, $queryCheck);
+                mysqli_stmt_bind_param($stmt, $types, ...$params);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                // Verifica si existe algún registro con los criterios dados
+                if (mysqli_num_rows($result) > 0) {
+                    if ($row = mysqli_fetch_assoc($result)) {
+                        // Verificar si está inactivo (bit de estado en 0)
+                        $isInactive = $row[PROVEEDOR_PRODUCTO_ESTADO] == 0;
+                        $response = ["success" => true, "exists" => true, "inactive" => $isInactive, "id" => $row[PROVEEDOR_PRODUCTO_ID]];
+                    }
+                }else{
+                        $response = ["success" => true, "exists" => false];
+                }
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError($e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al verificar la existencia de id productoProveedor en la base de datos',
+                    $this->className
+                );
+        
+                $response = ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+            }
+            return $response;
+
+        }
+
         public function ExistenciaDeProveedorYProducto($idproveedor, $idproducto){
             $check = $this->existeProveedorProducto($idproveedor,null,true);
             if(!$check['success']){ return $check; }
@@ -106,16 +205,29 @@
         }
 
         public function addProductoToProveedor($idproveedor, $idproducto, $conn = null){
+            $response = [];
             $conexionExterna = false;
             $stmt = null;
             try{
-
-
                 $check = $this->ExistenciaDeProveedorYProducto($idproveedor, $idproducto);
                 if(!$check['success']){
                     return $check;
                 }
+                if($check['exists']){
+                    throw new Exception("La relacion proveedor producto ya existe");
+                }
 
+                $check = $this->existeRelacionProveedorProducto($idproveedor,$idproducto);
+
+                if(!$check['success']){
+                    return $check;
+                }
+                if($check['exists'] && $check['inactive']){
+                    return ['success' => true, "message" => "Ya existe el producto registrado para este proveedor, ¿Deseas reactivarlo?","id"=>$check['id'] ];
+                }
+                if($check['exists']){
+                    throw new Exception("Ya existe la relacion del producto con este proveedor.");
+                }
                 // Si no se proporcionó una conexión, crea una nueva
                 if (is_null($conn)) {
                     $result = $this->getConnection();
@@ -125,7 +237,7 @@
                 }
                 // Obtenemos el último ID de la tabla tbproveedordireccion
                 // generacion de id
-				$queryGetLastId = "SELECT MAX(" . PRODUCTO_ID . ") FROM " . TB_PROVEEDOR_PRODUCTO;
+				$queryGetLastId = "SELECT MAX(" . PROVEEDOR_PRODUCTO_ID . ") FROM " . TB_PROVEEDOR_PRODUCTO;
 				$idCont = mysqli_query($conn, $queryGetLastId);
 				$nextId = 1;
 				if ($row = mysqli_fetch_row($idCont)) {
@@ -144,7 +256,7 @@
                 mysqli_stmt_bind_param($stmt, 'iii', $nextId, $idproveedor, $idproducto);
                 $result = mysqli_stmt_execute($stmt);
 
-                return ["success" => true, "message" => "Producto asignada exitosamente al proveedor."];
+                $response = ["success" => true, "message" => "Producto asignada exitosamente al proveedor."];
             }catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
 				$userMessage = $this->handleMysqlError(
@@ -152,14 +264,78 @@
                     'Ocurrió un error al intentar asignarle un producto al proveedor en la base de datos',
                     $this->className
                 );
-                return ["success" => false, "message" => $userMessage];
+                $response = ["success" => false, "message" => $userMessage];
 			} finally{
                 if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
                 if ($conexionExterna && isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
             }
-
-
+            return $response;
         }
+
+        public function updateProductoProveedor($idproductproveedor, $idproducto, $idproveedor){
+            $response = [];
+            try {
+                $check =  $this->existeIdproveedorProducto($idproductproveedor);
+                if(!$check['success']){
+                    return $check;
+                }
+                if(!$check['exists']){
+                    throw new Exception("No existe el id de la relacion proveedorproducto.");
+                }
+
+                $check = $this->existeRelacionProveedorProducto($idproveedor,$idproducto, $idproductproveedor);
+                if(!$check['success']){
+                    return $check;
+                }
+                if($check['exists']){
+                    throw new Exception("Ya existe la relacion del producto con este proveedor.");
+                }
+                // Establece una conexion con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
+                }
+                $conn = $result["connection"];
+                // Crea una consulta y un statement SQL para actualizar el registro
+                $queryUpdate = 
+                    "UPDATE " . TB_PROVEEDOR_PRODUCTO . 
+                    " SET " . 
+                        PROVEEDOR_ID . " = ?, " . 
+                        PRODUCTO_ID . " = ?, " .                
+                        PROVEEDOR_PRODUCTO_ESTADO. " = true " .
+                    " WHERE " . PROVEEDOR_PRODUCTO_ID . " = ?";
+                $stmt = mysqli_prepare($conn, $queryUpdate);
+
+                mysqli_stmt_bind_param(
+                    $stmt,
+                    'iii', // s: Cadena, i: Entero
+                    $idproveedor,
+                    $idproducto,
+                    $idproductproveedor
+                );
+                // Ejecuta la consulta de actualización
+                $result = mysqli_stmt_execute($stmt);
+                if($result){
+                    $response = ["success" => true, "message" => "ProveedorProducto actualizado exitosamente."];
+                }else{
+                    $response = ["success" => false, "message" => "Error al actualizar el proveedorproducto."];
+                }
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError( $e->getCode(),  $e->getMessage(),
+                                        'Error al actualizar el proveedorproveedor en la base de datos'
+                                        );
+        
+                // Devolver mensaje amigable para el usuario
+                $response = ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn)) { mysqli_close($conn); }
+            }
+            return $response;
+        }
+
 
         public function getProductoByProveedor($idproveedor, $json = false){
             $conn = null; $stmt = null;
