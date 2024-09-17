@@ -1,6 +1,6 @@
 <?php
 
-    require_once __DIR__ . '/../service/proveedorTelefonoBusiness.php';
+    require_once __DIR__ . '/../service/usuarioTelefonoBusiness.php';
 
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -8,25 +8,25 @@
         $accion = isset($_POST['accion']) ? $_POST['accion'] : "";
 
         // Datos recibidos en la solicitud (Form)
-        $proveedorID = isset($_POST['proveedor']) ? intval($_POST['proveedor']) : null;
+        $usuarioID = isset($_POST['usuario']) ? intval($_POST['usuario']) : null;
         $telefonoID = isset($_POST['telefono']) ? intval($_POST['telefono']) : null;
 
         // Se crea el Service para las operaciones
-        $proveedorTelefonoBusiness = new ProveedorTelefonoBusiness();
+        $usuarioTelefonoBusiness = new UsuarioTelefonoBusiness();
 
-        // Crea y verifica que los ID del Proveedor y del Telefono sean correctos
-        $check = $proveedorTelefonoBusiness->validarProveedorTelefono($proveedorID, $telefonoID);
+        // Crea y verifica que los ID del Usuario y del Telefono sean correctos
+        $check = $usuarioTelefonoBusiness->validarUsuarioTelefono($usuarioID, $telefonoID);
 
         // Si los datos son válidos se realiza acción correspondiente
         if ($check['is_valid']) {
             switch ($accion) {
                 case 'agregar':
-                    // Agrega un teléfono a un proveedor en la base de datos.
-                    $response = $proveedorTelefonoBusiness->addTelefonoToProveedor($proveedorID, $telefonoID);
+                    // Agrega un teléfono a un usuario en la base de datos.
+                    $response = $usuarioTelefonoBusiness->addTelefonoToUsuario($usuarioID, $telefonoID);
                     break;
                 case 'eliminar':
-                    // Elimina un teléfono de un proveedor en la base de datos.
-                    $response = $proveedorTelefonoBusiness->removeTelefonoFromProveedor($proveedorID, $telefonoID);
+                    // Elimina un teléfono de un usuario en la base de datos.
+                    $response = $usuarioTelefonoBusiness->removeTelefonoFromUsuario($usuarioID, $telefonoID);
                     break;
                 default:
                     // Error en caso de que la accion no sea válida
@@ -49,19 +49,19 @@
         $accion = isset($_GET['accion']) ? $_GET['accion'] : "";
         $deleted = isset($_GET['deleted']) ? boolval($_GET['deleted']) : false;
         $onlyActiveOrInactive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
-        $proveedorID = isset($_GET['proveedor']) ? intval($_GET['proveedor']) : null;
+        $usuarioID = isset($_GET['usuario']) ? intval($_GET['usuario']) : null;
 
         // Se crea el Service para las operaciones
-        $proveedorTelefonoBusiness = new ProveedorTelefonoBusiness();
+        $usuarioTelefonoBusiness = new UsuarioTelefonoBusiness();
 
-        // Crea y verifica que el ID del Proveedor sea correcto
-        $check = $proveedorTelefonoBusiness->validarProveedorTelefono($proveedorID, null, false);
+        // Crea y verifica que el ID del Usuario sea correcto
+        $check = $usuarioTelefonoBusiness->validarUsuarioTelefono($usuarioID, null, false);
 
         if ($check['is_valid']) {
             switch ($accion) {
                 case 'todo':
-                    // Obtiene los teléfonos de un proveedor en la base de datos.
-                    $response = $proveedorTelefonoBusiness->getTelefonosByProveedor($proveedorID, true);
+                    // Obtiene los teléfonos de un usuario en la base de datos.
+                    $response = $usuarioTelefonoBusiness->getTelefonosByUsuario($usuarioID, true);
                     break;
                 default:
                     // Obtener parámetros de la solicitud GET
@@ -73,8 +73,8 @@
                     if ($page < 1) $page = 1;
                     if ($size < 1) $size = 5;
     
-                    // Obtiene los teléfonos de un proveedor en la base de datos.
-                    $response = $proveedorTelefonoBusiness->getPaginatedTelefonosByProveedor($proveedorID, $page, $size, $sort, $onlyActiveOrInactive, $deleted);
+                    // Obtiene los teléfonos de un usuario en la base de datos.
+                    $response = $usuarioTelefonoBusiness->getPaginatedTelefonosByUsuario($usuarioID, $page, $size, $sort, $onlyActiveOrInactive, $deleted);
                     break;
             }
         } else {

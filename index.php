@@ -93,6 +93,7 @@
                     'proveedorTelefonoView.php' => 'Gestión de Proveedor-Teléfonos',
                     'proveedorProductoView.php' => 'Gestión de Proveedor-Productos',
                     'proveedorCategoriaView.php' => 'Gestión de Proveedor-Categoría',
+                    'usuarioTelefonoView.php' => 'Gestión de Usuario-Teléfonos',
                 ];
 
                 // Función para generar la lista de enlaces
