@@ -33,13 +33,27 @@ class CompraBusiness {
                     Utils::writeLog("El campo 'Número de factura [$compraNumeroFactura]' está vacío.", BUSINESS_LOG_FILE);
                 }
 
-                if ($compraMontoBruto === null || !is_numeric($compraMontoBruto) || $compraMontoBruto < 0) {
-                    $errors[] = "El campo 'Monto bruto' está vacío o no es válido.";
+                if ($compraNumeroFactura < 0) {
+                    $errors[] = "El campo 'Número de factura' no puede ser negativo vacío.";
+                    Utils::writeLog("El campo 'Número de factura [$compraNumeroFactura]' no es valido.", BUSINESS_LOG_FILE);
+                }
+
+                if ($compraMontoBruto === null) {
+                    $errors[] = "El campo 'Monto bruto' está vacío.";
+                    Utils::writeLog("El campo 'Monto bruto [$compraMontoBruto]' no es válido.", BUSINESS_LOG_FILE);
+                }
+                if ($compraMontoBruto < 0) {
+                    $errors[] = "El campo 'Monto bruto' tiene que ser positivo.";
                     Utils::writeLog("El campo 'Monto bruto [$compraMontoBruto]' no es válido.", BUSINESS_LOG_FILE);
                 }
 
-                if ($compraMontoNeto === null || !is_numeric($compraMontoNeto) || $compraMontoNeto < 0) {
-                    $errors[] = "El campo 'Monto neto' está vacío o no es válido.";
+                if ($compraMontoNeto === null) {
+                    $errors[] = "El campo 'Monto neto' está vacío.";
+                    Utils::writeLog("El campo 'Monto neto [$compraMontoNeto]' no es válido.", BUSINESS_LOG_FILE);
+                }
+
+                if ($compraMontoNeto < 0) {
+                    $errors[] = "El campo 'Monto neto' tiene que ser positivo.";
                     Utils::writeLog("El campo 'Monto neto [$compraMontoNeto]' no es válido.", BUSINESS_LOG_FILE);
                 }
 
@@ -49,7 +63,7 @@ class CompraBusiness {
                 }
 
                 if ($proveedorid === null || !is_numeric($proveedorid) || $proveedorid < 0) {
-                    $errors[] = "El campo 'Proveedor ID' está vacío o no es válido.";
+                    $errors[] = "El campo 'Proveedor' está vacío.";
                     Utils::writeLog("El campo 'Proveedor ID [$proveedorid]' no es válido.", BUSINESS_LOG_FILE);
                 }
             }

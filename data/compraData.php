@@ -13,6 +13,15 @@
 
             public function insertCompra($compra) {
                 try {
+
+                    $checkFactura = $this->existeNumeroFactura($compra->getCompraNumeroFactura());
+                    if (!$checkFactura["success"]) {
+                        return $checkFactura;
+                    }
+                    if ($checkFactura["exists"]) {
+                        return ["success" => false, "message" => "Error: El número de factura ya existe."];
+                    }
+                    
                     // Establece una conexión con la base de datos
                     $result = $this->getConnection();
                     if (!$result["success"]) {
@@ -45,9 +54,9 @@
                     }
 
                      // Si la fecha de modificación está vacía, asignar la fecha actual
-        if (empty($compraFechaModificacion)) {
-            $compraFechaModificacion = date('Y-m-d H:i:s'); // Formato de fecha y hora actual
-        }
+                    if (empty($compraFechaModificacion)) {
+                       $compraFechaModificacion = date('Y-m-d H:i:s'); // Formato de fecha y hora actual
+                    }
             
                     // Crea una consulta SQL para insertar el registro
                     $queryInsert = "INSERT INTO " . TB_COMPRA . " ("
@@ -646,5 +655,26 @@ public function getPaginatedCompras($page, $size, $sort = null) {
                         if (isset($conn)) { mysqli_close($conn); }
                     }
                 }
+
+                private function existeNumeroFactura($numeroFactura) {
+                    $conn = $this->getConnection();
+                    if (!$conn["success"]) {
+                        return $conn;
+                    }
+                
+                    $query = "SELECT 1 FROM " . TB_COMPRA . " WHERE " . COMPRA_NUMERO_FACTURA . " = ?";
+                    $stmt = mysqli_prepare($conn['connection'], $query);
+                    mysqli_stmt_bind_param($stmt, 's', $numeroFactura);
+                    mysqli_stmt_execute($stmt);
+                    $result = mysqli_stmt_get_result($stmt);
+                    $exists = mysqli_num_rows($result) > 0;
+                
+                    mysqli_stmt_close($stmt);
+                    mysqli_close($conn['connection']);
+                
+                    return ["success" => true, "exists" => $exists];
+                }
+
+                
         }
 ?>

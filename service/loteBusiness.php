@@ -29,12 +29,12 @@ class LoteBusiness {
             if ($validarCamposAdicionales) {
                 
                 if ($loteCodigo === null || empty($loteCodigo)) {
-                    $errors[] = "El campo 'Código del lote' está vacío o no es válido.";
+                    $errors[] = "El campo Código del lote está vacío.";
                     Utils::writeLog("El campo 'Código del lote [$loteCodigo]' no es válido.", BUSINESS_LOG_FILE);
                 }
 
                 if ($loteFechaVencimiento === null || empty($loteFechaVencimiento)) {
-                    $errors[] = "El campo 'Fecha de vencimiento del lote' está vacío o no es válido.";
+                    $errors[] = "El campo Fecha de vencimiento del lote está vacío.";
                     Utils::writeLog("El campo 'Fecha de vencimiento del lote [$loteFechaVencimiento]' no es válido.", BUSINESS_LOG_FILE);
                 }
             }
