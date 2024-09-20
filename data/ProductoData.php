@@ -91,6 +91,11 @@
                 $productoPorcentajeGanancia = $producto->getPorcentajeGanancia();
                 $productoEstado = $producto->getProductoEstado(); // Añadido para el estado del producto
         
+                // **NUEVO** Verifica que la ruta de la imagen exista antes de insertarla
+                if (!file_exists($productoImagen)) {
+                    return ["success" => false, "message" => "La imagen no existe en el servidor"];
+                }
+        
                 // Verifica si el producto ya existe
                 $check = $this->productoExiste(null, $productoNombre, $productoCodigoBarrasID);
                 if (!$check["success"]) {
@@ -163,6 +168,7 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
+        
         
         public function updateProducto($producto) {
             try {
@@ -253,6 +259,10 @@
                     throw new Exception("No existe ningún producto en la base de datos que coincida con la información proporcionada.");
                 }
         
+                // Obtiene la imagen del producto para poder eliminarla
+                $producto = $this->getProductoByID($productoID); // Asegúrate de tener este método
+                $rutaImagen = $producto->getProductoImagen();
+        
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) {
@@ -267,6 +277,11 @@
         
                 // Ejecuta la consulta de eliminación
                 $result = mysqli_stmt_execute($stmt);
+        
+                // **NUEVO** Elimina la imagen del servidor si existe
+                if (file_exists($rutaImagen)) {
+                    unlink($rutaImagen); // Elimina el archivo de la imagen
+                }
         
                 // Devuelve el resultado de la operación
                 return ["success" => true, "message" => "Producto eliminado exitosamente."];
@@ -286,6 +301,7 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
+        
         
         public function getProductoById($productoID) {
             try {

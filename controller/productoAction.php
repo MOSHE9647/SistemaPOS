@@ -24,7 +24,7 @@
             switch ($accion) {
                 case 'insertar':
                     // Inserta el producto en la base de datos
-                    $response = $productoBusiness->insertTBProducto($producto);
+                    $response = $productoBusiness->insertTBProducto($producto, $imagen);
                     break;
                 case 'actualizar':
                     // Actualiza la info del producto en la base de datos
