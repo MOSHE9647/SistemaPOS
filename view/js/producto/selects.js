@@ -12,11 +12,11 @@
  * console.log(datos); // Salida: { categorias: [...] }
  */
 async function loadCategoriasFromBackend() {
-    // Suponiendo que tienes un método getAll que devuelve las categorías
+    // Suponiendo que tienes métodos que devuelven las categorías y subcategorías
     const categorias = await getAllCategorias(); // Método que trae todas las categorías
     const subcategorias = await getAllSubcategorias(); // Método que trae todas las subcategorías
 
-    // Asumimos que las subcategorías tienen un campo que indica a qué categoría pertenecen
+    // Asocia las subcategorías a sus respectivas categorías
     categorias.forEach(categoria => {
         categoria.subcategorias = subcategorias.filter(subcategoria => subcategoria.categoriaId === categoria.id);
     });
@@ -65,7 +65,7 @@ function loadCategorias() {
         window.data.categorias.forEach(categoria => {
             const option = document.createElement('option');
             option.dataset.field = categoria.id;
-            option.value = categoria.nombre;
+            option.value = categoria.id;  // Cambiado para usar el ID como valor
             option.textContent = categoria.nombre;
             option.selected = option.value === value;
             categoriaSelect.appendChild(option);
@@ -89,15 +89,20 @@ function loadSubcategorias() {
     subcategoriaSelect.innerHTML = '<option value="">-- Seleccionar --</option>'; // Limpiar opciones anteriores
 
     const categoriaSelect = document.getElementById('categoria-select');
-    const categoriaIndex = (categoriaSelect.options[categoriaSelect.selectedIndex].dataset.field) - 1;
+    const categoriaId = categoriaSelect.value; // Obtener el ID de la categoría seleccionada
 
-    if (categoriaIndex >= 0 && window.data.categorias[categoriaIndex]) {
-        window.data.categorias[categoriaIndex].subcategorias.forEach(subcategoria => {
-            const option = document.createElement('option');
-            option.value = subcategoria.nombre;
-            option.textContent = subcategoria.nombre;
-            option.selected = option.value === value;
-            subcategoriaSelect.appendChild(option);
-        });
+    if (categoriaId) {
+        // Buscar la categoría seleccionada y sus subcategorías
+        const categoriaSeleccionada = window.data.categorias.find(categoria => categoria.id === parseInt(categoriaId));
+
+        if (categoriaSeleccionada && categoriaSeleccionada.subcategorias) {
+            categoriaSeleccionada.subcategorias.forEach(subcategoria => {
+                const option = document.createElement('option');
+                option.value = subcategoria.id; // Puedes cambiar esto a `nombre` si lo prefieres
+                option.textContent = subcategoria.nombre;
+                option.selected = option.value === value;
+                subcategoriaSelect.appendChild(option);
+            });
+        }
     }
 }
