@@ -498,7 +498,7 @@
                     "size" => $size,
                     "totalPages" => $totalPages,
                     "totalRecords" => $totalRecords,
-                    "proveedor" => $idproveedor,
+                    "proveedorID" => $idproveedor,
                     "productos" => $productos
                 ];
             } catch (Exception $e) {

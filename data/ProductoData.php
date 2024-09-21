@@ -147,7 +147,7 @@
         
                 // Ejecuta la consulta de inserción
                 $result = mysqli_stmt_execute($stmt);
-                return ["success" => true, "message" => "Producto insertado exitosamente"];
+                return ["success" => true, "message" => "Producto insertado exitosamente", "id"=>$nextId];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(

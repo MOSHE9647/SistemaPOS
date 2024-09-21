@@ -33,11 +33,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
+    
     $proveedorProductoBusiness = new ProveedorProductoBusiness();
-    if (isset($_GET['id'])) {
-        $proveedorProductoId = isset($_GET['id']) ?$_GET['id']:0;
-        $result = $proveedorProductoBusiness->getAllProductosProveedor($proveedorProductoId);
 
+
+
+    if (isset($_GET['id'])) {
+        $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+        $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
+        $sort = isset($_GET['sort']) ? $_GET['sort'] : null; 
+        $proveedorProductoId = isset($_GET['id']) ?$_GET['id']:0;
+        $result = $proveedorProductoBusiness->getPaginateProductoProveedor($proveedorProductoId,$page, $size, $sort);
         // $result = $proveedorProductoBusiness->obtenerProveedorProductoPorId($proveedorProductoId);
         echo json_encode($result);
     } else {
