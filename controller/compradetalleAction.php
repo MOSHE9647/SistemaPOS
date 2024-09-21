@@ -9,9 +9,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Datos recibidos en la solicitud (Form)
     $id = isset($_POST['id']) ? $_POST['id'] : 0;
-    $compraid = isset($_POST['compraid']) ? $_POST['compraid'] : 0;
-    $loteid = isset($_POST['loteid']) ? $_POST['loteid'] : 0;
-    $productoid = isset($_POST['productoid']) ? $_POST['productoid'] : 0;
+    $compraid = isset($_POST['compranumerofactura']) ? $_POST['compranumerofactura'] : 0;
+    $loteid = isset($_POST['lotecodigo']) ? $_POST['lotecodigo'] : 0;
+    //$loteid = isset($_POST['loteid']) ? $_POST['loteid'] : 0;
+    $productoid = isset($_POST['productonombre']) ? $_POST['productonombre'] : 0;
     $precioproducto = isset($_POST['precioproducto']) ? $_POST['precioproducto'] : 0.00;
     $cantidad = isset($_POST['cantidad']) ? $_POST['cantidad'] : 0;
     

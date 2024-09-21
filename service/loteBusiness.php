@@ -78,6 +78,10 @@ class LoteBusiness {
         return $this->loteData->getAllTBLote();
     }
 
+    public function getAllTBCompraDetalleLote() {
+        return $this->loteData->getAllTBCompraDetalleLote();
+    }
+
     public function getPaginatedLotes($page, $size) {
         return $this->loteData->getPaginatedLotes($page, $size);
     }

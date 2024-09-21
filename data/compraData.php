@@ -409,6 +409,46 @@ public function getAllTBCompra() {
     }
 }
 
+public function getAllTBCompraDetalleCompra() {
+    $response = [];
+    try {
+        // Establece una conexión con la base de datos
+        $result = $this->getConnection();
+        if (!$result["success"]) {
+            throw new Exception($result["message"]);
+        }
+        $conn = $result["connection"];
+
+        // Construir la consulta SQL con joins para obtener nombres en lugar de IDs
+        $querySelect = "SELECT " . COMPRA_ID . ", " . COMPRA_NUMERO_FACTURA . " FROM " . TB_COMPRA . " WHERE " . COMPRA_ESTADO . " !=false"; 
+        $result = mysqli_query($conn, $querySelect);
+
+        // Crear la lista con los datos obtenidos
+        $listaCompraDetalleCompra = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $listaCompraDetalleCompra [] = [
+               "ID" =>  $row[COMPRA_ID],                  
+            "NumeroFactura" => $row[COMPRA_NUMERO_FACTURA],         
+            ];
+        }
+        return ["success" => true, "listaCompraDetalleCompra" => $listaCompraDetalleCompra];
+    } catch (Exception $e) {
+        // Manejo del error dentro del bloque catch
+        $userMessage = $this->handleMysqlError(
+            $e->getCode(), 
+            $e->getMessage(),
+            'Error al obtener la lista de compras desde la base de datos'
+        );
+
+        // Devolver mensaje amigable para el usuario
+        $response = ["success" => false, "message" => $userMessage];
+    } finally {
+        // Cerramos la conexión
+        if (isset($conn)) { mysqli_close($conn); }
+    }
+    return $response;
+}
+
 public function getPaginatedCompras($page, $size, $sort = null) {
     try {
         // Verificar que la página y el tamaño sean números enteros positivos

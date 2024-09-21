@@ -51,8 +51,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo json_encode($response);
     exit();
 }
-
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
+    if (isset($_GET['accion']) && $_GET['accion'] === 'listarCompraDetalleLotes') {
+        $loteBusiness = new LoteBusiness();
+        $result = $loteBusiness->getAllTBCompraDetalleLote();
+        header('Content-Type: application/json');
+        echo json_encode($result);
+        exit();
+    }
+
     // Obtener parámetros de la solicitud GET
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
     $size = isset($_GET['size']) ? intval($_GET['size']) : 5;

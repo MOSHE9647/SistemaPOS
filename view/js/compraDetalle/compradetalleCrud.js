@@ -18,6 +18,15 @@ function createCompraDetalle() {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
 
+        if (fieldName === 'lotecodigo') {
+            value = document.getElementById('loteid-select').value;
+        } 
+        if (fieldName === 'compranumerofactura') {
+            value = document.getElementById('compraid-select').value;
+        } 
+        if (fieldName === 'productonombre') {
+            value = document.getElementById('productoid-select').value;
+        } 
         data[fieldName] = value;
     });
 
@@ -63,7 +72,16 @@ function updateCompraDetalle(id) {
     inputs.forEach(input => {
         let fieldName = input.closest('td').dataset.field;
         let value = input.value;
-
+        // Asegúrate de obtener el valor correcto del proveedor
+         if (fieldName === 'lotecodigo') {
+         value = document.getElementById(`loteid-select-${id}`).value; // Obtener el valor correcto del select de proveedores
+         }
+         if (fieldName === 'compranumerofactura') {
+            value = document.getElementById(`compraid-select-${id}`).value; // Obtener el valor correcto del select de proveedores
+        }
+        if (fieldName === 'productonombre') {
+            value = document.getElementById(`productoid-select-${id}`).value; // Obtener el valor correcto del select de proveedores
+        }
         data[fieldName] = value;
     });
 
@@ -78,6 +96,7 @@ function updateCompraDetalle(id) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Respuesta del servidor:', data); // Depuración
         if (data.success) {
             showMessage(data.message, 'success');
             fetchCompraDetalles(currentPage, pageSize);
@@ -86,6 +105,7 @@ function updateCompraDetalle(id) {
         }
     })
     .catch(error => {
+        console.error('Error al actualizar el detalle compra:', error); // Mensaje de error detallado
         showMessage(`Ocurrió un error al actualizar el detalle de compra.<br>${error}`, 'error');
     });
 }

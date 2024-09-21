@@ -38,6 +38,7 @@ function fetchCompras(page, size, proveedorID) {
         .then(data => {
             // Verificar si la respuesta fue exitosa
             if (data.success) {
+                console.log(data); // Verifica que data contiene la información esperada
                 // Renderizar la tabla de compras con los datos obtenidos
                 renderTable(data.listaCompras);
 

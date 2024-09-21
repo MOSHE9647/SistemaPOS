@@ -107,6 +107,10 @@ class CompraBusiness {
         return $this->compraData->getAllTBCompra();
     }
 
+    public function getAllTBCompraDetalleCompra() {
+        return $this->compraData->getAllTBCompraDetalleCompra();
+    }
+
     public function getPaginatedCompras($page, $size) {
         return $this->compraData->getPaginatedCompras($page, $size);
     }

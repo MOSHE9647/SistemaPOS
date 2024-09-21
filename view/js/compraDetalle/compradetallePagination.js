@@ -10,6 +10,9 @@ let totalRecords = 0;
 let currentPage = 1;
 let totalPages = 1;
 let pageSize = DEFAULT_PAGE_SIZE;
+let loteID = 0; // ID del proveedor para filtrar
+let compraID = 0; // ID del proveedor para filtrar
+let productoID = 0; // ID del proveedor para filtrar
 
 // ************************************************************************** //
 // ************* Métodos para manipulación dinámica de la tabla ************* //
@@ -20,23 +23,28 @@ let pageSize = DEFAULT_PAGE_SIZE;
  * 
  * @param {number} page - El número de página a obtener (índice 1).
  * @param {number} size - El número de registros a obtener por página.
+ * @param {number} loteID - El ID del proveedor para filtrar las compras.
+ * @param {number} compraID - El ID del proveedor para filtrar las compras.
+ * @param {number} productoID - El ID del proveedor para filtrar las compras.
  * 
  * @example
  * fetchCompraDetalles(1, 10); // Obtiene los primeros 10 registros.
  * 
  * @returns {undefined}
  */
-function fetchCompraDetalles(page, size) {
-    fetch(`../controller/compradetalleAction.php?page=${page}&size=${size}`)
+function fetchCompraDetalles(page, size, loteID, compraID, productoID) {
+    fetch(`../controller/compradetalleAction.php?page=${page}&size=${size}&lote=${loteID}&compra=${compraID}&producto=${productoID}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 console.log(data); // Verifica que data contiene la información esperada
                 renderTable(data.listaCompraDetalles); // Asegúrate de que renderTable renderiza correctamente
+
                 currentPage = data.page;
                 totalPages = data.totalPages;
                 totalRecords = data.totalRecords;
                 pageSize = data.size;
+
                 updatePaginationControls();
             } else {
                 // Muestra el mensaje de error específico enviado desde el servidor
@@ -74,10 +82,8 @@ function updatePaginationControls() {
 function changePage(newPage) {
     if (newPage < 1 || newPage > totalPages) {
         // Evita que la página sea menor que 1 o mayor que el número total de páginas
-        return;
-    }
-    currentPage = newPage;
-    fetchCompraDetalles(currentPage, pageSize);
+    fetchCompraDetalles(currentPage, pageSize, loteID, compraID, productoID);
+}
 }
 
 /**
@@ -89,11 +95,11 @@ function changePage(newPage) {
  */
 function changePageSize(newSize) {
     pageSize = newSize;
-    fetchCompraDetalles(currentPage, pageSize);
+    fetchCompraDetalles(currentPage, pageSize, loteID, compraID, productoID);
 }
 
 // ************************************************************************* //
 // ************* Llamada inicial para cargar la primera página ************* //
 // ************************************************************************* //
 
-fetchCompraDetalles(currentPage, pageSize);
+fetchCompraDetalles(currentPage, pageSize, loteID, compraID, productoID);

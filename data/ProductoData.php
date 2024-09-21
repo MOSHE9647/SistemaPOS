@@ -414,6 +414,46 @@
             }
         }
         
+        public function getAllTBCompraDetalleProducto(){
+            $response = [];
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
+                }
+                $conn = $result["connection"];
+        
+                // Obtenemos la lista de Productos
+                $querySelect = "SELECT " . PRODUCTO_ID . ", "  . PRODUCTO_NOMBRE . " FROM " . TB_PRODUCTO . " WHERE " . PRODUCTO_ESTADO . " != false;";
+                $result = mysqli_query($conn, $querySelect);
+        
+                // Creamos la lista con los datos obtenidos
+                $listaCompraDetalleProducto = [];
+                while ($row = mysqli_fetch_assoc($result)) {  // Usamos fetch_assoc para obtener un array asociativo
+                    $listaCompraDetalleProducto[] = [
+                        'ID' => $row[PRODUCTO_ID], // Asegúrate de incluir el ID en el constructor si es necesario
+                        'ProductoNombre' => $row[PRODUCTO_NOMBRE],
+                    ];
+                }
+        
+                return ["success" => true, "listaCompraDetalleProducto" => $listaCompraDetalleProducto];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al obtener la lista de productos desde la base de datos'
+                );
+        
+                 // Devolver mensaje amigable para el usuario
+        $response = ["success" => false, "message" => $userMessage];
+    } finally {
+        // Cerramos la conexión
+        if (isset($conn)) { mysqli_close($conn); }
+    }
+    return $response;
+}
         
         public function getPaginatedProductos($page, $size, $sort = null) {
             try {

@@ -22,9 +22,10 @@
         <table>
             <thead>
                 <tr>
-                    <th data-field="compraid">Compra</th>
-                    <th data-field="loteid">Lote</th>
-                    <th data-field="productoid">Producto</th>
+                    <th data-field="compranumerofactura">Compra</th>
+                    <th data-field="lotecodigo">Lote</th>
+                   <!-- <th data-field="loteid">Lote</th>-->
+                    <th data-field="productonombre">Producto</th>
                     <th data-field="precioproducto">Precio Producto</th>
                     <th data-field="cantidad">Cantidad</th>
                     <th data-field="fechacreacion">Fecha de Creación</th>

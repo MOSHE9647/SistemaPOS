@@ -8,7 +8,7 @@
         private $productoData;
 
         public function __construct(){
-
+            $this->productoData = new ProductoData();
         }
 
         public function validarProductoID($productoID) {
@@ -142,6 +142,10 @@
 
         public function getAllTBProducto() {
             return $this->productoData->getAllProductos();
+        }
+
+        public function getAllTBCompraDetalleProducto() {
+            return $this->productoData->getAllTBCompraDetalleProducto();
         }
 
         public function getPaginatedProductos($page, $size, $sort = null) {

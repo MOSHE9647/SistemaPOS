@@ -29,7 +29,15 @@ class CompraDetalleData extends Data {
             if ($row = mysqli_fetch_row($idCont)) {
                 $nextId = (int) trim($row[0]) + 1;
             }
-
+            $compraDetalleiID = $compraDetalle->getCompraDetalleID();
+            $compraID = $compraDetalle->getCompraID();
+            $loteID = $compraDetalle->getLoteID();
+            $productoID = $compraDetalle->getProductoID();
+            $compraDetallePrecioProducto = $compraDetalle->getCompraDetallePrecioProducto();
+            $compraDetalleCantidad = $compraDetalle->getCompraDetalleCantidad(); 
+            $compraDetalleFechaCreacion = $compraDetalle->getCompraDetalleFechaCreacion();
+            $compraDetalleFechaModificacion = $compraDetalle->getCompraDetalleFechaModificacion();
+            $compraDetalleEstado = $compraDetalle->getCompraDetalleEstado(); // Falta agregar este valor
             // Crea una consulta y un statement SQL para insertar el registro
             $queryInsert = "INSERT INTO " . TB_COMPRA_DETALLE . " ("
                 . COMPRA_DETALLE_ID . ", "
@@ -41,26 +49,28 @@ class CompraDetalleData extends Data {
                 . COMPRA_DETALLE_FECHA_CREACION . ", "
                 . COMPRA_DETALLE_FECHA_MODIFICACION . ", "
                 . COMPRA_DETALLE_ESTADO
-                . ") VALUES ( ?, ?, ?, ?, ?, ?, NOW(), NOW(), true)";
+                . ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, true)";
             $stmt = mysqli_prepare($conn, $queryInsert);
 
             // Obtener los valores de las propiedades del objeto $compraDetalle
-            $compraID = $compraDetalle->getCompraID();
-            $loteID = $compraDetalle->getLoteID();
-            $productoID = $compraDetalle->getProductoID();
-            $precioProducto = $compraDetalle->getPrecioProducto();
-            $cantidad = $compraDetalle->getCantidad();
+          //  $compraID = $compraDetalle->getCompraID();
+            //$loteID = $compraDetalle->getLoteID();
+            //$productoID = $compraDetalle->getProductoID();
+            //$precioProducto = $compraDetalle->getPrecioProducto();
+            //$cantidad = $compraDetalle->getCantidad();
 
             // Asigna los valores a cada '?' de la consulta
             mysqli_stmt_bind_param(
                 $stmt,
-                'iiiddii', // i: Entero, d: Doble, s: Cadena
+                'iiiidiss', // i: Entero, d: Doble, s: Cadena
                 $nextId,
                 $compraID,
-                $loteID,
+                $loteID ,
                 $productoID,
-                $precioProducto,
-                $cantidad
+                $compraDetallePrecioProducto,
+                $compraDetalleCantidad,
+                $compraDetalleFechaCreacion,
+                $compraDetalleFechaModificacion 
             );
 
             // Ejecuta la consulta de inserción
@@ -100,31 +110,36 @@ class CompraDetalleData extends Data {
                     COMPRA_DETALLE_PRODUCTO_ID . " = ?, " .
                     COMPRA_DETALLE_PRECIO_PRODUCTO . " = ?, " .
                     COMPRA_DETALLE_CANTIDAD . " = ?, " .
-                    COMPRA_DETALLE_FECHA_MODIFICACION . " = NOW(), " .
+                    COMPRA_DETALLE_FECHA_CREACION . " = ?, " .
+                    COMPRA_DETALLE_FECHA_MODIFICACION . " = ?, " .
                     COMPRA_DETALLE_ESTADO . " = ? " .
                 "WHERE " . COMPRA_DETALLE_ID . " = ?";
             $stmt = mysqli_prepare($conn, $queryUpdate);
     
             // Obtener los valores de las propiedades del objeto $compraDetalle
+            $compraDetalleiID = $compraDetalle->getCompraDetalleID();
             $compraID = $compraDetalle->getCompraID();
             $loteID = $compraDetalle->getLoteID();
             $productoID = $compraDetalle->getProductoID();
-            $precioProducto = $compraDetalle->getPrecioProducto();
-            $cantidad = $compraDetalle->getCantidad();
-            $estado = $compraDetalle->getEstado();
-            $id = $compraDetalle->getId();
+            $compraDetallePrecioProducto = $compraDetalle->getCompraDetallePrecioProducto();
+            $compraDetalleCantidad = $compraDetalle->getCompraDetalleCantidad(); 
+            $compraDetalleFechaCreacion = $compraDetalle->getCompraDetalleFechaCreacion();
+            $compraDetalleFechaModificacion = $compraDetalle->getCompraDetalleFechaModificacion();
+            $compraDetalleEstado = $compraDetalle->getCompraDetalleEstado(); // Falta agregar este valor
     
             // Asigna los valores a cada '?' de la consulta
             mysqli_stmt_bind_param(
                 $stmt,
-                'iiiddii', // i: Entero, d: Doble, s: Cadena
+                'iiidissii', // i: Entero, d: Doble, s: Cadena
                 $compraID,
                 $loteID,
                 $productoID,
-                $precioProducto,
-                $cantidad,
-                $estado,
-                $id
+                $compraDetallePrecioProducto,
+                $compraDetalleCantidad,
+                $compraDetalleFechaCreacion,
+                $compraDetalleFechaModificacion,
+                $compraDetalleEstado,
+                $compraDetalleiID
             );
     
             // Ejecuta la consulta de actualización
@@ -162,15 +177,19 @@ class CompraDetalleData extends Data {
             $querySelect = "
             SELECT 
                 c." . COMPRA_DETALLE_ID . ", 
-                c." . COMPRA_DETALLE_COMPRA_ID . ", 
-                c." . COMPRA_DETALLE_LOTE_ID . ", 
+                cp.compranumerofactura AS compranumeroFactura,
+                l.lotecodigo AS loteCodigo, 
+                p.productonombre AS productoNombre,   
                 c." . COMPRA_DETALLE_PRODUCTO_ID . ", 
                 c." . COMPRA_DETALLE_PRECIO_PRODUCTO . ", 
                 c." . COMPRA_DETALLE_CANTIDAD . ", 
                 c." . COMPRA_DETALLE_FECHA_CREACION . ", 
                 c." . COMPRA_DETALLE_FECHA_MODIFICACION . ", 
                 c." . COMPRA_DETALLE_ESTADO . "
-            FROM " . TB_COMPRA_DETALLE . " c
+            FROM " . TB_COMPRA_DETALLE . " c    
+            JOIN tbcompra cp ON c." . COMPRA_DETALLE_COMPRA_ID . " = cp.compraid
+            JOIN tblote l ON c." . COMPRA_DETALLE_LOTE_ID . " = l.loteid
+            JOIN tbproducto p ON c." . COMPRA_DETALLE_PRODUCTO_ID . " = p.productoid
             WHERE c." . COMPRA_DETALLE_ESTADO . " != false
             ";
     
@@ -181,9 +200,9 @@ class CompraDetalleData extends Data {
             while ($row = mysqli_fetch_assoc($result)) {
                 $currentCompraDetalle = new CompraDetalle(
                     $row[COMPRA_DETALLE_ID],
-                    $row[COMPRA_DETALLE_COMPRA_ID],
-                    $row[COMPRA_DETALLE_LOTE_ID],
-                    $row[COMPRA_DETALLE_PRODUCTO_ID],
+                    $row["compranumeroFactura"],
+                    $row["loteCodigo"],
+                    $row["productoNombre"],
                     $row[COMPRA_DETALLE_PRECIO_PRODUCTO],
                     $row[COMPRA_DETALLE_CANTIDAD],
                     $row[COMPRA_DETALLE_FECHA_CREACION],
@@ -240,19 +259,21 @@ class CompraDetalleData extends Data {
             $querySelect = "
             SELECT 
                 c." . COMPRA_DETALLE_ID . ", 
-                c." . COMPRA_DETALLE_COMPRA_ID . ", 
-                c." . COMPRA_DETALLE_LOTE_ID . ", 
-                c." . COMPRA_DETALLE_PRODUCTO_ID . ", 
+                cp.compranumerofactura AS compranumeroFactura,
+                l.lotecodigo AS loteCodigo, 
+                p.productonombre AS productoNombre,
                 c." . COMPRA_DETALLE_PRECIO_PRODUCTO . ", 
                 c." . COMPRA_DETALLE_CANTIDAD . ", 
                 c." . COMPRA_DETALLE_FECHA_CREACION . ", 
                 c." . COMPRA_DETALLE_FECHA_MODIFICACION . ", 
                 c." . COMPRA_DETALLE_ESTADO . "
             FROM " . TB_COMPRA_DETALLE . " c
+            JOIN tbcompra cp ON c." . COMPRA_DETALLE_COMPRA_ID . " = cp.compraid
+            JOIN tblote l ON c." . COMPRA_DETALLE_LOTE_ID . " = l.loteid
+            JOIN tbproducto p ON c." . COMPRA_DETALLE_PRODUCTO_ID . " = p.productoid
             WHERE c." . COMPRA_DETALLE_ESTADO . " != false 
-            LIMIT ? OFFSET ?
             ";
-    
+            $querySelect.= "LIMIT ? OFFSET ?";
             // Preparar la consulta y vincular los parámetros
             $stmt = mysqli_prepare($conn, $querySelect);
             mysqli_stmt_bind_param($stmt, "ii", $size, $offset);
@@ -268,9 +289,9 @@ class CompraDetalleData extends Data {
             while ($row = mysqli_fetch_assoc($result)) {
                 $listaCompraDetalles[] = [
                     'ID' => $row[COMPRA_DETALLE_ID],
-                    'CompraID' => $row[COMPRA_DETALLE_COMPRA_ID],
-                    'LoteID' => $row[COMPRA_DETALLE_LOTE_ID],
-                    'ProductoID' => $row[COMPRA_DETALLE_PRODUCTO_ID],
+                    'CompraNumeroFactura' => $row["compranumeroFactura"],
+                    'LoteCodigo' => $row["loteCodigo"],
+                    'ProductoNombre' => $row["productoNombre"],
                     'PrecioProducto' => $row[COMPRA_DETALLE_PRECIO_PRODUCTO],
                     'Cantidad' => $row[COMPRA_DETALLE_CANTIDAD],
                     'FechaCreacion' => $row[COMPRA_DETALLE_FECHA_CREACION],

@@ -14,44 +14,53 @@ class CompraDetalleBusiness {
         try {
             // Obtener los valores de las propiedades del objeto
             $compraDetalleID = $compraDetalle->getCompraDetalleID();
-            $compraDetalleCompraID = $compraDetalle->getCompraDetalleCompraID();
-            $compraDetalleLoteID = $compraDetalle->getCompraDetalleLoteID();
-            $compraDetalleProductoID = $compraDetalle->getCompraDetalleProductoID();
+           // $compraDetalleCompraID = $compraDetalle->getCompraDetalleCompraID();
+           $compraID = $compraDetalle->getCompraID();
+            $loteID = $compraDetalle->getLoteID();
+            //$compraDetalleLoteID = $compraDetalle->getCompraDetalleLoteID();
+            $productoID = $compraDetalle->getProductoID();
             $compraDetallePrecioProducto = $compraDetalle->getCompraDetallePrecioProducto();
             $compraDetalleCantidad = $compraDetalle->getCompraDetalleCantidad();
             $errors = [];
 
             // Verifica que el ID del detalle de compra sea válido
-            if ($compraDetalleID === null || !is_numeric($compraDetalleID) || $compraDetalleID <= 0) {
-                $errors[] = "El ID del detalle de compra está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
-                Utils::writeLog("El ID [$compraDetalleID] del detalle de compra no es válido.", BUSINESS_LOG_FILE);
-            }
+            //if ($compraDetalleID === null || !is_numeric($compraDetalleID) || $compraDetalleID <= 0) {
+                //$errors[] = "El ID del detalle de compra está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
+              //  Utils::writeLog("El ID [$compraDetalleID] del detalle de compra no es válido.", BUSINESS_LOG_FILE);
+            //}
 
             // Si la validación de campos adicionales está activada, valida los otros campos
             if ($validarCamposAdicionales) {
 
-                if ($compraDetalleCompraID === null || !is_numeric($compraDetalleCompraID) || $compraDetalleCompraID <= 0) {
-                    $errors[] = "El campo 'ID de compra' está vacío o no es válido.";
-                    Utils::writeLog("El campo 'ID de compra [$compraDetalleCompraID]' no es válido.", BUSINESS_LOG_FILE);
+                if ($compraID === null ||  $compraID <= 0) {
+                    $errors[] = "No ha seleccionado ninguna opcion del campo 'Compra'.";
+                    Utils::writeLog("El campo 'ID de compra [$compraID]' no es válido.", BUSINESS_LOG_FILE);
                 }
 
-                if ($compraDetalleLoteID === null || !is_numeric($compraDetalleLoteID) || $compraDetalleLoteID <= 0) {
-                    $errors[] = "El campo 'ID de lote' está vacío o no es válido.";
-                    Utils::writeLog("El campo 'ID de lote [$compraDetalleLoteID]' no es válido.", BUSINESS_LOG_FILE);
+                if ($loteID === null ||  $loteID <= 0) {
+                    $errors[] = "No ha seleccionado ninguna opcion del campo 'Lote'.";
+                    Utils::writeLog("El campo 'ID de lote [$loteID]' no es válido.", BUSINESS_LOG_FILE);
                 }
 
-                if ($compraDetalleProductoID === null || !is_numeric($compraDetalleProductoID) || $compraDetalleProductoID <= 0) {
-                    $errors[] = "El campo 'ID de producto' está vacío o no es válido.";
-                    Utils::writeLog("El campo 'ID de producto [$compraDetalleProductoID]' no es válido.", BUSINESS_LOG_FILE);
+                if ($productoID== null || $productoID<=0 ) {
+                    $errors[] = "No ha seleccionado ninguna opcion del campo 'Producto'.";
+                    Utils::writeLog("El campo 'ID de producto [$productoID]' no es válido.", BUSINESS_LOG_FILE);
                 }
 
-                if ($compraDetallePrecioProducto === null || !is_numeric($compraDetallePrecioProducto) || $compraDetallePrecioProducto < 0) {
-                    $errors[] = "El campo 'Precio del producto' está vacío o no es válido.";
+                if (empty($compraDetallePrecioProducto)) {
+                    $errors[] = "El campo 'Precio producto' está vacío.";
+                    Utils::writeLog("El campo 'Precio del producto [$compraDetallePrecioProducto]' no es válido.", BUSINESS_LOG_FILE);
+                } elseif ($compraDetallePrecioProducto < 0) {
+                    $errors[] = "El campo 'Precio producto' tiene que ser positivo.";
                     Utils::writeLog("El campo 'Precio del producto [$compraDetallePrecioProducto]' no es válido.", BUSINESS_LOG_FILE);
                 }
+              
 
-                if ($compraDetalleCantidad === null || !is_numeric($compraDetalleCantidad) || $compraDetalleCantidad < 0) {
-                    $errors[] = "El campo 'Cantidad' está vacío o no es válida.";
+                if (empty($compraDetalleCantidad)) {
+                    $errors[] = "El campo 'Cantidad' está vacío.";
+                    Utils::writeLog("El campo 'Cantidad [$compraDetalleCantidad]' no es válido.", BUSINESS_LOG_FILE);
+                }elseif ($compraDetalleCantidad < 0) {
+                    $errors[] = "El campo 'Cantidad'tiene que ser positivo.";
                     Utils::writeLog("El campo 'Cantidad [$compraDetalleCantidad]' no es válido.", BUSINESS_LOG_FILE);
                 }
             }
