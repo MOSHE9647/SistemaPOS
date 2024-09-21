@@ -313,7 +313,7 @@
 
 				// Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) {
-                    $querySelect .= " ORDER BY " . $sort;
+                    $querySelect .= " ORDER BY categoria" . $sort;
                 }
 
 				// Añadir la cláusula de límite y desplazamiento

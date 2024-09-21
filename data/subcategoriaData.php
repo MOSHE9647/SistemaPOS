@@ -184,7 +184,7 @@
                     $listaSubcategorias[] = [
                         'ID' => $row[SUBCATEGORIA_ID],
                         'Categoria'=>$row[CATEGORIA_NOMBRE],
-                        'id_categoria'=>$row[CATEGORIA_ID],
+                        'CategoriaID'=>$row[CATEGORIA_ID],
                         'Nombre' => $row[SUBCATEGORIA_NOMBRE],
                         'Descripcion'=>$row[SUBCATEGORIA_DESCRIPCION],
                         'Estado' => $row[SUBCATEGORIA_ESTADO]
@@ -242,7 +242,7 @@
 
 				// Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) {
-                    $querySelect .= "ORDER BY tbsubcategoria" . $sort . " ";
+                    $querySelect .= "ORDER BY subcategoria" . $sort . " ";
                 }
 				// Añadir la cláusula de limitación y offset
                 $querySelect .= "LIMIT ? OFFSET ?";
@@ -273,7 +273,7 @@
 					$listaSubcategorias[] = [
                         'ID' => $row[SUBCATEGORIA_ID],
                         'Categoria' => $row[CATEGORIA_NOMBRE],
-                        'id_categoria'=>$row[CATEGORIA_ID],
+                        'CategoriaID'=>$row[CATEGORIA_ID],
                         'Nombre' => $row[SUBCATEGORIA_NOMBRE],
                         'Descripcion'=>$row[SUBCATEGORIA_DESCRIPCION],
                         'Estado' => $row[SUBCATEGORIA_ESTADO]

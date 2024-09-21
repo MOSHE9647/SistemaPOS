@@ -99,8 +99,8 @@ function renderCreateRow() {
                 <option value="transferencia">Transferencia</option>
             </select>
         </td>
-        <td data-field="fechacreacion"><input type="date" value="${today}" required></td>
-        <td data-field="fechamodificacion"><input type="date" value="${today}" required></td>
+        <td data-field="fechacreacion"><input type="date" value="${today}"  min="${today}"required></td>
+        <td data-field="fechamodificacion"><input type="date" value="${today}"  min="${today}" required></td>
         <td>
             <button onclick="createCompra()">Crear</button>
         </td>
@@ -145,6 +145,7 @@ function cancelEdit() {
 function makeRowEditable(row) {
     const cells = row.querySelectorAll('td');
     const lastCellIndex = cells.length - 1;
+    const today = new Date().toISOString().split('T')[0];
 
     // Obtener el ID del proveedor de los atributos de la fila
     const providerId = row.getAttribute('data-provider-id');
@@ -164,9 +165,12 @@ function makeRowEditable(row) {
                 cell.innerHTML = `<select id='proveedorid-select-${row.dataset.id}' required></select>`;
                 // Cargar las opciones de proveedores y seleccionar el actual
                 loadOptionsForEdit(providerId, row.dataset.id);
-            } else if (field === 'fechacreacion' || field === 'fechamodificacion') {
+            } else if (field === 'fechacreacion') {
                 const isoValue = convertLongDateToISO(value);
-                cell.innerHTML = `<input type="date" value="${isoValue}" required>`;
+                cell.innerHTML = `<input type="date" value="${isoValue}"  " required>`;
+            } else if (field ==='fechamodificacion') {
+                const isoValue = convertLongDateToISO(value);
+                cell.innerHTML = `<input type="date" value="${isoValue}"  min="${today}" " required>`;
             } else if (field === 'tipopago') {
                 // Crear un select para los métodos de pago
                 cell.innerHTML = ` 

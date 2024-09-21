@@ -30,13 +30,14 @@
             <thead>
                 <tr>
                     <th data-field="nombre">Nombre</th>
+                    <th data-field="categoria">Categoría</th>
                     <th data-field="descripcion">Descripción</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody id="tableBody">
                 <tr>
-                    <td colspan = "3" style = "text-align: center; height: 50px;">
+                    <td colspan = "4" style = "text-align: center; height: 50px;">
                         No hay registros disponibles
                     </td>
                 </tr>
@@ -70,8 +71,12 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    
-    <!-- Scripts del Archivo -->
-    <script src="./js/subcategoria.js"></script>
+
+    <!-- Scripts propios -->
+    <script src="./js/utils.js"></script>
+    <script src="./js/subcategoria/selects.js"></script>
+    <script src="./js/subcategoria/gui.js"></script>
+    <script src="./js/subcategoria/pagination.js"></script>
+    <script src="./js/subcategoria/crud.js"></script>
 </body>
 </html>

@@ -5,16 +5,12 @@
         private $subcategoriaData;
 
 
-        public function verificacionDeDatos($subcategoria, $verificarcampos = true, $verificarid = false){
+        public function verificacionDeDatos($subcategoria, $verificarcampos = true, $verificarid = false ){
            try{
                 $id = $subcategoria->getSubcategoriaId();
                 $nombre = $subcategoria->getSubcategoriaNombre();
                 $categoria= $subcategoria->getSubcategoriaCategoriaId();
                 $errors = [];
-                if(empty($categoria) || !is_numeric($categoria) || $categoria <=0){
-                    $errors[] = "El ID de la scategoria está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
-                    Utils::writeLog("El ID '[$categoria]' de la categoria no es válido.", BUSINESS_LOG_FILE);  
-                }
 
                 if($verificarid && (empty($id) || $id <= 0 || !is_numeric($id))){
                     $errors[] = "El ID de la subcategoria está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
@@ -24,6 +20,10 @@
                     if(empty($nombre)){
                         $errors[] = "El Nombre de la subcategoria esta vacia. Revisa que esta ingresando correctamente el nombre.";
                         Utils::writeLog("El Nombre '>>[$nombre]' de la subcategoria no es válido.", BUSINESS_LOG_FILE);
+                    }
+                    if(empty($categoria) || !is_numeric($categoria) || $categoria <=0){
+                        $errors[] = "El ID de la scategoria está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
+                        Utils::writeLog("El ID '[$categoria]' de la categoria no es válido.", BUSINESS_LOG_FILE);  
                     }
                 }
 
