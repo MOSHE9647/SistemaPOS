@@ -93,7 +93,10 @@
 
             return $this->productoCategoriaData->getPaginatedCategoriasByProducto($productoID, $page, $size, $sort, $onlyActiveOrInactive, $deleted);
         }
-
+        
+        public function getAllTBProductoCategoria() {
+            return $this->productoCategoriaData->getAllTBProductoCategoria();
+        }
     }
 
 ?>

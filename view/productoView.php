@@ -19,12 +19,16 @@
 
         <table>
             <thead>
-                <tr>
+                <tr>  
+                    <th data-field="codigoBarrasID">Código de Barras</th>
                     <th data-field="nombre">Nombre</th>
                     <th data-field="precioCompra">Precio de Compra</th>
                     <th data-field="ganancia">Porcentaje de Ganancia</th>
-                    <th data-field="descripcion">Descripción</th>
-                    <th data-field="codigoBarrasID">Código de Barras</th>
+                    <th data-field="descripcion">Descripción</th> 
+                    <th data-field="categoria">Descripción</th> 
+                    <th data-field="subcategoria">Descripción</th> 
+                    <th data-field="marca">Descripción</th> 
+                    <th data-field="presentacion">Descripción</th> 
                     <th data-field="foto">Imagen</th>
                     <th>Acciones</th>
                 </tr>

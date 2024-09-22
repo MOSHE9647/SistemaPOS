@@ -74,6 +74,14 @@
 
                 $response = $codigoBarrasBusiness->getPaginatedCodigosBarras($page, $size, $sort, $onlyActiveOrInactive, $deleted);
                 break;
+
+        case 'listarProductoCodigoBarras':
+            // Este es el bloque que quieres insertar
+            $result = $codigoBarrasBusiness->getAllTBProductoCodigoBarras();
+            header('Content-Type: application/json');
+            echo json_encode($result);
+            exit();
+            
             default:
                 // Obtener y sanitizar parámetros
                 $productoID =    isset($_GET['producto']) ? intval($_GET['producto']) : -1;

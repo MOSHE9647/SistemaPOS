@@ -321,6 +321,45 @@
 			}
         }
 
+        public function getAllTBProductoCodigoBarras() {
+            $response = [];
+            try {
+                // Establece una conexion con la base de datos
+				$result = $this->getConnection();
+				if (!$result["success"]) { throw new Exception($result["message"]); }
+				$conn = $result["connection"];
+
+                // Consulta SQL para obtener todos los registros de la tabla tbtelefono
+                $querySelect = "SELECT " . CODIGO_BARRAS_ID . ", " . CODIGO_BARRAS_NUMERO . " FROM " . TB_CODIGO_BARRAS . " WHERE " . CODIGO_BARRAS_ESTADO . " !=false";
+                $result = mysqli_query($conn, $querySelect);
+
+                // Crear un array para almacenar los registros
+                $listaProductoCdigosBarras = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $listaProductoCdigosBarras = [
+                        'ID' => $row[CODIGO_BARRAS_ID],
+                        'BarrasNumero' => $row[CODIGO_BARRAS_NUMERO],
+                    ];
+                }
+
+                // Devuelve el resultado de la consulta
+                return ["success" => true, "listaProductoCdigosBarras" => $listaProductoCdigosBarras];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al obtener la lista de códigos de barras desde la base de datos',
+                );
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+				// Cerramos la conexion
+				if (isset($conn)) { mysqli_close($conn); }
+			}
+            return $response;
+        }
+
         public function getPaginatedCodigosBarras($page, $size, $sort = null, $onlyActiveOrInactive = false, $deleted = false) {
             $conn = null; $stmt = null;
             

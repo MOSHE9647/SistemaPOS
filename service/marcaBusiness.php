@@ -68,6 +68,9 @@ class MarcaBusiness {
         return $this->marcaData->obtenerListaMarcas();
     }
 
+    public function getAllTBProductoMarca() {
+        return $this->marcaData->getAllTBProductoMarca();
+    }
     public function getPaginatedMarcas($page, $size, $sort = null) {
         return $this->marcaData->getPaginatedMarcas($page, $size, $sort);
     }

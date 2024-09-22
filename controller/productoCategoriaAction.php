@@ -63,6 +63,14 @@
                     // Obtiene las subcategorías de un producto en la base de datos.
                     $response = $productoCategoriaBusiness->getCategoriasByProducto($productoID, true);
                     break;
+
+                    case 'listarProductoCategorias':
+                        // Este es el bloque que quieres insertar
+                        $result = $productoCategoriaBusiness->getAllTBProductoCategoria();
+                        header('Content-Type: application/json');
+                        echo json_encode($result);
+                        exit();
+
                 default:
                     // Obtener parámetros de la solicitud GET
                     $page = isset($_GET['page']) ? intval($_GET['page']) : 1;

@@ -68,6 +68,10 @@
         return $this->presentacionData->obtenerListaPresentaciones();
         }
 
+        public function getAllTBProductoPresentacion() {
+            return $this->presentacionData->getAllTBProductoPresentacion();
+            }
+
        public function getPaginatedPresentaciones($page, $size, $sort = null) {
         return $this->presentacionData->getPaginatedPresentaciones($page, $size, $sort);
        }

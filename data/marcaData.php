@@ -346,6 +346,46 @@
             
         }
 
+        public function getAllTBProductoMarca() {
+            $response = [];
+            try {
+                // Establece una conexion con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
+                }
+                $conn = $result["connection"];
+    
+                // Construir la consulta SQL con joins para obtener nombres en lugar de IDs
+            $querySelect = "SELECT " . MARCA_ID . ", " . MARCA_NOMBRE . " FROM " . TB_COMPRA . " WHERE " . MARCA_ESTADO . " !=false";
+            $result = mysqli_query($conn, $querySelect);
+    
+               // Crear la lista con los datos obtenidos
+            $listaProductoMarcas = [];
+            while ($row = mysqli_fetch_assoc($result)) {
+                $listaProductoMarcas []= [
+                    "ID" => $row[MARCA_ID],
+                    "MarcaNombre" =>  $row[MARCA_NOMBRE],
+                ];
+            }
+    
+                return ["success" => true, "listaProductoMarcas" => $listaProductoMarcas];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al obtener la lista de marcas desde la base de datos'
+                );
+                // Devolver mensaje amigable para el usuario
+                $response = ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cerramos la conexion
+                if (isset($conn)) { mysqli_close($conn); }
+            }
+            return $response;
+        }
+
         public function obtenerListaMarcas() {
             try {
                 // Establece la conexión a la base de datos

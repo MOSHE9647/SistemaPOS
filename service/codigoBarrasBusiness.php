@@ -86,6 +86,9 @@
             return $this->telefonoData->getAllTBCodigoBarras($onlyActiveOrInactive, $deleted);
         }
 
+        public function getAllTBProductoCodigoBarras() {
+            return $this->codigoBarrasData->getAllTBProductoCodigoBarras();
+        }
         public function getPaginatedCodigosBarras($page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
             return $this->telefonoData->getPaginatedCodigosBarras($page, $size, $sort, $onlyActiveOrInactive, $deleted);
         }
