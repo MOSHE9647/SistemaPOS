@@ -1,10 +1,10 @@
 <?php
-    require_once __DIR__ . '/../service/productoBusiness.php';
+    require_once __DIR__ . '/../service/ProductoBusiness.php';
 
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Acción que se va a realizar
-        $accion = isset($_POST['accion']) ? $_POST['accion'] : "";
+        $accion = $_POST['accion'];
 
         $id = isset($_POST['id']) ? $_POST['id'] : 0;
         $codigobarrasid = isset($_POST['codigobarrasnumero']) ? $_POST['codigobarrasnumero'] : 0;
@@ -17,22 +17,22 @@
         $marcaid = isset($_POST['marcanombre']) ? $_POST['marcanombre'] : 0;
         $presentacionid = isset($_POST['presentacionnombre']) ? $_POST['presentacionnombre'] : 0;
         $productoimagen = isset($_POST['productoimagen']) ? $_POST['productoimagen'] : '';
-        $productoEstado = isset($_POST['productoestado']) ? $_POST['productoestado'] : '';
+        $productoestado = isset($_POST['productoestado']) ? $_POST['productoestado'] : 1;
 
         // Se crea el Service para las operaciones
         $productoBusiness = new ProductoBusiness();
 
         // Crea y verifica que los datos del producto sean correctos
         $producto = new Producto(
-            $id, $codigoBarrasID, $productoNombre, $productoPrecioCompra, $productoPorcentajeGanancia, $productoDescripcion,
-            $categoriaID, $subCategoriaID, $marcaID, $presentacionID, $productoImagen, $productoEstado
+            $id, $codigobarrasid, $productonombre, $productopreciocompra, $productoporcentajeGanancia, $productodescripcion,
+            $categoriaid, $subcategoriaid, $marcaid, $presentacionid, $productoimagen, $productoestado
         );
         $check = $productoBusiness->validarProducto($producto, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
         if ($check['is_valid']) {
             switch ($accion) {
                 case 'insertar':
                     // Inserta el producto en la base de datos
-                    $response = $productoBusiness->insertTBProducto($producto, $imagen);
+                    $response = $productoBusiness->insertTBProducto($producto, $productoimagen);
                     break;
                 case 'actualizar':
                     // Actualiza la info del producto en la base de datos
@@ -79,14 +79,13 @@
         // Obtener parámetros de la solicitud GET
         $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
         $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
-        $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
-
+    
         // Validar los parámetros
         if ($page < 1) $page = 1;
         if ($size < 1) $size = 5;
 
         $productoBusiness = new ProductoBusiness();
-        $result = $productoBusiness->getPaginatedProductos($page, $size, $sort);
+        $result = $productoBusiness->getPaginatedProductos($page, $size);
         
         header('Content-Type: application/json');
         echo json_encode($result);

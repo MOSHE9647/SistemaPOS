@@ -23,32 +23,43 @@ function renderTable(productos) {
     tableBody.innerHTML = ''; // Limpia la tabla
 
     productos.forEach(producto => {
+        const {
+            ID,
+            CodigoBarrasNumero = 'No disponible',
+            ProductoNombre = 'Desconocido',
+            PrecioCompra,
+            ProductoPorcentajeGanancia = 'No disponible',
+            ProductoDescripcion = 'Sin descripción',
+            CategoriaNombre = 'No disponible',
+            SubCategoriaNombre = 'No disponible',
+            MarcaNombre = 'No disponible',
+            PresentacionNombre = 'No disponible',
+            ProductoImagen = 'placeholder.jpg',
+            ProductoEstado
+        } = producto;
 
-      //  if (producto.Precio === undefined || typeof producto.Precio !== 'number') {
-        //    console.error(`El precio del producto ${producto.ID} no está definido o no es un número.`);
-          //  producto.Precio = 0; // Establece un valor predeterminado o maneja el error de otra manera
-        //}
-
-        let precioFormatted = formatPrecio(producto.Precio);
+        let precioFormatted = formatPrecio(PrecioCompra);
 
         let row = `
-        <tr data-id="${producto.ID}">
-                <td data-field="nombre">${producto.Nombre || 'Desconocido'}</td>
-                <td data-field="precioCompra">${precioFormatted}</td>
-                <td data-field="ganancia">${producto.ProductoPorcentaje || 'No disponible'}</td>
-                <td data-field="descripcion">${producto.Descripcion || 'Sin descripción'}</td>
-                <td data-field="codigoBarrasID">${producto.CodigoBarras || 'Sin código de barras'}</td>
-                <td data-field="foto">${producto.ProductoFoto || 'Sin foto'}</td>
-                <td>
-                    <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
-                    <button onclick="deleteProducto(${producto.ID})">Eliminar</button>
-                </td>
-            </tr>
+        <tr data-id="${ID}">
+            <td>${CodigoBarrasNumero}</td>
+            <td>${ProductoNombre}</td>
+            <td>${precioFormatted}</td>
+            <td>${ProductoPorcentajeGanancia}</td>
+            <td>${ProductoDescripcion}</td>
+            <td>${CategoriaNombre}</td>
+            <td>${SubCategoriaNombre}</td>
+            <td>${MarcaNombre}</td>
+            <td>${PresentacionNombre}</td>
+            <td><img src="${ProductoImagen}" alt="Imagen de producto"></td>
+            <td>
+                <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
+                <button onclick="deleteProducto(${ID})">Eliminar</button>
+            </td>
+        </tr>
         `;
         tableBody.innerHTML += row;
     });
-
-    checkEmptyTable();
 }
 
 

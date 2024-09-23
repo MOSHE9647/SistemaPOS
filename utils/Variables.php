@@ -146,7 +146,7 @@
 	define('PRODUCTO_PRECIO_COMPRA','productopreciocompra');
 	define('PRODUCTO_PORCENTAJE_GANANCIA','productoporcentajeganancia');
 	define('PRODUCTO_DESCRIPCION','productodescripcion');
-	define('PRODUCTO_CATEGORIA_ID','productocateogoriaid');
+	define('PRODUCTO_CATEGORIA_ID','productocategoriaid');
 	define('PRODUCTO_SUBCATEGORIA_ID','productosubcategoriaid');
 	define('PRODUCTO_MARCA_ID','productomarcaid');
 	define('PRODUCTO_PRESENTACION_ID','productopresentacionid');

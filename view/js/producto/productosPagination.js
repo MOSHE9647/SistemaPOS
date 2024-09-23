@@ -11,6 +11,11 @@ let totalRecords = 0;
 let currentPage = 1;
 let totalPages = 1;
 let pageSize = DEFAULT_PAGE_SIZE;
+let codigoBarrasID = 0;
+let categoriaID = 0;
+let subCategoriaID = 0;
+let marcaID = 0;
+let presentacionID = 0;
 
 // ************************************************************************** //
 // ************* Métodos para manipulación dinámica de la tabla ************* //
@@ -19,26 +24,63 @@ let pageSize = DEFAULT_PAGE_SIZE;
 /**
  * Obtiene una lista de lotes del servidor y las renderiza en una tabla.
  * 
- * @param {number} página - El número de página a obtener (índice 1).
- * @param {number} tamaño - El número de registros a obtener por página.
- 
+ * @param {number} page - El número de página a obtener (índice 1).
+ * @param {number} size - El número de registros a obtener por página.
+ * @param {number} codigoBarrasID - El número de página a obtener (índice 1).
+ * @param {number} categoriaID - El número de registros a obtener por página.
+ * @param {number} subCategoriaID - El número de página a obtener (índice 1).
+ * @param {number} marcaID - El número de registros a obtener por página.
+ * @param {number} presentacionID - El número de registros a obtener por página.
  * 
  * @example
  * fetchLotes(1, 10, "lotecodigo"); // Obtiene los primeros 10 registros, ordenados por lote código.
  * 
  * @returns {undefined}
  */
-function fetchProductos(page, size) {
-    fetch(`../controller/productoAction.php?page=${page}&size=${size}`)
-        .then(response => response.json())
+
+/*function fetchProductos(page, size) {
+    const url = `../controller/productoAction.php?page=${page}&size=${size}`;
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('La respuesta de la red no fue correcta: ' + response.statusText);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log("Datos recibidos:", data); // Verifica que data contiene la información esperada
             if (data.success) {
-                console.log(data); // Verifica que data contiene la información esperada
                 renderTable(data.listaProductos);
                 currentPage = data.page;
                 totalPages = data.totalPages;
                 totalRecords = data.totalRecords;
                 pageSize = data.size;
+                updatePaginationControls();
+            } else {
+                showMessage(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error("Error de Fetch:", error);
+            showMessage(`Ocurrió un error al obtener la lista de productos. Error: ${error}`, 'error');
+        });
+}*/
+
+
+function fetchProductos(page, size, codigoBarrasID, categoriaID, subCategoriaID, marcaID, presentacionID) {
+    const url = `../controller/productoAction.php?page=${page}&size=${size}&codigo=${codigoBarrasID}&categoria=${categoriaID}&sub=${subCategoriaID}&marca=${marcaID}&presentacion=${presentacionID}`;
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Data:", data); // Verifica que data contiene la información esperada
+                renderTable(data.listaProductos);
+
+                currentPage = data.page;
+                totalPages = data.totalPages;
+                totalRecords = data.totalRecords;
+                pageSize = data.size;
+
                 updatePaginationControls();
             } else {
                 // Muestra el mensaje de error específico enviado desde el servidor
@@ -47,7 +89,7 @@ function fetchProductos(page, size) {
         })
         .catch(error => {
             // Muestra el mensaje de error detallado
-            showMessage(`Ocurrió un error al obtener la lista de productos.<br>${error}`, 'error');
+            showMessage(`Ocurrió un error al obtener la lista de productos. Error: ${error}`, 'error');
         });
 }
 
@@ -76,10 +118,8 @@ function updatePaginationControls() {
 function changePage(newPage) {
     if (newPage < 1 || newPage > totalPages) {
         // Evita que la página sea menor que 1 o mayor que el número total de páginas
-        return;
+      fetchProductos(currentPage, pageSize, codigoBarrasID, categoriaID, subCategoriaID, marcaID, presentacionID);
     }
-    currentPage = newPage;
-    fetchProductos(currentPage, pageSize);
 }
 
 /**
@@ -91,7 +131,7 @@ function changePage(newPage) {
  */
 function changePageSize(newSize) {
     pageSize = newSize;
-    fetchProductos(currentPage, pageSize);
+    fetchProductos(currentPage, pageSize, codigoBarrasID, categoriaID, subCategoriaID, marcaID, presentacionID);
 }
 
 
@@ -101,4 +141,4 @@ function changePageSize(newSize) {
 // ************* Llamada inicial para cargar la primera página ************* //
 // ************************************************************************* //
 
-fetchProductos(currentPage, pageSize);
+fetchProductos(currentPage, pageSize, codigoBarrasID, categoriaID, subCategoriaID, marcaID, presentacionID);

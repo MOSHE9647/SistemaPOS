@@ -345,7 +345,6 @@
                         $row[PRODUCTO_NOMBRE],
                         $row[PRODUCTO_PRECIO_COMPRA], // Cambié PRODUCTO_PRECIO_U a PRODUCTO_PRECIO_COMPRA
                         $row[PRODUCTO_PORCENTAJE_GANANCIA],
-                        $row[PRODUCTO_IMAGEN],
                         $row[PRODUCTO_DESCRIPCION],
                         $row[PRODUCTO_CATEGORIA_ID],
                         $row[PRODUCTO_SUBCATEGORIA_ID],
@@ -374,77 +373,6 @@
             }
         }
         
-        public function getAllProductos() {
-            try {
-                // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
-                $conn = $result["connection"];
-        
-                // Construir la consulta SQL para obtener todos los productos activos
-                $querySelect = "
-                SELECT 
-                    p." . PRODUCTO_ID . ", 
-                    cb.codigobarrasnumero codigoBarrasNumero,
-                    p." . PRODUCTO_NOMBRE . ", 
-                    p." . PRODUCTO_PRECIO_COMPRA . ", 
-                    p." . PRODUCTO_PORCENTAJE_GANANCIA . ", 
-                    p." . PRODUCTO_DESCRIPCION . ", 
-                    c.categorianombre AS categoriaNombre,
-                    s.subcategioranombre AS subCategoriaNombre,
-                    m.marcanombre AS marcaNombre,
-                    pr. presentacionnombre AS presentacionNombre,
-                    p." . PRODUCTO_IMAGEN . ", 
-                    p." . PRODUCTO_ESTADO . ",
-                FROM " . TB_PRODUCTO . " p
-                JOIN tbcodigobarras cb ON p." . PRODUCTO_CODIGO_BARRAS_ID . " = cb.codigobarrasid 
-                JOIN tbcategoria c ON p." . PRODUCTO_CATEGORIA_ID . " = c.categoriaid 
-                JOIN tbsubcategoria s ON p." . PRODUCTO_SUBCATEGORIA_ID . " = s.subcategoriaid
-                JOIN tbmarca m ON p." . PRODUCTO_MARCA_ID . " = m.marcaid
-                JOIN tbpresentacion pr ON p." . PRODUCTO_PRESENTACION_ID . " = pr.presentacionid
-                WHERE p." . PRODUCTO_ESTADO . " != false;
-                ";
-        
-                $result = mysqli_query($conn, $querySelect);
-        
-                // Crear la lista con los datos obtenidos
-                $listaProductos = [];
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $currentProducto = [
-                        $row[PRODUCTO_ID],
-                        $row["codigoBarrasNumero"],
-                        $row[PRODUCTO_NOMBRE],
-                        $row[PRODUCTO_PRECIO_COMPRA],
-                        $row[PRODUCTO_PORCENTAJE_GANANCIA],
-                        $row[PRODUCTO_DESCRIPCION],
-                        $row['categoriaNombre'],
-                        $row['subCategoriaNombre'],
-                        $row['marcaNombre'],
-                        $row['presentacionNombre'],
-                        $row[PRODUCTO_IMAGEN],
-                        $row[PRODUCTO_ESTADO],
-                    ];
-                    array_push($listaProductos, $currentProducto);
-                }
-        
-                return ["success" => true, "listaProductos" => $listaProductos];
-            } catch (Exception $e) {
-                // Manejo del error dentro del bloque catch
-                $userMessage = $this->handleMysqlError(
-                    $e->getCode(), 
-                    $e->getMessage(),
-                    'Error al obtener la lista de productos desde la base de datos'
-                );
-        
-                // Devolver mensaje amigable para el usuario
-                return ["success" => false, "message" => $userMessage];
-            } finally {
-                // Cerramos la conexión
-                if (isset($conn)) { mysqli_close($conn); }
-            }
-        }
         
         
         public function getAllTBCompraDetalleProducto(){
@@ -488,6 +416,77 @@
     return $response;
 }
         
+public function getAllProductos() {
+    try {
+        // Establece una conexión con la base de datos
+        $result = $this->getConnection();
+        if (!$result["success"]) {
+            throw new Exception($result["message"]);
+        }
+        $conn = $result["connection"];
+
+        // Construir la consulta SQL para obtener todos los productos activos
+        $querySelect = "
+        SELECT 
+            p." . PRODUCTO_ID . ", 
+            cb.codigobarrasnumero codigoBarrasNumero,
+            p." . PRODUCTO_NOMBRE . ", 
+            p." . PRODUCTO_PRECIO_COMPRA . ", 
+            p." . PRODUCTO_PORCENTAJE_GANANCIA . ", 
+            p." . PRODUCTO_DESCRIPCION . ", 
+            c.categorianombre AS categoriaNombre,
+            s.subcategorianombre AS subCategoriaNombre,
+            m.marcanombre AS marcaNombre,
+            pr.presentacionnombre AS presentacionNombre,
+            p." . PRODUCTO_IMAGEN . ", 
+            p." . PRODUCTO_ESTADO . "
+        FROM " . TB_PRODUCTO . " p
+        JOIN tbcodigobarras cb ON p." . PRODUCTO_CODIGO_BARRAS_ID . " = cb.codigobarrasid 
+        JOIN tbcategoria c ON p." . PRODUCTO_CATEGORIA_ID . " = c.categoriaid 
+        JOIN tbsubcategoria s ON p." . PRODUCTO_SUBCATEGORIA_ID . " = s.subcategoriaid
+        JOIN tbmarca m ON p." . PRODUCTO_MARCA_ID . " = m.marcaid
+        JOIN tbpresentacion pr ON p." . PRODUCTO_PRESENTACION_ID . " = pr.presentacionid
+        WHERE p." . PRODUCTO_ESTADO . " != false;
+        ";
+
+        $result = mysqli_query($conn, $querySelect);
+
+        // Crear la lista con los datos obtenidos
+        $listaProductos = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $currentProducto = [
+                $row[PRODUCTO_ID],
+                $row["codigoBarrasNumero"],
+                $row[PRODUCTO_NOMBRE],
+                $row[PRODUCTO_PRECIO_COMPRA],
+                $row[PRODUCTO_PORCENTAJE_GANANCIA],
+                $row[PRODUCTO_DESCRIPCION],
+                $row['categoriaNombre'],
+                $row['subCategoriaNombre'],
+                $row['marcaNombre'],
+                $row['presentacionNombre'],
+                $row[PRODUCTO_IMAGEN],
+                $row[PRODUCTO_ESTADO],
+            ];
+            array_push($listaProductos, $currentProducto);
+        }
+        error_log('Productos obtenidos: ' . print_r($listaProductos, true)); // Registro para depurar
+        return ["success" => true, "listaProductos" => $listaProductos];
+    } catch (Exception $e) {
+        // Manejo del error dentro del bloque catch
+        $userMessage = $this->handleMysqlError(
+            $e->getCode(), 
+            $e->getMessage(),
+            'Error al obtener la lista de productos desde la base de datos'
+        );
+
+        // Devolver mensaje amigable para el usuario
+        return ["success" => false, "message" => $userMessage];
+    } finally {
+        // Cerramos la conexión
+        if (isset($conn)) { mysqli_close($conn); }
+    }
+}
         public function getPaginatedProductos($page, $size, $sort = null) {
             try {
                 // Validar los parámetros de paginación
@@ -523,7 +522,7 @@
                  p." . PRODUCTO_PORCENTAJE_GANANCIA . ", 
                  p." . PRODUCTO_DESCRIPCION . ", 
                  c.categorianombre AS categoriaNombre,
-                 s.subcategorianombre AS subCategoriaNombre,
+                s.subcategorianombre AS subCategoriaNombre,
                 m.marcanombre AS marcaNombre,
                 pr.presentacionnombre AS presentacionNombre,
                 p." . PRODUCTO_IMAGEN . ", 
@@ -536,8 +535,6 @@
         JOIN tbpresentacion pr ON p." . PRODUCTO_PRESENTACION_ID . " = pr.presentacionid
         WHERE p." . PRODUCTO_ESTADO . " != false 
         ";
-
-                // Añadir la cláusula de limitación y offset
                 $querySelect .= "LIMIT ? OFFSET ?";
         
                 // Preparar la consulta y vincular los parámetros
