@@ -20,16 +20,16 @@
         <table>
             <thead>
                 <tr>  
-                    <th data-field="codigoBarrasID">Código de Barras</th>
-                    <th data-field="nombre">Nombre</th>
-                    <th data-field="precioCompra">Precio de Compra</th>
-                    <th data-field="ganancia">Porcentaje de Ganancia</th>
-                    <th data-field="descripcion">Descripción</th> 
-                    <th data-field="categoria">Descripción</th> 
-                    <th data-field="subcategoria">Descripción</th> 
-                    <th data-field="marca">Descripción</th> 
-                    <th data-field="presentacion">Descripción</th> 
-                    <th data-field="foto">Imagen</th>
+                    <th data-field="codigobarrasnombre">Código de Barras</th>
+                    <th data-field="productonombre">Nombre</th>
+                    <th data-field="productopreciocompra">Precio de Compra</th>
+                    <th data-field="productoporcentajeganancia">Porcentaje de Ganancia</th>
+                    <th data-field="productodescripcion">Descripción</th> 
+                    <th data-field="categorianombre">Categoria</th> 
+                    <th data-field="subcategorianombre">Sub Categoria</th> 
+                    <th data-field="marcanombre">Marca</th> 
+                    <th data-field="presentacionnombre">Presentacion</th> 
+                    <th data-field="productoimagen">Imagen</th>
                     <th>Acciones</th>
                 </tr>
             </thead>

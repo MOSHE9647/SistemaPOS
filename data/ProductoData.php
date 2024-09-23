@@ -340,13 +340,18 @@
                 $producto = null;
                 if ($row = mysqli_fetch_assoc($result)) {
                     $producto = new Producto(
+                        $row[PRODUCTO_ID], 
+                        $row[PRODUCTO_CODIGO_BARRAS_ID],
                         $row[PRODUCTO_NOMBRE],
                         $row[PRODUCTO_PRECIO_COMPRA], // Cambié PRODUCTO_PRECIO_U a PRODUCTO_PRECIO_COMPRA
-                        $row[PRODUCTO_CODIGO_BARRAS_ID],
-                        $row[PRODUCTO_IMAGEN],
                         $row[PRODUCTO_PORCENTAJE_GANANCIA],
-                        $row[PRODUCTO_ID],
+                        $row[PRODUCTO_IMAGEN],
                         $row[PRODUCTO_DESCRIPCION],
+                        $row[PRODUCTO_CATEGORIA_ID],
+                        $row[PRODUCTO_SUBCATEGORIA_ID],
+                        $row[PRODUCTO_MARCA_ID],
+                        $row[PRODUCTO_PRESENTACION_ID],
+                        $row[PRODUCTO_IMAGEN],
                         $row[PRODUCTO_ESTADO]
                     );
                 }
@@ -369,7 +374,7 @@
             }
         }
         
-        public function getAllProductos(){
+        public function getAllProductos() {
             try {
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
@@ -378,23 +383,50 @@
                 }
                 $conn = $result["connection"];
         
-                // Obtenemos la lista de Productos
-                $querySelect = "SELECT * FROM " . TB_PRODUCTO . " WHERE " . PRODUCTO_ESTADO . " != false;";
+                // Construir la consulta SQL para obtener todos los productos activos
+                $querySelect = "
+                SELECT 
+                    p." . PRODUCTO_ID . ", 
+                    cb.codigobarrasnumero codigoBarrasNumero,
+                    p." . PRODUCTO_NOMBRE . ", 
+                    p." . PRODUCTO_PRECIO_COMPRA . ", 
+                    p." . PRODUCTO_PORCENTAJE_GANANCIA . ", 
+                    p." . PRODUCTO_DESCRIPCION . ", 
+                    c.categorianombre AS categoriaNombre,
+                    s.subcategioranombre AS subCategoriaNombre,
+                    m.marcanombre AS marcaNombre,
+                    pr. presentacionnombre AS presentacionNombre,
+                    p." . PRODUCTO_IMAGEN . ", 
+                    p." . PRODUCTO_ESTADO . ",
+                FROM " . TB_PRODUCTO . " p
+                JOIN tbcodigobarras cb ON p." . PRODUCTO_CODIGO_BARRAS_ID . " = cb.codigobarrasid 
+                JOIN tbcategoria c ON p." . PRODUCTO_CATEGORIA_ID . " = c.categoriaid 
+                JOIN tbsubcategoria s ON p." . PRODUCTO_SUBCATEGORIA_ID . " = s.subcategoriaid
+                JOIN tbmarca m ON p." . PRODUCTO_MARCA_ID . " = m.marcaid
+                JOIN tbpresentacion pr ON p." . PRODUCTO_PRESENTACION_ID . " = pr.presentacionid
+                WHERE p." . PRODUCTO_ESTADO . " != false;
+                ";
+        
                 $result = mysqli_query($conn, $querySelect);
         
-                // Creamos la lista con los datos obtenidos
+                // Crear la lista con los datos obtenidos
                 $listaProductos = [];
-                while ($row = mysqli_fetch_assoc($result)) {  // Usamos fetch_assoc para obtener un array asociativo
-                    $listaProductos[] = [
-                        'ID' => $row[PRODUCTO_ID], // Asegúrate de incluir el ID en el constructor si es necesario
-                        'Nombre' => $row[PRODUCTO_NOMBRE],
-                        'PrecioCompra' => $row[PRODUCTO_PRECIO_COMPRA],
-                        'PorcentajeGanancia' => $row[PRODUCTO_PORCENTAJE_GANANCIA],
-                        'Descripcion' => $row[PRODUCTO_DESCRIPCION],
-                        'CodigoBarras' => $row[PRODUCTO_CODIGO_BARRAS_ID], // Cambié PRODUCTO_ID a PRODUCTO_CODIGO_BARRAS_ID
-                        'RutaImagen' => $row[PRODUCTO_IMAGEN],
-                        'Estado' => $row[PRODUCTO_ESTADO],
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $currentProducto = [
+                        $row[PRODUCTO_ID],
+                        $row["codigoBarrasNumero"],
+                        $row[PRODUCTO_NOMBRE],
+                        $row[PRODUCTO_PRECIO_COMPRA],
+                        $row[PRODUCTO_PORCENTAJE_GANANCIA],
+                        $row[PRODUCTO_DESCRIPCION],
+                        $row['categoriaNombre'],
+                        $row['subCategoriaNombre'],
+                        $row['marcaNombre'],
+                        $row['presentacionNombre'],
+                        $row[PRODUCTO_IMAGEN],
+                        $row[PRODUCTO_ESTADO],
                     ];
+                    array_push($listaProductos, $currentProducto);
                 }
         
                 return ["success" => true, "listaProductos" => $listaProductos];
@@ -413,6 +445,7 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
+        
         
         public function getAllTBCompraDetalleProducto(){
             $response = [];
@@ -481,23 +514,29 @@
                 $totalPages = ceil($totalRecords / $size);
         
                 // Construir la consulta SQL para paginación
-                $querySelect = "SELECT "
-                    . "P." . PRODUCTO_ID . ","
-                    . "P." . PRODUCTO_NOMBRE . ","
-                    . "P." . PRODUCTO_DESCRIPCION . ","
-                    . "P." . PRODUCTO_PRECIO_COMPRA . ","
-                    . "P." . PRODUCTO_CODIGO_BARRAS_ID . ","
-                    . "P." . PRODUCTO_IMAGEN . ","
-                    . "P." . PRODUCTO_PORCENTAJE_GANANCIA . ","
-                    . "P." . PRODUCTO_ESTADO
-                    . " FROM " . TB_PRODUCTO . " P"
-                    . " WHERE P." . PRODUCTO_ESTADO . " != false ";
-        
-                // Añadir la cláusula de ordenamiento si se proporciona
-                if ($sort) {
-                    $querySelect .= "ORDER BY P." . $sort . " ";
-                }
-        
+                $querySelect = "
+                 SELECT 
+                 p." . PRODUCTO_ID . ",
+                 cb.codigobarrasnumero AS codigoBarrasNumero,
+                 p." . PRODUCTO_NOMBRE . ", 
+                 p." . PRODUCTO_PRECIO_COMPRA . ", 
+                 p." . PRODUCTO_PORCENTAJE_GANANCIA . ", 
+                 p." . PRODUCTO_DESCRIPCION . ", 
+                 c.categorianombre AS categoriaNombre,
+                 s.subcategorianombre AS subCategoriaNombre,
+                m.marcanombre AS marcaNombre,
+                pr.presentacionnombre AS presentacionNombre,
+                p." . PRODUCTO_IMAGEN . ", 
+                p." . PRODUCTO_ESTADO . "
+        FROM " . TB_PRODUCTO . " p
+        JOIN tbcodigobarras cb ON p." . PRODUCTO_CODIGO_BARRAS_ID . " = cb.codigobarrasid 
+        JOIN tbcategoria c ON p." . PRODUCTO_CATEGORIA_ID . " = c.categoriaid 
+        JOIN tbsubcategoria s ON p." . PRODUCTO_SUBCATEGORIA_ID . " = s.subcategoriaid
+        JOIN tbmarca m ON p." . PRODUCTO_MARCA_ID . " = m.marcaid
+        JOIN tbpresentacion pr ON p." . PRODUCTO_PRESENTACION_ID . " = pr.presentacionid
+        WHERE p." . PRODUCTO_ESTADO . " != false 
+        ";
+
                 // Añadir la cláusula de limitación y offset
                 $querySelect .= "LIMIT ? OFFSET ?";
         
@@ -514,16 +553,20 @@
                 $listaProductos = [];
                 while ($row = mysqli_fetch_assoc($result)) {
                     $listaProductos[] = [
-                        'ID' => $row[PRODUCTO_ID],
-                        'Nombre' => $row[PRODUCTO_NOMBRE],
-                        'Descripcion' => $row[PRODUCTO_DESCRIPCION],
-                        'Precio' => $row[PRODUCTO_PRECIO_COMPRA],
-                        'CodigoBarras' => $row[PRODUCTO_CODIGO_BARRAS_ID],
-                        'ProductoFoto' => $row[PRODUCTO_IMAGEN],
-                        'ProductoPorcentaje' => $row[PRODUCTO_PORCENTAJE_GANANCIA],
-                        'Estado' => $row[PRODUCTO_ESTADO]
-                    ];
-                }
+                    'ID' => $row[PRODUCTO_ID],
+                    'CodigoBarrasNumero' => $row['codigoBarrasNumero'],
+                    'ProductoNombre' => $row[PRODUCTO_NOMBRE],
+                    'PrecioCompra' => $row[PRODUCTO_PRECIO_COMPRA],
+                    'ProductoPorcentajeGanancia' => $row[PRODUCTO_PORCENTAJE_GANANCIA],
+                    'ProductoDescripcion' => $row[PRODUCTO_DESCRIPCION],
+                    'CategoriaNombre' => $row['categoriaNombre'],
+                    'SubCategoriaNombre' => $row['subCategoriaNombre'],
+                    'MarcaNombre' => $row['marcaNombre'],
+                    'PresentacionNombre' => $row['presentacionNombre'],
+                    'ProductoImagen' => $row[PRODUCTO_IMAGEN],
+                    'ProductoEstado' => $row[PRODUCTO_ESTADO]
+            ];
+        }
         
                 return [
                     "success" => true,

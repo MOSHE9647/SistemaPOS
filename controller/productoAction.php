@@ -7,18 +7,26 @@
         $accion = isset($_POST['accion']) ? $_POST['accion'] : "";
 
         $id = isset($_POST['id']) ? $_POST['id'] : 0;
-        $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : "";
-        $precioCompra = isset($_POST['precioCompra']) ? $_POST['precioCompra'] : 0;
-        $descripcion = isset($_POST['descripcion']) ? $_POST['descripcion'] : "";
-        $codigoBarrasID = isset($_POST['codigoBarrasID']) ? $_POST['codigoBarrasID'] : "";
-        $foto = isset($_POST['foto']) ? $_POST['foto'] : '';
-        $ganancia = isset($_POST['ganancia']) ? $_POST['ganancia'] : '';
+        $codigobarrasid = isset($_POST['codigobarrasnumero']) ? $_POST['codigobarrasnumero'] : 0;
+        $productonombre = isset($_POST['productonombre']) ? $_POST['productonombre'] : "";
+        $productopreciocompra = isset($_POST['productopreciocompra']) ? $_POST['productopreciocompra'] : 0.00;
+        $productoporcentajeganancia = isset($_POST['productoporcentajeganancia']) ? $_POST['productoporcentajeganancia'] : 0.00;
+        $productodescripcion = isset($_POST['productodescripcion']) ? $_POST['productodescripcion'] : "";
+        $categoriaid = isset($_POST['categorianombre']) ? $_POST['categorianombre'] : 0;
+        $subcategoriaid = isset($_POST['subcategorianombre']) ? $_POST['subcategorianombre'] : 0;
+        $marcaid = isset($_POST['marcanombre']) ? $_POST['marcanombre'] : 0;
+        $presentacionid = isset($_POST['presentacionnombre']) ? $_POST['presentacionnombre'] : 0;
+        $productoimagen = isset($_POST['productoimagen']) ? $_POST['productoimagen'] : '';
+        $productoEstado = isset($_POST['productoestado']) ? $_POST['productoestado'] : '';
 
         // Se crea el Service para las operaciones
         $productoBusiness = new ProductoBusiness();
 
         // Crea y verifica que los datos del producto sean correctos
-        $producto = new Producto($nombre, $precioCompra, $codigoBarrasID, $foto, $ganancia, $id, $descripcion);
+        $producto = new Producto(
+            $id, $codigoBarrasID, $productoNombre, $productoPrecioCompra, $productoPorcentajeGanancia, $productoDescripcion,
+            $categoriaID, $subCategoriaID, $marcaID, $presentacionID, $productoImagen, $productoEstado
+        );
         $check = $productoBusiness->validarProducto($producto, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
         if ($check['is_valid']) {
             switch ($accion) {
