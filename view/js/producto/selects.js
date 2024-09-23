@@ -1,108 +1,57 @@
-// *********************************************************************************************** //
-// ************* Métodos para obtener las listas de Categorías y Subcategorías ***************** //
-// *********************************************************************************************** //
+document.addEventListener("DOMContentLoaded", function() {
+    // Cargar las categorías y subcategorías cuando se cargue la página
+    loadCategoriasSubcategorias();
+});
+function fillCategoriasCombo(categorias) {
+    let categoriaSelect = document.getElementById('categoria-select');
+    categoriaSelect.innerHTML = '<option value="">-- Seleccionar categoría --</option>'; // Limpiar el combo box
 
-/**
- * Carga datos de categorías y subcategorías desde el backend.
- * 
- * @returns {Promise<object>} Promesa que resuelve a un objeto con categorías y subcategorías.
- * 
- * @example
- * const datos = await loadCategoriasFromBackend();
- * console.log(datos); // Salida: { categorias: [...] }
- */
-async function loadCategoriasFromBackend() {
-    // Suponiendo que tienes métodos que devuelven las categorías y subcategorías
-    const categorias = await getAllCategorias(); // Método que trae todas las categorías
-    const subcategorias = await getAllSubcategorias(); // Método que trae todas las subcategorías
-
-    // Asocia las subcategorías a sus respectivas categorías
     categorias.forEach(categoria => {
-        categoria.subcategorias = subcategorias.filter(subcategoria => subcategoria.categoriaId === categoria.id);
+        let option = document.createElement('option');
+        option.value = categoria.id;
+        option.textContent = categoria.nombre;
+        categoriaSelect.appendChild(option);
     });
-
-    return { categorias };
 }
 
-/**
- * Inicializa los selects de categoría y subcategoría.
- * 
- * Carga los datos de las categorías y subcategorías desde el backend
- * y asigna los datos a una variable global. Luego, añade event listeners para
- * actualizar los selects dependientes cuando se selecciona una categoría.
- * 
- * @example
- * initializeSelects();
- */
-async function initializeSelects() {
-    const data = await loadCategoriasFromBackend();
-    window.data = data; // Asigna los datos a una variable global
-    loadCategorias(); // Carga las categorías en el select
+async function loadCategoriasSubcategorias() {
+    try {
+        const response = await fetch('controller/listarSubcategorias.php?accion=listarSubcategorias');
+        if (!response.ok) {
+            throw new Error('Error al cargar las categorías');
+        }
+        const data = await response.json();
 
-    // Añadir event listener para actualizar el select de subcategorías
-    const categoriaSelect = document.getElementById('categoria-select');
-    if (!categoriaSelect) {
-        showMessage('No se encontró el select de categorías.', 'error');
-        return;
-    }
-    categoriaSelect.addEventListener('change', loadSubcategorias);
-}
-
-/**
- * Carga las categorías en el select de categorías.
- * 
- * Limpia las opciones anteriores y carga las categorías desde la variable global `window.data`.
- * 
- * @example
- * loadCategorias();
- */
-function loadCategorias() {
-    const categoriaSelect = document.getElementById('categoria-select');
-    let value = categoriaSelect.value;
-    categoriaSelect.innerHTML = '<option value="">-- Seleccionar --</option>'; // Limpiar opciones anteriores
-
-    if (window.data.categorias) {
-        window.data.categorias.forEach(categoria => {
+        // Cargar las categorías en el combo box
+        const categoriaSelect = document.getElementById('categoria-select');
+        categoriaSelect.innerHTML = '<option value="">-- Seleccionar categoría --</option>'; // Limpiar el combo box de categorías
+        data.categorias.forEach(categoria => {
             const option = document.createElement('option');
-            option.dataset.field = categoria.id;
-            option.value = categoria.id;  // Cambiado para usar el ID como valor
+            option.value = categoria.id;
             option.textContent = categoria.nombre;
-            option.selected = option.value === value;
             categoriaSelect.appendChild(option);
         });
+
+        // Event listener para actualizar las subcategorías según la categoría seleccionada
+        categoriaSelect.addEventListener('change', function() {
+            const selectedCategoriaId = parseInt(categoriaSelect.value);
+            const subcategoriaSelect = document.getElementById('subcategoria-select');
+            subcategoriaSelect.innerHTML = '<option value="">-- Seleccionar subcategoría --</option>'; // Limpiar el combo box de subcategorías
+
+            const categoriaSeleccionada = data.categorias.find(categoria => categoria.id === selectedCategoriaId);
+            if (categoriaSeleccionada && categoriaSeleccionada.subcategorias) {
+                categoriaSeleccionada.subcategorias.forEach(subcategoria => {
+                    const option = document.createElement('option');
+                    option.value = subcategoria.id;
+                    option.textContent = subcategoria.nombre;
+                    subcategoriaSelect.appendChild(option);
+                });
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        alert('No se pudieron cargar las categorías y subcategorías. Intenta de nuevo más tarde.');
     }
 
-    loadSubcategorias(); // Cargar subcategorías si hay una selección inicial
-}
-
-/**
- * Carga las subcategorías en el select de subcategorías según la categoría seleccionada.
- * 
- * Limpia las opciones anteriores y carga las subcategorías desde la variable global `window.data` según la categoría seleccionada.
- * 
- * @example
- * loadSubcategorias();
- */
-function loadSubcategorias() {
-    const subcategoriaSelect = document.getElementById('subcategoria-select');
-    let value = subcategoriaSelect.value;
-    subcategoriaSelect.innerHTML = '<option value="">-- Seleccionar --</option>'; // Limpiar opciones anteriores
-
-    const categoriaSelect = document.getElementById('categoria-select');
-    const categoriaId = categoriaSelect.value; // Obtener el ID de la categoría seleccionada
-
-    if (categoriaId) {
-        // Buscar la categoría seleccionada y sus subcategorías
-        const categoriaSeleccionada = window.data.categorias.find(categoria => categoria.id === parseInt(categoriaId));
-
-        if (categoriaSeleccionada && categoriaSeleccionada.subcategorias) {
-            categoriaSeleccionada.subcategorias.forEach(subcategoria => {
-                const option = document.createElement('option');
-                option.value = subcategoria.id; // Puedes cambiar esto a `nombre` si lo prefieres
-                option.textContent = subcategoria.nombre;
-                option.selected = option.value === value;
-                subcategoriaSelect.appendChild(option);
-            });
-        }
-    }
+    
 }

@@ -1,5 +1,6 @@
 <?php
     require_once __DIR__ . '/../service/subcategoriaBusiness.php';
+    require_once __DIR__ . '/../service/categoriaBusiness.php'; // Agregar el Business de categorías
     require_once __DIR__ . '/../utils/Utils.php';
 
     $response = [];
@@ -11,20 +12,20 @@
         $categoriaid = isset($_POST['categoria'])?$_POST['categoria']:0;
         
         $subcategoriaBusiness = new SubcategoriaBusiness();
-        $subcategoria = new Subcategoria($nombre_subcategoria,$categoriaid ,$descripcion,$id_subcategoria);
+        $subcategoria = new Subcategoria($nombre_subcategoria, $categoriaid , $descripcion, $id_subcategoria);
 
-        Utils::writeLog("$nombre_subcategoria,$categoriaid ,$descripcion,$id_subcategoria", UTILS_LOG_FILE);
+        Utils::writeLog("$nombre_subcategoria, $categoriaid, $descripcion, $id_subcategoria", UTILS_LOG_FILE);
 
         switch($accion){
             case 'eliminar':
-                    $response = $subcategoriaBusiness->deleteSubcategoria($subcategoria);
-                    break;
+                $response = $subcategoriaBusiness->deleteSubcategoria($subcategoria);
+                break;
             case 'insertar':
-                    $response = $subcategoriaBusiness->insertSubcategoria($subcategoria);
-                    break;
+                $response = $subcategoriaBusiness->insertSubcategoria($subcategoria);
+                break;
             case 'actualizar':
-                    $response = $subcategoriaBusiness->updateSubcategoria($subcategoria);
-                    break;
+                $response = $subcategoriaBusiness->updateSubcategoria($subcategoria);
+                break;
             default:
                 $response['success'] = false;
                 $response['message'] = "Acción no válida.";
@@ -38,14 +39,31 @@
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
 
         if (isset($_GET['accion']) && $_GET['accion'] === 'listarSubcategorias') {
-            Utils::writeLog("Ingreso ",UTILS_LOG_FILE);
+            Utils::writeLog("Ingreso a listarSubcategorias",UTILS_LOG_FILE);
+
             $subcategoriaBusiness = new SubcategoriaBusiness();
-            $result = $subcategoriaBusiness->getAllSubcategorias();
+            $categoriaBusiness = new CategoriaBusiness();  // Crear instancia del Business de categorías
+
+            // Obtener todas las categorías
+            $categorias = $categoriaBusiness->getAllTBCategoria();
+
+            // Obtener todas las subcategorías
+            $subcategorias = $subcategoriaBusiness->getAllSubcategorias();
+
+            // Asociar las subcategorías con sus categorías
+            foreach ($categorias as &$categoria) {
+                $categoria['subcategorias'] = array_filter($subcategorias, function($subcategoria) use ($categoria) {
+                    return $subcategoria['categoriaId'] === $categoria['id'];  // Asociar por categoría ID
+                });
+            }
+
+            // Enviar las categorías con subcategorías asociadas en la respuesta JSON
             header('Content-Type: application/json');
-            echo json_encode($result);
+            echo json_encode(array('categorias' => $categorias));
             exit();
         }
-        // Obtener parámetros de la solicitud GET
+
+        // Obtener parámetros de la solicitud GET para paginación
         $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
         $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
         $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
@@ -61,5 +79,4 @@
         echo json_encode($result);
         exit();
     }
-
 ?>
