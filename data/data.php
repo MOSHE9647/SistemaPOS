@@ -59,44 +59,6 @@
             }
             
         }
-
-        /**
-         * Verifies if the MySQL server is running.
-         *
-         * This method checks if the MySQL server process is running on the system.
-         * It uses different commands depending on the operating system (Windows or Linux/Unix).
-         *
-         * @return bool True if MySQL is running, false otherwise.
-         *
-         * Example:
-         * ```
-         * if ($this->isMysqlRunning()) {
-         *     echo "MySQL is running!";
-         * } else {
-         *     echo "MySQL is not running.";
-         * }
-         * ```
-         */
-        // private function isMysqlRunning() {
-        //     $os = PHP_OS_FAMILY;
-            
-        //     if ($os === 'Windows') {
-        //         // Comando para Windows
-        //         $output = [];
-        //         exec('tasklist /FI "IMAGENAME eq mysqld.exe"', $output);
-        //         foreach ($output as $line) {
-        //             if (strpos($line, 'mysqld.exe') !== false) {
-        //                 return true;
-        //             }
-        //         }
-        //         return false;
-        //     } else {
-        //         // Comando para Linux/Unix
-        //         $output = [];
-        //         exec('ps aux | grep [m]ysqld', $output);
-        //         return count($output) > 0; // Si hay resultados, el proceso mysqld está en ejecución
-        //     }
-        // }
         
         /**
          * Establishes a connection to the MySQL database.
@@ -123,13 +85,6 @@
          */
         public function getConnection() {
             try {
-                // Verificar si MySQL está en ejecución (solo en caso de no estar usando la DB en la nube)
-                // if ($this->servername !== CLOUD_DB_HOST && !$this->isMysqlRunning()) {
-                //     $userMessage = "El servidor de la base de datos [MySQL] no está disponible en este momento. Por favor, inténtelo más tarde.";
-                //     Utils::writeLog($userMessage, DATA_LOG_FILE);
-                //     throw new Exception($userMessage);
-                // }
-
                 // Intentar establecer una conexión con la base de datos
                 $conn = mysqli_connect($this->servername, $this->username, $this->password, $this->dbname);
 

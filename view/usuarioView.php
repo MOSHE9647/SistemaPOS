@@ -1,15 +1,15 @@
 <?php
 
-    require_once __DIR__ . '/../auth/auth.php'; // Verifica la autenticación y los roles
+    // require_once __DIR__ . '/../auth/auth.php'; // Verifica la autenticación y los roles
 
-    // Solo los usuarios con rol de administrador (por ejemplo, RolID = 1) pueden acceder
-    if (!verificarRol([ROL_ADMIN])) { // 1 = Rol de Administrador
-        // Si el usuario no tiene el rol adecuado, cierra la sesión y redirige a la página de inicio de sesión
-        $_SESSION[SESSION_ACCESS_DENIED] = true;
-        $INDEX_PAGE = "./../index.php";
-        header("Location: $INDEX_PAGE");
-        exit();
-    }
+    // // Solo los usuarios con rol de administrador (por ejemplo, RolID = 1) pueden acceder
+    // if (!verificarRol([ROL_ADMIN])) { // 1 = Rol de Administrador
+    //     // Si el usuario no tiene el rol adecuado, cierra la sesión y redirige a la página de inicio de sesión
+    //     $_SESSION[SESSION_ACCESS_DENIED] = true;
+    //     $INDEX_PAGE = "./../index.php";
+    //     header("Location: $INDEX_PAGE");
+    //     exit();
+    // }
 
 ?>
 

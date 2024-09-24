@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 24-09-2024 a las 09:07:34
+-- Tiempo de generación: 16-09-2024 a las 18:58:23
 -- Versión del servidor: 8.0.39-0ubuntu0.22.04.1
 -- Versión de PHP: 8.1.2-1ubuntu2.18
 
@@ -54,35 +54,7 @@ INSERT INTO `tbcategoria` (`categoriaid`, `categorianombre`, `categoriadescripci
 (7, 'Monitors & Displays', 'Monitores y pantallas', 0),
 (8, 'Input Devices', 'Dispositivos de entrada', 1),
 (9, 'Home Appliances', 'Electrodomésticos para el hogar', 1),
-(10, 'Audio & Headphones', 'Audio y auriculares', 1),
-(11, 'PRUEBA1', '', 0);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `tbcliente`
---
-
-DROP TABLE IF EXISTS `tbcliente`;
-CREATE TABLE IF NOT EXISTS `tbcliente` (
-  `clienteid` int NOT NULL,
-  `clientenombre` varchar(100) DEFAULT NULL,
-  `clientetelefonoid` int NOT NULL,
-  `clientefechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `clientefechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `clienteestado` tinyint NOT NULL DEFAULT '1',
-  PRIMARY KEY (`clienteid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Volcado de datos para la tabla `tbcliente`
---
-
-INSERT INTO `tbcliente` (`clienteid`, `clientenombre`, `clientetelefonoid`, `clientefechacreacion`, `clientefechamodificacion`, `clienteestado`) VALUES
-(1, 'Prueba', 1, '2024-09-22 16:17:10', '2024-09-24 00:17:47', 0),
-(2, 'Pancho Escamilla', 2, '2024-09-22 17:41:52', '2024-09-23 21:37:08', 1),
-(3, 'Isaac Herrera', 8, '2024-09-23 23:00:13', '2024-09-24 00:17:38', 1),
-(4, '', 9, '2024-09-24 00:18:05', '2024-09-24 00:18:05', 1);
+(10, 'Audio & Headphones', 'Audio y auriculares', 1);
 
 -- --------------------------------------------------------
 
@@ -303,13 +275,6 @@ CREATE TABLE IF NOT EXISTS `tbproducto` (
   PRIMARY KEY (`productoid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
---
--- Volcado de datos para la tabla `tbproducto`
---
-
-INSERT INTO `tbproducto` (`productoid`, `productocodigobarrasid`, `productonombre`, `productopreciocompra`, `productoporcentajeganancia`, `productodescripcion`, `productocategoriaid`, `productosubcategoriaid`, `productomarcaid`, `productopresentacionid`, `productoimagen`, `productoestado`) VALUES
-(1, 123456789, 'Producto Ejemplo', 50.00, 25.00, 'Este es un producto de ejemplo con descripción opcional.', 2, 3, 1, 1, '/imagenes/producto_ejemplo.jpg', 1);
-
 -- --------------------------------------------------------
 
 --
@@ -333,8 +298,7 @@ CREATE TABLE IF NOT EXISTS `tbproveedor` (
 --
 
 INSERT INTO `tbproveedor` (`proveedorid`, `proveedornombre`, `proveedoremail`, `proveedorcategoriaid`, `proveedorfechacreacion`, `proveedorfechamodificacion`, `proveedorestado`) VALUES
-(1, 'Proveedor 1', 'proveedor1@ejemplo.com', 5, '2024-09-15 18:07:39', '2024-09-17 09:12:53', 1),
-(2, 'Proveedor 2', 'proveedor2@gmail.com', 4, '2024-09-17 09:10:20', '2024-09-17 09:18:21', 1);
+(1, 'Proveedor 1', 'proveedor1@ejemplo.com', 1, '2024-09-15 18:07:39', '2024-09-15 18:07:39', 1);
 
 -- --------------------------------------------------------
 
@@ -396,8 +360,9 @@ INSERT INTO `tbproveedortelefono` (`proveedortelefonoid`, `proveedorid`, `telefo
 (1, 1, 1, 1),
 (2, 1, 2, 1),
 (3, 1, 3, 1),
-(4, 1, 5, 1),
-(5, 1, 6, 1);
+(4, 1, 4, 1),
+(5, 1, 5, 1),
+(6, 1, 6, 1);
 
 -- --------------------------------------------------------
 
@@ -420,7 +385,8 @@ CREATE TABLE IF NOT EXISTS `tbrolusuario` (
 
 INSERT INTO `tbrolusuario` (`rolusuarioid`, `rolusuarionombre`, `rolusuariodescripcion`, `rolusuarioestado`) VALUES
 (1, 'ADMIN', 'Usuario administrador', 1),
-(2, 'DEPENDIENTE', 'Trabajador del local', 1);
+(2, 'DEPENDIENTE', 'Dependiente del Negocio', 1),
+(3, 'CLIENTE', '', 1);
 
 -- --------------------------------------------------------
 
@@ -437,14 +403,6 @@ CREATE TABLE IF NOT EXISTS `tbsubcategoria` (
   `subcategoriaestado` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`subcategoriaid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Volcado de datos para la tabla `tbsubcategoria`
---
-
-INSERT INTO `tbsubcategoria` (`subcategoriaid`, `subcategoriacategoriaid`, `subcategorianombre`, `subcategoriadescripcion`, `subcategoriaestado`) VALUES
-(1, 3, 'Mobile', '', 1),
-(2, 5, 'Photo', '', 1);
 
 -- --------------------------------------------------------
 
@@ -470,15 +428,12 @@ CREATE TABLE IF NOT EXISTS `tbtelefono` (
 --
 
 INSERT INTO `tbtelefono` (`telefonoid`, `telefonotipo`, `telefonocodigopais`, `telefononumero`, `telefonoextension`, `telefonofechacreacion`, `telefonofechamodificacion`, `telefonoestado`) VALUES
-(1, 'Móvil', '+1-809', '257 998 5247', '', '2024-09-07 22:11:19', '2024-09-24 00:17:47', 0),
-(2, 'Móvil', '+505', '9728 6416', '', '2024-09-07 22:11:51', '2024-09-23 21:37:09', 1),
+(1, 'Móvil', '+1-809', '257 998 5247', '', '2024-09-07 22:11:19', '2024-09-07 22:11:19', 1),
+(2, 'Fax', '+503', '9728 6416', '', '2024-09-07 22:11:51', '2024-09-14 17:19:50', 1),
 (3, 'Móvil', '+593', '65 588 4412', '', '2024-09-10 09:21:51', '2024-09-10 09:21:51', 1),
-(4, 'Móvil', '+506', '6421 2950', '', '2024-09-11 20:28:23', '2024-09-16 19:47:06', 1),
+(4, 'Fax', '+506', '6421 2950', '', '2024-09-11 20:28:23', '2024-09-16 16:14:18', 1),
 (5, 'Móvil', '+502', '5972 3158', '', '2024-09-14 17:08:22', '2024-09-14 17:08:22', 1),
-(6, 'Móvil', '+51', '5679 8524', '', '2024-09-14 17:48:35', '2024-09-14 17:48:35', 1),
-(7, 'Móvil', '+595', '9654 7820', '', '2024-09-16 19:43:25', '2024-09-16 19:43:25', 1),
-(8, 'Móvil', '+54', '1234 5678', '', '2024-09-23 23:00:12', '2024-09-23 23:00:26', 1),
-(9, 'Móvil', '+595', '7309 8254', '', '2024-09-24 00:18:04', '2024-09-24 00:18:04', 1);
+(6, 'Móvil', '+51', '5679 8524', '', '2024-09-14 17:48:35', '2024-09-14 17:48:35', 1);
 
 -- --------------------------------------------------------
 
@@ -506,8 +461,8 @@ CREATE TABLE IF NOT EXISTS `tbusuario` (
 --
 
 INSERT INTO `tbusuario` (`usuarioid`, `usuarionombre`, `usuarioapellido1`, `usuarioapellido2`, `usuariorolusuarioid`, `usuarioemail`, `usuariopassword`, `usuariofechacreacion`, `usuariofechamodificacion`, `usuarioestado`) VALUES
-(1, 'Isaac', 'Herrera', 'Pastrana', 2, 'isaacmhp2001@gmail.com', '$2y$10$WIq4w2R83lzCkfa9L3NaK.9lZs.OyELxxAC/sqU3Rl4sxzlJboxgm', '2024-09-15 23:17:43', '2024-09-23 02:04:08', 1),
-(2, 'Admin', 'Adminson', 'Adminsen', 1, 'admin@admin.com', '$2y$10$SNR/eRRpbLE2RvM3WBLHReJLD8up0CXMuveEL7Z70fj6xV7A.V0Ai', '2024-09-16 17:49:31', '2024-09-23 02:04:05', 1);
+(1, 'Isaac', 'Herrera', 'Pastrana', 1, 'isaacmhp2001@gmail.com', '$2y$10$WIq4w2R83lzCkfa9L3NaK.9lZs.OyELxxAC/sqU3Rl4sxzlJboxgm', '2024-09-15 23:17:43', '2024-09-16 17:56:00', 1),
+(2, 'Admin', 'Adminson', 'Adminsen', 1, 'admin@admin.com', '$2y$10$SNR/eRRpbLE2RvM3WBLHReJLD8up0CXMuveEL7Z70fj6xV7A.V0Ai', '2024-09-16 17:49:31', '2024-09-16 17:56:18', 1);
 
 -- --------------------------------------------------------
 
@@ -523,13 +478,6 @@ CREATE TABLE IF NOT EXISTS `tbusuariotelefono` (
   `usuariotelefonoestado` tinyint NOT NULL DEFAULT '1',
   PRIMARY KEY (`usuariotelefonoid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Volcado de datos para la tabla `tbusuariotelefono`
---
-
-INSERT INTO `tbusuariotelefono` (`usuariotelefonoid`, `usuarioid`, `telefonoid`, `usuariotelefonoestado`) VALUES
-(1, 1, 4, 1);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
