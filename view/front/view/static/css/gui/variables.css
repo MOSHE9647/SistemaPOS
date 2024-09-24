@@ -1,0 +1,15 @@
+/* VARIABLES UTILIZADAS EN TODA LA WEB */
+
+:root {
+    --main: #2575fc;
+    --main-light: #1a5bb8;
+    --bg: #0B1218;
+    --bg-body: #131D28;
+    --disabled: #999696;
+    --danger: #ff0000c5;
+    --sidebar-width: 230px;
+    --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    --card-radius: 10px;
+    --shadow-light: 0 4px 8px rgba(0, 0, 0, 0.2);
+    --product-shadow: 0 4px 8px #131D2880;
+}

@@ -114,7 +114,7 @@
 
                 // Verificar si el usuario ya existe en la base de datos
                 $check = $this->existeUsuario(null, $usuarioEmail, false, true);
-                if (!$check["success"]) { return $check["message"]; }
+                if (!$check["success"]) { return $check; }
 
                 // En caso de que el usuario ya exista, pero esté inactivo
                 if ($check["exists"] && $check["inactive"]) {
@@ -206,7 +206,7 @@
 
                 // Verificar si el usuario ya existe en la base de datos
                 $check = $this->existeUsuario($usuarioID);
-                if (!$check["success"]) { return $check["message"]; }
+                if (!$check["success"]) { return $check; }
 
                 // En caso de que el usuario no exista
                 if (!$check["exists"]) {
@@ -229,7 +229,7 @@
 
                 // Verifica que no exista otro usuario con la misma información
                 $check = $this->existeUsuario($usuarioID, $usuarioEmail, true);
-                if (!$check["success"]) { return $check["message"]; }
+                if (!$check["success"]) { return $check; }
 
                 // En caso de que el usuario exista
                 if ($check["exists"]) {
@@ -303,7 +303,7 @@
             try {
                 // Verificar si el usuario ya existe en la base de datos
                 $check = $this->existeUsuario($usuarioID);
-                if (!$check["success"]) { return $check["message"]; }
+                if (!$check["success"]) { return $check; }
 
                 // En caso de que el usuario no exista
                 if (!$check["exists"]) {
@@ -488,7 +488,7 @@
             try {
                 // Verifica si el usuario existe en la base de datos
                 $check = $this->existeUsuario($usuarioID);
-                if (!$check["success"]) { return $check["message"]; }
+                if (!$check["success"]) { return $check; }
 
                 // En caso de que el usuario no exista
                 if (!$check["exists"]) {
@@ -574,13 +574,13 @@
             try {
                 // Verifica si el usuario existe en la base de datos
                 $check = $this->existeUsuario(null, $usuarioEmail);
-                if (!$check["success"]) { return $check["message"]; }
+                if (!$check["success"]) { return $check; }
 
                 // En caso de que el usuario no exista
                 if (!$check["exists"]) {
                     $message = "El usuario con 'Correo [$usuarioEmail]' no existe en la base de datos.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
-                    return ["success" => false, "message" => "El usuario seleccionado no existe en la base de datos."];
+                    return ["success" => false, "message" => "El correo ingresado no existe. Verifique su correo y vuelva a intentarlo."];
                 }
 
                 // Establece una conexión con la base de datos

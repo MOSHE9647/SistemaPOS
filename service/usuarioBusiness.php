@@ -63,10 +63,6 @@
                         $errors[] = "El campo 'Segundo Apellido' está vacío o no es válido.";
                         Utils::writeLog("El campo 'Segundo Apellido [$apellido2]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
-                    // if ($password === null || empty($password)) {
-                    //     $errors[] = "El campo 'Contraseña' está vacío o no es válido.";
-                    //     Utils::writeLog("El campo 'Contraseña [$password]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
-                    // }
                     if ($rolID === null || !is_numeric($rolID) || $rolID < 0) {
                         $errors[] = "El campo 'Rol' está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
                         Utils::writeLog("El campo 'Rol [$rolID]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
@@ -144,24 +140,26 @@
             return $this->usuarioData->getUsuarioByEmail($usuarioEmail, $json);
         }
 
-        public function autenticarUsuario(string $email, string $password): ?Usuario {
+        public function autenticarUsuario(string $email, string $password): array {
             // Consulta a la base de datos para obtener el usuario por email
             $result = $this->getUsuarioByEmail($email, false);
-            
+
             // Verifica si la consulta fue exitosa y existe el usuario
-            if ($result["success"]) {
-                $usuario = $result["usuario"];
-                $usuarioPassword = $usuario->getUsuarioPassword();
-                
-                // Verifica si la contraseña es correcta
-                if (password_verify($password, $usuarioPassword)) {
-                    // Si las credenciales son válidas, retorna el objeto Usuario
-                    return $usuario;
-                }
+            if (!$result["success"]) {
+                return ["success" => false, "message" => $result["message"]];
             }
-        
-            // Si las credenciales no son válidas, retorna null
-            return null;
+
+            // Obtiene el usuario de la consulta
+            $usuario = $result["usuario"];
+            $usuarioPassword = $usuario->getUsuarioPassword();
+
+            // Verifica si la contraseña es correcta
+            if (!password_verify($password, $usuarioPassword)) {
+                return ["success" => false, "message" => "La contraseña ingresada no es correcta."];
+            }
+            
+            // Si las credenciales son válidas, retorna el objeto Usuario
+            return ["success" => true, "usuario" => $usuario, "message" => "Usuario autenticado correctamente."];
         } 
     }
 

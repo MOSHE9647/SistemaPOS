@@ -51,6 +51,12 @@
         public function getUsuarioFechaModificacion() { return $this->usuarioFechaModificacion; }
         public function getUsuarioEstado(): bool { return $this->usuarioEstado; }
 
+        // Retorna el nombre completo del usuario
+        public function getUsuarioNombreCompleto(): string {
+            return $this->usuarioNombre . " " . $this->usuarioApellido1 . " " . $this->usuarioApellido2;
+        }
+
+        // Retorna la información del usuario en formato de cadena
         public function __toString(): string {
             return "Usuario ID: " . $this->usuarioID . "\n" .
                 "Nombre: " . $this->usuarioNombre . "\n" .

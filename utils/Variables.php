@@ -6,23 +6,15 @@
 	*/
 
 	// VARIABLES PARA EL MANEJO DE SESIONES:
-	define('SESSION_USER_ID', 'usuario_id');
-	define('SESSION_USER_NAME', 'usuario_nombre');
-	define('SESSION_USER_LAST_NAME_1', 'usuario_apellido1');
-	define('SESSION_USER_LAST_NAME_2', 'usuario_apellido2');
-	define('SESSION_USER_EMAIL', 'usuario_email');
-	define('SESSION_USER_ROLE', 'usuario_rol');
-	define('SESSION_USER_REGISTRATION_DATE', 'usuario_fecha_registro');
+	define('SESSION_AUTHENTICATED_USER', 'usuario_autenticado');
 	define('SESSION_AUTHENTICATED', 'autenticado');
 	define('SESSION_ACCESS_DENIED', 'acceso_denegado');
-	define('SESSION_LOGGED_OUT', 'logged_out');
-	define('SESSION_LOGGED_IN', 'logged_in');
+	define('SESSION_LOGGED_OUT', 'logout');
 	define('SESSION_ORIGIN_URL', 'url_origen');
 
 	// VARIABLES PARA ROLES DE USUARIO:
 	define('ROL_ADMIN', 1);
 	define('ROL_DEPENDIENTE', 2);
-	define('ROL_CLIENTE', 3);
 
 	// VARIABLES PARA LOG:
 	define('UTILS_LOG_FILE', 'utils-log.log');
@@ -51,6 +43,15 @@
 	define('CATEGORIA_NOMBRE', 'categorianombre');
 	define('CATEGORIA_DESCRIPCION', 'categoriadescripcion');
 	define('CATEGORIA_ESTADO', 'categoriaestado');
+
+	// TABLA 'tbCliente'
+	define('TB_CLIENTE', 'tbcliente'); //<- Nombre de la Tabla
+	define('CLIENTE_ID', 'clienteid');
+	define('CLIENTE_NOMBRE', 'clientenombre');
+	define('CLIENTE_TELEFONO_ID', 'clientetelefonoid');
+	define('CLIENTE_FECHA_CREACION', 'clientefechacreacion');
+	define('CLIENTE_FECHA_MODIFICACION', 'clientefechamodificacion');
+	define('CLIENTE_ESTADO', 'clienteestado');
 
 	// TABLA 'tbCodigoBarras'
 	define('TB_CODIGO_BARRAS', 'tbcodigobarras'); //<- Nombre de la Tabla
@@ -146,7 +147,7 @@
 	define('PRODUCTO_PRECIO_COMPRA','productopreciocompra');
 	define('PRODUCTO_PORCENTAJE_GANANCIA','productoporcentajeganancia');
 	define('PRODUCTO_DESCRIPCION','productodescripcion');
-	define('PRODUCTO_CATEGORIA_ID','productocategoriaid');
+	define('PRODUCTO_CATEGORIA_ID','productocateogoriaid');
 	define('PRODUCTO_SUBCATEGORIA_ID','productosubcategoriaid');
 	define('PRODUCTO_MARCA_ID','productomarcaid');
 	define('PRODUCTO_PRESENTACION_ID','productopresentacionid');

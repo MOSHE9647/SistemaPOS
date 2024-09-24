@@ -1,0 +1,58 @@
+@import url(../gui/modal.css);
+
+.cliente-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+}
+
+.cliente-info input {
+    width: 100%;
+}
+
+.telefono-cliente-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.telefono-cliente-info label,
+.telefono-cliente-select label {
+    align-self: flex-start;
+}
+
+.telefono-cliente-selects {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    width: 100%;
+    gap: 20px;
+}
+
+.telefono-cliente-select {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+}
+
+.telefono-cliente-select select {
+    width: 100%;
+}
+
+/* .telefono-cliente-select {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.telefono-cliente-select select {
+    width: 90%;
+} */
+.telefono-cliente-info input {
+    width: 100%;
+}

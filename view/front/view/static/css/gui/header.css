@@ -1,0 +1,46 @@
+@import 'main.css';
+
+header {
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg);
+    padding: 0rem 1rem;
+    position: fixed;
+    left: calc(var(--sidebar-width) + 1rem);
+    right: 1rem;
+    top: .5rem;
+    border-radius: 5px;
+    transition: left 300ms;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.500);
+    z-index: 99;
+}
+
+header label {
+    cursor: pointer;
+}
+
+.head-icons {
+    display: flex;
+    align-items: center;
+}
+
+.head-icon a {
+    color: #fff;
+    font-size: .85rem;
+    display: flex;
+    align-items: center;
+    height: 35px;
+    margin-left: 15px;
+    transition: background-color 300ms, border-radius 300ms, height 300ms;
+}
+
+.head-icon a span:first-child {
+    font-size: 1.3rem;
+    padding: 0rem .5rem;
+}
+
+.head-icon a span:last-child {
+    padding-right: .9rem;
+}

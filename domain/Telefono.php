@@ -1,6 +1,8 @@
 <?php
 
-    class Telefono {
+    require_once dirname(__DIR__, 1) . "/utils/Utils.php";
+
+    class Telefono implements JsonSerializable {
 
         private $telefonoID;
         private $telefonoTipo;
@@ -12,7 +14,7 @@
         private $telefonoEstado;
 
         public function __construct($telefonoID = -1, $telefonoTipo = "", $telefonoCodigoPais = "", $telefonoNumero = "",
-                $telefonoExtension = "", $telefonoFechaCreacion = null, $telefonoFechaModificacion = null, $telefonoEstado = true) {
+                $telefonoExtension = "", $telefonoFechaCreacion = "", $telefonoFechaModificacion = "", $telefonoEstado = true) {
             $this->telefonoID = $telefonoID;
             $this->telefonoTipo = $telefonoTipo;
             $this->telefonoCodigoPais = $telefonoCodigoPais;
@@ -41,19 +43,19 @@
         function setTelefonoFechaModificacion($telefonoFechaModificacion) { $this->telefonoFechaModificacion = $telefonoFechaModificacion; }
         function setTelefonoEstado($telefonoEstado) { $this->telefonoEstado = $telefonoEstado; }
 
-        public function __toString() {
-            return sprintf(
-                "ID: %d\nFecha de Creación: %s\nFecha de Modificación: %s\nTipo: %s\nExtensión: %s\nCódigo País: %s\nNúmero: %s\nEstado: %s",
-                $this->telefonoID,
-                $this->telefonoProveedorID,
-                $this->telefonoFechaCreacion ? $this->telefonoFechaCreacion->format('Y-m-d') : 'N/A',
-                $this->telefonoFechaModificacion ? $this->telefonoFechaModificacion->format('Y-m-d') : 'N/A',
-                $this->telefonoTipo,
-                $this->telefonoExtension ?? 'N/A',
-                $this->telefonoCodigoPais,
-                $this->telefonoNumero,
-                $this->telefonoEstado ? 'Activo' : 'Inactivo'
-            );
+        public function jsonSerialize() {
+            return [
+                'ID' => $this->telefonoID,
+                'Tipo' => $this->telefonoTipo,
+                'CodigoPais' => $this->telefonoCodigoPais,
+                'Numero' => $this->telefonoNumero,
+                'Extension' => $this->telefonoExtension,
+                'Creacion' => $this->telefonoFechaCreacion ? Utils::formatearFecha($this->telefonoFechaCreacion) : '',
+                'Modificacion' => $this->telefonoFechaModificacion ? Utils::formatearFecha($this->telefonoFechaModificacion) : '',
+                'CreacionISO' => $this->telefonoFechaCreacion ? Utils::formatearFecha($this->telefonoFechaCreacion, 'Y-MM-dd') : '',
+                'ModificacionISO' => $this->telefonoFechaModificacion ? Utils::formatearFecha($this->telefonoFechaModificacion, 'Y-MM-dd') : '',
+                'Estado' => $this->telefonoEstado
+            ];
         }
 
     }

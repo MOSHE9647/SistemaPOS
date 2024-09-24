@@ -1,0 +1,86 @@
+.modal-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: var(--bg-body);
+    border-radius: var(--card-radius);
+    margin: 10px;
+    padding: 10px;
+    box-shadow: 0 0 8px 5px #131d28dd;
+    color: white;
+}
+
+.modal-title {
+    margin-bottom: 20px;
+    padding: 10px;
+    background: var(--bg);
+    color: var(--main);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+}
+
+.modal-body {
+    padding: 5px;
+    background: var(--bg);
+    color: var(--main);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+}
+
+#swal2-html-container {
+    padding: 10px;
+}
+
+.modal-form-container {
+    font-size: 1rem;
+}
+
+.modal-form-container hr {
+    border-color: var(--bg-body);
+    border-radius: 50%;
+    margin: 20px auto;
+    width: 91%;
+}
+
+.modal-actions {
+    padding: 10px;
+    background: var(--bg);
+    color: var(--main);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    width: 100%;
+}
+
+.modal-confirm,
+.modal-close {
+    display: inline-block;
+    border-radius: 4px;
+    margin-right: .8rem;
+    padding: .5rem;
+    outline: none;
+    height: 50px;
+    width: 130px;
+    font-size: 1rem;
+    background: transparent;
+    transition: background-color 300ms;
+}
+
+.modal-confirm {
+    border: 2px solid var(--main);
+    color: var(--main);
+}
+
+.modal-close {
+    border: 2px solid var(--danger);
+    color: var(--danger);
+}
+
+.modal-confirm:hover {
+    background: var(--main);
+    color: white;
+}
+
+.modal-close:hover {
+    background: var(--danger);
+    color: white;
+}

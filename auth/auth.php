@@ -9,7 +9,7 @@
         $_SESSION[SESSION_ORIGIN_URL] = $_SERVER['REQUEST_URI'];
 
         // Si el usuario no está autenticado, redirige a la página de login
-        $LOGIN_URL = '/../view/auth/login.php';
+        $LOGIN_URL = dirname(__DIR__, 1) . '/view/auth/login.php';
         header("Location: $LOGIN_URL");
         exit();
     }
