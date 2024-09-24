@@ -443,19 +443,19 @@
                 $clientes = [];
                 while ($row = mysqli_fetch_assoc($result)) {
                     $clientes[] = new Cliente(
-                    $row[CLIENTE_ID], 
-                    $row[CLIENTE_NOMBRE], 
-                    $row[CLIENTE_TELEFONO_ID],
-                    $row[CLIENTE_FECHA_CREACION],
-                    $row[CLIENTE_FECHA_MODIFICACION],
-                    $row[CLIENTE_ESTADO],
-                    new Telefono(
+                        $row[CLIENTE_ID], 
+                        $row[CLIENTE_NOMBRE], 
                         $row[CLIENTE_TELEFONO_ID],
-                        $row[TELEFONO_TIPO],
-                        $row[TELEFONO_CODIGO_PAIS],
-                        $row[TELEFONO_NUMERO],
-                        $row[TELEFONO_EXTENSION]
-                    )
+                        $row[CLIENTE_FECHA_CREACION],
+                        $row[CLIENTE_FECHA_MODIFICACION],
+                        $row[CLIENTE_ESTADO],
+                        new Telefono(
+                            $row[CLIENTE_TELEFONO_ID],
+                            $row[TELEFONO_TIPO],
+                            $row[TELEFONO_CODIGO_PAIS],
+                            $row[TELEFONO_NUMERO],
+                            $row[TELEFONO_EXTENSION]
+                        )
                     );
                 }
 

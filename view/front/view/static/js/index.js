@@ -5,16 +5,18 @@ import { cargarClientes } from '../js/view/clientes.js';
 
 // Función para ejecutar funciones de la vista
 function ejecutarFunciones(vista) {
-    let basePath = '../front/view/static/css/';
-    eliminarCSS();
-    switch (vista) {
-        case 'clientes':
-            cargarClientes();
-            importarCSS(basePath + 'view/cliente.css');
-            break;
-        default:
-            mostrarMensaje('No se encontró la vista solicitada. ' + vista, 'error', 'Error interno');
-            break;
+    if (vista !== 'home') {
+        let basePath = '../front/view/static/css/';
+        eliminarCSS();
+        switch (vista) {
+            case 'clientes':
+                cargarClientes();
+                importarCSS(basePath + 'view/cliente.css');
+                break;
+            default:
+                mostrarMensaje('No se encontró la vista solicitada. ' + vista, 'error', 'Error interno');
+                break;
+        }
     }
 }
 
