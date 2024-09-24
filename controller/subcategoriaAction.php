@@ -37,46 +37,33 @@
     }
 
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
+        $accion = isset($_GET['accion']) ? $_GET['accion'] : "";
 
-        if (isset($_GET['accion']) && $_GET['accion'] === 'listarSubcategorias') {
-            Utils::writeLog("Ingreso a listarSubcategorias",UTILS_LOG_FILE);
-
-            $subcategoriaBusiness = new SubcategoriaBusiness();
-            $categoriaBusiness = new CategoriaBusiness();  // Crear instancia del Business de categorías
-
-            // Obtener todas las categorías
-            $categorias = $categoriaBusiness->getAllTBCategoria();
-
-            // Obtener todas las subcategorías
-            $subcategorias = $subcategoriaBusiness->getAllSubcategorias();
-
-            // Asociar las subcategorías con sus categorías
-            foreach ($categorias as &$categoria) {
-                $categoria['subcategorias'] = array_filter($subcategorias, function($subcategoria) use ($categoria) {
-                    return $subcategoria['categoriaId'] === $categoria['id'];  // Asociar por categoría ID
-                });
-            }
-
-            // Enviar las categorías con subcategorías asociadas en la respuesta JSON
-            header('Content-Type: application/json');
-            echo json_encode(array('categorias' => $categorias));
-            exit();
-        }
-
-        // Obtener parámetros de la solicitud GET para paginación
-        $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
-        $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
-        $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
-
-        // Validar los parámetros
-        if ($page < 1) $page = 1;
-        if ($size < 1) $size = 5;
-        
         $subcategoriaService = new SubcategoriaBusiness();
-        $result = $subcategoriaService->getPaginatedSubcategorias($page, $size, $sort);
+        switch ($accion) {
+            case 'subcategoria-categoria':
+                $categoriaID = isset($_GET['categoria']) ? intval($_GET['categoria']) : 0;
+                $response = $subcategoriaService->getAllSubcategoriasByCategoriaID($categoriaID);
+                break;
+            case 'listarSubcategorias':
+                $response = $subcategoriaService->getAllSubcategorias();
+                break;
+            default:
+                // Obtener parámetros de la solicitud GET para paginación
+                $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+                $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
+                $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
+
+                // Validar los parámetros
+                if ($page < 1) $page = 1;
+                if ($size < 1) $size = 5;
+
+                $response = $subcategoriaService->getPaginatedSubcategorias($page, $size, $sort);
+                break;
+        }
         
         header('Content-Type: application/json');
-        echo json_encode($result);
+        echo json_encode($response);
         exit();
     }
 ?>

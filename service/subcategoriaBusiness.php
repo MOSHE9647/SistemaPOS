@@ -64,5 +64,9 @@
         function getPaginatedSubcategorias($page, $size, $sort = null){
             return $this->subcategoriaData->getPaginatedSubcategorias($page, $size, $sort);
         }
+
+        function getAllSubcategoriasByCategoriaID($categoriaID) {
+            return $this->subcategoriaData->getAllSubcategoriasByCategoriaID($categoriaID);
+        }
     }
 ?>

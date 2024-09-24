@@ -24,10 +24,10 @@ function renderTable(productos) {
 
     productos.forEach(producto => {
         const {
-            ID,
+            ID = producto,
             CodigoBarrasNumero = 'No disponible',
             ProductoNombre = 'Desconocido',
-            PrecioCompra,
+            PrecioCompra = '0.00',
             ProductoPorcentajeGanancia = 'No disponible',
             ProductoDescripcion = 'Sin descripción',
             CategoriaNombre = 'No disponible',
@@ -41,22 +41,22 @@ function renderTable(productos) {
         let precioFormatted = formatPrecio(PrecioCompra);
 
         let row = `
-        <tr data-id="${ID}">
-            <td>${CodigoBarrasNumero}</td>
-            <td>${ProductoNombre}</td>
-            <td>${precioFormatted}</td>
-            <td>${ProductoPorcentajeGanancia}</td>
-            <td>${ProductoDescripcion}</td>
-            <td>${CategoriaNombre}</td>
-            <td>${SubCategoriaNombre}</td>
-            <td>${MarcaNombre}</td>
-            <td>${PresentacionNombre}</td>
-            <td><img src="${ProductoImagen}" alt="Imagen de producto"></td>
-            <td>
-                <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
-                <button onclick="deleteProducto(${ID})">Eliminar</button>
-            </td>
-        </tr>
+            <tr data-id="${ID}">
+                <td data-field="codigobarrasnombre">${CodigoBarrasNumero}</td>
+                <td data-field="productonombre">${ProductoNombre}</td>
+                <td data-field="productopreciocompra">${precioFormatted}</td>
+                <td data-field="productoporcentajeganancia">${ProductoPorcentajeGanancia}</td>
+                <td data-field="productodescripcion">${ProductoDescripcion}</td> 
+                <td data-field="categorianombre">${CategoriaNombre}</td> 
+                <td data-field="subcategorianombre">${SubCategoriaNombre}</td> 
+                <td data-field="marcanombre">${MarcaNombre}</td> 
+                <td data-field="presentacionnombre">${PresentacionNombre}</td> 
+                <td data-field="productoimagen"><img src="${ProductoImagen}" alt="Producto Imagen" width="50" height="50"></td>
+                <td>
+                    <button onclick="makeRowEditable(this.parentNode.parentNode)">Editar</button>
+                    <button onclick="deleteProducto(${ID})">Eliminar</button>
+                </td>
+            </tr>
         `;
         tableBody.innerHTML += row;
     });
@@ -114,6 +114,8 @@ function makeRowEditable(row) {
             `;
         }
     });
+
+    initializeSelects();
 }
 
 /**
@@ -130,12 +132,20 @@ function showCreateRow() {
     let newRow = document.createElement('tr');
     newRow.id = 'createRow';
 
-
-
     newRow.innerHTML = `
         <td data-field="nombre"><input type="text" required></td>
         <td data-field="precioCompra"><input type="number" step="0.01" required></td>
         <td data-field="ganancia"><input type="number" step="0.01" required></td>
+        <td data-field="categoria">
+            <select id="categoria-select" required>
+                <option value="">-- Seleccionar --</option>
+            </select>
+        </td>
+        <td data-field="subcategoria">
+            <select id="subcategoria-select" required>
+                <option value="">-- Seleccionar --</option>
+            </select>
+        </td>
         <td data-field="descripcion"><input type="text" required></td>
         <td data-field="codigoBarrasID"><input type="text" required></td>
         <td data-field="foto"><input type="text" required></td>
@@ -146,6 +156,8 @@ function showCreateRow() {
     `;
 
     tableBody.insertBefore(newRow, tableBody.firstChild);
+
+    initializeSelects();
 }
 
 /**

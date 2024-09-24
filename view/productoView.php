@@ -65,6 +65,7 @@
 
     <!-- Archivos JavaScript para manejar la lógica de productos -->
     <script src="./js/utils.js"></script>                   <!-- Utilidades para mostrar notificaciones y demás -->
+    <script src="./js/producto/selects.js"></script>     <!-- Métodos para llenar los selects -->
     <script src="./js/producto/productosGUI.js"></script>   <!-- Manejo dinámico de la página -->
     <script src="./js/producto/productosPagination.js"></script> <!-- Métodos para Paginación -->
     <script src="./js/producto/productosCrud.js"></script>  <!-- Creación, Actualización y Eliminación de Productos -->

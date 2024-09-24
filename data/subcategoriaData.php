@@ -6,10 +6,14 @@
     require_once __DIR__ . '/../utils/Variables.php';
 
     class SubcategoriaData extends Data {
+        
         private $categoriaData;
+        private $className;
+
         // Constructor
 		public function __construct() {
 			parent::__construct();
+            $this->className = get_class($this);
             $this->categoriaData = new CategoriaData();
         }
         function VerificarExisteSubcategoria($subcategoria_id = null, $subcategoria_nombre = null, $update = false){
@@ -612,6 +616,57 @@
             }
 
         }
+
+        public function getAllSubcategoriasByCategoriaID($categoriaID) {
+            $conn = null; $stmt = null;
+            
+            try {
+                // Establece una conexion con la base de datos
+				$result = $this->getConnection();
+				if (!$result["success"]) { throw new Exception($result["message"]); }
+				$conn = $result["connection"];
+
+                // Consulta SQL para obtener todos los registros de la tabla tbtelefono
+                $querySelect = "SELECT * FROM " . TB_SUBCATEGORIA . " WHERE " . SUBCATEGORIA_ESTADO . " != FALSE AND " . SUBCATEGORIA_CATEGORIA_ID . " = ?;";
+                $stmt = mysqli_prepare($conn, $querySelect);
+                mysqli_stmt_bind_param($stmt, "i", $categoriaID);
+
+				// Ejecutar la consulta
+                $result = mysqli_stmt_execute($stmt);
+
+				// Obtener el resultado
+                $result = mysqli_stmt_get_result($stmt);
+
+                // Crear un array para almacenar los telefonos
+                $subcategorias = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $subcategorias[] = [
+                        'ID' => $row[SUBCATEGORIA_ID],
+                        'Nombre' => $row[SUBCATEGORIA_NOMBRE],
+                        'Descripcion' => $row[SUBCATEGORIA_DESCRIPCION],
+                        'Estado' => $row[SUBCATEGORIA_ESTADO]
+                    ];
+                }
+
+                // Devuelve el resultado de la consulta
+                return ["success" => true, "categoria" => $categoriaID, "subcategorias" => $subcategorias];
+            } catch (Exception $e) {
+				// Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener la lista de subcategorias desde la base de datos',
+                    $this->className
+                );
+
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+			} finally {
+				// Cerramos la conexion
+				if (isset($conn)) { mysqli_close($conn); }
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+			}
+        }
+
     }
 
 ?>
