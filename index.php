@@ -41,6 +41,8 @@
                     'compraView.php' => 'Gestión de Compras',
                     'cuentaporpagarView.php' => 'Gestión de Cuentas por Pagar',
                     'compradetalleView.php' => 'Gestión de Detalle de Compras',
+                    'presentacion.php'=> 'Gestion de Presentaciones',
+                    'marca.php'=> 'Gestion de Marcas',
                 ];
 
                 // Array de enlaces intermedios

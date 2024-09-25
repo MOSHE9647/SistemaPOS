@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $descripcion = isset($_POST['descripcion']) ? $_POST['descripcion'] : "";
 
     $marcaBusiness = new MarcaBusiness();
-    $marca = new Marca($id, $nombre, $descripcion);
+    $marca = new Marca($id, $nombre, $descripcion, 1);
 
     switch ($accion) {
         case 'eliminar':
@@ -70,5 +70,3 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
     echo json_encode($result);
     exit();
 }
-?>
-

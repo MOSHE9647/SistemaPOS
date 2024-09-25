@@ -188,15 +188,17 @@
                 }
         
                 // Bind de los parámetros (nombre, descripción, estado, id)
-                $stmt->bind_param("sssi", 
-                    $presentacion->getPresentacionNombre(), 
-                    $presentacion->getPresentacionDescripcion(), 
-                    $presentacion->getPresentacionEstado(), 
-                    $presentacion->getPresentacionId());
+                $nombre = $presentacion->getPresentacionNombre();
+                $descripcion = $presentacion->getPresentacionDescripcion();
+                $estado = $presentacion->getPresentacionEstado();
+                $id = $presentacion->getPresentacionId();
+        
+                // Bind de los parámetros (nombre, descripción, estado, id)
+                $stmt->bind_param("sssi", $nombre, $descripcion, $estado, $id);
         
                 // Ejecutar la sentencia
                 if (!$stmt->execute()) {
-                    throw new Exception("Error al intentar actualizar la presentación: " . $stmt->error);
+                    throw new Exception("Error al intentar actualizar la presentacion: " . $stmt->error);
                 }
         
                 // Verificar si se actualizó algún registro
@@ -207,7 +209,7 @@
                 // Cerrar la sentencia
                 $stmt->close();
         
-                return ["success" => true, "message" => "Presentación actualizada exitosamente"];
+                return ["success" => true, "message" => "Presentacion actualizada exitosamente"];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 return ["success" => false, "message" => $e->getMessage()];
@@ -311,10 +313,10 @@
             try {
                 // Validar los parámetros de paginación
                 if (!is_numeric($page) || $page < 1) {
-                    throw new Exception("El número de página debe ser un entero positivo.");
+                    throw new Exception("El numero de página debe ser un entero positivo.");
                 }
                 if (!is_numeric($size) || $size < 1) {
-                    throw new Exception("El tamaño de la página debe ser un entero positivo.");
+                    throw new Exception("El tamaño de la pagina debe ser un entero positivo.");
                 }
                 $offset = ($page - 1) * $size;
         
@@ -358,7 +360,7 @@
         
                 // Verificamos si ocurrió un error
                 if (!$result) {
-                    throw new Exception("Error al ejecutar la consulta de paginación: " . mysqli_error($conn));
+                    throw new Exception("Error al ejecutar la consulta de paginacion: " . mysqli_error($conn));
                 }
         
                 // Creamos la lista con los datos obtenidos

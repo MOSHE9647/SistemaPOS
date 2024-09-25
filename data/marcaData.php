@@ -182,9 +182,14 @@
                 throw new Exception("Error preparando la consulta: " . $conn['connection']->error);
             }
         
+            // Asigna los valores a variables
+            $nombre = $marca->getMarcaNombre();
+            $descripcion = $marca->getMarcaDescripcion();
+            $estado = $marca->getMarcaEstado();
+            $id = $marca->getMarcaId();
+
             // Bind de los parámetros (nombre, descripción, estado, id)
-            $stmt->bind_param("sssi", $marca->getMarcaNombre(), $marca->getMarcaDescripcion(), $marca->getMarcaEstado(), $marca->getMarcaId());
-        
+             $stmt->bind_param("sssi", $nombre, $descripcion, $estado, $id);
             // Ejecutar la sentencia
             if (!$stmt->execute()) {
                 throw new Exception("Error al intentar actualizar la marca: " . $stmt->error);
@@ -224,35 +229,50 @@
                 throw new Exception("No se puede eliminar el registro. El ID de la marca es obligatorio.");
             }
         
-            // Preparar la consulta para realizar el borrado lógico (cambiar el estado)
-            $query = "UPDATE " . TB_MARCA . " 
-                      SET " . MARCA_ESTADO . " = 0 
-                      WHERE " . MARCA_ID . " = ?;";
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
+                }
+                $conn = $result["connection"]; // Extraer el objeto de conexión del array
         
-            $conn = $this->getConnection(); // Obtener la conexión a la base de datos
-            $stmt = $conn['connection']->prepare($query); // Prepara la consulta SQL
-            if (!$stmt) {
-                throw new Exception("Error preparando la consulta para eliminar: " . $conn['connection']->error);
+                // Preparar la consulta para realizar el borrado lógico (cambiar el estado)
+                $query = "UPDATE " . TB_MARCA . " 
+                          SET " . MARCA_ESTADO . " = 0 
+                          WHERE " . MARCA_ID . " = ?;";
+        
+                $stmt = $conn->prepare($query); // Prepara la consulta SQL
+                if (!$stmt) {
+                    throw new Exception("Error preparando la consulta para eliminar: " . $conn->error);
+                }
+        
+                // Bind del parámetro (ID de la marca)
+                $stmt->bind_param("i", $marcaId);
+        
+                // Ejecutar la sentencia
+                if (!$stmt->execute()) {
+                    throw new Exception("Error al intentar eliminar la marca: " . $stmt->error);
+                }
+        
+                // Verificar si se actualizó algún registro
+                if ($stmt->affected_rows == 0) {
+                    throw new Exception("No se encontró ningún registro con el ID proporcionado. No se realizó ninguna eliminación.");
+                }
+        
+                // Cerrar la sentencia
+                $stmt->close();
+        
+                return ["success" => true, "message" => "Marca eliminada exitosamente"];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                return ["success" => false, "message" => $e->getMessage()];
+            } finally {
+                // Cerrar la conexión correctamente
+                if (isset($conn)) { mysqli_close($conn); }
             }
-        
-            // Bind del parámetro (ID de la marca)
-            $stmt->bind_param("i", $marcaId);
-        
-            // Ejecutar la sentencia
-            if (!$stmt->execute()) {
-                throw new Exception("Error al intentar eliminar la marca: " . $stmt->error);
-            }
-        
-            // Verificar si se actualizó algún registro
-            if ($stmt->affected_rows == 0) {
-                throw new Exception("No se encontró ningún registro con el ID proporcionado. No se realizó ninguna eliminación.");
-            }
-        
-            // Cerrar la sentencia
-            $stmt->close();
-        
-            return true; // Retorna true si el borrado lógico fue exitoso
         }
+        
         
         public function getPaginatedMarcas($page, $size, $sort = null) {
             try {
