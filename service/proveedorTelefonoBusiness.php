@@ -97,14 +97,14 @@
             return $this->proveedorTelefonoData->getTelefonosByProveedor($proveedorID, $json);
         }
 
-        public function getPaginatedTelefonosByProveedor($proveedorID, $page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
+        public function getPaginatedTelefonosByProveedor($proveedorID, $page, $size, $sort = null, $onlyActive = true, $deleted = false) {
             // Verifica que el ID del proveedor sea válido
             $check = $this->validarProveedorTelefono($proveedorID, null, false);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
 
-            return $this->proveedorTelefonoData->getPaginatedTelefonosByProveedor($proveedorID, $page, $size, $sort, $onlyActiveOrInactive, $deleted);
+            return $this->proveedorTelefonoData->getPaginatedTelefonosByProveedor($proveedorID, $page, $size, $sort, $onlyActive, $deleted);
         }
 
     }

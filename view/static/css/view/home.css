@@ -1,0 +1,150 @@
+.table-card {
+    margin: 0;
+}
+
+.sales-search-bar {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 10px; /* Espacio entre elementos */
+}
+
+.sales-search-bar input {
+    width: 100%; /* Asegura que el input ocupe todo el ancho disponible */
+}
+
+.sales-search-bar button {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: auto; /* Ajusta el ancho automáticamente */
+    gap: 12px; /* Espacio entre icono y texto */
+}
+
+#table-sales tbody {
+    display: block;
+    overflow: auto;
+    height: 340px;
+}
+
+#table-sales thead, 
+#table-sales tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;/* even columns width , fix width of table too*/
+}
+
+#table-sales thead th:nth-child(2),
+#table-sales tbody td:nth-child(2) {
+    width: 90px;
+}
+
+#table-sales thead th:nth-child(3),
+#table-sales tbody td:nth-child(3) {
+    width: 230px;
+}
+
+.sales-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg); /* Variable CSS para el fondo */
+    border-radius: var(--card-radius); /* Variable CSS para el radio del borde */
+    box-shadow: var(--card-shadow); /* Variable CSS para la sombra */
+    padding: 0.7rem; /* Espaciado interno */
+    height: auto; /* Altura automática */
+    color: #fff; /* Color del texto */
+    gap: 100px; /* Espacio entre elementos */
+}
+
+.sales-price-info {
+    width: 100%; /* Ancho completo */
+}
+
+.sales-price {
+    display: flex; /* Flexbox */
+    justify-content: space-between;
+    width: 60%; /* Ancho completo */
+    gap: 20px; /* Espacio entre elementos */
+}
+
+.sales-price.subtotal {
+    font-size: 1.2rem; /* Tamaño de fuente */
+    font-weight: bold; /* Negrita */
+}
+
+.sales-price.total {
+    font-size: 1.5rem; /* Tamaño de fuente mayor */
+    font-weight: bolder; /* Negrita más fuerte */
+}
+
+.sales-price.total span {
+    color: #fff; /* Color del texto */
+}
+
+.sales-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%; /* Ancho completo */
+    gap: 15px; /* Espacio entre elementos */
+}
+
+.sales-buttons button {
+    display: flex; /* Flexbox */
+    flex-direction: row; /* Alinea los elementos horizontalmente */
+    align-items: center; /* Alinea los elementos verticalmente */
+    margin: auto; /* Centra el botón */
+    width: 100%; /* Ancho completo */
+    gap: 12px; /* Espacio entre icono y texto */
+}
+
+.sales-button span {
+    color: #fff !important;
+}
+
+.icon {
+    margin: 4px;
+    font-size: larger;
+}
+
+.last-sale-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background: var(--bg); /* Variable CSS para el fondo */
+    border-radius: var(--card-radius); /* Variable CSS para el radio del borde */
+    box-shadow: var(--card-shadow); /* Variable CSS para la sombra */
+    margin-top: 20px; /* Margen superior */
+    padding: 0.7rem; /* Espaciado interno */
+    height: auto; /* Altura automática */
+    color: #fff; /* Color del texto */
+    gap: 10px; /* Espacio entre elementos */
+}
+
+.last-sale-title {
+    font-size: 1.2rem; /* Tamaño de fuente */
+    font-weight: bold; /* Negrita */
+    width: 100%; /* Ancho completo */
+}
+
+.last-sale-info {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; /* Ancho completo */
+    gap: 40px; /* Espacio entre elementos */
+}
+
+.last-sale {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%; /* Ancho completo */
+    gap: 20px; /* Espacio entre elementos */
+}
+
+.last-sale span:first-child {
+    color: #fff; /* Color del texto */
+}

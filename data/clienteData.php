@@ -1,6 +1,6 @@
 <?php
 
-    require_once 'data.php';
+    require_once dirname(__DIR__, 1) . '/data/data.php';
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
     require_once dirname(__DIR__, 1) . '/utils/Variables.php';
     require_once dirname(__DIR__, 1) . '/domain/Cliente.php';
@@ -101,33 +101,56 @@
             } 
         }
 
-        public function insertCliente($cliente) {
-            $conn = null; $stmt = null;
+        public function insertCliente($cliente, $conn = null) {
+            $createdConn = false;
+            $stmt = null;
 
             try {
-                $clienteTelefonoID = $cliente->getClienteTelefonoID();
+                if (!$conn) {
+                    // Establece una conexión con la base de datos
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConn = true;
 
-                // Verificar si el usuario ya existe en la base de datos
+                    // Iniciar una transacción
+                    mysqli_begin_transaction($conn);
+                }
+                
+                // Insertar el Telefono en la Base de Datos
+                $telefonoData = new TelefonoData();
+                $clienteTelefono = $cliente->getClienteTelefono();
+                $result = $telefonoData->insertTelefono($clienteTelefono, $conn);
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+
+                // Verifica si el teléfono está inactivo
+                $clienteTelefono->setTelefonoID($result["id"]);
+                if ($result["inactive"]) {
+                    // Actualiza el estado del teléfono a activo
+                    $result = $telefonoData->updateTelefono($clienteTelefono, $conn);
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                }
+
+                // Obtiene el ID del teléfono insertado
+                $clienteTelefonoID = $clienteTelefono->getTelefonoID();
+
+                // Verificar si el cliente ya existe en la base de datos
                 $result = $this->existeCliente(null, $clienteTelefonoID, false, true);
                 if (!$result["success"]) { return $result; }
-
-                // En caso de que el cliente existe pero esté inactivo
+                
+                // En caso de que el cliente exista pero esté inactivo
                 if ($result["exists"] && $result["inactive"]) {
-                    $message = "Ya existe un cliente con el mismo teléfono ($clienteTelefonoID) en la base de datos, pero está inactivo. ¿Desea reactivarlo?";
+                    $numeroTelefono = $clienteTelefono->obtenerNumeroCompleto();
+                    $message = "Ya existe un cliente con el mismo teléfono ($numeroTelefono) en la base de datos, pero está inactivo. ¿Desea reactivarlo?";
                     return ["success" => true, "message" => $message, "inactive" => $result["inactive"], "id" => $result["clienteID"]];
                 }
 
                 // En caso de que el cliente ya exista y esté activo
                 if ($result["exists"]) {
-                    $message = "El cliente con TelefonoID [$clienteTelefonoID] ya existe en la base de datos.";
+                    $message = "El cliente con 'TelefonoID [$clienteTelefonoID]' ya existe en la base de datos.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
                     return ["success" => true, "message" => "Ya existe un cliente con el mismo teléfono en la base de datos."];
                 }
-
-                // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
 
                 // Obtenemos el último ID de la tabla tbusuario
                 $queryGetLastId = "SELECT MAX(" . CLIENTE_ID . ") FROM " . TB_CLIENTE;
@@ -144,19 +167,27 @@
                     "INSERT INTO " . TB_CLIENTE . " ("
                         . CLIENTE_ID . ", "
                         . CLIENTE_NOMBRE . ", "
+                        . CLIENTE_ALIAS . ", "
                         . CLIENTE_TELEFONO_ID . 
-                    ") VALUES (?, ?, ?)";
+                    ") VALUES (?, ?, ?, ?)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
 
                 // Obtener los valores del objeto Cliente
                 $clienteNombre = $cliente->getClienteNombre();
+                $clienteAlias = $cliente->getClienteAlias();
+                $clienteTelefonoID = $clienteTelefono->getTelefonoID();
 
                 // Asignar los parámetros y ejecutar la consulta
-                mysqli_stmt_bind_param($stmt, "iss", $nextId, $clienteNombre, $clienteTelefonoID);
+                mysqli_stmt_bind_param($stmt, "issi", $nextId, $clienteNombre, $clienteAlias, $clienteTelefonoID);
                 mysqli_stmt_execute($stmt);
+
+                // Confirmar la transacción
+                if ($createdConn) { mysqli_commit($conn); }
 
                 return ["success" => true, "message" => "Cliente insertado correctamente.", "id" => $nextId];
             } catch (Exception $e) {
+                if ($createdConn) { mysqli_rollback($conn); }
+
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
@@ -169,16 +200,19 @@
             } finally {
                 // Cerrar la conexión y liberar recursos
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
+                if ($createdConn && isset($conn)) { mysqli_close($conn); }
             }
         }
 
-        public function updateCliente($cliente) {
-            $conn = null; $stmt = null;
+        public function updateCliente($cliente, $conn = null) {
+            $createdConn = false;
+            $stmt = null;
 
             try {
+                // Obtener los IDs del cliente y el teléfono
                 $clienteID = $cliente->getClienteID();
-                $clienteTelefonoID = $cliente->getClienteTelefonoID();
+                $clienteTelefono = $cliente->getClienteTelefono();
+                $clienteTelefonoID = $clienteTelefono->getTelefonoID();
 
                 // Verificar si el cliente existe en la base de datos
                 $result = $this->existeCliente($clienteID);
@@ -203,14 +237,26 @@
                 }
 
                 // Establece una conexión con la base de datos
-                $result = $this->getConnection();
+                if (!$conn) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConn = true;
+
+                    // Iniciar una transacción
+                    mysqli_begin_transaction($conn);
+                }
+
+                // Actualizar el Telefono en la Base de Datos
+                $telefonoData = new TelefonoData();
+                $result = $telefonoData->updateTelefono($clienteTelefono, $conn);
                 if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
 
                 // Crea una consulta y un statement SQL para actualizar el registro
                 $queryUpdate = 
                     "UPDATE " . TB_CLIENTE . " SET "
                         . CLIENTE_NOMBRE . " = ?, "
+                        . CLIENTE_ALIAS . " = ?, "
                         . CLIENTE_TELEFONO_ID . " = ?, "
                         . CLIENTE_ESTADO . " = TRUE "
                     . "WHERE " . CLIENTE_ID . " = ?";
@@ -218,14 +264,20 @@
 
                 // Obtener los valores del objeto Cliente
                 $clienteNombre = $cliente->getClienteNombre();
+                $clienteAlias = $cliente->getClienteAlias();
 
                 // Asignar los parámetros y ejecutar la consulta
-                mysqli_stmt_bind_param($stmt, "sii", $clienteNombre, $clienteTelefonoID, $clienteID);
+                mysqli_stmt_bind_param($stmt, "ssii", $clienteNombre, $clienteAlias, $clienteTelefonoID, $clienteID);
                 mysqli_stmt_execute($stmt);
+
+                // Confirmar la transacción
+                if ($createdConn) { mysqli_commit($conn); }
 
                 // Devuelve un mensaje de éxito
                 return ["success" => true, "message" => "Cliente actualizado exitosamente"];
             } catch (Exception $e) {
+                if ($createdConn) { mysqli_rollback($conn); }
+
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
@@ -238,12 +290,13 @@
             } finally {
                 // Cerrar la conexión y liberar recursos
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
+                if ($createdConn && isset($conn)) { mysqli_close($conn); }
             }
         }
 
-        public function deleteCliente($clienteID) {
-            $conn = null; $stmt = null;
+        public function deleteCliente($clienteID, $conn = null) {
+            $createdConn = false;
+            $stmt = null;
 
             try {
                 // Verificar si el cliente existe en la base de datos
@@ -259,36 +312,36 @@
                 $clienteTelefonoID = $result["telefonoID"];
 
                 // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
+                if (!$conn) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConn = true;
 
-                // Iniciar una transacción
-                mysqli_begin_transaction($conn);
+                    // Iniciar una transacción
+                    mysqli_begin_transaction($conn);
+                }
 
                 // Crea una consulta y un statement SQL para eliminar el registro del cliente
-                $queryDeleteCliente = "UPDATE " . TB_CLIENTE . " SET " . CLIENTE_ESTADO . " = FALSE WHERE " . CLIENTE_ID . " = ?";
-                $stmt = mysqli_prepare($conn, $queryDeleteCliente);
+                $queryDelete = "UPDATE " . TB_CLIENTE . " SET " . CLIENTE_ESTADO . " = FALSE WHERE " . CLIENTE_ID . " = ?";
+                $stmt = mysqli_prepare($conn, $queryDelete);
 
                 // Asignar los parámetros y ejecutar la consulta
                 mysqli_stmt_bind_param($stmt, "i", $clienteID);
                 mysqli_stmt_execute($stmt);
 
-                // Crea una consulta y un statement SQL para eliminar el registro del teléfono
-                $queryDeleteTelefono = "UPDATE " . TB_TELEFONO . " SET " . TELEFONO_ESTADO . " = FALSE WHERE " . TELEFONO_ID . " = ?";
-                $stmt = mysqli_prepare($conn, $queryDeleteTelefono);
-
-                // Asignar los parámetros y ejecutar la consulta
-                mysqli_stmt_bind_param($stmt, "i", $clienteTelefonoID);
-                mysqli_stmt_execute($stmt);
+                // Eliminar el teléfono asociado al cliente
+                $telefonoData = new TelefonoData();
+                $result = $telefonoData->deleteTelefono($clienteTelefonoID, $conn);
+                if (!$result["success"]) { throw new Exception($result["message"]); }
 
                 // Confirmar la transacción
-                mysqli_commit($conn);
+                if ($createdConn) { mysqli_commit($conn); }
 
                 return ["success" => true, "message" => "Cliente eliminado correctamente."];
             } catch (Exception $e) {
                 // Revertir la transacción en caso de error
-                if ($conn) { mysqli_rollback($conn); }
+                if ($createdConn) { mysqli_rollback($conn); }
 
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
@@ -302,11 +355,11 @@
             } finally {
                 // Cerrar la conexión y liberar recursos
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
+                if ($createdConn && isset($conn)) { mysqli_close($conn); }
             }
         }
 
-        public function getAllTBCliente($onlyActiveOrInactive = false, $deleted = false) {
+        public function getAllTBCliente($onlyActive = false, $deleted = false) {
             $conn = null;
 
             try {
@@ -317,7 +370,7 @@
 
                 // Inicializa la consulta base
                 $querySelect = "SELECT * FROM " . TB_CLIENTE;
-                if ($onlyActiveOrInactive) { 
+                if ($onlyActive) { 
                     $querySelect .= " WHERE " . CLIENTE_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); 
                 }
                 $result = mysqli_query($conn, $querySelect);
@@ -325,10 +378,17 @@
                 // Crear un array para almacenar los clientes
                 $clientes = [];
                 while ($row = mysqli_fetch_assoc($result)) {
+                    // Obtiene el telefono del cliente
+                    $telefonoData = new TelefonoData();
+                    $telefono = $telefonoData->getTelefonoByID($row[CLIENTE_TELEFONO_ID]);
+                    if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
+
+                    // Crea un objeto Cliente con los datos obtenidos
                     $cliente = new Cliente(
                         $row[CLIENTE_ID], 
-                        $row[CLIENTE_NOMBRE], 
-                        $row[CLIENTE_TELEFONO_ID],
+                        $row[CLIENTE_NOMBRE],
+                        $row[CLIENTE_ALIAS],
+                        $telefono["telefono"],
                         $row[CLIENTE_FECHA_CREACION],
                         $row[CLIENTE_FECHA_MODIFICACION],
                         $row[CLIENTE_ESTADO]
@@ -337,8 +397,8 @@
                 }
 
                 // Devuelve un mensaje de éxito
-                return ["success" => true, "data" => $clientes];
-            } catch (Excpetion $e) {
+                return ["success" => true, "clientes" => $clientes];
+            } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
@@ -347,14 +407,14 @@
                 );
 
                 // Devolver mensaje amigable para el usuario
-                return ["success" => false, "message" => $userMessage];
+                return ["success" => false, "message" => "Error al obtener la lista de clientes: $userMessage"];
             } finally {
                 // Cerrar la conexión y liberar recursos
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
 
-        public function getPaginatedClientes($search, $page, $size, $sort, $onlyActiveOrInactive = false, $deleted = false) {
+        public function getPaginatedClientes($search, $page, $size, $sort = null, $onlyActive = false, $deleted = false) {
             $conn = null; $stmt = null;
 
             try {
@@ -368,7 +428,7 @@
 
                 // Consultar el total de registros
                 $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_CLIENTE;
-                if ($onlyActiveOrInactive) { 
+                if ($onlyActive) { 
                     $queryTotalCount .= " WHERE " . CLIENTE_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); 
                 }
 
@@ -383,6 +443,7 @@
                     SELECT 
                         c." . CLIENTE_ID . ",
                         c." . CLIENTE_NOMBRE . ",
+                        c." . CLIENTE_ALIAS . ",
                         c." . CLIENTE_TELEFONO_ID . ", 
                         c." . CLIENTE_FECHA_CREACION . ", 
                         c." . CLIENTE_FECHA_MODIFICACION . ",
@@ -410,7 +471,7 @@
                 }
 
                 // Agregar filtro de estado a la consulta
-                if ($onlyActiveOrInactive) { 
+                if ($onlyActive) { 
                     $querySelect .= $search ? " AND " : " WHERE ";
                     $querySelect .= CLIENTE_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); 
                 }
@@ -444,18 +505,18 @@
                 while ($row = mysqli_fetch_assoc($result)) {
                     $clientes[] = new Cliente(
                         $row[CLIENTE_ID], 
-                        $row[CLIENTE_NOMBRE], 
-                        $row[CLIENTE_TELEFONO_ID],
-                        $row[CLIENTE_FECHA_CREACION],
-                        $row[CLIENTE_FECHA_MODIFICACION],
-                        $row[CLIENTE_ESTADO],
+                        $row[CLIENTE_NOMBRE],
+                        $row[CLIENTE_ALIAS],
                         new Telefono(
                             $row[CLIENTE_TELEFONO_ID],
                             $row[TELEFONO_TIPO],
                             $row[TELEFONO_CODIGO_PAIS],
                             $row[TELEFONO_NUMERO],
                             $row[TELEFONO_EXTENSION]
-                        )
+                        ),
+                        $row[CLIENTE_FECHA_CREACION],
+                        $row[CLIENTE_FECHA_MODIFICACION],
+                        $row[CLIENTE_ESTADO]
                     );
                 }
 
@@ -485,7 +546,7 @@
             }
         }
 
-        public function getClienteByID($clienteID) {
+        public function getClienteByID($clienteID, $onlyActive = false, $deleted = false) {
             $conn = null; $stmt = null;
 
             try {
@@ -506,7 +567,15 @@
                 $conn = $result["connection"];
 
                 // Crea una consulta y un statement SQL para obtener el registro
-                $querySelect = "SELECT * FROM " . TB_CLIENTE . " WHERE " . CLIENTE_ID . " = ? AND " . CLIENTE_ESTADO . " != FALSE";
+                $querySelect = "
+                    SELECT 
+                        * 
+                    FROM " . 
+                        TB_CLIENTE . " 
+                    WHERE " . 
+                        CLIENTE_ID . " = ?" . ($onlyActive ? " AND " . 
+                        CLIENTE_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") : "")
+                    ;
                 $stmt = mysqli_prepare($conn, $querySelect);
 
                 // Asignar los parámetros y ejecutar la consulta
@@ -516,10 +585,17 @@
 
                 // Verificar si se encontró el cliente
                 if ($row = mysqli_fetch_assoc($result)) {
+                    // Obtiene el telefono del cliente
+                    $telefonoData = new TelefonoData();
+                    $telefono = $telefonoData->getTelefonoByID($row[CLIENTE_TELEFONO_ID], false);
+                    if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
+
+                    // Crea un objeto Cliente con los datos obtenidos
                     $cliente = new Cliente(
                         $row[CLIENTE_ID], 
-                        $row[CLIENTE_NOMBRE], 
-                        $row[CLIENTE_TELEFONO_ID],
+                        $row[CLIENTE_NOMBRE],
+                        $row[CLIENTE_ALIAS],
+                        $telefono["telefono"],
                         $row[CLIENTE_FECHA_CREACION],
                         $row[CLIENTE_FECHA_MODIFICACION],
                         $row[CLIENTE_ESTADO]
@@ -579,10 +655,17 @@
 
                 // Verificar si se encontró el cliente
                 if ($row = mysqli_fetch_assoc($result)) {
+                    // Obtiene el telefono del cliente
+                    $telefonoData = new TelefonoData();
+                    $telefono = $telefonoData->getTelefonoByID($row[CLIENTE_TELEFONO_ID]);
+                    if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
+
+                    // Crea un objeto Cliente con los datos obtenidos
                     $cliente = new Cliente(
                         $row[CLIENTE_ID], 
-                        $row[CLIENTE_NOMBRE], 
-                        $row[CLIENTE_TELEFONO_ID],
+                        $row[CLIENTE_NOMBRE],
+                        $row[CLIENTE_ALIAS],
+                        $telefono["telefono"],
                         $row[CLIENTE_FECHA_CREACION],
                         $row[CLIENTE_FECHA_MODIFICACION],
                         $row[CLIENTE_ESTADO]

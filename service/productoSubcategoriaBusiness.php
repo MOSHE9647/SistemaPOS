@@ -84,14 +84,14 @@
             return $this->productoSubcategoriaData->getSubcategoriasByProducto($productoID, $json);
         }
 
-        public function getPaginatedSubcategoriasByProducto($productoID, $page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
+        public function getPaginatedSubcategoriasByProducto($productoID, $page, $size, $sort = null, $onlyActive = true, $deleted = false) {
             // Verifica que el ID del producto sea valido
             $check = $this->validarProductoSubcategoria($productoID, null, false);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
 
-            return $this->productoSubcategoriaData->getPaginatedSubcategoriasByProducto($productoID, $page, $size, $sort, $onlyActiveOrInactive, $deleted);
+            return $this->productoSubcategoriaData->getPaginatedSubcategoriasByProducto($productoID, $page, $size, $sort, $onlyActive, $deleted);
         }
 
     }

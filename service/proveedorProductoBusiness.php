@@ -40,10 +40,10 @@ class ProveedorProductoBusiness {
         return $this->proveedorProductoData->getProductoByProveedor($idproveedor, true);
     }
 
-    public function getPaginateProductoProveedor($idproveedor,$page,$size, $sort= null, $onlyActiveOrInactive = true, $deleted = false){
+    public function getPaginateProductoProveedor($idproveedor,$page,$size, $sort= null, $onlyActive = true, $deleted = false){
         $check = $this->verificacionDeIDs($idproveedor);
         if(!$check['is_valid']){return $check; }
-        return $this->proveedorProductoData-> getPaginateProductoProveedor($idproveedor,$page,$size, $sort, $onlyActiveOrInactive, $deleted);
+        return $this->proveedorProductoData-> getPaginateProductoProveedor($idproveedor,$page,$size, $sort, $onlyActive, $deleted);
     }
 
     public function addProductoProveedor($idproveedor,$idproducto){

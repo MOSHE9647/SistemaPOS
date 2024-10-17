@@ -1,28 +1,33 @@
 <?php
 
-    require_once 'data.php';
-    require_once __DIR__ . '/../domain/Proveedor.php';
-    require_once __DIR__ . '/../data/proveedorTelefonoData.php';
-    require_once __DIR__ . '/../data/proveedorDireccionData.php';
-    require_once __DIR__ . '/../data/categoriaData.php';
-    require_once __DIR__ . '/../utils/Utils.php';
-    require_once __DIR__ . '/../utils/Variables.php';
+    require_once dirname(__DIR__, 1) . '/data/data.php';
+    require_once dirname(__DIR__, 1) . '/data/categoriaData.php';
+    require_once dirname(__DIR__, 1) . '/data/proveedorTelefonoData.php';
+    require_once dirname(__DIR__, 1) . '/data/proveedorDireccionData.php';
+    require_once dirname(__DIR__, 1) . '/domain/Proveedor.php';
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
+    require_once dirname(__DIR__, 1) . '/utils/Variables.php';
 
     class ProveedorData extends Data {
+
         private $proveedorTelefonoData;
         private $proveedorDireccionData;
         private $categoriaData;
+        private $className;
+        
         // Constructor
         public function __construct() {
             parent::__construct();
+            $this->className = get_class($this);
             $this->proveedorTelefonoData = new  ProveedorTelefonoData();
             $this->proveedorDireccionData = new ProveedorDireccionData();
             $this->categoriaData = new CategoriaData();
         }
 
         // Función para verificar si un proveedor con el mismo nombre ya existe en la bd
-        public function proveedorExiste($proveedorID = null, $proveedorNombre = null, $proveedorEmail = null, $update = false) {
-            $response  = [];//para retornar el resultado y asi no se salte el cierre de la conexion
+        public function proveedorExiste($proveedorID = null, $proveedorNombre = null, $proveedorEmail = null, $update = false, $insert = false) {
+            $conn = null; $stmt = null;
+
             try {
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
@@ -30,46 +35,64 @@
                 $conn = $result["connection"];
                 
                 // Inicializa la consulta base
-                $queryCheck = "SELECT * FROM " . TB_PROVEEDOR . " WHERE ";
+                $queryCheck = "SELECT " . PROVEEDOR_ID . ", " . PROVEEDOR_ESTADO . " FROM " . TB_PROVEEDOR . " WHERE ";
                 $params = [];
                 $types = "";
-                if ($proveedorID !== null && !$update) {
-                    // Verificar existencia por ID y que el estado no sea false
-                    $queryCheck .= PROVEEDOR_ID . " = ? "; //" AND " . PROVEEDOR_ESTADO . " != false";
+
+                // Consulta para verificar si existe un Proveedor con el ID ingresado
+                if ($proveedorID && (!$update && !$insert)) {
+                    $queryCheck .= PROVEEDOR_ID . " = ? ";
                     $params[] = $proveedorID;
                     $types .= 'i';
-                } elseif ($proveedorNombre !== null && $proveedorEmail !== null && !$update) {
-                    // Verificar existencia por nombre y email
-                    $queryCheck .= PROVEEDOR_NOMBRE . " = ? OR (" . PROVEEDOR_EMAIL . " = ? AND " . PROVEEDOR_ESTADO . " != false)";
-                    $params[] = $proveedorNombre;
-                    $params[] = $proveedorEmail;
-                    $types .= 'ss';
-                }elseif ($proveedorNombre !== null && $proveedorEmail !== null && $update) {
-                    // Verificar existencia por nombre y email
-                    $queryCheck .= PROVEEDOR_NOMBRE . " = ? OR (" . PROVEEDOR_EMAIL . " = ? AND " . PROVEEDOR_ESTADO . " != false) AND ". PROVEEDOR_ID ." <> ? ";
-                    $params[] = $proveedorNombre;
-                    $params[] = $proveedorEmail;
-                    $params[] = $proveedorID;
-                    $types .= 'ssi';
-                
-                }else {
-                    $message = "No se proporcionaron todos los parametros necesarios para verificar el proveedor.";
-					Utils::writeLog("$message. Parámetros: 'proveedorID [$proveedorID]', 'proveedorNombre [$proveedorNombre]', 'proveedorEmail [$proveedorEmail]'", DATA_LOG_FILE);
-					throw new Exception($message);
                 }
+
+                else if ($insert && ($proveedorNombre && $proveedorEmail)) {
+                    // Verificar existencia por nombre y email
+                    $queryCheck .= PROVEEDOR_EMAIL . " = ? OR " . PROVEEDOR_NOMBRE . " = ? ";
+                    $queryCheck .= "OR (" . PROVEEDOR_EMAIL . " = ? AND " . PROVEEDOR_NOMBRE . " = ?) ";
+                    $params = [$proveedorEmail, $proveedorNombre, $proveedorEmail, $proveedorNombre];
+                    $types .= 'ssss';
+                }
+
+                else if ($update && ($proveedorID && $proveedorNombre && $proveedorEmail)) {
+                    // Verificar existencia por nombre y email
+                    $queryCheck .= "(" . PROVEEDOR_EMAIL . " = ? OR " . PROVEEDOR_NOMBRE . " = ?) ";
+                    $queryCheck .= "AND " . PROVEEDOR_ID . " <> ? ";
+                    $params = [$proveedorEmail, $proveedorNombre, $proveedorID];
+                    $types .= 'ssi';
+                }
+
+                else {
+                    $missingParamsLog = "Faltan parámetros para verificar la existencia del proveedor:";
+                    if (!$proveedorID) { $missingParamsLog .= " proveedorID [" . ($proveedorID ?? 'null') . "]"; }
+                    if (!$proveedorNombre) { $missingParamsLog .= " proveedorNombre [" . ($proveedorNombre ?? 'null') . "]"; }
+                    if (!$proveedorEmail) { $missingParamsLog .= " proveedorEmail [" . ($proveedorEmail ?? 'null') . "]"; }
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    throw new Exception("Faltan parámetros para verificar la existencia del proveedor.");
+                }
+
+                // Preparar la consulta y vincular los parámetros
                 $stmt = mysqli_prepare($conn, $queryCheck);
-                
-                // Asignar los parámetros y ejecutar la consulta
                 mysqli_stmt_bind_param($stmt, $types, ...$params);
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
                 
                 // Verifica si existe algún registro con los criterios dados
-                if (mysqli_num_rows($result) > 0) {
-                    $response = ["success" => true, "exists" => true];
-                }else{
-                    $response = ["success" => true, "exists" => false];
+                if ($row = mysqli_fetch_assoc($result)) {
+                    // Verificar si está inactivo (bit de estado en 0)
+                    $isInactive = $row[PROVEEDOR_ESTADO] == 0;
+                    return ["success" => true, "exists" => true, "inactive" => $isInactive, "proveedorID" => $row[PROVEEDOR_ID]];
                 }
+
+                // Retorna false si no se encontraron resultados
+                $messageParams = [];
+                if ($proveedorID) { $messageParams[] = "'ID [$proveedorID]'"; }
+                if ($proveedorNombre) { $messageParams[] = "'Nombre [$proveedorNombre]'"; }
+                if ($proveedorEmail) { $messageParams[] = "'Email [$proveedorEmail]'"; }
+                $params = implode(" y ", $messageParams);
+
+                $message = "No se encontró ningún proveedor con $params en la base de datos.";
+                return ["success" => true, "exists" => false, "message" => $message];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
@@ -78,556 +101,507 @@
                     'Error al verificar la existencia del proveedor en la base de datos'
                 );
                 // Devolver mensaje amigable para el usuario
-                $response =  ["success" => false, "message" => $userMessage];
+                return ["success" => false, "message" => $userMessage];
             } finally {
                 // Cierra la conexión y el statement
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if (isset($conn)) { mysqli_close($conn); }
             }
-            return $response;
         }
-        public function nombreProveedorExiste($nombre,$proveedorID = null){
-            $response  = [];//para retornar el resultado y asi no se salte el cierre de la conexion
-            try {
-                // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
-                
-                // Inicializa la consulta base
-                $queryCheck = "SELECT * FROM " . TB_PROVEEDOR . " WHERE ";
-                $params = [];
-                $types = "";
 
-                if ($nombre !== null && $proveedorID !== null) {
-                    // Verificar existencia por nombre y email
-                    $queryCheck .= PROVEEDOR_NOMBRE . " = ?  AND " . PROVEEDOR_ESTADO . " != false AND ". PROVEEDOR_ID . " <> ? ";
-                    $params[] = $nombre;
-                    $params[] = $proveedorID;
-                    $types .= 'si';
-                }elseif ($nombre !== null) {
-                    // Verificar existencia por nombre y email
-                    $queryCheck .= PROVEEDOR_NOMBRE . " = ? ";
-                    $params[] = $nombre;
-                    $types .= 's';  
-                }else {
-                    $message = "No se proporciono el nombre del proveedor.";
-					Utils::writeLog("$message. Parámetros: 'Nombre'[$nombre] ", DATA_LOG_FILE);
-					throw new Exception($message);
-                }
-                $stmt = mysqli_prepare($conn, $queryCheck);
-                
-                // Asignar los parámetros y ejecutar la consulta
-                mysqli_stmt_bind_param($stmt, $types, ...$params);
-                mysqli_stmt_execute($stmt);
-                $result = mysqli_stmt_get_result($stmt);
-                
-                // Verifica si existe algún registro con los criterios dados
-                if (mysqli_num_rows($result) > 0) {
-                 
-                    if ($row = mysqli_fetch_assoc($result)) {
-                        // Verificar si está inactivo (bit de estado en 0)
-                        $isInactive = $row[PROVEEDOR_ESTADO] == 0;
-                        $response = ["success" => true, "exists" => true, "inactive" => $isInactive, "id" => $row[PROVEEDOR_ID]];
-                    }
-                }else{
-                    $response = ["success" => true, "exists" => false];
-                }
-            } catch (Exception $e) {
-                // Manejo del error dentro del bloque catch
-                $userMessage = $this->handleMysqlError(
-                    $e->getCode(), 
-                    $e->getMessage(),
-                    'Error al verificar la existencia del nombre del proveedor en la base de datos'
-                );
-                // Devolver mensaje amigable para el usuario
-                $response =  ["success" => false, "message" => $userMessage];
-            } finally {
-                // Cierra la conexión y el statement
-                if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
-            }
-            return $response;
+        public function insertProveedor($proveedor, $conn = null) {
+            $createdConn = false;
+            $stmt = null;
 
-        }
-        public function emailProveedorExiste($email, $proveedorID = null){
-            $response  = [];//para retornar el resultado y asi no se salte el cierre de la conexion
             try {
-                // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
-                
-                // Inicializa la consulta base
-                $queryCheck = "SELECT * FROM " . TB_PROVEEDOR . " WHERE ";
-                $params = [];
-                $types = "";
-
-                if ($email !== null && $proveedorID !== null) {
-                    // Verificar existencia por nombre y email
-                    $queryCheck .= PROVEEDOR_EMAIL . " = ?  AND " . PROVEEDOR_ESTADO . " != false AND ". PROVEEDOR_ID . " <> ? ";
-                    $params[] = $email;
-                    $params[] = $proveedorID;
-                    $types .= 'si';
-                }elseif ($email !== null) {
-                    // Verificar existencia por nombre y email
-                    $queryCheck .= PROVEEDOR_EMAIL . " = ? AND " . PROVEEDOR_ESTADO . " != false ";
-                    $params[] = $email;
-                    $types .= 's';  
-                }else {
-                    $message = "No se proporciono el email del proveedor.";
-					Utils::writeLog("$message. Parámetros: '' ", DATA_LOG_FILE);
-					throw new Exception($message);
-                }
-                $stmt = mysqli_prepare($conn, $queryCheck);
-                
-                // Asignar los parámetros y ejecutar la consulta
-                mysqli_stmt_bind_param($stmt, $types, ...$params);
-                mysqli_stmt_execute($stmt);
-                $result = mysqli_stmt_get_result($stmt);
-                
-                // Verifica si existe algún registro con los criterios dados
-                if (mysqli_num_rows($result) > 0) {
-                    $response = ["success" => true, "exists" => true];
-                }else{
-                    $response = ["success" => true, "exists" => false];
-                }
-            } catch (Exception $e) {
-                // Manejo del error dentro del bloque catch
-                $userMessage = $this->handleMysqlError(
-                    $e->getCode(), 
-                    $e->getMessage(),
-                    'Error al verificar la existencia del nombre del proveedor en la base de datos'
-                );
-                // Devolver mensaje amigable para el usuario
-                $response =  ["success" => false, "message" => $userMessage];
-            } finally {
-                // Cierra la conexión y el statement
-                if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
-            }
-            return $response;
-        }
-        public function insertProveedor($proveedor){
-            $response = [];
-            try {
-                // Obtener los valores de las propiedades del objeto
+                // Obtener el Nombre y el Email del proveedor
                 $proveedorNombre = $proveedor->getProveedorNombre();
                 $proveedorEmail = $proveedor->getProveedorEmail();
-                $idcategoria = $proveedor->getProveedorCategoria();
-                Utils::writeLog("Nombre > $proveedorNombre",UTILS_LOG_FILE);
-                // Verifica si el proveedor ya existe
-                // Verificacion nombre
-                $check = $this->nombreProveedorExiste($proveedorNombre);
-                if(!$check['success']){
-                    return $check;
-                }
-                if($check['exists'] && $check["inactive"]){
-                    return ["success"=>true, "inactive" => true, "message"=>"Hay un proveedor con el nombre [$proveedorNombre] inactivo, ¿Deseas reactivarlo?","id"=>$check['id']];
-                }
-                if($check['exists']){
-                    throw new Exception("El nombre del proveedor ya existe.");
+
+                // Verificar si el proveedor ya existe
+                $check = $this->proveedorExiste(null, $proveedorNombre, $proveedorEmail, false, true);
+                if (!$check["success"]) { return $check; } // Error al verificar la existencia
+
+                // En caso de ya existir el proveedor, pero estar inactivo
+                if ($check["exists"] && $check["inactive"]) {
+                    $message = "Ya existe un proveedor con el mismo nombre ($proveedorNombre) y correo ($proveedorEmail) en la base de datos, ";
+                    $message .= "pero está inactivo. ¿Desea reactivarlo?";
+                    return ["success" => true, "message" => $message, "inactive" => $check["inactive"], "id" => $check["proveedorID"]];
                 }
 
-                //verificacion email
-                $check = $this->emailProveedorExiste($proveedorEmail);
-                if(!$check['success']){
-                    return $check;
-                }
-                if($check['exists']){
-                    throw new Exception("El email del proveedor ya existe.");
-                }
-                //Verificacion categoria
-                $check = $this->categoriaData->categoriaExiste($idcategoria);
-                if(!$check['success']){
-                    return  $check;
-                }
-                if(!$check["exists"]){
-                    throw new Exception("La categoria a asignar no existe o no es valido.");
+                // En caso de ya existir el proveedor y estar activo
+                if ($check["exists"]) {
+                    $message = "El proveedor con 'Nombre [$proveedorNombre]' y 'Email [$proveedorEmail]' ya existe en la base de datos.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ["success" => false, "message" => "Ya existe un proveedor con el mismo nombre y correo en la base de datos"];
                 }
 
+                // Si no se proporcionó una conexión, se crea una nueva
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConn = true;
+                }
+
+                // Obtener el último ID de la tabla tbproveedor
+                $queryLastID = "SELECT MAX(" . PROVEEDOR_ID . ") FROM " . TB_PROVEEDOR;
+                $idCont = mysqli_query($conn, $queryLastID);
+                $nextID = 1;
+
+                // Calcula el siguiente ID para la nueva entrada
+                if ($row = mysqli_fetch_assoc($idCont)) {
+                    $nextID = (int) trim($row[0]) + 1;
+                }
+
+                // Crea una consulta y un statement SQL para insertar el registro
+                $queryInsert = 
+                    "INSERT INTO " . TB_PROVEEDOR . " (" . 
+                        PROVEEDOR_ID . ", " . 
+                        PROVEEDOR_NOMBRE . ", " . 
+                        PROVEEDOR_EMAIL . ", " . 
+                        PROVEEDOR_CATEGORIA_ID . ") " . 
+                    "VALUES (?, ?, ?, ?)"
+                ;
+                $stmt = mysqli_prepare($conn, $queryInsert);
+
+                // Vincula los parámetros de la consulta con los datos del proveedor
+                $proveedorCategoriaID = $proveedor->getProveedorCategoria()->getCategoriaID();
+                mysqli_stmt_bind_param($stmt, 'issi', $nextID, $proveedorNombre, $proveedorEmail, $proveedorCategoriaID);
+
+                // Ejecuta la consulta de inserción
+                mysqli_stmt_execute($stmt);
+
+                return ["success" => true, "message" => "Proveedor insertado exitosamente", "id" => $nextId];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al insertar al proveedor en la base de datos',
+                    $this->className
+                );
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if ($createdConn && isset($conn)) { mysqli_close($conn); }
+            }
+
+            return $response;
+        }
+
+        public function updateProveedor($proveedor, $conn = null) {
+            $createdConn = false;
+            $stmt = null;
+
+            try {
+                // Obtener el ID, Nombre y Email del proveedor
+                $proveedorID = $proveedor->getProveedorID();
+                $proveedorNombre = $proveedor->getProveedorNombre();
+                $proveedorEmail = $proveedor->getProveedorEmail();
+
+                // Verificar si el proveedor ya existe
+                $check = $this->proveedorExiste($proveedorID);
+                if (!$check["success"]) { return $check; } // Error al verificar la existencia
+
+                // En caso de no existir el proveedor
+                if (!$check["exists"]) {
+                    $message = "No existe ningún proveedor en la base de datos con el 'ID [$proveedorID]'.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ["success" => false, "message" => "No existe ningún proveedor con el ID proporcionado"];
+                }
+
+                // Verificar si el proveedor ya existe con el mismo nombre y correo
+                $check = $this->proveedorExiste($proveedorID, $proveedorNombre, $proveedorEmail, true);
+                if (!$check["success"]) { return $check; } // Error al verificar la existencia
+
+                // En caso de ya existir el proveedor
+                if ($check["exists"]) {
+                    $message = "Ya existe un proveedor con el mismo 'Nombre [$proveedorNombre}' y/o 'Correo [$proveedorEmail]' en la base de datos.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ["success" => false, "message" => "Ya existe un proveedor con el mismo nombre y/o correo en la base de datos"];
+                }
+
+                // Si no se proporcionó una conexión, se crea una nueva
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConn = true;
+
+                    // Inicia una transacción si no se proporcionó una conexión
+                    mysqli_begin_transaction($conn);
+                }
+
+                // Crea una consulta y un statement SQL para actualizar el registro
+                $queryUpdate = 
+                    "UPDATE " . TB_PROVEEDOR . " SET " . 
+                        PROVEEDOR_NOMBRE . " = ?, " . 
+                        PROVEEDOR_EMAIL . " = ?, " . 
+                        PROVEEDOR_CATEGORIA_ID . " = ?, " .
+                        PROVEEDOR_ESTADO . " = TRUE " . 
+                    "WHERE " . PROVEEDOR_ID . " = ?"
+                ;
+                $stmt = mysqli_prepare($conn, $queryUpdate);
+
+                // Vincula los parámetros de la consulta con los datos del proveedor
+                $proveedorCategoriaID = $proveedor->getProveedorCategoria()->getCategoriaID();
+                mysqli_stmt_bind_param($stmt, 'ssii', $proveedorNombre, $proveedorEmail, $proveedorCategoriaID, $proveedorID);
+                mysqli_stmt_execute($stmt);
+
+                // Actualizar las direcciones del proveedor
+                $direccion = $this->proveedorDireccionData->updateDireccionesProveedor($proveedor, $conn);
+                if (!$direccion["success"]) { throw new Exception($direccion["message"]); }
+
+                // Actualizar los teléfonos del proveedor
+                $telefono = $this->proveedorTelefonoData->updateTelefonosProveedor($proveedor, $conn);
+                if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
+
+                // Confirmar la transacción si no se proporcionó una conexión
+                if ($createdConn) { mysqli_commit($conn); }
+
+                // Devuelve un mensaje de éxito
+                return ["success" => true, "message" => "Proveedor actualizado exitosamente"];
+            } catch (Exception $e) {
+                // Hacer rollback si se creó una conexión y ocurrió un error
+                if ($createdConn && isset($conn)) { mysqli_rollback($conn); }
+
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al actualizar el proveedor en la base de datos',
+                    $this->className
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if ($createdConn && isset($conn)) { mysqli_close($conn); }
+            }
+        }
+
+        public function deleteProveedor($proveedorID, $conn = null) {
+            $createdConn = false;
+            $stmt = null;
+
+            try {
+                // Verificar si el proveedor ya existe
+                $check = $this->proveedorExiste($proveedorID);
+                if (!$check["success"]) { return $check; } // Error al verificar la existencia
+
+                // En caso de no existir el proveedor
+                if (!$check["exists"]) {
+                    $message = "No existe ningún proveedor en la base de datos con el 'ID [$proveedorID]'.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ["success" => false, "message" => "No existe ningún proveedor con el ID proporcionado"];
+                }
+
+                // Si no se proporcionó una conexión, se crea una nueva
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConn = true;
+                }
+
+                // Crea una consulta y un statement SQL para eliminar el registro
+                $queryDelete = 
+                    "UPDATE " . TB_PROVEEDOR . " SET " . 
+                        PROVEEDOR_ESTADO . " = FALSE " . 
+                    "WHERE " . PROVEEDOR_ID . " = ?"
+                ;
+                $stmt = mysqli_prepare($conn, $queryDelete);
+
+                // Vincula los parámetros de la consulta con los datos del proveedor
+                mysqli_stmt_bind_param($stmt, 'i', $proveedorID);
+
+                // Ejecuta la consulta de eliminación
+                mysqli_stmt_execute($stmt);
+
+                // Devuelve un mensaje de éxito
+                return ["success" => true, "message" => "Proveedor eliminado exitosamente"];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al eliminar el proveedor en la base de datos',
+                    $this->className
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if ($createdConn && isset($conn)) { mysqli_close($conn); }
+            }
+        }
+
+        public function getAllTBProveedor($onlyActive = false, $deleted = false) {
+            $conn = null;
+
+            try {
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
-        
-                // Obtenemos el último ID de la tabla tbproveedor
-                $queryGetLastId = "SELECT MAX(" . PROVEEDOR_ID . ") AS proveedorID FROM " . TB_PROVEEDOR;
-                $idCont = mysqli_query($conn, $queryGetLastId);
-                $nextId = 1;
-        
-                // Calcula el siguiente ID para la nueva entrada
-                if ($row = mysqli_fetch_row($idCont)) {
-                    $nextId = (int) trim($row[0]) + 1;
+
+                // Consulta SQL para obtener todos los registros de la tabla tbproveedor
+                $querySelect = "SELECT * FROM " . TB_PROVEEDOR;
+                if ($onlyActive) { $querySelect .= " WHERE " . PROVEEDOR_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE'); }
+                $result = mysqli_query($conn, $querySelect);
+
+                // Crear una lista con todos los proveedores
+                $proveedores = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $categoria = $this->categoriaData->getCategoriaByID($row[PROVEEDOR_CATEGORIA_ID], false);
+                    if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
+
+                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID], false);
+                    if (!$direccion["success"]) { throw new Exception($direccion["message"]); }
+
+                    // Crea un objeto Proveedor con los datos obtenidos
+                    $proveedor = new Proveedor(
+                        $row[PROVEEDOR_ID],
+                        $row[PROVEEDOR_NOMBRE],
+                        $row[PROVEEDOR_EMAIL],
+                        $direccion["direcciones"],
+                        $categoria["categoria"],
+                        [], // Productos
+                        [], // Teléfonos
+                        $row[PROVEEDOR_FECHA_CREACION],
+                        $row[PROVEEDOR_FECHA_MODIFICACION],
+                        $row[PROVEEDOR_ESTADO]
+                    );
+                    $proveedores[] = $proveedor;
                 }
-        
-                // Crea una consulta y un statement SQL para insertar el nuevo registro
-                $queryInsert = "INSERT INTO " . TB_PROVEEDOR . " ("
-                    . PROVEEDOR_ID . ", "
-                    . PROVEEDOR_NOMBRE . ", "
-                    . PROVEEDOR_EMAIL . ", "
-                    . PROVEEDOR_CATEGORIA_ID
-                    . ") VALUES (?, ?, ?, ?)";
-				$stmt = mysqli_prepare($conn, $queryInsert);
-        
-                mysqli_stmt_bind_param(
-                    $stmt,
-                    'issi', // i: Entero, s: Cadena
-                    $nextId,
-                    $proveedorNombre, 
-                    $proveedorEmail,
-                    $idcategoria                
-                );
-        
-                // Ejecuta la consulta de inserción
-                $result = mysqli_stmt_execute($stmt);
-                if(!$result){
-                    $response = ["success" => false, "message" => "Error al registrar el proveedor."];
-                }else{
-                    $response = ["success" => true, "message" => "Proveedor insertado exitosamente", "id"=>$nextId];
-                }
+
+                // Devuelve la lista de proveedores
+                return ["success" => true, "proveedores" => $proveedores];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
-                    $e->getCode(), 
-                    $e->getMessage(),
-                    'Error al insertar al proveedor en la base de datos'
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener la lista de proveedores desde la base de datos',
+                    $this->className
                 );
-                // Devolver mensaje amigable para el usuario
-                $response = ["success" => false, "message" => $userMessage];
-            } finally {
-                // Cierra la conexión y el statement
-                if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
-            }
-
-            return $response;
-        }
-
-        public function updateProveedor($proveedor) {
-            $response = [];
-            try {
-                // Obtener el ID del proveedor
-                $proveedorID = $proveedor->getProveedorID();
-                // Obtener el Nombre y el Email del proveedor
-                $proveedorNombre = $proveedor->getProveedorNombre(); 
-                $proveedorEmail = $proveedor->getProveedorEmail();
-                $idcategoria = $proveedor->getProveedorCategoria();
-
-                // Verifica si el proveedor ya existe
-                $check = $this->proveedorExiste($proveedorID);
-                if (!$check["success"]) {
-                    return $check; // Error al verificar la existencia
-                }
-                if (!$check["exists"]) {
-                    Utils::writeLog("El proveedor con 'ID [$proveedorID]' no existe en la base de datos.", DATA_LOG_FILE);
-					throw new Exception("No existe ningún proveedor en la base de datos que coincida con la información proporcionada.");
-                }
-
-                // Verificacion nombre
-                $check = $this->nombreProveedorExiste($proveedorNombre,$proveedorID);
-                if(!$check['success']){
-                    return $check;
-                }
-                if($check['exists']){
-                    throw new Exception("El nombre del proveedor ya existe.");
-                }
-                
-                //verificacion email
-                $check = $this->emailProveedorExiste($proveedorEmail,$proveedorID);
-                if(!$check['success']){
-                    return $check;
-                }
-                if($check['exists']){
-                    throw new Exception("El email del proveedor ya existe.");
-                }
-
-                $check = $this->categoriaData->categoriaExiste($idcategoria);
-                if(!$check['success']){
-                    return  $check;
-                }
-                if(!$check["exists"]){
-                    throw new Exception("La categoria a asignar no existe o no es valido.");
-                }
-
-                // Establece una conexion con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
-                $conn = $result["connection"];
-                // Crea una consulta y un statement SQL para actualizar el registro
-                $queryUpdate = 
-                    "UPDATE " . TB_PROVEEDOR . 
-                    " SET " . 
-                        PROVEEDOR_NOMBRE . " = ?, " . 
-                        PROVEEDOR_EMAIL . " = ?, " .
-                        PROVEEDOR_CATEGORIA_ID . " = ?, " .                    
-                        PROVEEDOR_ESTADO . " = true " .
-                    "WHERE " . PROVEEDOR_ID . " = ? ";
-                $stmt = mysqli_prepare($conn, $queryUpdate);
-
-                mysqli_stmt_bind_param(
-                    $stmt,
-                    'ssii', // s: Cadena, i: Entero
-                    $proveedorNombre,
-                    $proveedorEmail,
-                    $idcategoria,
-                    $proveedorID
-                );
-                // Ejecuta la consulta de actualización
-                $result = mysqli_stmt_execute($stmt);
-                if($result){
-                    $response = ["success" => true, "message" => "Proveedor actualizado exitosamente."];
-                }else{
-                    $response = ["success" => false, "message" => "Error al actualizar el proveedor."];
-                }
-            } catch (Exception $e) {
-                // Manejo del error dentro del bloque catch
-                $userMessage = $this->handleMysqlError( $e->getCode(),  $e->getMessage(),
-                                        'Error al actualizar el proveedor en la base de datos'
-                                        );
         
                 // Devolver mensaje amigable para el usuario
-                $response = ["success" => false, "message" => $userMessage];
+                return ["success" => false, "message" => $userMessage];
             } finally {
-                // Cierra la conexión y el statement
-                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                // Cierra la conexión
                 if (isset($conn)) { mysqli_close($conn); }
             }
-            return $response;
-        }
-
-        public function deleteProveedor($proveedorID) {
-            $response = [];
-            try {
-                // Verificar si existe el ID y que el Estado no sea false
-                $check = $this->proveedorExiste($proveedorID);
-                if (!$check["success"]) {
-                    return $check; // Error al verificar la existencia
-                }
-                if (!$check["exists"]) {
-                    Utils::writeLog("El proveedor con ID '[$proveedorID]' no existe en la base de datos.", DATA_LOG_FILE);
-					throw new Exception("No existe ningún proveedor en la base de datos que coincida con la información proporcionada.");
-                }
-
-                // Establece una conexion con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
-                $conn = $result["connection"];
-        
-                // Crea una consulta y un statement SQL para eliminar el registro (borrado logico)
-                $queryDelete = "UPDATE " . TB_PROVEEDOR . " SET " . PROVEEDOR_ESTADO . " = false WHERE " . PROVEEDOR_ID . " = ?";
-                $stmt = mysqli_prepare($conn, $queryDelete);
-                mysqli_stmt_bind_param($stmt, 'i', $proveedorID);
-        
-                // Ejecuta la consulta de eliminación
-                $result = mysqli_stmt_execute($stmt);
-                if($result){
-                    $response =  ["success" => true, "message" => "Proveedor eliminado exitosamente."];
-                }else{
-                    $response =  ["success" => false, "message" => "Error al eliminar al proveedor."];
-                }
-            } catch (Exception $e) {
-                // Manejo del error dentro del bloque catch
-                $userMessage = $this->handleMysqlError( $e->getCode(), $e->getMessage(), 
-                                'Error al eliminar al proveedor de la base de datos'
-                                );
-                // Devolver mensaje amigable para el usuario
-                $response = ["success" => false, "message" => $userMessage];
-            } finally {
-                // Cierra la conexión y el statement
-                if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
-            }
-            return $response;
-        }
-
-        public function getAllTBProveedor() {
-           $response = [];
-            try {
-                // Establece una conexion con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
-                $conn = $result["connection"];
-
-                // Obtenemos la lista de Proveedores
-                $querySelect = 
-                    "SELECT P.*, C." . CATEGORIA_NOMBRE . " 
-                    FROM " . TB_PROVEEDOR . " P 
-                    INNER JOIN " . TB_CATEGORIA . " C 
-                    ON P." . PROVEEDOR_CATEGORIA_ID . " = C." . CATEGORIA_ID . " 
-                    WHERE P." . PROVEEDOR_ESTADO . " != false ";
-                $result = mysqli_query($conn, $querySelect);
-
-                // Creamos la lista con los datos obtenidos
-                $listaProveedores = [];
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $listaProveedores[] = [
-                        'ID' => $row[PROVEEDOR_ID],
-                        'Nombre' => $row[PROVEEDOR_NOMBRE],
-                        'Email' => $row[PROVEEDOR_EMAIL],
-                        'CategoriaID' => $row[PROVEEDOR_CATEGORIA_ID],
-                        'CategoriaNombre' => $row[CATEGORIA_NOMBRE],
-                        'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_CREACION], 'Y-MM-dd'),
-						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_CREACION]),
-                        'FechaModificacionISO'=>Utils::formatearFecha($row[PROVEEDOR_FECHA_MODIFICACION],'Y-MM-dd'),
-                        'FechaModificacion'=>Utils::formatearFecha($row[PROVEEDOR_FECHA_MODIFICACION]),
-                        'Estado' => $row[PROVEEDOR_ESTADO]
-                    ];
-                }
-                $response = ["success" => true, "listaProveedores" => $listaProveedores];
-            } catch (Exception $e) {
-                // Manejo del error dentro del bloque catch
-                $userMessage = $this->handleMysqlError( $e->getCode(),  $e->getMessage(),
-                    'Error al obtener la lista de proveedores desde la base de datos'
-                );
-                // Devolver mensaje amigable para el usuario
-                $response = ["success" => false, "message" => $userMessage];
-            } finally {
-                // Cerramos la conexion
-                if (isset($conn)) { mysqli_close($conn); }
-            }
-            return $response;
-        }
-            
-        public function getAllTBCompraProveedor() {
-            $response = [];
-            try {
-                // Establece una conexion con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
-                $conn = $result["connection"];
-        
-                // Obtenemos solo el ID y el Nombre de los Proveedores
-                $querySelect = "SELECT " . PROVEEDOR_ID . ", " . PROVEEDOR_NOMBRE . " FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false";
-                $result = mysqli_query($conn, $querySelect);
-        
-                // Creamos la lista con solo los ID y Nombre
-                $listaCompraProveedores = [];
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $listaCompraProveedores[] = [
-                        'ID' => $row[PROVEEDOR_ID],
-                        'Nombre' => $row[PROVEEDOR_NOMBRE],
-                    ];
-                }
-        
-                $response = ["success" => true, "listaCompraProveedores" => $listaCompraProveedores];
-            } catch (Exception $e) {
-                // Manejo del error dentro del bloque catch
-                $userMessage = $this->handleMysqlError(
-                    $e->getCode(), 
-                    $e->getMessage(),
-                    'Error al obtener la lista de proveedores desde la base de datos'
-                );
-                // Devolver mensaje amigable para el usuario
-                $response = ["success" => false, "message" => $userMessage];
-            } finally {
-                // Cerramos la conexion
-                if (isset($conn)) { mysqli_close($conn); }
-            }
-            return $response;
         }
         
+        public function getPaginatedProveedores($search, $page, $size, $sort = null, $onlyActive = false, $deleted = false) {
+            $conn = null; $stmt = null;
 
-        public function getPaginatedProveedores($page, $size, $sort = null) {
-            $response = [];
             try {
-				// Validar los parámetros de paginación
-                if (!is_numeric($page) || $page < 1) {
-                    throw new Exception("El número de página debe ser un entero positivo.");
-                }
-                if (!is_numeric($size) || $size < 1) {
-                    throw new Exception("El tamaño de la página debe ser un entero positivo.");
-                }
+                // Calcular el offset y el total de páginas
                 $offset = ($page - 1) * $size;
         
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
+                if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
 
 				// Consultar el total de registros
-                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_PROVEEDOR . " WHERE " . PROVEEDOR_ESTADO . " != false";
+                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_PROVEEDOR;
+                if ($onlyActive) { $queryTotalCount .= " WHERE " . PROVEEDOR_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE'); }
+                
+                // Obtener el total de registros y calcular el total de páginas
                 $totalResult = mysqli_query($conn, $queryTotalCount);
                 $totalRow = mysqli_fetch_assoc($totalResult);
                 $totalRecords = (int) $totalRow['total'];
                 $totalPages = ceil($totalRecords / $size);
 
 				// Construir la consulta SQL para paginación
-                $querySelect = 
-                    "SELECT P.*, C." . CATEGORIA_NOMBRE . " 
-                    FROM " . TB_PROVEEDOR . " P 
-                    INNER JOIN " . TB_CATEGORIA . " C 
-                    ON P." . PROVEEDOR_CATEGORIA_ID . " = C." . CATEGORIA_ID . " 
-                    WHERE P." . PROVEEDOR_ESTADO . " != false ";
+                $querySelect = "
+                    SELECT
+                        P.*, C." . CATEGORIA_NOMBRE . "
+                    FROM " . 
+                        TB_PROVEEDOR . " P
+                    INNER JOIN " .
+                        TB_CATEGORIA . " C ON P." . PROVEEDOR_CATEGORIA_ID . " = C." . CATEGORIA_ID
+                ;
 
-				// Añadir la cláusula de ordenamiento si se proporciona
+                // Agregar filtro de búsqueda a la consulta
+                $params = [];
+                $types = "";
+                if ($search) {
+                    $querySelect .= " WHERE (" . PROVEEDOR_NOMBRE . " LIKE ?";
+                    $querySelect .= " OR " . PROVEEDOR_EMAIL . " LIKE ?";
+                    $querySelect .= " OR C." . CATEGORIA_NOMBRE . " LIKE ?)";
+                    $params = array_fill(0, 3, "%$search%");
+                    $types = "sss";
+                }
+
+                // Agregar filtro de estado a la consulta
+                if ($onlyActive) {
+                    $querySelect .= ($search ? " AND " : " WHERE ") . "P." . PROVEEDOR_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE');
+                }
+
+				// Agregar ordenamiento a la consulta
                 if ($sort) {
-                    $querySelect .= "ORDER BY proveedor" . $sort . " ";
+                    $querySelect .= " ORDER BY " . ($sort == 'categoria' ? "C." . CATEGORIA_NOMBRE : "P.proveedor" . $sort);
+                } else {
+                    $querySelect .= " ORDER BY P." . PROVEEDOR_ID . " DESC";
                 }
 
 				// Añadir la cláusula de limitación y offset
-                $querySelect .= "LIMIT ? OFFSET ?";
+                $querySelect .= " LIMIT ? OFFSET ?";
+                $params = array_merge($params, [$size, $offset]);
+                $types .= "ii";
 
-				// Preparar la consulta y vincular los parámetros
+                // Preparar la consulta y vincular los parámetros
                 $stmt = mysqli_prepare($conn, $querySelect);
-                mysqli_stmt_bind_param($stmt, "ii", $size, $offset);
-
-				// Ejecutar la consulta
-                $result = mysqli_stmt_execute($stmt);
+                mysqli_stmt_bind_param($stmt, $types, ...$params);
+                mysqli_stmt_execute($stmt);
 
 				// Obtener el resultado
                 $result = mysqli_stmt_get_result($stmt);
 
-				$listaProveedores = [];
+				$proveedores = [];
 				while ($row = mysqli_fetch_assoc($result)) {
-					$listaProveedores[] = [
-                        'ID' => $row[PROVEEDOR_ID],
-                        'Nombre' => $row[PROVEEDOR_NOMBRE],
-                        'Email' => $row[PROVEEDOR_EMAIL],
-                        'CategoriaID' => $row[PROVEEDOR_CATEGORIA_ID],            
-                        'CategoriaNombre' => $row[CATEGORIA_NOMBRE],            
-                        'FechaISO' => Utils::formatearFecha($row[PROVEEDOR_FECHA_CREACION], 'Y-MM-dd'),
-						'Fecha' => Utils::formatearFecha($row[PROVEEDOR_FECHA_CREACION]),
-                        'FechaModificacionISO'=>Utils::formatearFecha($row[PROVEEDOR_FECHA_MODIFICACION],'Y-MM-dd'),
-                        'FechaModificacion'=>Utils::formatearFecha($row[PROVEEDOR_FECHA_MODIFICACION]),
-                        'Estado' => $row[PROVEEDOR_ESTADO]
-                    ];
+                    $categoriaData = new CategoriaData();
+                    $categoria = $categoriaData->getCategoriaByID($row[PROVEEDOR_CATEGORIA_ID], false);
+                    if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
+
+                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID], false);
+                    if (!$direccion["success"]) { throw new Exception($direccion["message"]); }
+
+                    $telefono = $this->proveedorTelefonoData->getTelefonosByProveedorID($row[PROVEEDOR_ID], false);
+                    if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
+
+                    // Crea un objeto Proveedor con los datos obtenidos
+                    $proveedor = new Proveedor(
+                        $row[PROVEEDOR_ID],
+                        $row[PROVEEDOR_NOMBRE],
+                        $row[PROVEEDOR_EMAIL],
+                        $direccion["direcciones"],
+                        $categoria["categoria"],
+                        [], // Productos
+                        $telefono["telefonos"],
+                        $row[PROVEEDOR_FECHA_CREACION],
+                        $row[PROVEEDOR_FECHA_MODIFICACION],
+                        $row[PROVEEDOR_ESTADO]
+                    );
+                    $proveedores[] = $proveedor;
 				}
 
-				$response = [
+				return [
                     "success" => true,
                     "page" => $page,
                     "size" => $size,
                     "totalPages" => $totalPages,
                     "totalRecords" => $totalRecords,
-                    "listaProveedores" => $listaProveedores
+                    "proveedores" => $proveedores
                 ];
 			} catch (Exception $e) {
 				// Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
-                    $e->getCode(), 
-                    $e->getMessage(),
-                    'Error al obtener la lista de proveedores desde la base de datos'
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener la lista de proveedores desde la base de datos',
+                    $this->className
                 );
         
                 // Devolver mensaje amigable para el usuario
-                $response = ["success" => false, "message" => $userMessage];
+                return ["success" => false, "message" => $userMessage];
             } finally {
                 // Cerrar la conexión y el statement
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if (isset($conn)) { mysqli_close($conn); }
             }
-            return $response;
+        }
+
+        public function getProveedorByID($proveedorID, $onlyActive = false, $deleted = false) {
+            $conn = null; $stmt = null;
+
+            try {
+                // Verificar si el proveedor ya existe
+                $check = $this->proveedorExiste($proveedorID);
+                if (!$check["success"]) { return $check; } // Error al verificar la existencia
+
+                // En caso de no existir el proveedor
+                if (!$check["exists"]) {
+                    $message = "No existe ningún proveedor en la base de datos con el 'ID [$proveedorID]'.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ["success" => false, "message" => "No existe ningún proveedor con el ID proporcionado"];
+                }
+
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+
+                // Consulta SQL para obtener el proveedor con el ID proporcionado
+                $querySelect = "
+                    SELECT 
+                        * 
+                    FROM " . 
+                        TB_PROVEEDOR . " 
+                    WHERE " . 
+                        PROVEEDOR_ID . " = ?" . ($onlyActive ? " AND " . 
+                        PROVEEDOR_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE') : "");
+                $stmt = mysqli_prepare($conn, $querySelect);
+
+                // Vincula los parámetros de la consulta con los datos del proveedor
+                mysqli_stmt_bind_param($stmt, 'i', $proveedorID);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+
+                // Obtener el resultado de la consulta
+                if ($row = mysqli_fetch_assoc($result)) {
+                    $categoria = $this->categoriaData->getCategoriaByID($row[PROVEEDOR_CATEGORIA_ID], false);
+                    if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
+
+                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID], false);
+                    if (!$direccion["success"]) { throw new Exception($direccion["message"]); }
+
+                    $telefono = $this->proveedorTelefonoData->getTelefonosByProveedorID($row[PROVEEDOR_ID], false);
+                    if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
+
+                    // Crea un objeto Proveedor con los datos obtenidos
+                    $proveedor = new Proveedor(
+                        $row[PROVEEDOR_ID],
+                        $row[PROVEEDOR_NOMBRE],
+                        $row[PROVEEDOR_EMAIL],
+                        $direccion["direcciones"],
+                        $categoria["categoria"],
+                        [], // Productos
+                        $telefono["telefonos"],
+                        $row[PROVEEDOR_FECHA_CREACION],
+                        $row[PROVEEDOR_FECHA_MODIFICACION],
+                        $row[PROVEEDOR_ESTADO]
+                    );
+
+                    // Devuelve el proveedor encontrado
+                    return ["success" => true, "proveedor" => $proveedor];
+                }
+
+                // Retorna false si no se encontraron resultados
+                $message = "No se encontró ningún proveedor con el 'ID [$proveedorID]' en la base de datos.";
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ["success" => true, "message" => "No se encontró ningún el proveedor en la base de datos"];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener el proveedor desde la base de datos',
+                    $this->className
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn)) { mysqli_close($conn); }
+            }
         }
         
     }

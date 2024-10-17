@@ -97,14 +97,14 @@
 			return $this->proveedorDireccionData->getDireccionesByProveedor($proveedorID, $json);
 		}
 
-		public function getPaginatedDireccionesByProveedor($proveedorID, $page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
+		public function getPaginatedDireccionesByProveedor($proveedorID, $page, $size, $sort = null, $onlyActive = true, $deleted = false) {
 			// Verifica que el ID del proveedor sea válido
 			$check = $this->validarProveedorDireccion($proveedorID, null, false);
 			if (!$check['is_valid']) {
 				return ["success" => $check["is_valid"], "message" => $check["message"]];
 			}
 
-			return $this->proveedorDireccionData->getPaginatedDireccionesByProveedor($proveedorID, $page, $size, $sort, $onlyActiveOrInactive, $deleted);
+			return $this->proveedorDireccionData->getPaginatedDireccionesByProveedor($proveedorID, $page, $size, $sort, $onlyActive, $deleted);
 		}
 
 	}

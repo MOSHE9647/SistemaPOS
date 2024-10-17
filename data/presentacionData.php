@@ -1,63 +1,96 @@
 <?php
 
-    require_once __DIR__ . '/../domain/Presentacion.php';
-    require_once __DIR__ . '/../utils/Utils.php';
-    require_once __DIR__ . '/../utils/Variables.php';
-    require_once 'data.php';
+	require_once dirname(__DIR__, 1) . '/data/data.php';
+	require_once dirname(__DIR__, 1) . '/domain/Presentacion.php';
+	require_once dirname(__DIR__, 1) . '/utils/Utils.php';
+	require_once dirname(__DIR__, 1) . '/utils/Variables.php';
 
-    class PresentacionData extends Data {
+	class PresentacionData extends Data {
 
-        public function __construct() {
-            parent::__construct(); // Llama al constructor de la clase base (Data)
-        }
-    
-        public function presentacionExiste($presentacionID = null, $presentacionNombre = null) {
+		private $className;
+
+		// Constructor
+		public function __construct() {
+			$this->className = get_class($this);
+			parent::__construct();
+		}
+
+        // Función para verificar si una presentación con el mismo nombre ya existe en la base de datos
+        public function presentacionExiste($presentacionID = null, $presentacionNombre = null, $update = false, $insert = false) {
             try {
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
+                if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
-    
+
                 // Inicializa la consulta base
-                $queryCheck = "SELECT * FROM " . TB_PRESENTACION . " WHERE ";
+                $queryCheck = "SELECT " . PRESENTACION_ID . ", " . PRESENTACION_ESTADO . " FROM " . TB_PRESENTACION . " WHERE ";
                 $params = [];
                 $types = "";
-    
-                if ($presentacionID !== null) {
-                    // Verificar existencia por ID y que el estado no sea 0 (borrado lógico)
-                    $queryCheck .= PRESENTACION_ID . " = ? AND " . PRESENTACION_ESTADO . " != 0";
+                
+                // Consulta para verificar si existe una presentación con el ID ingresado
+                if ($presentacionID && (!$update && !$insert)) {
+                    $queryCheck .= PRESENTACION_ID . " = ? ";
                     $params[] = $presentacionID;
-                    $types .= 'i';
-                } elseif ($presentacionNombre !== null) {
+                    $types .= "i";
+                }
+                
+                // Consulta para verificar si existe una presentación con el nombre ingresado
+                else if ($insert && $presentacionNombre) {
                     // Verificar existencia por nombre
-                    $queryCheck .= PRESENTACION_NOMBRE . " = ? AND " . PRESENTACION_ESTADO . " != 0";
+                    $queryCheck .= PRESENTACION_NOMBRE . " = ? ";
                     $params[] = $presentacionNombre;
                     $types .= 's';
-                } else {
-                    throw new Exception("Se requiere al menos un parámetro: presentacionID o presentacionNombre");
                 }
-    
-                $stmt = mysqli_prepare($conn, $queryCheck);
-                if (!$stmt) {
-                    throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
+
+                // Consulta en caso de actualizar para verificar si existe ya una presentación con el mismo nombre además de la que se va a actualizar
+                else if ($update && ($presentacionNombre && $presentacionID)) {
+                    $queryCheck .= PRESENTACION_NOMBRE . " = ? AND " . PRESENTACION_ID . " <> ? ";
+                    $params = [$presentacionNombre, $presentacionID];
+                    $types .= 'si';
                 }
-    
+
+                // En caso de no cumplirse ninguna condicion
+                else {
+                    // Registrar parámetros faltantes y lanzar excepción
+                    $missingParamsLog = "Faltan parámetros para verificar la existencia de la presentación:";
+                    if (!$presentacionID) $missingParamsLog .= " presentacionID [" . ($presentacionID ?? 'null') . "]";
+                    if (!$presentacionNombre) $missingParamsLog .= " presentacionNombre [" . ($presentacionNombre ?? 'null') . "]";
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    throw new Exception("Faltan parámetros para verificar la existencia de la presentación en la base de datos.");
+                }
+
                 // Asignar los parámetros y ejecutar la consulta
+                $stmt = mysqli_prepare($conn, $queryCheck);
                 mysqli_stmt_bind_param($stmt, $types, ...$params);
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
-    
-                // Verifica si existe algún registro con los criterios dados
-                if (mysqli_num_rows($result) > 0) {
-                    return ["success" => true, "exists" => true];
+
+                // Verificar si existe una presentación con el ID o nombre ingresado
+                if ($row = mysqli_fetch_assoc($result)) {
+                    // Verificar si está inactiva (bit de estado en 0)
+                    $isInactive = $row[PRESENTACION_ESTADO] == 0;
+                    return ["success" => true, "exists" => true, "inactive" => $isInactive, "presentacionID" => $row[PRESENTACION_ID]];
                 }
-    
-                return ["success" => true, "exists" => false];
+
+                // Retorna false si no se encontraron resultados
+                $messageParams = [];
+                if ($presentacionID) { $messageParams[] = "'ID [$presentacionID]'"; }
+                if ($presentacionNombre)  { $messageParams[] = "'Nombre [$presentacionNombre]'"; }
+                $params = implode(', ', $messageParams);
+
+                $message = "No se encontró ninguna presentación ($params) en la base de datos.";
+                return ["success" => true, "exists" => false, "message" => $message];
             } catch (Exception $e) {
-                // Devuelve el mensaje de error
-                return ["success" => false, "message" => $e->getMessage()];
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al verificar la existencia de la presentación en la base de datos',
+                    $this->className
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
             } finally {
                 // Cierra la conexión y el statement
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
@@ -65,385 +98,405 @@
             }
         }
 
-        public function insertPresentacion($presentacion) {
+        // Método para insertar una nueva presentación
+        public function insertPresentacion($presentacion, $conn = null) {
+            $createdConnection = false;
+            $stmt = null;
+
             try {
                 // Obtener los valores de las propiedades del objeto
                 $presentacionNombre = $presentacion->getPresentacionNombre();
-                $presentacionDescripcion = $presentacion->getPresentacionDescripcion();
-                $presentacionEstado = 1; // Estado por defecto: activo (1)
-        
-                // Verifica que las propiedades no estén vacías
-                if (empty($presentacionNombre)) {
-                    throw new Exception("El nombre de la presentación está vacío");
+
+                // Verificar si ya existe una presentación con el mismo nombre
+                $check = $this->presentacionExiste(null, $presentacionNombre, false, true);
+                if (!$check["success"]) { throw new Exception($check["message"]); }
+
+                // En caso de ya existir la presentación pero estar inactiva
+                if ($check["exists"] && $check["inactive"]) {
+                    $message = "Ya existe una presentación con el mismo nombre ($presentacionNombre) en la base de datos, pero está inactiva. Desea reactivarla?";
+                    return ["success" => true, "message" => $message, "inactive" => $result["inactive"], "id" => $result["presentacionID"]];
                 }
-        
-                // Verifica si la presentación ya existe
-                $check = $this->presentacionExiste(null, $presentacionNombre);
-                if (!$check["success"]) {
-                    return $check; // Error al verificar la existencia
-                }
+
+                // En caso de ya existir la presentación y estar activa
                 if ($check["exists"]) {
-                    throw new Exception("Ya existe una presentación con el mismo nombre");
+                    $message = "La presentación con 'Nombre [$presentacionNombre]' ya existe en la base de datos.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ["success" => true, "message" => "Ya existe una presentación con el mismo nombre ($presentacionNombre) en la base de datos."];
                 }
-        
+
                 // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
                 }
-                $conn = $result["connection"];
-        
+
                 // Obtenemos el último ID de la tabla tb_presentacion
-                $queryGetLastId = "SELECT MAX(" . PRESENTACION_ID . ") AS presentacionID FROM " . TB_PRESENTACION;
+                $queryGetLastId = "SELECT MAX(" . PRESENTACION_ID . ") FROM " . TB_PRESENTACION;
                 $idCont = mysqli_query($conn, $queryGetLastId);
-                if (!$idCont) {
-                    throw new Exception("Error al ejecutar la consulta");
-                }
                 $nextId = 1;
-        
+
                 // Calcula el siguiente ID para la nueva entrada
                 if ($row = mysqli_fetch_row($idCont)) {
                     $nextId = (int) trim($row[0]) + 1;
                 }
-        
+
                 // Crea una consulta y un statement SQL para insertar el nuevo registro
-                $queryInsert = "INSERT INTO " . TB_PRESENTACION . " ("
+                $queryInsert = 
+                    "INSERT INTO " . TB_PRESENTACION . " ("
                     . PRESENTACION_ID . ", "
                     . PRESENTACION_NOMBRE . ", "
-                    . PRESENTACION_DESCRIPCION . ", "
-                    . PRESENTACION_ESTADO . ") VALUES (?, ?, ?, ?)";
-        
+                    . PRESENTACION_DESCRIPCION .", "
+                    . PRESENTACION_ESTADO ." " . 
+                    ") VALUES (?, ?, ?, true)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
-                if (!$stmt) {
-                    throw new Exception("Error al preparar la consulta");
-                }
-        
-                mysqli_stmt_bind_param(
-                    $stmt,
-                    'issi', // i: Entero, s: Cadena
-                    $nextId,
-                    $presentacionNombre,
-                    $presentacionDescripcion,
-                    $presentacionEstado
-                );
-        
-                // Ejecuta la consulta de inserción
-                $result = mysqli_stmt_execute($stmt);
-                if (!$result) {
-                    throw new Exception("Error al insertar la presentación");
-                }
-        
+
+                // Obtener los valores de las propiedades faltantes
+                $presentacionDescripcion = $presentacion->getPresentacionDescripcion();
+
+                // Asignar los parámetros y ejecutar la consulta
+                mysqli_stmt_bind_param($stmt, 'iss', $nextId, $presentacionNombre, $presentacionDescripcion);
+                mysqli_stmt_execute($stmt);
+
                 return ["success" => true, "message" => "Presentación insertada exitosamente", "id" => $nextId];
-            } catch (Exception $e) {
+            }catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
-                    $e->getCode(), 
-                    $e->getMessage(),
-                    'Error al insertar presentación en la base de datos'
+                    $e->getCode(), $e->getMessage(),
+                    'Error al insertar la presentación en la base de datos',
+                    $this->className
                 );
                 // Devolver mensaje amigable para el usuario
-                return ["success" => false, "message" => $userMessage, "id" => $nextId];
+                return ["success" => false, "message" => $userMessage];
             } finally {
                 // Cierra la conexión y el statement
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
+                if ($createdConnection && isset($conn)) { mysqli_close($conn); }
             }
         }
 
-        public function actualizarPresentacion($presentacion) {
-            // Validar que el ID de la presentación exista
-            if (empty($presentacion->getPresentacionId())) {
-                throw new Exception("No se encontró el registro de la presentación. El ID es obligatorio para actualizar.");
-            }
-        
-            // Validar los campos obligatorios
-            if (empty($presentacion->getPresentacionNombre())) {
-                throw new Exception("El nombre de la presentación no puede estar vacío. Por favor, proporcione un nombre válido.");
-            }
-        
-            if (empty($presentacion->getPresentacionDescripcion())) {
-                throw new Exception("La descripción de la presentación es obligatoria. Proporcione una descripción detallada.");
-            }
-        
-            if (empty($presentacion->getPresentacionEstado())) {
-                throw new Exception("El estado de la presentación es obligatorio. Asegúrese de especificar un estado válido.");
-            }
-        
+        // Método para actualizar una presentación existente
+        public function updatePresentacion($presentacion, $conn = null) {
+            $createdConnection = false;
+            $stmt = null;
+
             try {
+                // Obtener los valores de las propiedades del objeto
+                $presentacionID = $presentacion->getPresentacionID();
+                $presentacionNombre = $presentacion->getPresentacionNombre();
+
+                // Verificar si la presentación ya existe
+                $check = $this->presentacionExiste($presentacionID);
+                if (!$check["success"]) { throw new Exception($check["message"]); }
+
+                // En caso de no existir la presentación
+                if (!$check["exists"]) {
+                    $message = "No se encontró la presentación con 'ID [$presentacionID]' en la base de datos.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ["success" => false, "message" => "La presentación seleccionada no existe en la base de datos."];
+                }
+
+                // Verifica que no exista otra presentación con la misma información
+                $check = $this->presentacionExiste($presentacionID, $presentacionNombre, true);
+                if (!$check["success"]) { throw new Exception($check["message"]); }
+
+                // En caso de ya existir la presentación
+                if ($check["exists"]) {
+                    $message = "La presentación con 'Nombre [$presentacionNombre]' ya existe en la base de datos.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ["success" => true, "message" => "Ya existe una presentación con el mismo nombre ($presentacionNombre) en la base de datos."];
+                }
+
                 // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
                 }
-                $conn = $result["connection"]; // Extraer el objeto de conexión del array
-        
-                // Preparar la consulta de actualización
-                $query = "UPDATE " . TB_PRESENTACION . " 
-                          SET " . PRESENTACION_NOMBRE . " = ?, " . PRESENTACION_DESCRIPCION . " = ?, " . PRESENTACION_ESTADO . " = ? 
-                          WHERE " . PRESENTACION_ID . " = ?;";
-        
-                $stmt = $conn->prepare($query); // Prepara la consulta SQL
-                if (!$stmt) {
-                    throw new Exception("Error preparando la consulta: " . $conn->error);
-                }
-        
-                // Bind de los parámetros (nombre, descripción, estado, id)
-                $nombre = $presentacion->getPresentacionNombre();
-                $descripcion = $presentacion->getPresentacionDescripcion();
-                $estado = $presentacion->getPresentacionEstado();
-                $id = $presentacion->getPresentacionId();
-        
-                // Bind de los parámetros (nombre, descripción, estado, id)
-                $stmt->bind_param("sssi", $nombre, $descripcion, $estado, $id);
-        
-                // Ejecutar la sentencia
-                if (!$stmt->execute()) {
-                    throw new Exception("Error al intentar actualizar la presentacion: " . $stmt->error);
-                }
-        
-                // Verificar si se actualizó algún registro
-                if ($stmt->affected_rows == 0) {
-                    throw new Exception("No se encontró ningún registro con el ID proporcionado. No se realizó ninguna actualización.");
-                }
-        
-                // Cerrar la sentencia
-                $stmt->close();
-        
-                return ["success" => true, "message" => "Presentacion actualizada exitosamente"];
-            } catch (Exception $e) {
+
+                // Crea la consulta SQL para actualizar la presentación
+                $queryUpdate = "UPDATE " . TB_PRESENTACION . " SET "
+                    . PRESENTACION_NOMBRE . " = ?, "
+                    . PRESENTACION_DESCRIPCION . " = ?, "
+                    . PRESENTACION_ESTADO . " = true "
+                    . "WHERE " . PRESENTACION_ID . " = ?";
+
+                $stmt = mysqli_prepare($conn, $queryUpdate);
+
+                // Obtener los valores de las propiedades faltantes
+                $presentacionDescripcion = $presentacion->getPresentacionDescripcion();
+
+                // Asignar los parámetros y ejecutar la consulta
+                mysqli_stmt_bind_param($stmt, 'ssi', $presentacionNombre, $presentacionDescripcion, $presentacionID);
+                mysqli_stmt_execute($stmt);
+
+                return ["success" => true, "message" => "Presentación actualizada exitosamente"];
+            }catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
-                return ["success" => false, "message" => $e->getMessage()];
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al actualizar la presentación en la base de datos',
+                    $this->className
+                );
+
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
             } finally {
-                // Cerrar la conexión correctamente
-                if (isset($conn)) { mysqli_close($conn); }
+                // Cierra la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if ($createdConnection && isset($conn)) { mysqli_close($conn); }
             }
         }
 
-        public function eliminarPresentacion($presentacionId) {
-            // Validar que el ID de la presentación exista
-            if (empty($presentacionId)) {
-                throw new Exception("No se puede eliminar el registro. El ID de la presentación es obligatorio.");
-            }
-        
+        // Método para eliminar (desactivar) una presentación
+        public function deletePresentacion($presentacionID, $conn = null) {
+            $createdConnection = false;
+            $stmt = null;
+
             try {
+                // Verificar si la presentación ya existe
+                $check = $this->presentacionExiste($presentacionID);
+                if (!$check["success"]) { throw new Exception($check["message"]); }
+
+                // En caso de no existir la presentación
+                if (!$check["exists"]) {
+                    $message = "No se encontró la presentación con 'ID [$presentacionID]' en la base de datos.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ["success" => false, "message" => "La presentación seleccionada no existe en la base de datos."];
+                }
+
                 // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
                 }
-                $conn = $result["connection"]; // Extraer el objeto de conexión del array
-        
-                // Preparar la consulta para realizar el borrado lógico (cambiar el estado)
-                $query = "UPDATE " . TB_PRESENTACION . " 
-                          SET " . PRESENTACION_ESTADO . " = 0 
-                          WHERE " . PRESENTACION_ID . " = ?;";
-        
-                $stmt = $conn->prepare($query); // Prepara la consulta SQL
-                if (!$stmt) {
-                    throw new Exception("Error preparando la consulta para eliminar: " . $conn->error);
-                }
-        
-                // Bind del parámetro (ID de la presentación)
-                $stmt->bind_param("i", $presentacionId);
-        
-                // Ejecutar la sentencia
-                if (!$stmt->execute()) {
-                    throw new Exception("Error al intentar eliminar la presentación: " . $stmt->error);
-                }
-        
-                // Verificar si se actualizó algún registro
-                if ($stmt->affected_rows == 0) {
-                    throw new Exception("No se encontró ningún registro con el ID proporcionado. No se realizó ninguna eliminación.");
-                }
-        
-                // Cerrar la sentencia
-                $stmt->close();
-        
+
+                // Crea la consulta SQL para desactivar la presentación
+                $queryDelete = "UPDATE " . TB_PRESENTACION . " SET " . PRESENTACION_ESTADO . " = false " . " WHERE " . PRESENTACION_ID . " = ?";
+                $stmt = mysqli_prepare($conn, $queryDelete);
+                mysqli_stmt_bind_param($stmt, 'i', $presentacionID);
+                mysqli_stmt_execute($stmt);
+
+                // Devolver mensaje de éxito
                 return ["success" => true, "message" => "Presentación eliminada exitosamente"];
-            } catch (Exception $e) {
+            }catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
-                return ["success" => false, "message" => $e->getMessage()];
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al eliminar la presentación en la base de datos',
+                    $this->className
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
             } finally {
-                // Cerrar la conexión correctamente
-                if (isset($conn)) { mysqli_close($conn); }
+                // Cierra la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if ($createdConnection && isset($conn)) { mysqli_close($conn); }
             }
         }
+		
+        // Método para obtener todas las presentaciones activas
+        public function getAllTBPresentaciones($onlyActive = false, $deleted = false) {
+            $conn = null;
 
-        public function getAllTBProductoPresentacion() {
-            $response = [];
             try {
-                // Establece una conexion con la base de datos
+                // Establece una conexión con la base de datos
                 $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
+                if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
-    
-                // Construir la consulta SQL con joins para obtener nombres en lugar de IDs
-            $querySelect = "SELECT " . PRESENTACION_ID . ", " . PRESENTACION_NOMBRE . " FROM " . TB_PRESENTACION . " WHERE " . PRESENTACION_ESTADO . " !=false";
-            $result = mysqli_query($conn, $querySelect);
-    
-               // Crear la lista con los datos obtenidos
-            $listaProductoPresentacions = [];
-            while ($row = mysqli_fetch_assoc($result)) {
-                $listaProductoPresentacions []= [
-                    "ID" => $row[PRESENTACION_ID],
-                    "PresentacionNombre" =>  $row[PRESENTACION_NOMBRE],
-                ];
-            }
-    
-                return ["success" => true, "listaProductoPresentacions" => $listaProductoPresentacions];
+
+                // Obtenemos la lista de presentaciones
+                $querySelect = "SELECT * FROM " . TB_PRESENTACION;
+                if ($onlyActive) { $querySelect .= " WHERE " . PRESENTACION_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE'); }
+                $result = mysqli_query($conn, $querySelect);
+
+                // Creamos la lista con los datos obtenidos
+                $presentaciones = [];
+                while ($row = mysqli_fetch_array($result)) {
+                    $presentacion = new Presentacion(
+                        $row[PRESENTACION_ID],
+                        $row[PRESENTACION_NOMBRE],
+                        $row[PRESENTACION_DESCRIPCION],
+                        $row[PRESENTACION_ESTADO]
+                    );
+                    $presentaciones[] = $presentacion;
+                }
+
+                return ["success" => true, "presentaciones" => $presentaciones];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
-                    $e->getCode(), 
-                    $e->getMessage(),
-                    'Error al obtener la lista de presentacion desde la base de datos'
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener las presentaciones de la base de datos',
+                    $this->className
                 );
+        
                 // Devolver mensaje amigable para el usuario
-                $response = ["success" => false, "message" => $userMessage];
-            } finally {
-                // Cerramos la conexion
+                return ["success" => false, "message" => $userMessage];
+            }  finally {
+                // Cierra la conexión y el statement
                 if (isset($conn)) { mysqli_close($conn); }
             }
-            return $response;
         }
 
-        public function getPaginatedPresentaciones($page, $size, $sort = null) {
+        // Método para obtener presentaciones con paginación
+        public function getPaginatedPresentaciones($page, $size, $sort = null, $onlyActive = false, $deleted = false) {
+            $conn = null; $stmt = null;
+
             try {
                 // Validar los parámetros de paginación
                 if (!is_numeric($page) || $page < 1) {
-                    throw new Exception("El numero de página debe ser un entero positivo.");
+                    throw new Exception("El número de página debe ser un entero positivo.");
                 }
                 if (!is_numeric($size) || $size < 1) {
-                    throw new Exception("El tamaño de la pagina debe ser un entero positivo.");
+                    throw new Exception("El tamaño de la página debe ser un entero positivo.");
                 }
                 $offset = ($page - 1) * $size;
-        
+
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
-                $conn = $result["connection"]; // Extraer el objeto de conexión del array
-        
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+
                 // Consultar el total de registros
-                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_PRESENTACION . " WHERE " . PRESENTACION_ESTADO . " != 0";
+                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_PRESENTACION;
+                if ($onlyActive) { $queryTotalCount .= " WHERE " . PRESENTACION_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE'); }
+                
+                // Ejecutar la consulta y obtener el total de registros
                 $totalResult = mysqli_query($conn, $queryTotalCount);
-                if (!$totalResult) {
-                    throw new Exception("Error al obtener el conteo total de registros: " . mysqli_error($conn));
-                }
                 $totalRow = mysqli_fetch_assoc($totalResult);
-                $totalRecords = (int)$totalRow['total'];
+                $totalRecords = (int) $totalRow['total'];
                 $totalPages = ceil($totalRecords / $size);
-        
+
                 // Construir la consulta SQL para paginación
-                $querySelect = "SELECT * FROM " . TB_PRESENTACION . " WHERE " . PRESENTACION_ESTADO . " != 0 ";
-        
+                $querySelect = "SELECT * FROM " . TB_PRESENTACION;
+                if ($onlyActive) { $querySelect .= " WHERE " . PRESENTACION_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE'); }
+
                 // Añadir la cláusula de ordenamiento si se proporciona
-                if ($sort) {
-                    $querySelect .= " ORDER BY " . $sort;
-                }
-        
+                if ($sort) { $querySelect .= " ORDER BY presentacion" . $sort; }
+
                 // Añadir la cláusula de límite y desplazamiento
                 $querySelect .= " LIMIT ? OFFSET ?";
-        
+
+                // Crear un statement y ejecutar la consulta
                 $stmt = mysqli_prepare($conn, $querySelect);
-                if (!$stmt) {
-                    throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
-                }
-        
-                // Asignar los parámetros de límite y desplazamiento
                 mysqli_stmt_bind_param($stmt, 'ii', $size, $offset);
                 mysqli_stmt_execute($stmt);
+
+                // Obtener los resultados de la consulta
                 $result = mysqli_stmt_get_result($stmt);
-        
-                // Verificamos si ocurrió un error
-                if (!$result) {
-                    throw new Exception("Error al ejecutar la consulta de paginacion: " . mysqli_error($conn));
-                }
-        
+
                 // Creamos la lista con los datos obtenidos
-                $listaPresentaciones = [];
+                $presentaciones = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $listaPresentaciones[] = [
-                        "ID" => $row[PRESENTACION_ID],
-                        "Nombre" => $row[PRESENTACION_NOMBRE],
-                        "Descripcion" => $row[PRESENTACION_DESCRIPCION],
-                        "Estado" => $row[PRESENTACION_ESTADO]
-                    ];
+                    $presentacion = new Presentacion(
+                        $row[PRESENTACION_ID],
+                        $row[PRESENTACION_NOMBRE],
+                        $row[PRESENTACION_DESCRIPCION],
+                        $row[PRESENTACION_ESTADO]
+                    );
+                    $presentaciones[] = $presentacion;
                 }
-        
+
                 return [
                     "success" => true,
                     "page" => $page,
                     "size" => $size,
                     "totalPages" => $totalPages,
                     "totalRecords" => $totalRecords,
-                    "listaPresentaciones" => $listaPresentaciones
+                    "presentaciones" => $presentaciones
                 ];
-        
-            } catch (Exception $e) {
+            }catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
-                return ["success" => false, "message" => $e->getMessage()];
-            } finally {
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener la lista de presentaciones desde la base de datos',
+                    $this->className
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            }  finally {
                 // Cierra la conexión y el statement
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
-        
-        
-        public function obtenerListaPresentaciones() {
+
+        // Método para obtener una presentación por su ID
+        public function getPresentacionByID($presentacionID, $onlyActive = false, $deleted = false) {
+            $conn = null; $stmt = null;
+
             try {
-                // Establece la conexión a la base de datos
+                // Verificar si la presentación ya existe
+                $check = $this->presentacionExiste($presentacionID);
+                if (!$check["success"]) { throw new Exception($check["message"]); }
+
+                // En caso de no existir la presentación
+                if (!$check["exists"]) {
+                    $message = "No se encontró la presentación con 'ID [$presentacionID]' en la base de datos.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ["success" => false, "message" => "La presentación seleccionada no existe en la base de datos."];
+                }
+
+                // Establece una conexión con la base de datos
                 $result = $this->getConnection();
-                if (!$result["success"]) {
-                    throw new Exception($result["message"]);
-                }
-                $conn = $result["connection"]; // Extraer el objeto de conexión del array
-        
-                // Preparar la consulta SQL para obtener todas las presentaciones activas
-                $query = "SELECT * FROM " . TB_PRESENTACION . " WHERE " . PRESENTACION_ESTADO . " != 0";
-                $stmt = mysqli_prepare($conn, $query);
-                if (!$stmt) {
-                    throw new Exception("Error al preparar la consulta: " . mysqli_error($conn));
-                }
-        
-                // Ejecutar la consulta
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+
+                // Consultar la presentación por su ID
+                $querySelect = "
+                    SELECT 
+                        * 
+                    FROM " . 
+                        TB_PRESENTACION . " 
+                    WHERE " . 
+                        PRESENTACION_ID . " = ?" . ($onlyActive ? " AND " . 
+                        PRESENTACION_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE') : '');
+                $stmt = mysqli_prepare($conn, $querySelect);
+                mysqli_stmt_bind_param($stmt, 'i', $presentacionID);
                 mysqli_stmt_execute($stmt);
+
+                // Obtener los resultados de la consulta
                 $result = mysqli_stmt_get_result($stmt);
-        
-                // Verificar si ocurrió un error
-                if (!$result) {
-                    throw new Exception("Error al ejecutar la consulta: " . mysqli_error($conn));
+
+                // Verificar si se encontró la presentación
+                if ($row = mysqli_fetch_assoc($result)) {
+                    $presentacion = new Presentacion(
+                        $row[PRESENTACION_ID],
+                        $row[PRESENTACION_NOMBRE],
+                        $row[PRESENTACION_DESCRIPCION],
+                        $row[PRESENTACION_ESTADO]
+                    );
+                    return ["success" => true, "presentacion" => $presentacion];
                 }
+
+                // En caso de no encontrarse la presentación
+                $message = "No se encontró la presentación con 'ID [$presentacionID]' en la base de datos.";
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ["success" => false, "message" => "La presentación seleccionada no existe en la base de datos."];
+            }catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener la presentación por su ID desde la base de datos',
+                    $this->className
+                );
         
-                // Crear la lista de presentaciones
-                $listaPresentaciones = [];
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $listaPresentaciones[] = [
-                        "ID" => $row[PRESENTACION_ID],
-                        "Nombre" => $row[PRESENTACION_NOMBRE],
-                        "Descripcion" => $row[PRESENTACION_DESCRIPCION],
-                        "Estado" => $row[PRESENTACION_ESTADO]
-                    ];
-                }
-        
-                // Retornar la lista de presentaciones
-                return ["success" => true, "listaPresentaciones" => $listaPresentaciones];
-        
-            } catch (Exception $e) {
-                // Manejo de errores
-                return ["success" => false, "message" => $e->getMessage()];
-            } finally {
-                // Cerrar el statement y la conexión
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            }  finally {
+                // Cierra la conexión y el statement
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
-        
-        
-    }
+
+	}
 
 ?>

@@ -9,7 +9,19 @@
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Obtener y sanitizar parámetros
-        $accion =        isset($_POST['accion'])      ? $_POST['accion']           : "";
+        $accion = isset($_POST['accion']) ? $_POST['accion'] : "";
+        if (empty($accion)) {
+            $response = [
+                'success' => false,
+                'message' => "No se ha especificado una acción."
+            ];
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            exit();
+        }
+
+        // Datos del Código de Barras recibidos en la solicitud
         $id =            isset($_POST['id'])          ? intval($_POST['id'])       : -1;
         $codigo =        isset($_POST['codigo'])      ? $_POST['codigo']           : "";
 
@@ -52,39 +64,22 @@
         exit();
     }
 
-    if ($_SERVER["REQUEST_METHOD"] === "GET") {
+    else if ($_SERVER["REQUEST_METHOD"] === "GET") {
         $accion               = isset($_GET['accion'])      ? $_GET['accion']           : "";
         $deleted              = isset($_GET['deleted'])     ? boolval($_GET['deleted']) : false;
-        $onlyActiveOrInactive = isset($_GET['filter'])      ? boolval($_GET['filter'])  : true;
+        $onlyActive = isset($_GET['filter'])      ? boolval($_GET['filter'])  : true;
 
         $codigoBarrasBusiness = new CodigoBarrasBusiness();
         switch ($accion) {
-            case 'todos':
-                $response = $codigoBarrasBusiness->getAllTBCodigoBarras($onlyActiveOrInactive, $deleted);
+            case 'all':
+                $response = $codigoBarrasBusiness->getAllTBCodigoBarras($onlyActive, $deleted);
                 break;
-            case 'paginados':
-                // Obtener parámetros de la solicitud GET
-                $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
-                $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
-                $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
-
-                // Validar los parámetros
-                if ($page < 1) $page = 1;
-                if ($size < 1) $size = 5;
-
-                $response = $codigoBarrasBusiness->getPaginatedCodigosBarras($page, $size, $sort, $onlyActiveOrInactive, $deleted);
+            case 'id':
+                $id = isset($_GET['id']) ? intval($_GET['id']) : -1;
+                $response = $codigoBarrasBusiness->getCodigoBarrasByID($id, $onlyActive, $deleted);
                 break;
-
-        case 'listarProductoCodigoBarras':
-            // Este es el bloque que quieres insertar
-            $result = $codigoBarrasBusiness->getAllTBProductoCodigoBarras();
-            header('Content-Type: application/json');
-            echo json_encode($result);
-            exit();
-            
-            default:
+            case 'barcode':
                 // Obtener y sanitizar parámetros
-                $productoID =    isset($_GET['producto']) ? intval($_GET['producto']) : -1;
                 $scale =         isset($_GET['scale'])    ? intval($_GET['scale'])    :  1;
                 $text =          isset($_GET['text'])     ? boolval($_GET['text'])    : true;
                 $transparent =   isset($_GET['trans'])    ? boolval($_GET['trans'])   : false;
@@ -110,12 +105,12 @@
 
                     if (!$barcode) {
                         // Genera el código de barras (13 dígitos): 12 dígitos + 1 dígito de verificación
-                        $barcode = $codigoBarrasBusiness->generarCodigoDeBarras($productoID);
+                        $barcode = $codigoBarrasBusiness->generarCodigoDeBarras();
                         if (!$barcode['success']) { throw new Exception($barcode['message']); }
                         $ean13Code = $barcode['code'];
                     } else {
-                        if (!is_string($barcode) || strlen($barcode) != 12 || !ctype_digit($barcode)) {
-                            throw new Exception('El código de barras debe tener 12 dígitos numéricos');
+                        if (!is_string($barcode) || strlen($barcode) < 12 || strlen($barcode) > 13 || !ctype_digit($barcode)) {
+                            throw new Exception('El código de barras debe tener entre 12 y 13 dígitos numéricos');
                         } else {
                             $ean13Code = $barcode;
                         }
@@ -133,6 +128,9 @@
                         $code->clearLabels();
                     }
 
+                    // Cambia el último digito de $ean13Code por el dígito de verificación
+                    $ean13Code = substr($ean13Code, 0, 12) . $code->getChecksum();
+
                     // Creación de la imagen en un buffer de memoria
                     $drawing = new BCGDrawing($code, $colorWhite);
 
@@ -148,7 +146,7 @@
                     $response = [
                         'success' => true,
                         'message' => 'Código de Barras generado exitosamente',
-                        'code' => $ean13Code,
+                        'code' => $ean13Code,  // Código de Barras generado
                         'image' => 'data:image/png;base64,' . $base64Image  // Imagen en Base64
                     ];
                 } catch (Exception $e) {
@@ -157,10 +155,31 @@
                         'message' => 'Ocurrió un error al intentar generar el código de barras: ' . $e->getMessage()
                     ];
                 }
+                break;
+            default:
+                // Obtener parámetros de la solicitud GET
+                $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+                $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
+                $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
 
+                // Validar los parámetros
+                if ($page < 1) $page = 1;
+                if ($size < 1) $size = 5;
+
+                $response = $codigoBarrasBusiness->getPaginatedCodigosBarras($page, $size, $sort, $onlyActive, $deleted);
                 break;
         }
 
+        header('Content-Type: application/json');
+        echo json_encode($response);
+        exit();
+    }
+
+    else {
+        $response['success'] = false;
+        $response['message'] = "Método no permitido (" . $_SERVER["REQUEST_METHOD"] . ").";
+
+        http_response_code(405);
         header('Content-Type: application/json');
         echo json_encode($response);
         exit();

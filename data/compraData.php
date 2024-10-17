@@ -1,5 +1,5 @@
 <?php
-        include_once 'data.php';
+        include_once dirname(__DIR__, 1) . '/data/data.php';
         include __DIR__ . '/../domain/Compra.php';
         include_once __DIR__ . '/../utils/Variables.php';
 

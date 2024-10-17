@@ -1,9 +1,9 @@
 <?php
 
-    require_once 'data.php';
-    require_once __DIR__ . '/../domain/Telefono.php';
-    require_once __DIR__ . '/../utils/Variables.php';
-    require_once __DIR__ . '/../utils/Utils.php';
+    require_once dirname(__DIR__, 1) . '/data/data.php';
+    require_once dirname(__DIR__, 1) . '/domain/Telefono.php';
+    require_once dirname(__DIR__, 1) . '/utils/Variables.php';
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
     class ProveedorTelefonoData extends Data {
 
@@ -312,19 +312,10 @@
          * @param bool $json Devuelve la lista en formato JSON (opcional)
          * @return array Resultado de la consulta (success, telefonos)
          */
-        public function getTelefonosByProveedor($proveedorID, $json = false) {
+        public function getTelefonosByProveedorID($proveedorID, $onlyActive = true, $deleted = false) {
             $conn = null; $stmt = null;
             
             try {
-                // Verificar que el proveedor tenga teléfonos registrados
-                $checkID = $this->existeProveedorTelefono($proveedorID);
-                if (!$checkID["success"]) { throw new Exception($checkID["message"]); }
-                if (!$checkID["exists"]) {
-                    $message = "El proveedor con ID [$proveedorID] no tiene teléfonos registrados.";
-                    Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
-                    return ["success" => true, "message" => "El proveedor seleccionado no tiene teléfonos registrados."];
-                }
-
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) { throw new Exception($result["message"]); }
@@ -340,9 +331,8 @@
                         TB_PROVEEDOR_TELEFONO . " PT 
                         ON T." . TELEFONO_ID . " = PT." . TELEFONO_ID . "
                     WHERE 
-                        PT." . PROVEEDOR_ID . " = ? AND 
-                        PT." . PROVEEDOR_TELEFONO_ESTADO . " != FALSE
-                ";
+                        PT." . PROVEEDOR_ID . " = ?" . ($onlyActive ? " AND 
+                        PT." . PROVEEDOR_TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") : "");
 
                 // Preparar la consulta, vincular los parámetros y ejecutar la consulta
                 $stmt = mysqli_prepare($conn, $querySelect);
@@ -352,31 +342,17 @@
 
                 $telefonos = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    if ($json) {
-                        $telefonos[] = [
-                            'ID' => $row[TELEFONO_ID],
-                            'Tipo' => $row[TELEFONO_TIPO],
-                            'CodigoPais' => $row[TELEFONO_CODIGO_PAIS],
-                            'Numero' => $row[TELEFONO_NUMERO],
-                            'Extension' => $row[TELEFONO_EXTENSION],
-                            'CreacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION], 'Y-MM-dd'),
-                            'Creacion' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION]),
-                            'ModificacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_MODIFICACION], 'Y-MM-dd'),
-                            'Modificacion' => Utils::formatearFecha($row[TELEFONO_FECHA_MODIFICACION]),
-                            'Estado' => $row[TELEFONO_ESTADO]
-                        ];
-                    } else {
-                        $telefonos[] = new Telefono(
-                            $row[TELEFONO_ID],
-                            $row[TELEFONO_TIPO],
-                            $row[TELEFONO_CODIGO_PAIS],
-                            $row[TELEFONO_NUMERO],
-                            $row[TELEFONO_EXTENSION],
-                            $row[TELEFONO_FECHA_CREACION],
-                            $row[TELEFONO_FECHA_MODIFICACION],
-                            $row[TELEFONO_ESTADO]
-                        );
-                    }
+                    $telefono = new Telefono(
+                        $row[TELEFONO_ID],
+                        $row[TELEFONO_TIPO],
+                        $row[TELEFONO_CODIGO_PAIS],
+                        $row[TELEFONO_NUMERO],
+                        $row[TELEFONO_EXTENSION],
+                        $row[TELEFONO_FECHA_CREACION],
+                        $row[TELEFONO_FECHA_MODIFICACION],
+                        $row[TELEFONO_ESTADO]
+                    );
+                    $telefonos[] = $telefono;
                 }
 
                 return ["success" => true, "telefonos" => $telefonos];
@@ -402,8 +378,9 @@
          * @param Proveedor $proveedor Objeto Proveedor con la lista de teléfonos actualizada
          * @return array Resultado de la operación (success, message)
          */
-        public function updateTelefonosProveedor($proveedor) {
-            $conn = null; $stmt = null;
+        public function updateTelefonosProveedor($proveedor, $conn = null) {
+            $createdConnection = false; //<- Indica si la conexión se creó aquí o viene por parámetro
+            $stmt = null;
         
             try {
                 // Obtener el ID del Proveedor
@@ -419,7 +396,7 @@
                 }
 
                 // Obtener la lista actual de teléfonos del proveedor desde la base de datos
-                $result = $this->getTelefonosByProveedor($proveedorID);
+                $result = $this->getTelefonosByProveedorID($proveedorID);
                 if (!$result["success"]) { throw new Exception($result["message"]); }
                 
                 // Obtener los ID's de los teléfonos actuales
@@ -429,16 +406,19 @@
 
                 // Obtener los ID's de los nuevos teléfonos
                 $nuevosTelefonos = array_map(function($telefono) {
-                    return $telefono->getTelefonoID();
+                    return $telefono['ID'];
                 }, $proveedor->getProveedorTelefonos());
         
                 // Establece una conexión con la base de datos
-                $connResult = $this->getConnection();
-                if (!$connResult["success"]) { throw new Exception($connResult["message"]); }
-                $conn = $connResult["connection"];
-                
-                // Iniciar una transacción
-                mysqli_begin_transaction($conn);
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+        
+                    // Desactivar el autocommit para manejar transacciones si la conexión fue creada aquí
+                    mysqli_autocommit($conn, false);
+                }
         
                 // Añadir nuevos teléfonos (los que no están en la BD)
                 foreach ($nuevosTelefonos as $nuevoTelefonoID) {
@@ -457,12 +437,14 @@
                 }
         
                 // Confirmar la transacción
-                mysqli_commit($conn);
+                if ($createdConnection) {
+                    mysqli_commit($conn);
+                }
         
                 return ["success" => true, "message" => "Los teléfonos del proveedor se han actualizado correctamente."];
         
             } catch (Exception $e) {
-                if (isset($conn)) { mysqli_rollback($conn); }
+                if ($createdConnection && isset($conn)) { mysqli_rollback($conn); }
         
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
@@ -473,11 +455,11 @@
                 return ["success" => false, "message" => $userMessage];
             } finally {
                 if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
-                if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+                if ($createdConnection && isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
             }
         }
 
-        public function getPaginatedTelefonosByProveedor($proveedorID, $page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
+        public function getPaginatedTelefonosByProveedor($proveedorID, $page, $size, $sort = null, $onlyActive = true, $deleted = false) {
             $conn = null; $stmt = null;
 
             try {
@@ -497,7 +479,7 @@
 
                 // Consultar el total de registros
                 $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_PROVEEDOR_TELEFONO . " WHERE " . PROVEEDOR_ID . " = ? ";
-                if ($onlyActiveOrInactive) { $queryTotalCount .= " AND " . PROVEEDOR_TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($onlyActive) { $queryTotalCount .= " AND " . PROVEEDOR_TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 $stmt = mysqli_prepare($conn, $queryTotalCount);
                 mysqli_stmt_bind_param($stmt, "i", $proveedorID);
@@ -517,7 +499,7 @@
                         ON T." . TELEFONO_ID . " = PT." . TELEFONO_ID . "
                     WHERE 
                         PT." . PROVEEDOR_ID . " = ?";
-                if ($onlyActiveOrInactive) { $querySelect .= " AND PT." . PROVEEDOR_TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($onlyActive) { $querySelect .= " AND PT." . PROVEEDOR_TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 // Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) { $querySelect .= "ORDER BY telefono" . $sort . " "; }

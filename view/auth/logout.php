@@ -1,7 +1,7 @@
 <?php
 
-    require_once __DIR__ . '/../../auth/config.php';
-    require_once __DIR__ . '/../../utils/Variables.php';
+    require_once dirname(__DIR__, 2) . '/auth/config.php';
+    require_once dirname(__DIR__, 2) . '/utils/Variables.php';
 
     // Elimina las variables de sesión
     $_SESSION = [];
@@ -19,7 +19,7 @@
     session_destroy();
 
     // Redirigir a login o página de inicio
-    $INDEX_URL = '/../index.php?' . SESSION_LOGGED_OUT . '=true';
+    $INDEX_URL = './login.php?' . SESSION_LOGGED_OUT . '=true';
     header("Location: $INDEX_URL");
     exit();
 

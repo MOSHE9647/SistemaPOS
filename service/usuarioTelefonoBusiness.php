@@ -97,14 +97,14 @@
             return $this->usuarioTelefonoData->getTelefonosByUsuario($usuarioID, $json);
         }
 
-        public function getPaginatedTelefonosByUsuario($usuarioID, $page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
+        public function getPaginatedTelefonosByUsuario($usuarioID, $page, $size, $sort = null, $onlyActive = true, $deleted = false) {
             // Verifica que el ID del usuario sea válido
             $check = $this->validarUsuarioTelefono($usuarioID, null, false);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
 
-            return $this->usuarioTelefonoData->getPaginatedTelefonosByUsuario($usuarioID, $page, $size, $sort, $onlyActiveOrInactive, $deleted);
+            return $this->usuarioTelefonoData->getPaginatedTelefonosByUsuario($usuarioID, $page, $size, $sort, $onlyActive, $deleted);
         }
 
     }

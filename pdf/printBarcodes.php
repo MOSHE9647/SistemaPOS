@@ -54,7 +54,7 @@
         <script>
             async function fetchBarcode(productoID, scale = 1, text = true, transparent = false) {
                 try {
-                    const response = await fetch(`../controller/codigoBarrasAction.php?producto=${productoID}&scale=${scale}&text=${text}&trans=${transparent}`);
+                    const response = await fetch(`/controller/codigoBarrasAction.php?producto=${productoID}&scale=${scale}&text=${text}&trans=${transparent}`);
                     const data = await response.json();
                     
                     if (data.success) {

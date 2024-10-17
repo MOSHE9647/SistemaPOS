@@ -27,7 +27,6 @@
                 // Obtener los valores de las propiedades del objeto
                 $rolID = $rol->getRolID();
                 $nombre = $rol->getRolNombre();
-                $descripcion = $rol->getRolDescripcion();
                 $errors = [];
 
                 // Verifica que el ID del rol sea válido
@@ -88,12 +87,12 @@
             return $this->rolData->deleteRolUsuario($rolID);
         }
 
-        public function getAllTBRolUsuario($onlyActiveOrInactive = false, $deleted = false) {
-            return $this->rolData->getAllTBRolUsuario($onlyActiveOrInactive, $deleted);
+        public function getAllTBRolUsuario($onlyActive = false, $deleted = false) {
+            return $this->rolData->getAllTBRolUsuario($onlyActive, $deleted);
         }
 
-        public function getPaginatedRoles($page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
-            return $this->rolData->getPaginatedRoles($page, $size, $sort, $onlyActiveOrInactive, $deleted);
+        public function getPaginatedRoles($page, $size, $sort = null, $onlyActive = true, $deleted = false) {
+            return $this->rolData->getPaginatedRoles($page, $size, $sort, $onlyActive, $deleted);
         }
 
         public function getRolUsuarioByID($rolID) {

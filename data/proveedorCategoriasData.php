@@ -1,5 +1,5 @@
 <?php
-    require_once 'data.php';
+    require_once dirname(__DIR__, 1) . '/data/data.php';
     require_once __DIR__ . '/../domain/Categoria.php';
     require_once __DIR__ . '/../utils/Variables.php';
 
@@ -226,7 +226,7 @@
             }
         }
 
-        public function getPaginateCategoriaProveedor($idproveedor,$page,$size, $sort= null, $onlyActiveOrInactive = true, $deleted = false){
+        public function getPaginateCategoriaProveedor($idproveedor,$page,$size, $sort= null, $onlyActive = true, $deleted = false){
             $conn = null; $stmt = null;
 
             try {
@@ -257,7 +257,7 @@
 
                 // Consultar el total de registros
                 $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_PROVEEDOR_CATEGORIA . " WHERE " . PROVEEDOR_ID . " = ? ";
-                if ($onlyActiveOrInactive) { $queryTotalCount .= " AND " . PROVEEDOR_CATEGORIA_ESTADO. " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($onlyActive) { $queryTotalCount .= " AND " . PROVEEDOR_CATEGORIA_ESTADO. " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 // Preparar la consulta y ejecutarla
                 $stmt = mysqli_prepare($conn, $queryTotalCount);
@@ -274,7 +274,7 @@
                     FROM " . TB_CATEGORIA . " C "
                     . " INNER JOIN " . TB_PROVEEDOR_CATEGORIA. " PC ON C." . CATEGORIA_ID . " = PC." . CATEGORIA_ID . "
                     WHERE PC." . PROVEEDOR_ID . " = ? ";
-                if ($onlyActiveOrInactive) { $querySelect .= " AND PC." . PROVEEDOR_CATEGORIA_ESTADO. " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($onlyActive) { $querySelect .= " AND PC." . PROVEEDOR_CATEGORIA_ESTADO. " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 // Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) { $querySelect .= "ORDER BY C.categoria" . $sort . " "; }

@@ -1,7 +1,7 @@
 <?php
     
     require_once 'config.php';
-    require_once __DIR__ . '/../utils/Variables.php';
+    require_once dirname(__DIR__, 1) . '/utils/Variables.php';
     
     // Verifica si el usuario está autenticado
     if (!isset($_SESSION[SESSION_AUTHENTICATED]) || $_SESSION[SESSION_AUTHENTICATED] !== true) {
@@ -9,7 +9,7 @@
         $_SESSION[SESSION_ORIGIN_URL] = $_SERVER['REQUEST_URI'];
 
         // Si el usuario no está autenticado, redirige a la página de login
-        $LOGIN_URL = dirname(__DIR__, 1) . '/view/auth/login.php';
+        $LOGIN_URL = './view/auth/login.php';
         header("Location: $LOGIN_URL");
         exit();
     }

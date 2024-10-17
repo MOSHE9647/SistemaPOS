@@ -1,43 +1,51 @@
 <?php
 
-class Subcategoria{
-    private $subcategoria_id;
-    private $subcategoria_nombre;
-    private $subcategoria_descripcion;
-    private $sucategoria_categoria_id;
-    private $subcategoria_estado;
+    require_once dirname(__DIR__, 1) . '/domain/Categoria.php';
 
-    // Constructor
-    public function __construct($subcategoria_nombre,$sucategoria_categoria_id ,$subcategoria_descripcion = "", $subcategoria_id = 0, $subcategoria_estado = true ) {
-        $this->subcategoria_id = $subcategoria_id;
-        $this->subcategoria_nombre = $subcategoria_nombre;
-        $this->subcategoria_estado = $subcategoria_estado;
-        $this->subcategoria_descripcion = $subcategoria_descripcion;
-        $this->sucategoria_categoria_id = $sucategoria_categoria_id;
+    class Subcategoria implements JsonSerializable {
+
+        private $subcategoriaID;
+        private $subcategoriaNombre;
+        private $subcategoriaDescripcion;
+        private $subcategoriaCategoria;
+        private $subcategoriaEstado;
+
+        // Constructor
+        public function __construct(int $subcategoriaID = -1, string $subcategoriaNombre = "", string $subcategoriaDescripcion = "", 
+            Categoria $subcategoriaCategoria = null, bool $subcategoriaEstado = true) 
+        {
+            $this->subcategoriaID = $subcategoriaID;
+            $this->subcategoriaNombre = strtoupper($subcategoriaNombre);
+            $this->subcategoriaDescripcion = $subcategoriaDescripcion;
+            $this->subcategoriaCategoria = $subcategoriaCategoria;
+            $this->subcategoriaEstado = $subcategoriaEstado;
+        }
+
+        // Getters
+        public function getSubcategoriaID(): int { return $this->subcategoriaID; }
+        public function getSubcategoriaNombre(): string { return $this->subcategoriaNombre; }
+        public function getSubcategoriaDescripcion(): string { return $this->subcategoriaDescripcion; }
+        public function getSubcategoriaCategoria(): Categoria {return $this->subcategoriaCategoria; }
+        public function getSubcategoriaEstado(): bool { return $this->subcategoriaEstado; }
+
+        // Setters
+        public function setSubcategoriaID(int $subcategoriaID) { $this->subcategoriaID = $subcategoriaID; }
+        public function setSubcategoriaNombre(string $subcategoriaNombre) { $this->subcategoriaNombre = strtoupper($subcategoriaNombre); }
+        public function setSubcategoriaDescripcion(string $subcategoriaDescripcion) { $this->subcategoriaDescripcion = $subcategoriaDescripcion; }
+        public function setSubcategoriaCategoriaId(Categoria $subcategoriaCategoria){$this->subcategoriaCategoria = $subcategoriaCategoria;}
+        public function setSubcategoriaEstado(bool $subcategoriaEstado) { $this->subcategoriaEstado = $subcategoriaEstado; }
+
+        // JsonSerializable
+        public function jsonSerialize() {
+            return [
+                'ID' => $this->subcategoriaID,
+                'Nombre' => $this->subcategoriaNombre,
+                'Descripcion' => $this->subcategoriaDescripcion,
+                'Categoria' => $this->subcategoriaCategoria,
+                'Estado' => $this->subcategoriaEstado
+            ];
+        }
+
     }
-
-    // Getters
-    public function getSubcategoriaId() { return $this->subcategoria_id; }
-    public function getSubcategoriaNombre() { return $this->subcategoria_nombre; }
-    public function getSubcategoriaEstado() { return $this->subcategoria_estado; }
-    public function getSubcategoriaDescripcion() { return $this->subcategoria_descripcion; }
-    public function getSubcategoriaCategoriaId() {return $this->sucategoria_categoria_id; }
-
-    // Setters
-    public function setSubcategoriaId($subcategoria_id) { $this->subcategoria_id = $subcategoria_id; }
-    public function setSubcategoriaNombre($subcategoria_nombre) { $this->subcategoria_nombre = $subcategoria_nombre; }
-    public function setSubcategoriaEstado($subcategoria_estado) { $this->subcategoria_estado = $subcategoria_estado; }
-    public function setSubcategoriaDescripcion($subcategoria_descripcion) { $this->subcategoria_descripcion = $subcategoria_descripcion; }
-    public function setSubcategoriaCategoriaId( $sucategoria_categoria_id){$this->sucategoria_categoria_id = $sucategoria_categoria_id;}
-
-    public function __toString() {
-        return "Subcategoria: [ID: " . $this->subcategoria_id . 
-               ", Nombre: " . $this->subcategoria_nombre . 
-               ", Descripción: " . $this->subcategoria_descripcion . 
-               ", Categoría ID: " . $this->sucategoria_categoria_id . 
-               ", Estado: " . ($this->subcategoria_estado ? 'Activo' : 'Inactivo') . "]";
-    }
-}
-
 
 ?>

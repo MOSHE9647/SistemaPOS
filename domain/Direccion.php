@@ -1,6 +1,8 @@
 <?php
 
-    class Direccion {
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
+
+    class Direccion implements JsonSerializable {
 
         private $direccionID;
         private $direccionProvincia;
@@ -11,45 +13,48 @@
         private $direccionDistancia;
         private $direccionEstado;
 
-        function __construct($direccionID = 0, $direccionProvincia = "", $direccionCanton = "", $direccionDistrito = "", 
-                $direccionBarrio = "", $direccionSennas = "", $direccionDistancia = 0, $direccionEstado = true) {
+        function __construct(int $direccionID = -1, string $direccionProvincia = "", string $direccionCanton = "", string $direccionDistrito = "", 
+                string $direccionBarrio = "", string $direccionSennas = "", float $direccionDistancia = 0.0, bool $direccionEstado = true)
+        {
             $this->direccionID = $direccionID;
             $this->direccionProvincia = strtoupper($direccionProvincia);
             $this->direccionCanton = strtoupper($direccionCanton);
             $this->direccionDistrito = strtoupper($direccionDistrito);
             $this->direccionBarrio = strtoupper($direccionBarrio);
             $this->direccionSennas = strtoupper($direccionSennas);
-            $this->direccionDistancia = $direccionDistancia;
+            $this->direccionDistancia = Utils::formatearDecimal($direccionDistancia);
             $this->direccionEstado = $direccionEstado;
         }
 
-        function getDireccionID() { return $this->direccionID; }
-        function getDireccionProvincia() { return $this->direccionProvincia; }
-        function getDireccionCanton() { return $this->direccionCanton; }
-        function getDireccionDistrito() { return $this->direccionDistrito; }
-        function getDireccionBarrio() { return $this->direccionBarrio; }
-        function getDireccionSennas() { return $this->direccionSennas; }
-        function getDireccionDistancia() { return $this->direccionDistancia; }
-        function getDireccionEstado() { return $this->direccionEstado; }
+        function getDireccionID(): int { return $this->direccionID; }
+        function getDireccionProvincia(): string { return $this->direccionProvincia; }
+        function getDireccionCanton():string { return $this->direccionCanton; }
+        function getDireccionDistrito(): string { return $this->direccionDistrito; }
+        function getDireccionBarrio(): string { return $this->direccionBarrio; }
+        function getDireccionSennas(): string { return $this->direccionSennas; }
+        function getDireccionDistancia(): float { return $this->direccionDistancia; }
+        function getDireccionEstado(): bool { return $this->direccionEstado; }
 
-        function setDireccionID($direccionID) { $this->direccionID = $direccionID; }
-        function setDireccionProvincia($direccionProvincia) { $this->direccionProvincia = $direccionProvincia; }
-        function setDireccionCanton($direccionCanton) { $this->direccionCanton = $direccionCanton; }
-        function setDireccionDistrito($direccionDistrito) { $this->direccionDistrito = $direccionDistrito; }
-        function setDireccionBarrio($direccionBarrio) { $this->direccionBarrio = $direccionBarrio; }
-        function setDireccionSennas($direccionSennas) { $this->direccionSennas = $direccionSennas; }
-        function setDireccionDistancia($direccionDistancia) { $this->direccionDistancia = $direccionDistancia; }
-        function setDireccionEstado($direccionEstado) { $this->direccionEstado = $direccionEstado; }
+        function setDireccionID(int $direccionID) { $this->direccionID = $direccionID; }
+        function setDireccionProvincia(string $direccionProvincia) { $this->direccionProvincia = $direccionProvincia; }
+        function setDireccionCanton(string $direccionCanton) { $this->direccionCanton = $direccionCanton; }
+        function setDireccionDistrito(string $direccionDistrito) { $this->direccionDistrito = $direccionDistrito; }
+        function setDireccionBarrio(string $direccionBarrio) { $this->direccionBarrio = $direccionBarrio; }
+        function setDireccionSennas(string $direccionSennas) { $this->direccionSennas = $direccionSennas; }
+        function setDireccionDistancia(float $direccionDistancia) { $this->direccionDistancia = $direccionDistancia; }
+        function setDireccionEstado(bool $direccionEstado) { $this->direccionEstado = $direccionEstado; }
 
-        public function __toString() {
-            return "ID: " . $this->direccionID . "\n" .
-                   "Provincia: " . $this->direccionProvincia . "\n" .
-                   "Canton: " . $this->direccionCanton . "\n" .
-                   "Distrito: " . $this->direccionDistrito . "\n" .
-                   "Barrio: " . $this->direccionBarrio . "\n" .
-                   "Señales: " . $this->direccionSennas . "\n" .
-                   "Distancia: " . $this->direccionDistancia . "\n" .
-                   "Estado: " . ($this->direccionEstado ? "Activo" : "Inactivo") . "\n";
+        public function jsonSerialize() {
+            return [
+                'ID' => $this->direccionID,
+                'Provincia' => $this->direccionProvincia,
+                'Canton' => $this->direccionCanton,
+                'Distrito' => $this->direccionDistrito,
+                'Barrio' => $this->direccionBarrio,
+                'Sennas' => $this->direccionSennas,
+                'Distancia' => $this->direccionDistancia,
+                'Estado' => $this->direccionEstado
+            ];
         }
 
     }

@@ -1,49 +1,42 @@
 <?php
 
-class Presentacion {
-    private $presentacionId;
-    private $presentacionNombre;
-    private $presentacionDescripcion;
-    private $presentacionEstado;
+    class Presentacion implements JsonSerializable {
 
-    public function __construct($presentacionId, $presentacionNombre, $presentacionDescripcion, $presentacionEstado) {
-        $this->presentacionId = $presentacionId;
-        $this->presentacionNombre = $presentacionNombre;
-        $this->presentacionDescripcion = $presentacionDescripcion;
-        $this->presentacionEstado = $presentacionEstado;
+        private $presentacionID;
+        private $presentacionNombre;
+        private $presentacionDescripcion;
+        private $presentacionEstado;
+
+        public function __construct(int $presentacionID = -1, string $presentacionNombre = "", 
+            string $presentacionDescripcion = "", bool $presentacionEstado = true) 
+        {
+            $this->presentacionID = $presentacionID;
+            $this->presentacionNombre = strtoupper($presentacionNombre);
+            $this->presentacionDescripcion = $presentacionDescripcion;
+            $this->presentacionEstado = $presentacionEstado;
+        }
+
+        // Getters y Setters
+        public function getPresentacionID(): int { return $this->presentacionID; }
+        public function getPresentacionNombre(): string { return $this->presentacionNombre; }
+        public function getPresentacionDescripcion(): string { return $this->presentacionDescripcion; }
+        public function getPresentacionEstado(): bool { return $this->presentacionEstado; }
+
+        public function setPresentacionID(int $presentacionID) { $this->presentacionID = $presentacionID; }
+        public function setPresentacionNombre(string $presentacionNombre) { $this->presentacionNombre = strtoupper($presentacionNombre); }
+        public function setPresentacionDescripcion(string $presentacionDescripcion) { $this->presentacionDescripcion = $presentacionDescripcion; }
+        public function setPresentacionEstado(bool $presentacionEstado) { $this->presentacionEstado = $presentacionEstado; }
+
+        // JsonSerializable
+        public function jsonSerialize() {
+            return [
+                'ID' => $this->presentacionID,
+                'Nombre' => $this->presentacionNombre,
+                'Descripcion' => $this->presentacionDescripcion,
+                'Estado' => $this->presentacionEstado
+            ];
+        }
+        
     }
 
-    // Getters y Setters
-    public function getPresentacionId() {
-        return $this->presentacionId;
-    }
-
-    public function setPresentacionId($presentacionId) {
-        $this->presentacionId = $presentacionId;
-    }
-
-    public function getPresentacionNombre() {
-        return $this->presentacionNombre;
-    }
-
-    public function setPresentacionNombre($presentacionNombre) {
-        $this->presentacionNombre = $presentacionNombre;
-    }
-
-    public function getPresentacionDescripcion() {
-        return $this->presentacionDescripcion;
-    }
-
-    public function setPresentacionDescripcion($presentacionDescripcion) {
-        $this->presentacionDescripcion = $presentacionDescripcion;
-    }
-
-    public function getPresentacionEstado() {
-        return $this->presentacionEstado;
-    }
-
-    public function setPresentacionEstado($presentacionEstado) {
-        $this->presentacionEstado = $presentacionEstado;
-    }
-}
 ?>

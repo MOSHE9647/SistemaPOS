@@ -13,8 +13,8 @@
         private $telefonoFechaModificacion;
         private $telefonoEstado;
 
-        public function __construct($telefonoID = -1, $telefonoTipo = "", $telefonoCodigoPais = "", $telefonoNumero = "",
-                $telefonoExtension = "", $telefonoFechaCreacion = "", $telefonoFechaModificacion = "", $telefonoEstado = true) {
+        public function __construct(int $telefonoID = -1, string $telefonoTipo = "", string $telefonoCodigoPais = "", string $telefonoNumero = "",
+                string $telefonoExtension = "", $telefonoFechaCreacion = "", $telefonoFechaModificacion = "", bool $telefonoEstado = true) {
             $this->telefonoID = $telefonoID;
             $this->telefonoTipo = $telefonoTipo;
             $this->telefonoCodigoPais = $telefonoCodigoPais;
@@ -42,6 +42,10 @@
         function setTelefonoFechaCreacion($telefonoFechaCreacion) { $this->telefonoFechaCreacion = $telefonoFechaCreacion; }
         function setTelefonoFechaModificacion($telefonoFechaModificacion) { $this->telefonoFechaModificacion = $telefonoFechaModificacion; }
         function setTelefonoEstado($telefonoEstado) { $this->telefonoEstado = $telefonoEstado; }
+
+        function obtenerNumeroCompleto() {
+            return $this->telefonoCodigoPais . " " . $this->telefonoNumero;
+        }
 
         public function jsonSerialize() {
             return [

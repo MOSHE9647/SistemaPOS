@@ -2,6 +2,7 @@
 
     require_once dirname(__DIR__, 1) . "/data/clienteData.php";
     require_once dirname(__DIR__, 1) . "/utils/Utils.php";
+    require_once "telefonoBusiness.php";
 
     class ClienteBusiness {
 
@@ -49,8 +50,7 @@
             try {
                 // Obtener los valores de las propiedades del objeto
                 $clienteID = $cliente->getClienteID();
-                $nombre = $cliente->getClienteNombre();
-                $telefonoID = $cliente->getClienteTelefonoID();
+                $telefono = $cliente->getClienteTelefono();
                 $errors = [];
 
                 // Verifica que el ID del cliente sea válido
@@ -61,9 +61,10 @@
 
                 // Si la validación de campos adicionales está activada, valida los otros campos
                 if ($validarCamposAdicionales) {
-                    // Valida el campo 'TelefonoID'
-                    $checkTelefonoID = $this->validarClienteTelefonoID($telefonoID);
-                    if (!$checkTelefonoID['is_valid']) { $errors[] = $checkTelefonoID['message']; }
+                    // Crea el service de telefono y verifica que los datos sean correctos
+                    $telefonoBusiness = new TelefonoBusiness();
+                    $checkTelefono = $telefonoBusiness->validarTelefono($telefono, true, $insert);
+                    if (!$checkTelefono['is_valid']) { $errors[] = $checkTelefono['message']; }
                 }
 
                 // Lanza una excepción si hay errores
@@ -107,28 +108,28 @@
             return $this->clienteData->deleteCliente($clienteID);
         }
 
-        public function getAllTBCliente($onlyActiveOrInactive = true, $deleted = false) {
-            return $this->clienteData->getAllTBCliente($onlyActiveOrInactive, $deleted);
+        public function getAllTBCliente($onlyActive = true, $deleted = false) {
+            return $this->clienteData->getAllTBCliente($onlyActive, $deleted);
         }
 
-        public function getPaginatedClientes($search, $page, $size, $sort, $onlyActiveOrInactive = true, $deleted = false) {
+        public function getPaginatedClientes($search, $page, $size, $sort = null, $onlyActive = true, $deleted = false) {
             // Verifica que los datos de paginación sean válidos
             $check = $this->validarDatosPaginacion($page, $size);
             if (!$check['is_valid']) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
             
-            return $this->clienteData->getPaginatedClientes($search, $page, $size, $sort, $onlyActiveOrInactive, $deleted);
+            return $this->clienteData->getPaginatedClientes($search, $page, $size, $sort, $onlyActive, $deleted);
         }
 
-        public function getClienteByID($clienteID) {
+        public function getClienteByID($clienteID, $onlyActive = true, $deleted = false) {
             // Verifica que el ID del cliente sea válido
             $check = $this->validarClienteID($clienteID);
             if (!$check['is_valid']) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
 
-            return $this->clienteData->getClienteByID($clienteID);
+            return $this->clienteData->getClienteByID($clienteID, $onlyActive, $deleted);
         }
 
         public function getClienteByTelefonoID($telefonoID) {

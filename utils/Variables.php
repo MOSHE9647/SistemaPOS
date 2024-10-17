@@ -15,6 +15,10 @@
 	// VARIABLES PARA ROLES DE USUARIO:
 	define('ROL_ADMIN', 1);
 	define('ROL_DEPENDIENTE', 2);
+	define('ROL_CLIENTE', 3);
+
+	// VARIABLES PARA ENLACES DE PÁGINAS:
+	define('DEFAULT_PRODUCT_IMAGE', '/view/static/img/product.webp');
 
 	// VARIABLES PARA LOG:
 	define('UTILS_LOG_FILE', 'utils-log.log');
@@ -48,6 +52,7 @@
 	define('TB_CLIENTE', 'tbcliente'); //<- Nombre de la Tabla
 	define('CLIENTE_ID', 'clienteid');
 	define('CLIENTE_NOMBRE', 'clientenombre');
+	define('CLIENTE_ALIAS', 'clientealias');
 	define('CLIENTE_TELEFONO_ID', 'clientetelefonoid');
 	define('CLIENTE_FECHA_CREACION', 'clientefechacreacion');
 	define('CLIENTE_FECHA_MODIFICACION', 'clientefechamodificacion');
@@ -147,7 +152,7 @@
 	define('PRODUCTO_PRECIO_COMPRA','productopreciocompra');
 	define('PRODUCTO_PORCENTAJE_GANANCIA','productoporcentajeganancia');
 	define('PRODUCTO_DESCRIPCION','productodescripcion');
-	define('PRODUCTO_CATEGORIA_ID','productocateogoriaid');
+	define('PRODUCTO_CATEGORIA_ID','productocategoriaid');
 	define('PRODUCTO_SUBCATEGORIA_ID','productosubcategoriaid');
 	define('PRODUCTO_MARCA_ID','productomarcaid');
 	define('PRODUCTO_PRESENTACION_ID','productopresentacionid');

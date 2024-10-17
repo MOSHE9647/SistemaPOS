@@ -1,0 +1,41 @@
+@import url(../gui/modal.css);
+
+.modal-container {
+    width: 37%;
+}
+
+.usuario-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+}
+
+.usuario-info input, select {
+    width: 100%;
+}
+
+.usuario-info.name,
+.usuario-info.email-rol,
+.usuario-info.password {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.usuario-info.input-select {
+    width: 100%;
+}
+
+.usuario-info.input-select.group {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0;
+    gap: 20px;
+}
+
+.usuario-info.input-select.email {
+    width: 182%;
+}

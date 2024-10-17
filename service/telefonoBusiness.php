@@ -63,14 +63,14 @@
             }
         }
 
-        public function insertTBTelefono($telefono) {
+        public function insertTBTelefono($telefono, $conn = null) {
             // Verifica que los datos del telefono sean validos
             $check = $this->validarTelefono($telefono, true, true);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
 
-            return $this->telefonoData->insertTelefono($telefono);
+            return $this->telefonoData->insertTelefono($telefono, $conn);
         }
 
         public function updateTBTelefono($telefono) {
@@ -93,12 +93,12 @@
             return $this->telefonoData->deleteTelefono($telefonoID);
         }
 
-        public function getAllTBTelefono($onlyActiveOrInactive = false, $deleted = false) {
-            return $this->telefonoData->getAllTBTelefono($onlyActiveOrInactive, $deleted);
+        public function getAllTBTelefono($onlyActive = false, $deleted = false) {
+            return $this->telefonoData->getAllTBTelefono($onlyActive, $deleted);
         }
 
-        public function getPaginatedTelefonos($page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
-            return $this->telefonoData->getPaginatedTelefonos($page, $size, $sort, $onlyActiveOrInactive, $deleted);
+        public function getPaginatedTelefonos($page, $size, $sort = null, $onlyActive = true, $deleted = false) {
+            return $this->telefonoData->getPaginatedTelefonos($page, $size, $sort, $onlyActive, $deleted);
         }
 
         public function getTelefonoByID($telefonoID, $json = true) {

@@ -1,47 +1,81 @@
 <?php
 
-    class Proveedor {
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
+    require_once dirname(__DIR__, 1) . '/domain/Direccion.php';
+    require_once dirname(__DIR__, 1) . '/domain/Categoria.php';
+    require_once dirname(__DIR__, 1) . '/domain/Producto.php';
+    require_once dirname(__DIR__, 1) . '/domain/Telefono.php';
+
+    class Proveedor implements JsonSerializable {
         
         private $proveedorID;
         private $proveedorNombre;
         private $proveedorEmail;
+        private $proveedorDirecciones;
+        private $proveedorCategoria;
+        private $proveedorProductos;
+        private $proveedorTelefonos;
+        private $proveedorFechaCreacion;
+        private $proveedorFechaModificacion;
         private $proveedorEstado;
-        private $proveedorFechaRegistro;
-        private $proveedorCategoriaID;
 
-        function __construct($proveedorNombre, $proveedorEmail, $proveedorID = 0,$categoriaid = 0, $proveedorEstado = true) {
+        function __construct(int $proveedorID = -1, string $proveedorNombre = "", string $proveedorEmail = "", 
+            array $proveedorDirecciones = [], Categoria $proveedorCategoria = null, array $proveedorProductos = [],
+            array $proveedorTelefonos = [], $proveedorFechaCreacion = "", $proveedorFechaModificacion = "", bool $proveedorEstado = true) 
+        {
             $this->proveedorID = $proveedorID;
-            $this->proveedorNombre = $proveedorNombre;
-            $this->proveedorEmail = strtolower($proveedorEmail); // Convertir a minúsculas para consistencia
-            $this->proveedorEstado = $proveedorEstado; 
-            $this->proveedorCategoriaID = $categoriaid;
+            $this->proveedorNombre = strtoupper($proveedorNombre);
+            $this->proveedorEmail = strtolower($proveedorEmail);
+            $this->proveedorDirecciones = $proveedorDirecciones;
+            $this->proveedorCategoria = $proveedorCategoria;
+            $this->proveedorProductos = $proveedorProductos;
+            $this->proveedorTelefonos = $proveedorTelefonos;
+            $this->proveedorFechaCreacion = $proveedorFechaCreacion;
+            $this->proveedorFechaModificacion = $proveedorFechaModificacion;
+            $this->proveedorEstado = $proveedorEstado;
         }
 
-        // Getters
-        function getProveedorID() { return $this->proveedorID; }
-        function getProveedorNombre() { return $this->proveedorNombre; }
-        function getProveedorEmail() { return $this->proveedorEmail; }
-        function getProveedorEstado() { return $this->proveedorEstado; }
-        function getProveedorFechaRegistro() { return $this->proveedorFechaRegistro; }
-        function getProveedorCategoria(){return $this->proveedorCategoriaID; }
+        public function getProveedorID(): int { return $this->proveedorID; }
+        public function getProveedorNombre(): string { return $this->proveedorNombre; }
+        public function getProveedorEmail(): string { return $this->proveedorEmail; }
+        public function getProveedorDirecciones(): array { return $this->proveedorDirecciones; }
+        public function getProveedorCategoria(): Categoria { return $this->proveedorCategoria; }
+        public function getProveedorProductos(): array { return $this->proveedorProductos; }
+        public function getProveedorTelefonos(): array { return $this->proveedorTelefonos; }
+        public function getProveedorFechaCreacion() { return $this->proveedorFechaCreacion; }
+        public function getProveedorFechaModificacion() { return $this->proveedorFechaModificacion; }
+        public function getProveedorEstado(): bool { return $this->proveedorEstado; }
 
-        // Setters
-        function setProveedorID($proveedorID) { $this->proveedorID = $proveedorID; }
-        function setProveedorNombre($proveedorNombre) { $this->proveedorNombre = $proveedorNombre; }
-        function setProveedorEmail($proveedorEmail) { $this->proveedorEmail = $proveedorEmail; }
-        function setProveedorEstado($proveedorEstado) { $this->proveedorEstado = $proveedorEstado; }
-        function setProveedorFechaRegistro($proveedorFechaRegistro) { $this->proveedorFechaRegistro = $proveedorFechaRegistro; }
-        function setProveedorCategoria($categoriaid){$this->proveedorCategoriaID = $categoriaid;}
+        public function setProveedorID(int $proveedorID) { $this->proveedorID = $proveedorID; }
+        public function setProveedorNombre(string $proveedorNombre) { $this->proveedorNombre = $proveedorNombre; }
+        public function setProveedorEmail(string $proveedorEmail) { $this->proveedorEmail = $proveedorEmail; }
+        public function setProveedorDirecciones(array $proveedorDirecciones) { $this->proveedorDirecciones = $proveedorDirecciones; }
+        public function setProveedorCategoria(Categoria $proveedorCategoria) { $this->proveedorCategoria = $proveedorCategoria; }
+        public function setProveedorProductos(array $proveedorProductos) { $this->proveedorProductos = $proveedorProductos; }
+        public function setProveedorTelefonos(array $proveedorTelefonos) { $this->proveedorTelefonos = $proveedorTelefonos; }
+        public function setProveedorFechaCreacion($proveedorFechaCreacion) { $this->proveedorFechaCreacion = $proveedorFechaCreacion; }
+        public function setProveedorFechaModificacion($proveedorFechaModificacion) { $this->proveedorFechaModificacion = $proveedorFechaModificacion; }
+        public function setProveedorEstado(bool $proveedorEstado) { $this->proveedorEstado = $proveedorEstado; }
+
         
-        // Implementación del método __toString
-        public function __toString() {
-            return "ID: " . $this->proveedorID . "\n" .
-                "Nombre: " . $this->proveedorNombre . "\n" .
-                "Email: " . $this->proveedorEmail . "\n" .
-                "Estado: " . ($this->proveedorEstado ? "Activo" : "Inactivo") . "\n" .
-                "Fecha de Registro: " . $this->proveedorFechaRegistro . "\n" .
-                "Teléfono: " . $this->proveedorTelefono . "\n"; // Mostrar teléfono en __toString
+
+        public function jsonSerialize() {
+            return [
+                'ID' => $this->proveedorID,
+                'Nombre' => $this->proveedorNombre,
+                'Email' => $this->proveedorEmail,
+                'Direcciones' => $this->proveedorDirecciones,
+                'Categoria' => $this->proveedorCategoria,
+                'Productos' => $this->proveedorProductos,
+                'Telefonos' => $this->proveedorTelefonos,
+                'Creacion' => $this->proveedorFechaCreacion ? Utils::formatearFecha($this->proveedorFechaCreacion) : '',
+                'Modificacion' => $this->proveedorFechaModificacion ? Utils::formatearFecha($this->proveedorFechaModificacion) : '',
+                'CreacionISO' => $this->proveedorFechaCreacion ? Utils::formatearFecha($this->proveedorFechaCreacion, 'Y-MM-dd') : '',
+                'ModificacionISO' => $this->proveedorFechaModificacion ? Utils::formatearFecha($this->proveedorFechaModificacion, 'Y-MM-dd') : '',
+                'Estado' => $this->proveedorEstado
+            ];
         }
+
     }
     
 ?>

@@ -1,0 +1,104 @@
+@import url(../gui/modal.css);
+
+.tables-proveedor tbody {
+    display: block;
+    max-height: 240px;
+    height: auto;
+    overflow: auto;
+}
+
+.tables-proveedor thead, 
+.tables-proveedor tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;/* even columns width , fix width of table too*/
+}
+
+.tables-proveedor tbody select,
+.tables-proveedor tbody input {
+    width: 90%;
+}
+
+.tables-proveedor tbody td {
+    text-align: left;
+}
+
+.modal-container {
+    width: 85%;
+}
+
+.paginationSort.proveedor {
+    width: 40%;
+}
+
+.paginationSort.proveedor span {
+    width: 140px;
+}
+
+.paginationSort.proveedor select {
+    width: 60%;
+}
+
+.modal-form-container h2 {
+    text-align: left;
+    color: var(--main);
+    padding-top: 10px;
+    margin: 5px 20px;
+}
+
+.proveedor-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.proveedor-info.input-select {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.proveedor-info.input-select.distancia {
+    width: 60%;
+}
+
+.proveedor-info input, select {
+    width: 100%;
+}
+
+.proveedor-info.basic-info {
+    flex-direction: row;
+    align-items: flex-start;
+    background: var(--bg-body);
+    border-radius: var(--card-radius);
+    box-shadow: var(--product-shadow);
+    padding: 1rem;
+    width: 100%;
+    gap: 20px;
+}
+
+.proveedor-info.input-select.basic {
+    background: var(--bg);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    padding: 1rem;
+}
+
+.proveedor-info.address-info {
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.proveedor-info.address-info p {
+    width: 100%;
+    text-align: center;
+}
+
+.proveedor-info.other-info {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+}

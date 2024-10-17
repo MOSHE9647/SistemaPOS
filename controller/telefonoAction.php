@@ -56,12 +56,12 @@
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
         $accion = isset($_GET['accion']) ? $_GET['accion'] : "";
         $deleted = isset($_GET['deleted']) ? boolval($_GET['deleted']) : false;
-        $onlyActiveOrInactive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
+        $onlyActive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
 
         $telefonoBusiness = new TelefonoBusiness();
         switch ($accion) {
             case 'todos':
-                $response = $telefonoBusiness->getAllTBTelefono($onlyActiveOrInactive, $deleted);
+                $response = $telefonoBusiness->getAllTBTelefono($onlyActive, $deleted);
                 break;
             case 'id':
                 $telefonoID = $telefonoID = isset($_GET['id']) ? $_GET['id'] : -1;
@@ -78,7 +78,7 @@
                 if ($size < 1) $size = 5;
 
                 // Obtiene la lista (paginada) de telefonos
-                $response = $telefonoBusiness->getPaginatedTelefonos($page, $size, $sort, $onlyActiveOrInactive, $deleted);
+                $response = $telefonoBusiness->getPaginatedTelefonos($page, $size, $sort, $onlyActive, $deleted);
                 break;
         }
 

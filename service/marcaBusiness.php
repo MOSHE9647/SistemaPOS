@@ -1,79 +1,110 @@
 <?php
 
-require_once __DIR__ . "/../data/marcaData.php";
+    require_once dirname(__DIR__, 1) . "/data/marcaData.php";
+    require_once dirname(__DIR__, 1) . "/utils/Utils.php";
 
-class MarcaBusiness {
+    class MarcaBusiness {
 
-    private $marcaData;
+        private $marcaData;
+        private $className;
 
-    public function __construct() {
-        $this->marcaData = new MarcaData();
-    }
-
-    public function verificacionDeDatos($marca, $verificarcampos = false, $verificarid = false) {
-        try {
-            $id = $marca->getMarcaId();
-            $nombre = $marca->getMarcaNombre();
-            $errors = [];
-            
-            // Verificar el ID
-            if ($verificarid && (empty($id) || $id <= 0 || !is_numeric($id))) {
-                $errors[] = "El ID de la marca está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
-                Utils::writeLog("El ID '[$id]' de la marca no es válido.", BUSINESS_LOG_FILE);
-            }
-
-            // Verificar los campos requeridos
-            if ($verificarcampos) {
-                if (empty($nombre)) {
-                    $errors[] = "El Nombre de la marca está vacío. Revisa que esté ingresando correctamente el nombre.";
-                    Utils::writeLog("El Nombre '>>[$nombre]' de la marca no es válido.", BUSINESS_LOG_FILE);
-                }
-            }
-
-            if (!empty($errors)) {
-                throw new Exception(implode('<br>', $errors));
+        public function __construct() {
+            $this->marcaData = new MarcaData();
+            $this->className = get_class($this);
+        }
+        
+        public function validarMarcaID($marcaID) {
+            if ($marcaID === null || !is_numeric($marcaID) || $marcaID < 0) {
+                Utils::writeLog("El 'ID [$marcaID]' de la marca no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ["is_valid" => false, "message" => "El ID de la marca está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
             }
 
             return ["is_valid" => true];
-        } catch (Exception $e) {
-            return ["is_valid" => false, "message" => $e->getMessage()];
         }
-    }
 
-    public function insertTBMarca($marca) {
-        $check = $this->verificacionDeDatos($marca, true);
-        if (!$check['is_valid']) { 
-            return $check; 
+        public function validarMarca($marca, $validarCamposAdicionales = true, $insert = false){
+            try {
+                // Obtener los valores de las propiedades del objeto
+                $marcaID = $marca->getMarcaID();
+                $nombre = $marca->getMarcaNombre();
+                $errors = [];
+
+                if (!$insert) {
+                    $checkID = $this->validarMarcaID($marcaID);
+                    if (!$checkID['is_valid']) { $errors[] = $checkID['message']; }
+                }
+
+                // Si la validación de campos adicionales está activada, valida los otros campos
+                if ($validarCamposAdicionales) {
+                    if($nombre === null || empty($nombre) || is_numeric($nombre)){
+                        $errors[] = "El campo 'Nombre' está vacío o no es válido.";
+                        Utils::writeLog("El campo Nombre '[$nombre]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    }
+                }
+
+                // Si hay errores, los retorna
+                if (!empty($errors)) {
+                    throw new Exception(implode('<br>', $errors));
+                }
+
+                return ["is_valid" => true];
+            } catch (Exception $e) {
+                return ["is_valid" => false, "message" => $e->getMessage()];
+            }
         }
-        return $this->marcaData->insertMarca($marca);
-    }
 
-    public function updateTBMarca($marca) {
-        $check = $this->verificacionDeDatos($marca, true, true);
-        if (!$check['is_valid']) { 
-            return $check; 
+        public function insertTBMarca($marca) {
+            // Verificar que los datos de la marca sean válidos
+            $checkMarca = $this->validarMarca($marca, true, true);
+            if (!$checkMarca['is_valid']) {
+                return ["success" => $checkMarca["is_valid"], "message" => $checkMarca['message']];
+            }
+            
+            // Insertar la marca en la base de datos
+            return $this->marcaData->insertMarca($marca);
         }
-        return $this->marcaData->actualizarMarca($marca);
-    }
 
-    public function deleteTBMarca($marca) {
-        $check = $this->verificacionDeDatos($marca, false, true);
-        if (!$check['is_valid']) { 
-            return $check; 
+        public function updateTBMarca($marca) {
+            // Verificar que los datos de la marca sean válidos
+            $checkMarca = $this->validarMarca($marca);
+            if (!$checkMarca['is_valid']) {
+                return ["success" => $checkMarca["is_valid"], "message" => $checkMarca['message']];
+            }
+
+            // Actualizar la marca en la base de datos
+            return $this->marcaData->updateMarca($marca);
         }
-        return $this->marcaData->eliminarMarca($marca->getMarcaId());
-    }
 
-    public function getAllTBMarcas() {
-        return $this->marcaData->obtenerListaMarcas();
-    }
+        public function deleteTBMarca($marcaID) {
+            // Verificar que el ID de la marca sea válido
+            $checkID = $this->validarMarcaID($marcaID);
+            if (!$checkID['is_valid']) {
+                return ["success" => $checkID["is_valid"], "message" => $checkID['message']];
+            }
 
-    public function getAllTBProductoMarca() {
-        return $this->marcaData->getAllTBProductoMarca();
+            // Eliminar la marca de la base de datos
+            return $this->marcaData->deleteMarca($marcaID);
+        }
+
+        public function getAllTBMarca($onlyActive = false, $deleted = false) {
+            return $this->marcaData->getAllTBMarcas($onlyActive, $deleted);
+        }
+
+        public function getPaginatedMarcas($page, $size, $sort = null, $onlyActive = true, $deleted = false) {
+            return $this->marcaData->getPaginatedMarcas($page, $size, $sort, $onlyActive, $deleted);
+        }
+
+        public function getMarcaByID($marcaID, $onlyActive = true, $deleted = false) {
+            // Verificar que el ID de la marca sea válido
+            $checkID = $this->validarMarcaID($marcaID);
+            if (!$checkID['is_valid']) {
+                return ["success" => $checkID["is_valid"], "message" => $checkID['message']];
+            }
+
+            // Obtener la marca de la base de datos
+            return $this->marcaData->getMarcaByID($marcaID, $onlyActive, $deleted);
+        }
+
     }
-    public function getPaginatedMarcas($page, $size, $sort = null) {
-        return $this->marcaData->getPaginatedMarcas($page, $size, $sort);
-    }
-}
 
 ?>

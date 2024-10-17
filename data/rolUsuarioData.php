@@ -1,9 +1,9 @@
 <?php
 
-    require_once 'data.php';
-    require_once __DIR__ . '/../domain/RolUsuario.php';
-    require_once __DIR__ . '/../utils/Variables.php';
-    require_once __DIR__ . '/../utils/Utils.php';
+    require_once dirname(__DIR__, 1) . '/data/data.php';
+    require_once dirname(__DIR__, 1) . '/domain/RolUsuario.php';
+    require_once dirname(__DIR__, 1) . '/utils/Variables.php';
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
     class RolData extends Data {
 
@@ -97,8 +97,9 @@
             }
         }
 
-        public function insertRolUsuario($rol) {
-            $conn = null; $stmt = null;
+        public function insertRolUsuario($rol, $conn = null) {
+            $createdConnection = false; //<- Indica si la conexión se creó aquí o viene por parámetro
+            $stmt = null;
 
             try {
                 // Obtener los datos del rol
@@ -117,36 +118,38 @@
                 // En caso de ya existir el rol y estar activo
                 if ($result["exists"]) {
                     $message = "El rol con 'Nombre [$rolNombre]' ya existe en la base de datos.";
-					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
                     return ["success" => true, "message" => "Ya existe un rol con el mismo nombre ($rolNombre) en la base de datos."];
                 }
 
-                // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
+                // Establece una conexión con la base de datos si no se proporciona una
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+                }
 
                 // Obtenemos el último ID de la tabla tbrolusuario
-				$queryGetLastId = "SELECT MAX(" . ROL_ID . ") FROM " . TB_ROL;
-				$idCont = mysqli_query($conn, $queryGetLastId);
-				$nextId = 1;
+                $queryGetLastId = "SELECT MAX(" . ROL_ID . ") FROM " . TB_ROL;
+                $idCont = mysqli_query($conn, $queryGetLastId);
+                $nextId = 1;
 
                 // Calcula el siguiente ID para la nueva entrada
-				if ($row = mysqli_fetch_row($idCont)) {
-					$nextId = (int) trim($row[0]) + 1;
-				}
+                if ($row = mysqli_fetch_row($idCont)) {
+                    $nextId = (int) trim($row[0]) + 1;
+                }
 
                 // Crea una consulta y un statement SQL para insertar el nuevo registro
                 $queryInsert = 
                     "INSERT INTO " . TB_ROL . " ("
-                        . ROL_ID . ", "
-                        . ROL_NOMBRE . ", "
-                        . ROL_DESCRIPCION . 
+                    . ROL_ID . ", "
+                    . ROL_NOMBRE . ", "
+                    . ROL_DESCRIPCION . 
                     ") VALUES (?, ?, ?)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
 
                 // Obtener los valores de las propiedades faltantes
-                $rolNombre = $rol->getRolNombre();
                 $rolDescripcion = $rol->getRolDescripcion();
 
                 // Asigna los valores a cada '?' de la consulta
@@ -161,14 +164,14 @@
                     'Error al insertar el rol en la base de datos',
                     $this->className
                 );
-        
+            
                 // Devolver mensaje amigable para el usuario
                 return ["success" => false, "message" => $userMessage];
             } finally {
-				// Cierra la conexión y el statement
-				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
-			}
+                // Cierra la conexión y el statement si se creó dentro de la función
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if ($createdConnection && isset($conn)) { mysqli_close($conn); }
+            }
         }
 
         public function updateRolUsuario($rol) {
@@ -181,7 +184,7 @@
 
                 // Verificar si el rol a actualizar existe en la base de datos
                 $result = $this->existeRolUsuario($rolID);
-                if (!$result["success"]) { return $result["message"]; }
+                if (!$result["success"]) { throw new Exception($result["message"]); }
 
                 // En caso de no existir el rol
                 if (!$result["exists"]) {
@@ -216,7 +219,6 @@
                 $stmt = mysqli_prepare($conn, $queryUpdate);
 
                 // Obtener los valores de las propiedades faltantes
-                $rolNombre = $rol->getRolNombre();
                 $rolDescripcion = $rol->getRolDescripcion();
 
                 // Asigna los valores a cada '?' de la consulta
@@ -241,8 +243,9 @@
             }
         }
 
-        public function deleteRolUsuario($rolID) {
-            $conn = null; $stmt = null;
+        public function deleteRolUsuario($rolID, $conn = null) {
+            $createdConnection = false; //<- Indica si la conexión se creó aquí o viene por parámetro
+            $stmt = null;
 
             try {
                 // Verificar si el rol a eliminar existe en la base de datos
@@ -257,9 +260,12 @@
                 }
 
                 // Establece una conexion con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+                }
 
                 // Crea una consulta y un statement SQL para eliminar el registro
                 $queryDelete = "UPDATE " . TB_ROL . " SET " . ROL_ESTADO . " = FALSE WHERE " . ROL_ID . " = ?";
@@ -282,11 +288,11 @@
             } finally {
                 // Cierra la conexión y el statement
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
+                if ($createdConnection && isset($conn)) { mysqli_close($conn); }
             }
         }
 
-        public function getAllTBRolUsuario($onlyActiveOrInactive = false, $deleted = false) {
+        public function getAllTBRolUsuario($onlyActive = false, $deleted = false) {
             $conn = null;
 
             try {
@@ -297,18 +303,19 @@
 
                 // Inicializa la consulta base
                 $querySelect = "SELECT * FROM " . TB_ROL;
-                if ($onlyActiveOrInactive) { $querySelect .= " WHERE " . ROL_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); }
+                if ($onlyActive) { $querySelect .= " WHERE " . ROL_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); }
                 $result = mysqli_query($conn, $querySelect);
 
                 // Crear un array con los roles obtenidos
                 $roles = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $roles [] = [
-                        "ID" => $row[ROL_ID],
-                        "Nombre" => $row[ROL_NOMBRE],
-                        "Descripcion" => $row[ROL_DESCRIPCION],
-                        "Estado" => $row[ROL_ESTADO]
-                    ];
+                    $rol = new RolUsuario(
+                        $row[ROL_ID],
+                        $row[ROL_NOMBRE],
+                        $row[ROL_DESCRIPCION],
+                        $row[ROL_ESTADO]
+                    );
+                    $roles[] = $rol;
                 }
 
                 return ["success" => true, "roles" => $roles];
@@ -328,7 +335,7 @@
             }
         }
 
-        public function getPaginatedRoles($page, $size, $sort = null, $onlyActiveOrInactive = false, $deleted = false) {
+        public function getPaginatedRoles($page, $size, $sort = null, $onlyActive = false, $deleted = false) {
             $conn = null; $stmt = null;
 
             try {
@@ -347,8 +354,8 @@
                 $conn = $result["connection"];
 
                 // Consultar el total de registros
-                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_ROL . " ";
-                if ($onlyActiveOrInactive) { $queryTotalCount .= " WHERE " . ROL_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_ROL;
+                if ($onlyActive) { $queryTotalCount .= " WHERE " . ROL_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); }
 
                 // Ejecutar la consulta y obtener el total de registros
                 $totalResult = mysqli_query($conn, $queryTotalCount);
@@ -357,11 +364,11 @@
                 $totalPages = ceil($totalRecords / $size);
 
                 // Construir la consulta SQL para paginación
-                $querySelect = "SELECT * FROM " . TB_ROL . " ";
-                if ($onlyActiveOrInactive) { $querySelect .= " WHERE " . ROL_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                $querySelect = "SELECT * FROM " . TB_ROL;
+                if ($onlyActive) { $querySelect .= " WHERE " . ROL_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); }
 
                 // Agregar ordenamiento si se especifica
-                if ($sort) { $querySelect .= " ORDER BY rolusuario" . $sort . " "; }
+                if ($sort) { $querySelect .= " ORDER BY rolusuario" . $sort; }
 
                 // Agregar límite y desplazamiento
                 $querySelect .= " LIMIT ? OFFSET ?";
@@ -377,12 +384,13 @@
                 // Crear un array con los roles obtenidos
                 $roles = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $roles[] = [
-                        "ID" => $row[ROL_ID],
-                        "Nombre" => $row[ROL_NOMBRE],
-                        "Descripcion" => $row[ROL_DESCRIPCION],
-                        "Estado" => $row[ROL_ESTADO]
-                    ];
+                    $rol = new RolUsuario(
+                        $row[ROL_ID],
+                        $row[ROL_NOMBRE],
+                        $row[ROL_DESCRIPCION],
+                        $row[ROL_ESTADO]
+                    );
+                    $roles[] = $rol;
                 }
 
                 return [
@@ -410,7 +418,7 @@
             }
         }
 
-        public function getRolByID($rolID, $json = true) {
+        public function getRolByID($rolID, $onlyActive = true, $deleted = false) {
             $conn = null; $stmt = null;
 
             try {
@@ -431,34 +439,37 @@
                 $conn = $result["connection"];
 
                 // Crea una consulta y un statement SQL para obtener el registro
-                $querySelect = "SELECT * FROM " . TB_ROL . " WHERE " . ROL_ID . " = ? AND " . ROL_ESTADO . " != FALSE";
+                $querySelect = "
+                    SELECT 
+                        * 
+                    FROM " . 
+                        TB_ROL . " 
+                    WHERE " . 
+                        ROL_ID . " = ?" . ($onlyActive ? " AND " . 
+                        ROL_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") : "")
+                ;
                 $stmt = mysqli_prepare($conn, $querySelect);
                 mysqli_stmt_bind_param($stmt, "i", $rolID);
                 mysqli_stmt_execute($stmt);
-                $result = mysqli_stmt_get_result($stmt);
 
                 // Obtener los resultados de la consulta
-                if (mysqli_num_rows($result) > 0) {
-                    $row = mysqli_fetch_assoc($result);
-                    $rol = null;
-                    if ($json) {
-                        $rol = [
-                            "ID" => $row[ROL_ID],
-                            "Nombre" => $row[ROL_NOMBRE],
-                            "Descripcion" => $row[ROL_DESCRIPCION],
-                            "Estado" => $row[ROL_ESTADO]
-                        ];
-                    } else {
-                        $rol = new RolUsuario(
-                            $row[ROL_ID],
-                            $row[ROL_NOMBRE],
-                            $row[ROL_DESCRIPCION],
-                            $row[ROL_ESTADO]
-                        );
-                    }
+                $result = mysqli_stmt_get_result($stmt);
 
+                // Verificar si existe un rol con el ID ingresado
+                if ($row = mysqli_fetch_assoc($result)) {
+                    $rol = new RolUsuario(
+                        $row[ROL_ID],
+                        $row[ROL_NOMBRE],
+                        $row[ROL_DESCRIPCION],
+                        $row[ROL_ESTADO]
+                    );
                     return ["success" => true, "rol" => $rol];
                 }
+
+                // En caso de no encontrarse el rol
+                $message = "No se encontró el rol con 'ID [$rolID]' en la base de datos.";
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ["success" => true, "message" => "El rol seleccionado no existe en la base de datos."];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(

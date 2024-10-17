@@ -35,10 +35,10 @@ class ProveedorCategoriaBusiness {
         return $this->proveedorCategoriaData-> getCategoriaByProveedor($idproveedor, true);
     }
 
-    public function getPaginateCategoriaProveedor($idproveedor,$page,$size, $sort= null, $onlyActiveOrInactive = true, $deleted = false){
+    public function getPaginateCategoriaProveedor($idproveedor,$page,$size, $sort= null, $onlyActive = true, $deleted = false){
         $check = $this->verificacionDeIDs($idproveedor);
         if(!$check['is_valid']){return $check; }
-        return $this->proveedorCategoriaData->getPaginateCategoriaProveedor($idproveedor,$page,$size, $sort, $onlyActiveOrInactive, $deleted);
+        return $this->proveedorCategoriaData->getPaginateCategoriaProveedor($idproveedor,$page,$size, $sort, $onlyActive, $deleted);
     }
 
     public function addCategoriaProveedor($idproveedor,$idcategoria){

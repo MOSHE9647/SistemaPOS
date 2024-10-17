@@ -1,5 +1,5 @@
 <?php
-	require_once 'data.php';
+	require_once dirname(__DIR__, 1) . '/data/data.php';
     require_once __DIR__ . '/../domain/Subcategoria.php';
 	require_once __DIR__ . '/../utils/Variables.php';
 	require_once __DIR__ . '/../utils/Utils.php';
@@ -315,7 +315,7 @@
             }
 		}
 
-		public function getPaginatedSubcategoriasByProducto($productoID, $page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
+		public function getPaginatedSubcategoriasByProducto($productoID, $page, $size, $sort = null, $onlyActive = true, $deleted = false) {
 			$conn = null; $stmt = null;
 
 			try {
@@ -335,7 +335,7 @@
 
 				// Consultar el total de registros
 				$queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_PRODUCTO_SUBCATEGORIA . " WHERE " . PRODUCTO_ID . " = ? ";
-				if ($onlyActiveOrInactive) { $queryTotalCount .= "AND " . PRODUCTO_SUBCATEGORIA_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+				if ($onlyActive) { $queryTotalCount .= "AND " . PRODUCTO_SUBCATEGORIA_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
 				// Preparar y ejecutar la consulta para obtener el total de registros
 				$stmt = mysqli_prepare($conn, $queryTotalCount);
@@ -356,7 +356,7 @@
                         ON S." . SUBCATEGORIA_ID . " = PS." . SUBCATEGORIA_ID . "
                     WHERE 
                         PS." . PRODUCTO_ID . " = ? ";
-				if ($onlyActiveOrInactive) { $querySelect .= "AND " . PRODUCTO_SUBCATEGORIA_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+				if ($onlyActive) { $querySelect .= "AND " . PRODUCTO_SUBCATEGORIA_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
 				// Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) { $querySelect .= "ORDER BY subcategoria" . $sort . " "; }

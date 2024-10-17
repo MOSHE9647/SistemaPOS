@@ -48,7 +48,7 @@
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
         $accion = isset($_GET['accion']) ? $_GET['accion'] : "";
         $deleted = isset($_GET['deleted']) ? boolval($_GET['deleted']) : false;
-        $onlyActiveOrInactive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
+        $onlyActive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
         $proveedorID = isset($_GET['proveedor']) ? intval($_GET['proveedor']) : null;
 
         // Se crea el Service para las operaciones
@@ -74,7 +74,7 @@
                     if ($size < 1) $size = 5;
     
                     // Obtiene los teléfonos de un proveedor en la base de datos.
-                    $response = $proveedorTelefonoBusiness->getPaginatedTelefonosByProveedor($proveedorID, $page, $size, $sort, $onlyActiveOrInactive, $deleted);
+                    $response = $proveedorTelefonoBusiness->getPaginatedTelefonosByProveedor($proveedorID, $page, $size, $sort, $onlyActive, $deleted);
                     break;
             }
         } else {

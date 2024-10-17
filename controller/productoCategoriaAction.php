@@ -48,7 +48,7 @@
     if ($_SERVER["REQUEST_METHOD"] == "GET") {
         $accion = isset($_GET['accion']) ? $_GET['accion'] : "";
         $deleted = isset($_GET['deleted']) ? boolval($_GET['deleted']) : false;
-        $onlyActiveOrInactive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
+        $onlyActive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
         $productoID = isset($_GET['producto']) ? intval($_GET['producto']) : null;
 
         // Se crea el Service para las operaciones
@@ -82,7 +82,7 @@
                     if ($size < 1) $size = 5;
 
                     // Obtiene las subcategorías de un producto en la base de datos.
-                    $response = $productoCategoriaBusiness->getPaginatedCategoriasByProducto($productoID, $page, $size, $sort, $onlyActiveOrInactive, $deleted);
+                    $response = $productoCategoriaBusiness->getPaginatedCategoriasByProducto($productoID, $page, $size, $sort, $onlyActive, $deleted);
                     break;
             }
         } else {

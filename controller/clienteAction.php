@@ -5,75 +5,82 @@
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Acción que se va a realizar
-        $accion = isset($_POST['accion']) ? $_POST['accion'] : "";
-        if (!$accion) {
-            $response['success'] = false;
-            $response['message'] = "No se ha especificado una acción.";
-
+        $accion = $_POST['accion'] ?? "";
+        if (empty($accion)) {
+            $response = [
+                'success' => false,
+                'message' => "No se ha especificado una acción."
+            ];
             http_response_code(400);
             header('Content-Type: application/json');
             echo json_encode($response);
             exit();
         }
 
-        // Datos recibidos en la solicitud (Form)
-        $id = isset($_POST['id']) ? intval($_POST['id']) : -1;
-        $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : "";
-        $telefonoID = isset($_POST['telefono']) ? intval($_POST['telefono']) : -1;
+        // Datos del Cliente recibidos en la solicitud
+        $clienteID = intval($_POST['id'] ?? -1);
+        $nombre = $_POST['nombre'] ?? "No Definido";
+        $alias = $_POST['alias'] ?? "No Definido";
 
-        // Se crea el Service para las operaciones
+        // Datos del Telefono recibidos en la solicitud
+        $telefonoID = intval($_POST['telefono'] ?? -1);
+        $tipo = $_POST['tipo'] ?? "";
+        $codigo = $_POST['codigo'] ?? "";
+        $numero = $_POST['numero'] ?? "";
+
+        // Crea el objeto Telefono con los datos recibidos
+        $telefono = new Telefono($telefonoID, $tipo, $codigo, $numero);
+
+        // Crea el service del cliente y verifica que los datos sean correctos
         $clienteBusiness = new ClienteBusiness();
-
-        // Crea y verifica que los datos del cliente sean correctos
-        $cliente = new Cliente($id, $nombre, $telefonoID);
-        $check = $clienteBusiness->validarCliente($cliente, $accion != 'eliminar', $accion == 'insertar'); //<- Indica si se validan (o no) los campos además del ID
+        $cliente = new Cliente($clienteID, $nombre, $alias, $telefono);
+        $checkCliente = $clienteBusiness->validarCliente($cliente, $accion !== 'eliminar', $accion === 'insertar');
 
         // Si los datos son válidos se realiza acción correspondiente
-        if ($check['is_valid']) {
+        if ($checkCliente['is_valid']) {
             switch ($accion) {
                 case 'insertar':
-                    // Inserta el cliente en la base de datos
                     $response = $clienteBusiness->insertTBCliente($cliente);
                     break;
                 case 'actualizar':
-                    // Actualiza la info del cliente en la base de datos
                     $response = $clienteBusiness->updateTBCliente($cliente);
                     break;
                 case 'eliminar':
-                    // Elimina el cliente de la base de datos
-                    $response = $clienteBusiness->deleteTBCliente($id);
+                    $response = $clienteBusiness->deleteTBCliente($clienteID);
                     break;
                 default:
-                    // Error en caso de que la accion no sea válida
                     http_response_code(400);
-                    $response['success'] = false;
-                    $response['message'] = "Acción no válida.";
+                    $response = [
+                        'success' => false,
+                        'message' => "Acción no válida."
+                    ];
                     break;
             }
         } else {
-            // Si los datos no son validos, se devuelve un mensaje de error
-            $response['success'] = $check['is_valid'];
-            $response['message'] = $check['message'];
+            $response = [
+                'success' => false,
+                'message' => $checkCliente['message']
+            ];
         }
-        
+
         header('Content-Type: application/json');
         echo json_encode($response);
         exit();
-    } 
+    }
     
     else if ($_SERVER["REQUEST_METHOD"] == "GET") {
         $accion = isset($_GET['accion']) ? $_GET['accion'] : "";
         $deleted = isset($_GET['deleted']) ? boolval($_GET['deleted']) : false;
-        $onlyActiveOrInactive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
+        $onlyActive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
 
         $clienteBusiness = new ClienteBusiness();
         switch ($accion) {
             case 'all':
-                $response = $clienteBusiness->getAllTBCliente($onlyActiveOrInactive, $deleted);
+                $response = $clienteBusiness->getAllTBCliente($onlyActive, $deleted);
                 break;
             case 'id':
                 $id = isset($_GET['id']) ? intval($_GET['id']) : -1;
-                $response = $clienteBusiness->getClienteByID($id);
+                $response = $clienteBusiness->getClienteByID($id, $onlyActive, $deleted);
                 break;
             default:
                 // Obtener parámetros de la solicitud GET
@@ -86,7 +93,7 @@
                 if ($page < 1) $page = 1;
                 if ($size < 1) $size = 5;
 
-                $response = $clienteBusiness->getPaginatedClientes($search, $page, $size, $sort, $onlyActiveOrInactive, $deleted);
+                $response = $clienteBusiness->getPaginatedClientes($search, $page, $size, $sort, $onlyActive, $deleted);
                 break;
         }
 

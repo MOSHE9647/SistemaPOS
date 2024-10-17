@@ -1,9 +1,9 @@
 <?php
 
-    require_once 'data.php';
-    require_once __DIR__ . '/../domain/Direccion.php';
-    require_once __DIR__ . '/../utils/Utils.php';
-    require_once __DIR__ . '/../utils/Variables.php';
+    require_once dirname(__DIR__, 1) . '/data/data.php';
+    require_once dirname(__DIR__, 1) . '/domain/Direccion.php';
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
+    require_once dirname(__DIR__, 1) . '/utils/Variables.php';
 
     class DireccionData extends Data {
 
@@ -31,7 +31,7 @@
                 $conn = $result["connection"];
 
                 // Crea una consulta y un statement SQL para buscar el registro
-                $queryCheck = "SELECT 1 FROM " . TB_DIRECCION . " WHERE " . DIRECCION_ID . " = ? AND " . DIRECCION_ESTADO . " != false";
+                $queryCheck = "SELECT 1 FROM " . TB_DIRECCION . " WHERE " . DIRECCION_ID . " = ? AND " . DIRECCION_ESTADO . " != FALSE";
                 $stmt = mysqli_prepare($conn, $queryCheck);
 
                 // Asignar los parámetros y ejecutar la consulta
@@ -45,7 +45,6 @@
                 }
         
                 $message = "No se encontró ninguna dirección ('ID [$direccionID]') en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
                 return ["success" => true, "exists" => false, "message" => $message];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -65,14 +64,18 @@
             }
         }
 
-        public function insertDireccion($direccion) {
-            $conn = null; $stmt = null;
+        public function insertDireccion($direccion, $conn = null) {
+            $createdConn = false;
+            $stmt = null;
 
             try {
                 // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConn = true;
+                }
         
                 // Obtiene el último ID de la tabla tbdireccion
                 $queryGetLastId = "SELECT MAX(" . DIRECCION_ID . ") FROM " . TB_DIRECCION;
@@ -135,12 +138,13 @@
             } finally {
                 // Cierra el statement y la conexión si están definidos
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
+                if ($createdConn && isset($conn)) { mysqli_close($conn); }
             }
         }
 
-        public function updateDireccion($direccion) {
-            $conn = null; $stmt = null;
+        public function updateDireccion($direccion, $conn = null) {
+            $createdConn = false; 
+            $stmt = null;
             
             try {
                 // Obtener el ID de la dirección a actualizar
@@ -156,9 +160,12 @@
                 }
                 
                 // Establece una conexion con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) { throw new Exception($result["message"]); }
-				$conn = $result["connection"];
+				if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConn = true;
+                }
         
                 // Crea una consulta y un statement SQL para actualizar el registro
                 $queryUpdate = 
@@ -213,11 +220,14 @@
             } finally {
                 // Cierra la conexión y el statement si están definidos
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
+                if ($createdConn && isset($conn)) { mysqli_close($conn); }
             }
         }
 
-        public function deleteDireccion($direccionID) {
+        public function deleteDireccion($direccionID, $conn = null) {
+            $createdConn = false;
+            $stmt = null;
+
             try {
                 // Verificar si existe el ID y que el Estado no sea false
                 $check = $this->existeDireccion($direccionID);
@@ -229,17 +239,18 @@
                 }
 
                 // Establece una conexion con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) { throw new Exception($result["message"]); }
-				$conn = $result["connection"];
+				if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConn = true;
+                }
 
                 // Crea una consulta y un statement SQL para eliminar el registro (borrado logico)
 				$queryDelete = "UPDATE " . TB_DIRECCION . " SET " . DIRECCION_ESTADO . " = false WHERE " . DIRECCION_ID . " = ?";
 				$stmt = mysqli_prepare($conn, $queryDelete);
 				mysqli_stmt_bind_param($stmt, 'i', $direccionID);
-
-                // Ejecuta la consulta de eliminación
-				$result = mysqli_stmt_execute($stmt);
+                mysqli_stmt_execute($stmt);
 		
 				// Devuelve el resultado de la operación
 				return ["success" => true, "message" => "Dirección eliminada exitosamente."];
@@ -257,11 +268,11 @@
 			} finally {
 				// Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
+                if ($createdConn && isset($conn)) { mysqli_close($conn); }
 			}
         }
 
-        public function getAllTBDireccion($onlyActiveOrInactive = false, $deleted = false) {
+        public function getAllTBDireccion($onlyActive = false, $deleted = false) {
             $conn = null;
             
             try {
@@ -271,22 +282,23 @@
 				$conn = $result["connection"];
 
                 // Obtenemos la lista de Impuestos
-				$querySelect = "SELECT * FROM " . TB_DIRECCION . " WHERE " . DIRECCION_ESTADO . " != " . ($deleted ? "true" : "false");
+				$querySelect = "SELECT * FROM " . TB_DIRECCION . " WHERE " . DIRECCION_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE');
 				$result = mysqli_query($conn, $querySelect);
 
 				// Creamos la lista con los datos obtenidos
                 $direcciones = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $direcciones[] = [
-                        'ID' => $row[DIRECCION_ID],
-                        'Provincia' => $row[DIRECCION_PROVINCIA],
-                        'Canton' => $row[DIRECCION_CANTON],
-                        'Distrito' => $row[DIRECCION_DISTRITO],
-                        'Barrio' => $row[DIRECCION_BARRIO],
-                        'Sennas' => $row[DIRECCION_SENNAS],
-                        'Distancia' => $row[DIRECCION_DISTANCIA],
-                        'Estado' => $row[DIRECCION_ESTADO]
-                    ];
+                    $direccion = new Direccion(
+                        $row[DIRECCION_ID],
+                        $row[DIRECCION_PROVINCIA],
+                        $row[DIRECCION_CANTON],
+                        $row[DIRECCION_DISTRITO],
+                        $row[DIRECCION_BARRIO],
+                        $row[DIRECCION_SENNAS],
+                        $row[DIRECCION_DISTANCIA],
+                        $row[DIRECCION_ESTADO]
+                    );
+                    $direcciones[] = $direccion;
                 }
 
                 return ["success" => true, "direcciones" => $direcciones];
@@ -307,17 +319,11 @@
 			}
         }
 
-        public function getPaginatedDirecciones($page, $size, $sort = null, $onlyActiveOrInactive = false, $deleted = false) {
+        public function getPaginatedDirecciones($page, $size, $sort = null, $onlyActive = false, $deleted = false) {
             $conn = null; $stmt = null;
             
             try {
-                // Verificar que la página y el tamaño sean números enteros positivos
-                if (!is_numeric($page) || $page < 1) {
-                    throw new Exception("El número de página debe ser un entero positivo.");
-                }
-                if (!is_numeric($size) || $size < 1) {
-                    throw new Exception("El tamaño de la página debe ser un entero positivo.");
-                }
+                // Calcular el offset para la consulta SQL
                 $offset = ($page - 1) * $size;
         
                 // Establece una conexión con la base de datos
@@ -326,8 +332,8 @@
                 $conn = $result["connection"];
         
                 // Consultar el total de registros en la tabla de direcciones
-                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_DIRECCION . " ";
-                if ($onlyActiveOrInactive) { $queryTotalCount .= "WHERE " . DIRECCION_ESTADO . " != " . ($deleted ? "true" : "false") . " "; }
+                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_DIRECCION;
+                if ($onlyActive) { $queryTotalCount .= " WHERE " . DIRECCION_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE'); }
 
                 // Ejecutar la consulta y obtener el total de registros
                 $totalResult = mysqli_query($conn, $queryTotalCount);
@@ -336,21 +342,19 @@
                 $totalPages = ceil($totalRecords / $size);
         
                 // Construir la consulta SQL para paginación
-                $querySelect = "SELECT * FROM " . TB_DIRECCION . " ";
-                if ($onlyActiveOrInactive) { $querySelect .= "WHERE " . DIRECCION_ESTADO . " != " . ($deleted ? "true" : "false") . " "; }
+                $querySelect = "SELECT * FROM " . TB_DIRECCION;
+                if ($onlyActive) { $querySelect .= " WHERE " . DIRECCION_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE'); }
         
                 // Añadir la cláusula de ordenamiento si se proporciona
-                if ($sort) { $querySelect .= "ORDER BY direccion" . $sort . " "; }
+                if ($sort) { $querySelect .= " ORDER BY direccion" . $sort; }
         
                 // Añadir la cláusula de limitación y offset
-                $querySelect .= "LIMIT ? OFFSET ?";
+                $querySelect .= " LIMIT ? OFFSET ?";
         
                 // Preparar la consulta y vincular los parámetros
                 $stmt = mysqli_prepare($conn, $querySelect);
                 mysqli_stmt_bind_param($stmt, "ii", $size, $offset);
-        
-                // Ejecutar la consulta
-                $result = mysqli_stmt_execute($stmt);
+                mysqli_stmt_execute($stmt);
         
                 // Obtener el resultado
                 $result = mysqli_stmt_get_result($stmt);
@@ -358,16 +362,17 @@
                 // Crear la lista con los datos obtenidos
                 $direcciones = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $direcciones[] = [
-                        'ID' => $row[DIRECCION_ID],
-                        'Provincia' => $row[DIRECCION_PROVINCIA],
-                        'Canton' => $row[DIRECCION_CANTON],
-                        'Distrito' => $row[DIRECCION_DISTRITO],
-                        'Barrio' => $row[DIRECCION_BARRIO],
-                        'Sennas' => $row[DIRECCION_SENNAS],
-                        'Distancia' => $row[DIRECCION_DISTANCIA],
-                        'Estado' => $row[DIRECCION_ESTADO]
-                    ];
+                    $direccion = new Direccion(
+                        $row[DIRECCION_ID],
+                        $row[DIRECCION_PROVINCIA],
+                        $row[DIRECCION_CANTON],
+                        $row[DIRECCION_DISTRITO],
+                        $row[DIRECCION_BARRIO],
+                        $row[DIRECCION_SENNAS],
+                        $row[DIRECCION_DISTANCIA],
+                        $row[DIRECCION_ESTADO]
+                    );
+                    $direcciones[] = $direccion;
                 }
         
                 // Devolver el resultado con la lista de direcciones y metadatos de paginación
@@ -397,7 +402,7 @@
             }
         }
         
-        public function getDireccionByID($direccionID, $json = true) {
+        public function getDireccionByID($direccionID, $onlyActive = true, $deleted = false) {
             $conn = null; $stmt = null;
 
             try {
@@ -416,41 +421,34 @@
                 $conn = $result["connection"];
 
                 // Crea una consulta y un statement SQL para buscar el registro
-                $querySelect = "SELECT * FROM " . TB_DIRECCION . " WHERE " . DIRECCION_ID . " = ?";
+                $querySelect = "
+                    SELECT 
+                        * 
+                    FROM " . 
+                        TB_DIRECCION . " 
+                    WHERE " . 
+                        DIRECCION_ID . " = ?" . ($onlyActive ? " AND " . 
+                        DIRECCION_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE') : '')
+                ;
                 $stmt = mysqli_prepare($conn, $querySelect);
-
-                // Asignar los parámetros y ejecutar la consulta
                 mysqli_stmt_bind_param($stmt, "i", $direccionID);
                 mysqli_stmt_execute($stmt);
+
+                // Obtener el resultado de la consulta
                 $result = mysqli_stmt_get_result($stmt);
 
                 // Verifica si existe algún registro con los criterios dados
-                if (mysqli_num_rows($result) > 0) {
-                    $row = mysqli_fetch_assoc($result);
-                    $direccion = null;
-                    if ($json) {
-                        $direccion = [
-                            'ID' => $row[DIRECCION_ID],
-                            'Provincia' => $row[DIRECCION_PROVINCIA],
-                            'Canton' => $row[DIRECCION_CANTON],
-                            'Distrito' => $row[DIRECCION_DISTRITO],
-                            'Barrio' => $row[DIRECCION_BARRIO],
-                            'Sennas' => $row[DIRECCION_SENNAS],
-                            'Distancia' => $row[DIRECCION_DISTANCIA],
-                            'Estado' => $row[DIRECCION_ESTADO]
-                        ];
-                    } else {
-                        $direccion = new Direccion(
-                            $row[DIRECCION_ID],
-                            $row[DIRECCION_PROVINCIA],
-                            $row[DIRECCION_CANTON],
-                            $row[DIRECCION_DISTRITO],
-                            $row[DIRECCION_BARRIO],
-                            $row[DIRECCION_SENNAS],
-                            $row[DIRECCION_DISTANCIA],
-                            $row[DIRECCION_ESTADO]
-                        );
-                    }
+                if ($row = mysqli_fetch_assoc($result)) {
+                    $direccion = new Direccion(
+                        $row[DIRECCION_ID],
+                        $row[DIRECCION_PROVINCIA],
+                        $row[DIRECCION_CANTON],
+                        $row[DIRECCION_DISTRITO],
+                        $row[DIRECCION_BARRIO],
+                        $row[DIRECCION_SENNAS],
+                        $row[DIRECCION_DISTANCIA],
+                        $row[DIRECCION_ESTADO]
+                    );
                     return ["success" => true, "direccion" => $direccion];
                 }
         

@@ -1,7 +1,7 @@
 <?php
 
-    require_once __DIR__ . "/../data/usuarioData.php";
-    require_once __DIR__ . '/../utils/Utils.php';
+    require_once dirname(__DIR__, 1) . "/data/usuarioData.php";
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
     class UsuarioBusiness {
 
@@ -31,6 +31,20 @@
             return ["is_valid" => true];
         }
 
+        public function validarDatosPaginacion($page, $size) {
+            if ($page === null || !is_numeric($page) || $page < 0) {
+                Utils::writeLog("El 'page [$page]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ["is_valid" => false, "message" => "El número de página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
+            }
+
+            if ($size === null || !is_numeric($size) || $size < 0) {
+                Utils::writeLog("El 'size [$size]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ["is_valid" => false, "message" => "El tamaño de la página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
+            }
+
+            return ["is_valid" => true];
+        }
+
         public function validarUsuario($usuario, $validarCamposAdicionales = true, $insert = false) {
             try {
                 // Obtener los valores de las propiedades del objeto
@@ -40,7 +54,7 @@
                 $apellido2 = $usuario->getUsuarioApellido2();
                 $correo = $usuario->getUsuarioEmail();
                 $password = $usuario->getUsuarioPassword();
-                $rolID = $usuario->getUsuarioRolID();
+                $rolID = $usuario->getUsuarioRolUsuario()->getRolID();
                 $errors = [];
 
                 // Verifica que el ID del usuario sea válido
@@ -112,55 +126,58 @@
             return $this->usuarioData->deleteUsuario($usuarioID);
         }
 
-        public function getAllTBUsuario($onlyActiveOrInactive = true, $deleted = false) {
-            return $this->usuarioData->getAllTBUsuario($onlyActiveOrInactive, $deleted);
+        public function getAllTBUsuario($onlyActive = true, $deleted = false) {
+            return $this->usuarioData->getAllTBUsuario($onlyActive, $deleted);
         }
 
-        public function getPaginatedUsuarios($page, $size, $sort, $onlyActiveOrInactive = true, $deleted = false) {
-            return $this->usuarioData->getPaginatedUsuarios($page, $size, $sort, $onlyActiveOrInactive, $deleted);
+        public function getPaginatedUsuarios($search, $page, $size, $sort, $onlyActive = true, $deleted = false) {
+            // Verifica que los datos de paginación sean válidos
+            $check = $this->validarDatosPaginacion($page, $size);
+            if (!$check['is_valid']) {
+                return ["success" => $check["is_valid"], "message" => $check["message"]];
+            }
+
+            return $this->usuarioData->getPaginatedUsuarios($search, $page, $size, $sort, $onlyActive, $deleted);
         }
 
-        public function getUsuarioByID($usuarioID, $json = true) {
+        public function getUsuarioByID($usuarioID) {
             // Verifica que el ID del usuario sea válido
             $checkID = $this->validarUsuarioID($usuarioID);
             if (!$checkID['is_valid']) {
                 return ["success" => $checkID["is_valid"], "message" => $checkID["message"]];
             }
 
-            return $this->usuarioData->getUsuarioByID($usuarioID, $json);
+            return $this->usuarioData->getUsuarioByID($usuarioID);
         }
 
-        public function getUsuarioByEmail($usuarioEmail, $json = true) {
+        public function getUsuarioByEmail($usuarioEmail) {
             // Verifica que el correo del usuario sea válido
             $checkEmail = $this->validarUsuarioEmail($usuarioEmail);
             if (!$checkEmail['is_valid']) {
                 return ["success" => $checkEmail["is_valid"], "message" => $checkEmail["message"]];
             }
 
-            return $this->usuarioData->getUsuarioByEmail($usuarioEmail, $json);
+            return $this->usuarioData->getUsuarioByEmail($usuarioEmail);
         }
 
         public function autenticarUsuario(string $email, string $password): array {
             // Consulta a la base de datos para obtener el usuario por email
-            $result = $this->getUsuarioByEmail($email, false);
-
+            $result = $this->getUsuarioByEmail($email);
+        
             // Verifica si la consulta fue exitosa y existe el usuario
             if (!$result["success"]) {
                 return ["success" => false, "message" => $result["message"]];
             }
-
-            // Obtiene el usuario de la consulta
-            $usuario = $result["usuario"];
-            $usuarioPassword = $usuario->getUsuarioPassword();
-
+        
             // Verifica si la contraseña es correcta
+            $usuarioPassword = $result["password"];
             if (!password_verify($password, $usuarioPassword)) {
                 return ["success" => false, "message" => "La contraseña ingresada no es correcta."];
             }
-            
+        
             // Si las credenciales son válidas, retorna el objeto Usuario
-            return ["success" => true, "usuario" => $usuario, "message" => "Usuario autenticado correctamente."];
-        } 
+            return ["success" => true, "usuario" => $result["usuario"]];
+        }
     }
 
 ?>

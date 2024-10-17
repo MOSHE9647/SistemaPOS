@@ -1,9 +1,9 @@
 <?php
 
-    require_once 'data.php';
-    require_once __DIR__ . '/../domain/Telefono.php';
-    require_once __DIR__ . '/../utils/Variables.php';
-    require_once __DIR__ . '/../utils/Utils.php';
+    require_once dirname(__DIR__, 1) . '/data/data.php';
+    require_once dirname(__DIR__, 1) . '/domain/Telefono.php';
+    require_once dirname(__DIR__, 1) . '/utils/Variables.php';
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
     class TelefonoData extends Data {
 
@@ -101,8 +101,9 @@
             }
         }
 
-        public function insertTelefono($telefono) {
-            $conn = null; $stmt = null;
+        public function insertTelefono($telefono, $conn = null) {
+            $createdConnection = false;
+            $stmt = null;
 
             try {
                 // Obtener los valores de las propiedades del objeto para verificación
@@ -127,9 +128,12 @@
                 }
 
                 // Establece una conexión con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) { throw new Exception($result["message"]); }
-				$conn = $result["connection"];
+				if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+                }
 
                 // Obtenemos el último ID de la tabla tbtelefono
 				$queryGetLastId = "SELECT MAX(" . TELEFONO_ID . ") FROM " . TB_TELEFONO;
@@ -182,12 +186,13 @@
             } finally {
                 // Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
+				if ($createdConnection && isset($conn)) { mysqli_close($conn); }
             }
         }
 
-        public function updateTelefono($telefono) {
-            $conn = null; $stmt = null;
+        public function updateTelefono($telefono, $conn = null) {
+            $createdConnection = false;
+            $stmt = null;
 
             try {
                 // Obtener el ID, Codigo de Pais y Número de telefono
@@ -214,9 +219,12 @@
                 }
 
                 // Establece una conexion con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) { throw new Exception($result["message"]); }
-				$conn = $result["connection"];
+				if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+                }
 
                 // Crea una consulta y un statement SQL para actualizar el registro
 				$queryUpdate = 
@@ -262,12 +270,13 @@
             } finally {
                 // Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
+                if ($createdConnection && isset($conn)) { mysqli_close($conn); }
             }
         }
 
-        public function deleteTelefono($telefonoID) {
-            $conn = null; $stmt = null;
+        public function deleteTelefono($telefonoID, $conn = null) {
+            $createdConnection = false;
+            $stmt = null;
 
             try {
                 // Verifica si existe un Telefono con el mismo ID en la BD
@@ -280,9 +289,12 @@
 				}
 
                 // Establece una conexion con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) { throw new Exception($result["message"]); }
-				$conn = $result["connection"];
+				if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+                }
 
                 // Crea una consulta y un statement SQL para eliminar el registro (borrado logico)
 				$queryDelete = "UPDATE " . TB_TELEFONO . " SET " . TELEFONO_ESTADO . " = false WHERE " . TELEFONO_ID . " = ?";
@@ -307,11 +319,11 @@
             } finally {
                 // Cierra la conexión y el statement
 				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
+                if ($createdConnection && isset($conn)) { mysqli_close($conn); }
             }
         }
 
-        public function getAllTBTelefono($onlyActiveOrInactive = false, $deleted = false) {
+        public function getAllTBTelefono($onlyActive = false, $deleted = false) {
             $conn = null;
             
             try {
@@ -322,24 +334,23 @@
 
                 // Consulta SQL para obtener todos los registros de la tabla tbtelefono
                 $querySelect = "SELECT * FROM " . TB_TELEFONO;
-                if ($onlyActiveOrInactive) { $querySelect .= " WHERE " . TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); }
+                if ($onlyActive) { $querySelect .= " WHERE " . TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); }
                 $result = mysqli_query($conn, $querySelect);
 
                 // Crear un array para almacenar los telefonos
                 $telefonos = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $telefonos[] = [
-                        'ID' => $row[TELEFONO_ID],
-                        'Tipo' => $row[TELEFONO_TIPO],
-                        'CodigoPais' => $row[TELEFONO_CODIGO_PAIS],
-                        'Numero' => $row[TELEFONO_NUMERO],
-                        'Extension' => $row[TELEFONO_EXTENSION],
-                        'CreacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION], 'Y-MM-dd'),
-                        'Creacion' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION]),
-                        'ModificacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_MODIFICACION], 'Y-MM-dd'),
-                        'Modificacion' => Utils::formatearFecha($row[TELEFONO_FECHA_MODIFICACION]),
-                        'Estado' => $row[TELEFONO_ESTADO]
-                    ];
+                    $telefono = new Telefono(
+                        $row[TELEFONO_ID],
+                        $row[TELEFONO_TIPO],
+                        $row[TELEFONO_CODIGO_PAIS],
+                        $row[TELEFONO_NUMERO],
+                        $row[TELEFONO_EXTENSION],
+                        $row[TELEFONO_FECHA_CREACION],
+                        $row[TELEFONO_FECHA_MODIFICACION],
+                        $row[TELEFONO_ESTADO]
+                    );
+                    $telefonos[] = $telefono;
                 }
 
                 // Devuelve el resultado de la consulta
@@ -360,7 +371,7 @@
 			}
         }
 
-        public function getPaginatedTelefonos($page, $size, $sort = null, $onlyActiveOrInactive = false, $deleted = false) {
+        public function getPaginatedTelefonos($page, $size, $sort = null, $onlyActive = false, $deleted = false) {
             $conn = null; $stmt = null;
             
             try {
@@ -380,7 +391,7 @@
 
                 // Consultar el total de registros
                 $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_TELEFONO . " ";
-                if ($onlyActiveOrInactive) { $queryTotalCount .= " WHERE " . TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($onlyActive) { $queryTotalCount .= " WHERE " . TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 $totalResult = mysqli_query($conn, $queryTotalCount);
                 $totalRow = mysqli_fetch_assoc($totalResult);
@@ -389,7 +400,7 @@
 
                 // Construir la consulta SQL para paginación
                 $querySelect = "SELECT * FROM " . TB_TELEFONO . " ";
-                if ($onlyActiveOrInactive) { $querySelect .= " WHERE " . TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($onlyActive) { $querySelect .= " WHERE " . TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 // Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) { $querySelect .= "ORDER BY telefono" . $sort . " "; }
@@ -409,18 +420,17 @@
 
                 $telefonos = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $telefonos[] = [
-                        'ID' => $row[TELEFONO_ID],
-						'Tipo' => $row[TELEFONO_TIPO],
-						'CodigoPais' => $row[TELEFONO_CODIGO_PAIS],
-						'Numero' => $row[TELEFONO_NUMERO],
-						'Extension' => $row[TELEFONO_EXTENSION],
-						'CreacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION], 'Y-MM-dd'),
-						'Creacion' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION]),
-                        'ModificacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_MODIFICACION], 'Y-MM-dd'),
-                        'Modificacion' => Utils::formatearFecha($row[TELEFONO_FECHA_MODIFICACION]),
-						'Estado' => $row[TELEFONO_ESTADO]
-                    ];
+                    $telefono = new Telefono(
+                        $row[TELEFONO_ID],
+                        $row[TELEFONO_TIPO],
+                        $row[TELEFONO_CODIGO_PAIS],
+                        $row[TELEFONO_NUMERO],
+                        $row[TELEFONO_EXTENSION],
+                        $row[TELEFONO_FECHA_CREACION],
+                        $row[TELEFONO_FECHA_MODIFICACION],
+                        $row[TELEFONO_ESTADO]
+                    );
+                    $telefonos[] = $telefono;
                 }
 
                 return [
@@ -448,7 +458,7 @@
             }
         }
         
-        public function getTelefonoByID($telefonoID, $json = true) {
+        public function getTelefonoByID($telefonoID, $onlyActive = false, $deleted = false) {
             $conn = null; $stmt = null;
             
             try {
@@ -467,7 +477,15 @@
                 $conn = $result["connection"];
 
                 // Consulta SQL para obtener el telefono con el ID proporcionado
-                $querySelect = "SELECT * FROM " . TB_TELEFONO . " WHERE " . TELEFONO_ID . " = ? AND " . TELEFONO_ESTADO . " != FALSE";
+                $querySelect = "
+                    SELECT 
+                        * 
+                    FROM " . 
+                        TB_TELEFONO . " 
+                    WHERE " . 
+                        TELEFONO_ID . " = ?" . ($onlyActive ? " AND " . 
+                        TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") : "")
+                    ;
                 $stmt = mysqli_prepare($conn, $querySelect);
 
                 // Asignar los parámetros y ejecutar la consulta
@@ -478,32 +496,16 @@
                 // Verifica si existe algún registro con los criterios dados
                 if (mysqli_num_rows($result) > 0) {
                     $row = mysqli_fetch_assoc($result);
-                    $telefono = null;
-                    if ($json) {
-                        $telefono = [
-                            'ID' => $row[TELEFONO_ID],
-                            'Tipo' => $row[TELEFONO_TIPO],
-                            'CodigoPais' => $row[TELEFONO_CODIGO_PAIS],
-                            'Numero' => $row[TELEFONO_NUMERO],
-                            'Extension' => $row[TELEFONO_EXTENSION],
-                            'CreacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION], 'Y-MM-dd'),
-                            'Creacion' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION]),
-                            'ModificacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_MODIFICACION], 'Y-MM-dd'),
-                            'Modificacion' => Utils::formatearFecha($row[TELEFONO_FECHA_MODIFICACION]),
-                            'Estado' => $row[TELEFONO_ESTADO]
-                        ];
-                    } else {
-                        $telefono = new Telefono(
-                            $row[TELEFONO_ID],
-                            $row[TELEFONO_TIPO],
-                            $row[TELEFONO_CODIGO_PAIS],
-                            $row[TELEFONO_NUMERO],
-                            $row[TELEFONO_EXTENSION],
-                            $row[TELEFONO_FECHA_CREACION],
-                            $row[TELEFONO_FECHA_MODIFICACION],
-                            $row[TELEFONO_ESTADO]
-                        );
-                    }
+                    $telefono = new Telefono(
+                        $row[TELEFONO_ID],
+                        $row[TELEFONO_TIPO],
+                        $row[TELEFONO_CODIGO_PAIS],
+                        $row[TELEFONO_NUMERO],
+                        $row[TELEFONO_EXTENSION],
+                        $row[TELEFONO_FECHA_CREACION],
+                        $row[TELEFONO_FECHA_MODIFICACION],
+                        $row[TELEFONO_ESTADO]
+                    );
                     return ["success" => true, "telefono" => $telefono];
                 }
                 
@@ -525,61 +527,64 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
-        public function getTelefonoProveedorID($idproveedor){
-            try {
-                if(!is_numeric($idproveedor) || $idproveedor <= 0){
-                    throw new Exception("El 'ID [$proveedor]' para proveedor es invalido.");
-                }
-                // Establece una conexion con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
-
-                // Consulta SQL para obtener el telefono con el ID proveedor proporcionado
-                $querySelect = "SELECT * FROM " . TB_TELEFONO . " WHERE " . TELEFONO_PROVEEDOR_ID . " = ? AND " . TELEFONO_ESTADO . " != FALSE";
-                $stmt = mysqli_prepare($conn, $querySelect);
-
-                // Asignar los parámetros y ejecutar la consulta
-                mysqli_stmt_bind_param($stmt, "i", $idproveedor);
-                mysqli_stmt_execute($stmt);
-                $result = mysqli_stmt_get_result($stmt);
-
-                $telefonos = [];
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $telefonos[] = [
-                        'ID' => $row[TELEFONO_ID],
-                        'Tipo' => $row[TELEFONO_TIPO],
-                        'CodigoPais' => $row[TELEFONO_CODIGO_PAIS],
-                        'Numero' => $row[TELEFONO_NUMERO],
-                        'Extension' => $row[TELEFONO_EXTENSION],
-                        'CreacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION], 'Y-MM-dd'),
-                        'Creacion' => Utils::formatearFecha($row[TELEFONO_FECHA_CREACION]),
-                        'ModificacionISO' => Utils::formatearFecha($row[TELEFONO_FECHA_MODIFICACION], 'Y-MM-dd'),
-                        'Modificacion' => Utils::formatearFecha($row[TELEFONO_FECHA_MODIFICACION]),
-                        'Estado' => $row[TELEFONO_ESTADO]
-                    ];
-                }
-
-                if(!empty($telefonos)){
-                    return ["success" => true, "listaTelefonos" => $telefonos];
-                }
-
-                Utils::writeLog("No se encontró ningún teléfono para el proveeedor con ID [$idproveedor] en la base de datos.", DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
-                return ["success" => false, "message" => "No se encontraron telefonos en la base de datos"];
-            } catch (Exception $e) {
-                // Manejo del error dentro del bloque catch
-                $userMessage = $this->handleMysqlError($e->getCode(), $e->getMessage(),
-                    'Error al obtener el teléfono desde la base de datos'
-                );
         
-                // Devolver mensaje amigable para el usuario
-                return ["success" => false, "message" => $userMessage];
-            } finally {
-                // Cerrar la conexión y el statement
-                if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                if (isset($conn)) { mysqli_close($conn); }
-            }
-        }
+        // public function getTelefonoByProveedorID($idproveedor){
+        //     $conn = null; $stmt = null;
+
+        //     try {
+        //         if(!is_numeric($idproveedor) || $idproveedor <= 0){
+        //             throw new Exception("El 'ID [$proveedor]' para proveedor es invalido.");
+        //         }
+
+        //         // Establece una conexion con la base de datos
+        //         $result = $this->getConnection();
+        //         if (!$result["success"]) { throw new Exception($result["message"]); }
+        //         $conn = $result["connection"];
+
+        //         // Consulta SQL para obtener el telefono con el ID proveedor proporcionado
+        //         $querySelect = "SELECT * FROM " . TB_TELEFONO . " WHERE " . TELEFONO_PROVEEDOR_ID . " = ? AND " . TELEFONO_ESTADO . " != FALSE";
+        //         $stmt = mysqli_prepare($conn, $querySelect);
+
+        //         // Asignar los parámetros y ejecutar la consulta
+        //         mysqli_stmt_bind_param($stmt, "i", $idproveedor);
+        //         mysqli_stmt_execute($stmt);
+        //         $result = mysqli_stmt_get_result($stmt);
+
+        //         $telefonos = [];
+        //         while ($row = mysqli_fetch_assoc($result)) {
+        //             $telefono = new Telefono(
+        //                 $row[TELEFONO_ID],
+        //                 $row[TELEFONO_TIPO],
+        //                 $row[TELEFONO_CODIGO_PAIS],
+        //                 $row[TELEFONO_NUMERO],
+        //                 $row[TELEFONO_EXTENSION],
+        //                 $row[TELEFONO_FECHA_CREACION],
+        //                 $row[TELEFONO_FECHA_MODIFICACION],
+        //                 $row[TELEFONO_ESTADO]
+        //             );
+        //             $telefonos[] = $telefono;
+        //         }
+
+        //         if(!empty($telefonos)){
+        //             return ["success" => true, "listaTelefonos" => $telefonos];
+        //         }
+
+        //         Utils::writeLog("No se encontró ningún teléfono para el proveeedor con ID [$idproveedor] en la base de datos.", DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+        //         return ["success" => false, "message" => "No se encontraron telefonos en la base de datos"];
+        //     } catch (Exception $e) {
+        //         // Manejo del error dentro del bloque catch
+        //         $userMessage = $this->handleMysqlError($e->getCode(), $e->getMessage(),
+        //             'Error al obtener el teléfono desde la base de datos'
+        //         );
+        
+        //         // Devolver mensaje amigable para el usuario
+        //         return ["success" => false, "message" => $userMessage];
+        //     } finally {
+        //         // Cerrar la conexión y el statement
+        //         if (isset($stmt)) { mysqli_stmt_close($stmt); }
+        //         if (isset($conn)) { mysqli_close($conn); }
+        //     }
+        // }
     
     }
 

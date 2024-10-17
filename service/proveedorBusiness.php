@@ -1,13 +1,30 @@
 <?php
 
-    require_once __DIR__ . "/../data/proveedorData.php";
+    require_once dirname(__DIR__, 1) . "/data/proveedorData.php";
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
     class ProveedorBusiness {
 
         private $proveedorData;
+        private $className;
 
         public function __construct() {
             $this->proveedorData = new ProveedorData();
+            $this->className = get_class($this);
+        }
+
+        public function validarDatosPaginacion($page, $size) {
+            if ($page === null || !is_numeric($page) || $page < 0) {
+                Utils::writeLog("El 'page [$page]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ["is_valid" => false, "message" => "El número de página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
+            }
+
+            if ($size === null || !is_numeric($size) || $size < 0) {
+                Utils::writeLog("El 'size [$size]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ["is_valid" => false, "message" => "El tamaño de la página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
+            }
+
+            return ["is_valid" => true];
         }
 
         public function validarProveedor($proveedor, $validarCamposAdicionales = true) {
@@ -95,8 +112,15 @@
             return $this->proveedorData->getAllTBCompraProveedor();
         }
 
-        public function getPaginatedProveedores($page, $size, $sort = null) {
-            return $this->proveedorData->getPaginatedProveedores($page, $size, $sort);
+        // NO TOCAR, YA ESTÁ IMPLEMENTADO
+        public function getPaginatedProveedores($search, $page, $size, $sort, $onlyActive = true, $deleted = false) {
+            // Verifica que los datos de paginación sean válidos
+            $check = $this->validarDatosPaginacion($page, $size);
+            if (!$check['is_valid']) {
+                return ["success" => $check["is_valid"], "message" => $check["message"]];
+            }
+
+            return $this->proveedorData->getPaginatedProveedores($search, $page, $size, $sort, $onlyActive, $deleted);
         }
 
     }

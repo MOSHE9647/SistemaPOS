@@ -1,60 +1,42 @@
 <?php
 
-class Marca {
-    // Atributos privados
-    private $marcaId;
-    private $marcaNombre;
-    private $marcaDescripcion;
-    private $marcaEstado;
+    class Marca implements JsonSerializable {
+        
+        // Atributos privados
+        private $marcaID;
+        private $marcaNombre;
+        private $marcaDescripcion;
+        private $marcaEstado;
 
-    // Constructor
-    public function __construct($marcaId = null, $marcaNombre = null, $marcaDescripcion = null, $marcaEstado = null) {
-        $this->marcaId = $marcaId;
-        $this->marcaNombre = $marcaNombre;
-        $this->marcaDescripcion = $marcaDescripcion;
-        $this->marcaEstado = $marcaEstado;
+        // Constructor
+        public function __construct(int $marcaID = -1, string $marcaNombre = "", string $marcaDescripcion = "", bool $marcaEstado = true) {
+            $this->marcaID = $marcaID;
+            $this->marcaNombre = strtoupper($marcaNombre);
+            $this->marcaDescripcion = $marcaDescripcion;
+            $this->marcaEstado = $marcaEstado;
+        }
+
+        // Getters y Setters
+        public function getMarcaID(): int { return $this->marcaID; }
+        public function getMarcaNombre(): string { return $this->marcaNombre; }
+        public function getMarcaDescripcion(): string { return $this->marcaDescripcion; }
+        public function getMarcaEstado(): bool { return $this->marcaEstado; }
+
+        public function setMarcaID(int $marcaID) { $this->marcaID = $marcaID; }
+        public function setMarcaNombre(string $marcaNombre) { $this->marcaNombre = strtoupper($marcaNombre); }
+        public function setMarcaDescripcion(string $marcaDescripcion) { $this->marcaDescripcion = $marcaDescripcion; }
+        public function setMarcaEstado(bool $marcaEstado) { $this->marcaEstado = $marcaEstado; }
+
+        // JsonSerializable
+        public function jsonSerialize() {
+            return [
+                'ID' => $this->marcaID,
+                'Nombre' => $this->marcaNombre,
+                'Descripcion' => $this->marcaDescripcion,
+                'Estado' => $this->marcaEstado
+            ];
+        }
+
     }
 
-    // Getters y Setters
-
-    
-    public function getMarcaId() {
-        return $this->marcaId;
-    }
-
-   
-    public function setMarcaId($marcaId) {
-        $this->marcaId = $marcaId;
-    }
-
-    
-    public function getMarcaNombre() {
-        return $this->marcaNombre;
-    }
-
-    
-    public function setMarcaNombre($marcaNombre) {
-        $this->marcaNombre = $marcaNombre;
-    }
-
-    
-    public function getMarcaDescripcion() {
-        return $this->marcaDescripcion;
-    }
-
-    
-    public function setMarcaDescripcion($marcaDescripcion) {
-        $this->marcaDescripcion = $marcaDescripcion;
-    }
-
-    
-    public function getMarcaEstado() {
-        return $this->marcaEstado;
-    }
-
-    
-    public function setMarcaEstado($marcaEstado) {
-        $this->marcaEstado = $marcaEstado;
-    }
-}
 ?>

@@ -1,0 +1,62 @@
+@import './gui/sidebar.css';
+@import './gui/header.css';
+@import './gui/table.css';
+@import './view/home.css';
+
+.main-content {
+    margin-left: var(--sidebar-width);
+    height: 100vh;
+    padding: 0.5rem 1rem;
+    transition: margin-left 300ms;
+}
+
+main {
+    margin-top: calc(70px + 0.5rem);
+    padding: 1rem 0;
+    height: 50vh;
+}
+
+main hr {
+    border-color: var(--bg-body);
+    border-radius: 50%;
+    margin: 10px auto;
+    width: 91%;
+}
+
+.page-header {
+    padding: 1.3rem 1rem;
+    color: #fff;
+}
+
+.page-header span,
+.page-content span {
+    color: var(--main);
+}
+
+.page-content {
+    padding: 0.5rem 1rem;
+    overflow: auto;
+}
+
+.disabled {
+    color: var(--disabled);
+    border-color: var(--disabled);
+}
+
+.disabled:hover {
+    background-color: transparent !important;
+    border-color: var(--disabled);
+    color: var(--disabled);
+    cursor: default;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    body {
+        overflow-x: auto;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+}

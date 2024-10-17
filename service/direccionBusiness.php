@@ -1,6 +1,7 @@
 <?php
 
-    require_once __DIR__ . "/../data/direccionData.php";
+    require_once dirname(__DIR__, 1) . "/data/direccionData.php";
+    require_once dirname(__DIR__, 1) . "/utils/Utils.php";
 
     class DireccionBusiness {
 
@@ -98,22 +99,22 @@
             return $this->direccionData->deleteDireccion($direccionID);
         }
 
-        public function getAllTBDireccion($onlyActiveOrInactive = false, $deleted = false) {
-            return $this->direccionData->getAllTBDireccion($onlyActiveOrInactive, $deleted);
+        public function getAllTBDireccion($onlyActive = false, $deleted = false) {
+            return $this->direccionData->getAllTBDireccion($onlyActive, $deleted);
         }
 
-        public function getPaginatedDirecciones($page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
-            return $this->direccionData->getPaginatedDirecciones($page, $size, $sort, $onlyActiveOrInactive, $deleted);
+        public function getPaginatedDirecciones($page, $size, $sort = null, $onlyActive = true, $deleted = false) {
+            return $this->direccionData->getPaginatedDirecciones($page, $size, $sort, $onlyActive, $deleted);
         }
 
-        public function getDireccionByID($direccionID, $json = true) {
+        public function getDireccionByID($direccionID, $onlyActive = true, $deleted = false) {
             // Verifica que el ID de la direccion sea valido
             $checkID = $this->validarDireccionID($direccionID);
             if (!$checkID["is_valid"]) {
                 return ["success" => $checkID["is_valid"], "message" => $checkID["message"]];
             }
 
-            return $this->direccionData->getDireccionByID($direccionID, $json);
+            return $this->direccionData->getDireccionByID($direccionID, $onlyActive, $deleted);
         }
 
     }

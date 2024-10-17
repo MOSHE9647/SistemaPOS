@@ -1,7 +1,7 @@
 <?php
 
-    require_once __DIR__ . "/../data/impuestoData.php";
-    require_once __DIR__ . '/../utils/Utils.php';
+    require_once dirname(__DIR__, 1) . "/data/impuestoData.php";
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
     class ImpuestoBusiness {
 
@@ -107,22 +107,22 @@
             return $this->impuestoData->deleteImpuesto($impuestoID);
         }
 
-        public function getAllTBImpuesto($onlyActiveOrInactive = false, $deleted = false) {
-            return $this->impuestoData->getAllTBImpuesto($onlyActiveOrInactive, $deleted);
+        public function getAllTBImpuesto($onlyActive = false, $deleted = false) {
+            return $this->impuestoData->getAllTBImpuesto($onlyActive, $deleted);
         }
 
-        public function getPaginatedImpuestos($page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
-            return $this->impuestoData->getPaginatedImpuestos($page, $size, $sort, $onlyActiveOrInactive, $deleted);
+        public function getPaginatedImpuestos($page, $size, $sort = null, $onlyActive = true, $deleted = false) {
+            return $this->impuestoData->getPaginatedImpuestos($page, $size, $sort, $onlyActive, $deleted);
         }
 
-        public function getImpuestoByID($impuestoID, $json = true) {
+        public function getImpuestoByID($impuestoID, $onlyActive = true, $deleted = false) {
             // Verifica que el ID del impuesto sea valido
             $checkID = $this->validarImpuestoID($impuestoID);
             if (!$checkID["is_valid"]) {
                 return ["success" => $checkID["is_valid"], "message" => $checkID["message"]];
             }
 
-            return $this->impuestoData->getImpuestoByID($impuestoID, $json);
+            return $this->impuestoData->getImpuestoByID($impuestoID, $onlyActive, $deleted);
         }
 
     }

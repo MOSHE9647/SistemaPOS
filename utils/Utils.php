@@ -105,6 +105,16 @@
         }
         
         /**
+         * Formatea un número decimal a dos decimales.
+         *
+         * @param float $valor El valor decimal a formatear.
+         * @return float El valor formateado a dos decimales.
+         */
+        public static function formatearDecimal(float $valor): float {
+            return number_format((float)$valor, 2, '.', ''); //<- Formatea a dos decimales
+        }
+
+        /**
          * Genera un código a partir de un UUID.
          *
          * @return string El código generado.
@@ -127,15 +137,24 @@
          * $path = "productos/" . Utils::generarURLCarpetaImagen(123, 456, 789);
          * $nombreArchivo = Utils::generateCodeFromUUID(1) . "_" . $nombreProducto;
          * $ruta = $this->crearRutaImagen($path, $nombreArchivo);
-         * echo "Ruta de la imagen: " . $ruta; --> "/../view/img/productos/123/456/789/8_lapicero.jpg"
+         * echo "Ruta de la imagen: " . $ruta; --> "view/img/productos/123/456/789/8_lapicero.jpg"
          */
         public static function crearRutaImagen($path, $fileName) {
-            $basePath = "/../view/img/";
+            $basePath = "/view/static/img/";
             $fullPath = $basePath . "$path/";
         
             // Verificar y crear el directorio si no existe
-            if (!is_dir($fullPath)) {
-                mkdir($fullPath, 0777, true);
+            $tempPath = __DIR__ . "/..$fullPath";
+            if (!is_dir($tempPath)) {
+                if (!mkdir($tempPath, 0755, true)) {
+                    Utils::writeLog("No se pudo crear el directorio '$fullPath'.", BUSINESS_LOG_FILE, ERROR_MESSAGE, self::$className);
+                }
+            }
+
+            // Verificar los permisos de la carpeta
+            if (!is_writable($tempPath)) {
+                // Cambiar permisos si es necesario
+                chmod($tempPath, 0755);
             }
         
             return $fullPath . $fileName;
@@ -144,25 +163,24 @@
         /**
          * Genera los datos necesarios para crear una URL para generar una carpeta.
          *
-         * @param int $loteID El ID del Lote con el cual generar los datos.
+         * @param int $categoriaID El ID de la Categoría con el cual generar los datos.
+         * @param int $subcategoriaID El ID de la Subcategoría con el cual generar los datos.
          * @param int $productoID El ID del Producto con el cual generar los datos.
-         * @param int $proveedorID El ID del Proveedor con el cual generar los datos.
          * @return string Un string que contiene la URL de la carpeta a generar.
          *
          * @example
-         * $loteID = 123;
-         * $proveedorID = 456;
+         * $categoriaID = 123;
+         * $subcategoriaID = 456;
          * $productoID = 789;
-         * $urlCarpeta = $this->generarURLCarpetaImagen($loteID, $proveedorID, $productoID);
-         * echo "URL Carpeta: " . $urlCarpeta; --> "123/456/789"
+         * $urlCarpeta = $this->generarURLCarpetaImagen($categoriaID, $subcategoriaID, $productoID);
+         * echo "URL Carpeta: " . $urlCarpeta; --> "0123/0456/0789"
          */
-        public static function generarURLCarpetaImagen($loteID, $proveedorID, $productoID) {
+        public static function generarURLCarpetaImagen($categoriaID, $subcategoriaID) {
             // Se formatean los IDs con ceros a la izquierda
-            $loteID = str_pad($loteID, NUM_CEROS, '0', STR_PAD_LEFT);
-            $proveedorID = str_pad($proveedorID, NUM_CEROS, '0', STR_PAD_LEFT);
-            $productoID = str_pad($productoID, NUM_CEROS, '0', STR_PAD_LEFT);
+            $categoriaID = str_pad($categoriaID, max(NUM_CEROS, strlen($categoriaID)), '0', STR_PAD_LEFT);
+            $subcategoriaID = str_pad($subcategoriaID, max(NUM_CEROS, strlen($subcategoriaID)), '0', STR_PAD_LEFT);
             // Se crea la URL de la carpeta
-            $urlCarpeta = "$loteID/$proveedorID/$productoID";
+            $urlCarpeta = "$categoriaID/$subcategoriaID";
             return $urlCarpeta;
         }
 

@@ -1,8 +1,8 @@
 <?php
 
-    require_once 'data.php';
-	require_once __DIR__ . '/../domain/Direccion.php';
-	require_once __DIR__ . '/../utils/Variables.php';
+    require_once dirname(__DIR__, 1) . '/data/data.php';
+	require_once dirname(__DIR__, 1) . '/domain/Direccion.php';
+	require_once dirname(__DIR__, 1) . '/utils/Variables.php';
 
     class ProveedorDireccionData extends Data {
 
@@ -248,19 +248,10 @@
 			}
         }
 
-        public function getDireccionesByProveedor($proveedorID, $json = false) {
+        public function getDireccionesByProveedorID($proveedorID, $onlyActive = true, $deleted = false) {
             $conn = null; $stmt = null;
 
             try {
-                // Verificar que el proveedor tenga direcciones registradas
-                $check = $this->existeProveedorDireccion($proveedorID);
-                if (!$check["success"]) { throw new Exception($check["message"]); }
-                if (!$check["exists"]) {
-                    $message = "El proveedor con ID [$proveedorID] no tiene direcciones registradas.";
-                    Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
-                    return ['success' => false, 'message' => "El proveedor seleccionado no tiene direcciones registradas."];
-                }
-
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) { throw new Exception($result["message"]); }
@@ -276,9 +267,9 @@
                         " . TB_PROVEEDOR_DIRECCION . " PD 
                         ON D." . DIRECCION_ID . " = PD." . DIRECCION_ID . "
                     WHERE
-                        PD." . PROVEEDOR_ID . " = ? AND 
-                        PD." . PROVEEDOR_DIRECCION_ESTADO . " != FALSE;
-                ";
+                        PD." . PROVEEDOR_ID . " = ?" . ($onlyActive ? " AND 
+                        PD." . PROVEEDOR_DIRECCION_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") : "")
+                ;
 
                 // Preparar la consulta, vincular los parámetros y ejecutar la consulta
                 $stmt = mysqli_prepare($conn, $querySelect);
@@ -289,29 +280,17 @@
                 // Creamos la lista con los datos obtenidos
                 $direcciones = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    if ($json) {
-                        $direcciones[] = [
-                            "ID"        => $row[DIRECCION_ID],
-                            "Provincia" => $row[DIRECCION_PROVINCIA],
-                            "Canton"    => $row[DIRECCION_CANTON],
-                            "Distrito"  => $row[DIRECCION_DISTRITO],
-                            "Barrio"    => $row[DIRECCION_BARRIO],
-                            "Sennas"    => $row[DIRECCION_SENNAS],
-                            "Distancia" => $row[DIRECCION_DISTANCIA],
-                            "Estado"    => $row[DIRECCION_ESTADO]
-                        ];
-                    } else {
-                        $direcciones[] = new Direccion(
-                            $row[DIRECCION_ID],
-                            $row[DIRECCION_PROVINCIA],
-                            $row[DIRECCION_CANTON],
-                            $row[DIRECCION_DISTRITO],
-                            $row[DIRECCION_BARRIO],
-                            $row[DIRECCION_SENNAS],
-                            $row[DIRECCION_DISTANCIA],
-                            $row[DIRECCION_ESTADO]
-                        );
-                    }
+                    $direccion = new Direccion(
+                        $row[DIRECCION_ID],
+                        $row[DIRECCION_PROVINCIA],
+                        $row[DIRECCION_CANTON],
+                        $row[DIRECCION_DISTRITO],
+                        $row[DIRECCION_BARRIO],
+                        $row[DIRECCION_SENNAS],
+                        $row[DIRECCION_DISTANCIA],
+                        $row[DIRECCION_ESTADO]
+                    );
+                    $direcciones[] = $direccion;
                 }
 
                 return ["success" => true, "direcciones" => $direcciones];
@@ -331,8 +310,9 @@
             }
         }
 
-        public function updateDireccionesProveedor($proveedor) {
-            $conn = null; $stmt = null;
+        public function updateDireccionesProveedor($proveedor, $conn = null) {
+            $createdConnection = false; //<- Indica si la conexión se creó aquí o viene por parámetro
+            $stmt = null;
 
             try {
                 // Obtener el ID del Proveedor
@@ -348,7 +328,7 @@
                 }
 
                 // Obtener la lista actual de direcciones del proveedor desde la base de datos
-                $result = $this->getDireccionesByProveedor($proveedorID);
+                $result = $this->getDireccionesByProveedorID($proveedorID);
                 if (!$result["success"]) { throw new Exception($result["message"]); }
 
                 // Obtener los ID's de las direcciones actuales
@@ -358,21 +338,24 @@
 
                 // Obtener los ID's de las direcciones nuevas
                 $direccionesNuevas = array_map(function($direccion) {
-                    return $direccion->getDireccionID();
+                    return $direccion['ID'];
                 }, $proveedor->getProveedorDirecciones());
 
                 // Establece una conexión con la base de datos
-                $result = $this->getConnection();
-                if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
-            
-                // Iniciar una transacción
-                mysqli_begin_transaction($conn);
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+        
+                    // Desactivar el autocommit para manejar transacciones si la conexión fue creada aquí
+                    mysqli_autocommit($conn, false);
+                }
 
                 // Añadir nuevas direcciones (las que no están en la BD)
                 foreach ($direccionesNuevas as $nuevaDireccionID) {
                     if (!in_array($nuevaDireccionID, $direccionesActuales)) {
-                        $addResult = $this->addDireccionToProveedor($proveedorID, $direccionID, $conn);
+                        $addResult = $this->addDireccionToProveedor($proveedorID, $nuevaDireccionID, $conn);
                         if (!$addResult["success"]) { throw new Exception($addResult["message"]); }
                     }
                 }
@@ -386,11 +369,13 @@
                 }
 
                 // Confirmar la transacción
-                mysqli_commit($conn);
+                if ($createdConnection) {
+                    mysqli_commit($conn);
+                }
 
                 return ["success" => true, "message" => "Las direcciones del proveedor se han actualizado correctamente."];
             } catch (Exception $e) {
-                if (isset($conn)) { mysqli_rollback($conn); }
+                if ($createdConnection && isset($conn)) { mysqli_rollback($conn); }
         
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
@@ -402,21 +387,15 @@
             } finally {
                 // Cierra la conexión y el statement
                 if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
-                if (isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
+                if ($createdConnection && isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
             }
         }
 
-        public function getPaginatedDireccionesByProveedor($proveedorID, $page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
+        public function getPaginatedDireccionesByProveedor($proveedorID, $page, $size, $sort = null, $onlyActive = true, $deleted = false) {
             $conn = null; $stmt = null;
 
             try {
-                // Validar los parámetros de paginación
-                if (!is_numeric($page) || $page < 1) {
-                    throw new Exception("El número de página debe ser un entero positivo.");
-                }
-                if (!is_numeric($size) || $size < 1) {
-                    throw new Exception("El tamaño de la página debe ser un entero positivo.");
-                }
+                // Calcular el offset y el total de páginas
                 $offset = ($page - 1) * $size;
 
                 // Establece una conexión con la base de datos
@@ -426,7 +405,7 @@
 
                 // Consultar el total de registros
                 $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_PROVEEDOR_DIRECCION . " WHERE " . PROVEEDOR_ID . " = ? ";
-                if ($onlyActiveOrInactive) { $queryTotalCount .= " AND " . PROVEEDOR_DIRECCION_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($onlyActive) { $queryTotalCount .= " AND " . PROVEEDOR_DIRECCION_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 // Preparar la consulta y ejecutarla
                 $stmt = mysqli_prepare($conn, $queryTotalCount);
@@ -447,7 +426,7 @@
                         ON D." . DIRECCION_ID . " = PD." . DIRECCION_ID . "
                     WHERE
                         PD." . PROVEEDOR_ID . " = ? ";
-                if ($onlyActiveOrInactive) { $querySelect .= " AND " . PROVEEDOR_DIRECCION_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($onlyActive) { $querySelect .= " AND " . PROVEEDOR_DIRECCION_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 // Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) { $querySelect .= "ORDER BY direccion" . $sort . " "; }
@@ -466,16 +445,17 @@
                 // Creamos la lista con los datos obtenidos
                 $direcciones = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $direcciones[] = [
-                        "ID"        => $row[DIRECCION_ID],
-                        "Provincia" => $row[DIRECCION_PROVINCIA],
-                        "Canton"    => $row[DIRECCION_CANTON],
-                        "Distrito"  => $row[DIRECCION_DISTRITO],
-                        "Barrio"    => $row[DIRECCION_BARRIO],
-                        "Sennas"    => $row[DIRECCION_SENNAS],
-                        "Distancia" => $row[DIRECCION_DISTANCIA],
-                        "Estado"    => $row[DIRECCION_ESTADO]
-                    ];
+                    $direccion = new Direccion(
+                        $row[DIRECCION_ID],
+                        $row[DIRECCION_PROVINCIA],
+                        $row[DIRECCION_CANTON],
+                        $row[DIRECCION_DISTRITO],
+                        $row[DIRECCION_BARRIO],
+                        $row[DIRECCION_SENNAS],
+                        $row[DIRECCION_DISTANCIA],
+                        $row[DIRECCION_ESTADO]
+                    );
+                    $direcciones[] = $direccion;
                 }
 
                 return [

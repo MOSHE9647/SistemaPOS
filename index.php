@@ -1,80 +1,204 @@
+<?php
+	// Incluye los archivos de configuración y constantes
+	require_once './domain/Usuario.php';
+	require_once './utils/Variables.php';
+	require_once './auth/auth.php'; // Incluye el archivo de autenticación
+
+	// Verifica si el usuario está autenticado
+	$usuario = $_SESSION[SESSION_AUTHENTICATED_USER];
+
+	// Obtiene el nombre completo y el rol del usuario
+	$isAdmin = $usuario->isAdmin();
+	$correoUsuario = $usuario->getUsuarioEmail();
+	$nombreUsuario = $usuario->getUsuarioNombreCompleto();
+	$nombreRol = $usuario->getUsuarioRolUsuario()->getRolNombre();
+
+	// Rutas de la página
+	$indexScript = './view/static/js/index.js';
+	$indexStylesheet = './view/static/css/index.css';
+	$userImage = './view/static/img/user.webp';
+	$productImage = '.' . DEFAULT_PRODUCT_IMAGE;
+	$logutURL = './view/auth/logout.php';
+
+	// Determina qué vista cargar
+	$view = isset($_GET['view']) ? $_GET['view'] : 'home'; // Por defecto carga home
+	$ajax = isset($_GET['ajax']) ? $_GET['ajax'] : false;
+	$urlBase = 'index.php?view=';
+
+	// Si la petición es vía AJAX, solo devuelve la vista sin toda la estructura    
+	if ($_SERVER['REQUEST_METHOD'] === 'GET' && $ajax) {
+		$url = "./view/html";
+		$views = [
+			'ventas' => "${url}/links/ventas.php",
+			'productos' => "${url}/links/productos.php",
+			'clientes' => "${url}/links/clientes.php",
+			'proveedores' => "${url}/links/proveedores.php",
+			'reportes' => "${url}/links/reportes.php",
+			'usuarios' => "${url}/links/usuarios.php",
+			'config' => "${url}/links/config.php",
+			'cruds' => "${url}/index-old.php",
+			'home' => "${url}/home.php"
+		];
+
+		$file = $views[$view] ?? $views['home'];
+
+		if (!file_exists($file)) {
+			http_response_code(404);
+			$response = ['success' => false, 'message' => '404 Not Found'];
+			header('Content-Type: application/json');
+			echo json_encode($response);
+			exit;
+		}
+
+		include $file;
+		exit;
+	}
+
+?>
+
 <!DOCTYPE html>
 <html lang="es-cr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Index | POSFusion</title>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Inicio | POSFusion</title>
+		<link rel="stylesheet" href="<?= $indexStylesheet ?>">
+		<script>
+			var isAdmin = <?php echo json_encode($isAdmin); ?>;
+			var correoUsuario = <?php echo json_encode($correoUsuario); ?>;
+			var defaultProductImage = <?php echo json_encode(DEFAULT_PRODUCT_IMAGE); ?>;
+		</script>
+	</head>
+	<body>
+		<!-- Input para mostrar u ocultar el menu lateral -->
+		<input type="checkbox" id="menu-toggle">
 
-        <link rel="stylesheet" href="./view/css/toast.css">
-        <style>
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            }
-        </style>
+		<!-- Barra lateral de la pagina -->
+		<nav class="sidebar">
+			<!-- Nombre (marca) de la pagina -->
+			<div class="brand">
+				<span class="bi bi-shop"></span>
+				<h2>POSFusion</h2>
+			</div>
+			
+			<!-- Menu de navegacion -->
+			<div class="sidemenu">
+				<!-- Información del Usuario -->
+				<div class="side-user">
+					<!-- Imagen del Usuario -->
+					<div class="side-img" style="background-image: url(<?= $userImage ?>);"></div>
 
-        <!-- Scripts -->
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-        <script>
-            function printBarcodes(count, productoID) {
-                const url = `/pdf/printBarcodes.php?count=${count}&producto=${productoID}`;
-                window.open(url, '_blank', 'width=800,height=1300');
-            }
-        </script>
-    </head>
-    <body>
-        <h2>Administración de CRUDS</h2>
-        <ul>
-            <?php
-                // Array de enlaces principales
-                $mainTables = [
-                    'rolUsuarioView.php' => 'Gestión de Roles de Usuario',
-                    'usuarioView.php' => 'Gestión de Usuarios',
-                    'impuestoView.php' => 'Gestión de Impuestos',
-                    'proveedorView.php' => 'Gestión de Proveedores',
-                    'direccionView.php' => 'Gestión de Direcciones',
-                    'productoView.php' => 'Gestión de Productos',
-                    'telefonoView.php' => 'Gestión de Teléfonos',
-                    'categoriaView.php' => 'Gestión de Categorías',
-                    'subcategoriaView.php' => 'Gestión de Subcategorías',
-                    'loteView.php' => 'Gestión de Lotes',
-                    'compraView.php' => 'Gestión de Compras',
-                    'cuentaporpagarView.php' => 'Gestión de Cuentas por Pagar',
-                    'compradetalleView.php' => 'Gestión de Detalle de Compras',
-                    'presentacion.php'=> 'Gestion de Presentaciones',
-                    'marca.php'=> 'Gestion de Marcas',
-                ];
+					<!-- Nombre y Rol del Usuario -->
+					<?php if ($usuario !== null): ?>
+						<div class="user">
+							<small><?= $nombreUsuario ?></small>
+							<p><?= $nombreRol ?></p>
+						</div>
+					<?php endif; ?>
+				</div>
 
-                // Array de enlaces intermedios
-                $intermediateTables = [
-                    'productoSubcategoriaView.php' => 'Gestión de Producto-Subcategorías',
-                    'proveedorDireccionView.php' => 'Gestión de Proveedor-Direcciones',
-                    'proveedorTelefonoView.php' => 'Gestión de Proveedor-Teléfonos',
-                    'proveedorProductoView.php' => 'Gestión de Proveedor-Productos',
-                    'proveedorCategoriaView.php' => 'Gestión de Proveedor-Categoría',
-                    'usuarioTelefonoView.php' => 'Gestión de Usuario-Teléfonos',
-                ];
+				<!-- Enlaces del Menu Lateral -->
+				<ul>
+					<!-- Inicio -->
+					<li>
+						<!-- La clase 'active' indica que esta seleccionado  -->
+						<a href="<?= $urlBase ?>home" class="active">
+							<span class="las la-home"></span>
+							<span>Inicio</span>
+						</a>
+					</li><hr>
 
-                // Función para generar la lista de enlaces
-                function generateLinks($links) {
-                    foreach ($links as $file => $label) {
-                        echo "<li><a href=\"./view/$file\">$label</a></li>";
-                    }
-                }
+					<!-- Array con los enlaces del menu lateral -->
+					<?php
+						$links = [
+							['name' => 'Ventas', 'icon' => 'las la-shopping-cart', 'url' => "{$urlBase}ventas"],
+							['name' => 'Productos', 'icon' => 'las la-boxes', 'url' => "{$urlBase}productos"],
+							['name' => 'Clientes', 'icon' => 'las la-users', 'url' => "{$urlBase}clientes"],
+							['name' => 'Proveedores', 'icon' => 'las la-truck', 'url' => "{$urlBase}proveedores"],
+							['name' => 'Reportes', 'icon' => 'las la-chart-bar', 'url' => "{$urlBase}reportes"],
+						];
+					?>
 
-                // Imprimir secciones de enlaces
-                echo "<h3>Tablas Principales</h3>";
-                generateLinks($mainTables);
+					<!-- Recorre los enlaces del menu lateral -->
+					<?php foreach ($links as $link): ?>
+						<li>
+							<a href="<?= $link['url'] ?>">
+								<span class="<?= $link['icon'] ?>"></span>
+								<span><?= $link['name'] ?></span>
+							</a>
+						</li>
+					<?php endforeach; ?>
 
-                echo "<h3>Tablas Intermedias</h3>";
-                generateLinks($intermediateTables);
-            ?>
-            <h3>Extras</h3>
-            <li><a href="#" onclick="printBarcodes(10, 2)">Imprimir Códigos de Barras</a></li>
-            <li><a href="./view/generarCodigoBarrasView.php">Generar Código de Barras</a></li>
-            
-            <h3>Front</h3>
-            <li><a href="./view/front/index.php">Nuevo Front (En Desarrollo)</a></li>
-        </ul>
-    </body>
+					<hr>
+					<?php if ($isAdmin): ?>
+						<!-- Usuarios -->
+						<li>
+							<a href="<?= $urlBase ?>usuarios">
+								<span class="las la-user-friends"></span>
+								<span>Usuarios</span>
+							</a>
+						</li>
+
+						<!-- CRUD's -->
+						<li>
+							<a href="<?= $urlBase ?>cruds">
+								<span class="las la-database"></span>
+								<span>CRUD&apos;s</span>
+							</a>
+						</li>
+					<?php endif; ?>
+				</ul>
+			</div>
+		</nav>
+
+		<!-- Contenido de la pagina -->
+		<div class="main-content">
+			<!-- Barra superior de la pagina -->
+			<header>
+				<!-- Boton para mostrar el menu lateral -->
+				<label for="menu-toggle" class="menu-toggler">
+					<span class="las la-bars"></span>
+				</label>
+
+				<!-- Iconos de la barra -->
+				<div class="head-icons">
+					<!-- Array con los iconos de la barra superior -->
+					<?php
+						$links = [
+							['name' => 'Config', 'icon' => 'las la-cog', 'url' => "{$urlBase}config"],
+							['name' => 'Cerrar Sesión', 'icon' => 'las la-sign-out-alt', 'url' => $logutURL],
+						];
+					?>
+					<!-- Recorre los iconos de la barra superior -->
+					<?php foreach ($links as $link): ?>
+						<div class="head-icon">
+							<a id="<?= $link['name'] === 'Config' ? 'config-link' : '' ?>" href="<?= $link['url'] ?>">
+								<span class="<?= $link['icon'] ?>"></span>
+								<span><?= $link['name'] ?></span>
+							</a>
+						</div>
+					<?php endforeach;?>
+				</div>
+			</header>
+
+			<!-- Contenido principal de la pagina (se reemplaza dinámicamente con AJAX) -->
+			<main>
+				<?php
+					include './view/html/home.php'; // Incluye la vista home por defecto
+				?>
+			</main>
+		</div>
+
+		<!-- Boton menu en caso de ser vista movil -->
+		<label class="close-mobile-menu" for="menu-toggle"></label>
+
+		<!-- Loader -->
+		<div class="loader-container">
+			<div class="lds-ring loader" id="loader"><div></div><div></div><div></div><div></div></div>
+		</div>
+
+		<!-- Scripts -->
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		<script type="module" src="<?= $indexScript ?>"></script>
+	</body>
 </html>

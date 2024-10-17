@@ -1,0 +1,240 @@
+@import url('../gui/main.css');
+
+.table-card {
+    padding: 0.8rem !important;
+    background: var(--bg);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    margin: 20px 10px 0;
+}
+
+.records {
+    background: var(--bg-body);
+    border-radius: var(--card-radius);
+    padding: 1rem;
+    box-shadow: var(--product-shadow);
+}
+
+.records-header h3 {
+    color: var(--main);
+    font-size: 1.4rem;
+}
+
+.records-header h3 span {
+    font-size: 1.6rem;
+    margin-right: 0.4rem;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow: auto;
+}
+
+.table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    padding: 0.7rem;
+}
+
+.table-header button,
+.table-header input,
+.table-header select,
+.pagination-controls button {
+    padding: 0 1rem;
+    font-weight: 400;
+    height: 37px;
+}
+
+.table-header input,
+.table-header select {
+    width: 200px;
+}
+
+.paginationSort {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 25%;
+}
+
+.paginationSort span {
+    margin-right: 0.6rem;
+    font-size: 0.9rem;
+    color: #fff !important;
+}
+
+.paginationSort button {
+    width: 25%;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 15px;
+    width: 68%;
+}
+
+.search-bar input {
+    width: 100%;
+}
+
+.search-button {
+    width: 50px;
+    margin-right: 0;
+}
+
+.search-button span,
+.prevPage span,
+.nextPage span {
+    color: #fff !important;
+}
+
+.createButton {
+    margin: 0;
+}
+
+table {
+    border-collapse: collapse;
+    background: var(--bg);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    margin: 20px 0;
+}
+
+table thead tr {
+    background: var(--main);
+}
+
+table thead th {
+    padding: 1rem 0;
+    text-align: left;
+    color: #222;
+    font-size: 0.9rem;
+}
+
+table thead th:first-child {
+    padding-left: 1rem;
+    border-top-left-radius: var(--card-radius);
+}
+
+table thead th:last-child {
+    border-top-right-radius: var(--card-radius);
+}
+
+table tbody {
+    color: #fff;
+}
+
+table tbody td {
+    font-size: 0.9rem;
+    padding: 1rem 0;
+}
+
+table tbody td:first-child {
+    padding: 1rem;
+    font-weight: 600;
+}
+
+table tbody tr {
+    border-bottom: 1px solid var(--main);
+}
+
+table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.nodata {
+    display: table-cell;
+    justify-content: center;
+    align-items: center;
+    text-align: center !important;
+    color: var(--main);
+    height: 50px;
+}
+
+.nodata i {
+    font-size: 40px;
+    margin-right: 0.5rem;
+}
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    padding: 0.7rem;
+    height: 70px;
+    color: #fff;
+}
+
+.pagination-container span {
+    margin: 20px;
+    background: transparent;
+    border: none;
+}
+
+.pagination-container select {
+    width: 60px;
+}
+
+.pagination-size span:first-child {
+    margin-left: 0;
+    color: #fff !important;
+}
+
+.pagination-controls button,
+.actions button {
+    height: 37px;
+    width: 40px;
+    padding: 5px;
+}
+
+.pagination-controls button span {
+    color: #fff !important;
+    margin: 0;
+}
+
+.pageInfo {
+    color: #fff !important;
+}
+
+.btn-info {
+    border-color: var(--main);
+    color: var(--main);
+}
+
+.btn-info:hover {
+    background: var(--main) !important;
+    color: #fff;
+}
+
+.btn-save,
+.btn-edit {
+    border-color: #008000c5;
+    color: #008000c5;
+}
+
+.btn-save:hover,
+.btn-edit:hover {
+    background: #008000c5 !important;
+    color: #fff;
+}
+
+.btn-cancel,
+.btn-delete {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.btn-cancel:hover,
+.btn-delete:hover {
+    background: var(--danger) !important;
+    color: #fff;
+}

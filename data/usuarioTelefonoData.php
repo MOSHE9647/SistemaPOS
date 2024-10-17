@@ -1,6 +1,6 @@
 <?php
 
-    require_once 'data.php';
+    require_once dirname(__DIR__, 1) . '/data/data.php';
     require_once __DIR__ . '/../domain/Telefono.php';
     require_once __DIR__ . '/../utils/Variables.php';
     require_once __DIR__ . '/../utils/Utils.php';
@@ -477,7 +477,7 @@
             }
         }
 
-        public function getPaginatedTelefonosByUsuario($usuarioID, $page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
+        public function getPaginatedTelefonosByUsuario($usuarioID, $page, $size, $sort = null, $onlyActive = true, $deleted = false) {
             $conn = null; $stmt = null;
 
             try {
@@ -497,7 +497,7 @@
 
                 // Consultar el total de registros
                 $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_USUARIO_TELEFONO . " WHERE " . USUARIO_ID . " = ? ";
-                if ($onlyActiveOrInactive) { $queryTotalCount .= " AND " . USUARIO_TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($onlyActive) { $queryTotalCount .= " AND " . USUARIO_TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 $stmt = mysqli_prepare($conn, $queryTotalCount);
                 mysqli_stmt_bind_param($stmt, "i", $usuarioID);
@@ -517,7 +517,7 @@
                         ON T." . TELEFONO_ID . " = UT." . TELEFONO_ID . "
                     WHERE 
                         UT." . USUARIO_ID . " = ?";
-                if ($onlyActiveOrInactive) { $querySelect .= " AND UT." . USUARIO_TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($onlyActive) { $querySelect .= " AND UT." . USUARIO_TELEFONO_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
 
                 // Añadir la cláusula de ordenamiento si se proporciona
                 if ($sort) { $querySelect .= "ORDER BY telefono" . $sort . " "; }

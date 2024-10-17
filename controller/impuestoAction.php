@@ -1,18 +1,26 @@
 <?php
-    require_once __DIR__ . '/../service/impuestoBusiness.php';
+    require_once dirname(__DIR__, 1) . '/service/impuestoBusiness.php';
 
     $response = [];
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Acción que se va a realizar
         $accion = isset($_POST['accion']) ? $_POST['accion'] : "";
+        if (empty($accion)) {
+            $response['success'] = false;
+            $response['message'] = "No se ha especificado una acción.";
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            exit();
+        }
 
         // Datos recibidos en la solicitud (Form)
-        $id = isset($_POST['id']) ? $_POST['id'] : -1;
-        $nombre = isset($_POST['nombre']) ? $_POST['nombre'] : "";
-        $valor = isset($_POST['valor']) ? $_POST['valor'] : 0;
-        $descripcion = isset($_POST['descripcion']) ? $_POST['descripcion'] : "";
-        $fechaInicio = isset($_POST['fechaInicio']) ? $_POST['fechaInicio'] : "";
-        $fechaFin = isset($_POST['fechaFin']) ? $_POST['fechaFin'] : "";
+        $id =           isset($_POST['id'])             ? $_POST['id']          : -1;
+        $nombre =       isset($_POST['nombre'])         ? $_POST['nombre']      : "";
+        $valor =        isset($_POST['valor'])          ? $_POST['valor']       : 0.0;
+        $descripcion =  isset($_POST['descripcion'])    ? $_POST['descripcion'] : "";
+        $fechaInicio =  isset($_POST['fechaInicio'])    ? $_POST['fechaInicio'] : "";
+        $fechaFin =     isset($_POST['fechaFin'])       ? $_POST['fechaFin']    : "";
 
         // Se crea el Service para las operaciones
         $impuestoBusiness = new ImpuestoBusiness();
@@ -38,6 +46,7 @@
                     break;
                 default:
                     // Error en caso de que la accion no sea válida
+                    http_response_code(400);
                     $response['success'] = false;
                     $response['message'] = "Acción no válida.";
                     break;
@@ -53,19 +62,19 @@
         exit();
     }
 
-    if ($_SERVER["REQUEST_METHOD"] == "GET") {
+    else if ($_SERVER["REQUEST_METHOD"] == "GET") {
         $accion = isset($_GET['accion']) ? $_GET['accion'] : "";
         $deleted = isset($_GET['deleted']) ? boolval($_GET['deleted']) : false;
-        $onlyActiveOrInactive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
+        $onlyActive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
 
         $impuestoBusiness = new ImpuestoBusiness();
         switch ($accion) {
-            case 'todos':
-                $response = $impuestoBusiness->getAllTBImpuesto($onlyActiveOrInactive, $deleted);
+            case 'all':
+                $response = $impuestoBusiness->getAllTBImpuesto($onlyActive, $deleted);
                 break;
             case 'id':
                 $impuestoID = isset($_GET['id']) ? intval($_GET['id']) : -1;
-                $response = $impuestoBusiness->getImpuestoByID($impuestoID);
+                $response = $impuestoBusiness->getImpuestoByID($impuestoID, $onlyActive, $deleted);
                 break;
             default:
                 // Obtener parámetros de la solicitud GET
@@ -77,7 +86,7 @@
                 if ($page < 1) $page = 1;
                 if ($size < 1) $size = 5;
 
-                $response = $impuestoBusiness->getPaginatedImpuestos($page, $size, $sort, $onlyActiveOrInactive, $deleted);
+                $response = $impuestoBusiness->getPaginatedImpuestos($page, $size, $sort, $onlyActive, $deleted);
                 break;
         }
         
@@ -85,4 +94,15 @@
         echo json_encode($response);
         exit();
     }
+
+    else {
+        $response['success'] = false;
+        $response['message'] = "Método no permitido (" . $_SERVER["REQUEST_METHOD"] . ").";
+
+        http_response_code(405);
+        header('Content-Type: application/json');
+        echo json_encode($response);
+        exit();
+    }
+
 ?>

@@ -1,0 +1,54 @@
+.cruds-container {
+    padding: 0.8rem !important;
+    background: var(--bg);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    margin: 20px 10px 0;
+}
+
+.title-container,
+.links-container {
+    background: var(--bg-body);
+    border-radius: var(--card-radius);
+    padding: .6rem;
+    box-shadow: var(--product-shadow);
+}
+
+.title {
+    display: flex;
+    justify-content: center;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    background: var(--bg);
+    color: var(--main);
+    padding: 8px;
+}
+
+.links-container {
+    margin: 10px 0px;
+    padding: .6rem;
+}
+
+.links-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 10px;
+}
+
+.link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--main);
+    border-radius: var(--card-radius);
+    background: var(--bg);
+    color: var(--main);
+    padding: 10px;
+    transition: background-color 300ms, color 300ms;
+}
+
+.link:hover {
+    color: white;
+    cursor: pointer;
+    background: var(--main);
+}

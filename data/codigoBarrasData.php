@@ -1,9 +1,9 @@
 <?php
 
-    require_once 'data.php';
-    require_once __DIR__ . '/../domain/CodigoBarras.php';
-    require_once __DIR__ . '/../utils/Variables.php';
-    require_once __DIR__ . '/../utils/Utils.php';
+    require_once dirname(__DIR__, 1) . '/data/data.php';
+    require_once dirname(__DIR__, 1) . '/domain/CodigoBarras.php';
+    require_once dirname(__DIR__, 1) . '/utils/Variables.php';
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
     class CodigoBarrasData extends Data {
 
@@ -25,27 +25,27 @@
                 $conn = $result["connection"];
 
                 // Inicializa la consulta base
-                $queryCheck = "SELECT 1 FROM " . TB_CODIGO_BARRAS . " WHERE ";
+                $queryCheck = "SELECT " . CODIGO_BARRAS_ID . ", " . CODIGO_BARRAS_ESTADO . " FROM " . TB_CODIGO_BARRAS . " WHERE ";
                 $params = [];
                 $types = "";
 
                 // Consulta para verificar si existe un codigo de barras con el ID ingresado
                 if ($codigoBarrasID && (!$update && !$insert)) {
-                    $queryCheck .= CODIGO_BARRAS_ID . " = ? AND " . CODIGO_BARRAS_ESTADO . " != FALSE";
+                    $queryCheck .= CODIGO_BARRAS_ID . " = ? ";
                     $params[] = $codigoBarrasID;
                     $types .= 'i';
                 }
 
                 // Consulta en caso de insertar para verificar si existe un codigo de barras con el mismo numero
                 else if ($insert && $codigoBarrasNumero) {
-                    $queryCheck .= CODIGO_BARRAS_NUMERO . " = ? AND " . CODIGO_BARRAS_ESTADO . " != FALSE";
+                    $queryCheck .= CODIGO_BARRAS_NUMERO . " = ? ";
                     $params[] = $codigoBarrasNumero;
                     $types .= 's';
                 }
 
                 // Consulta en caso de actualizar para verificar si existe ya un codigo de barras con el mismo numero además del que se va a actualizar
                 else if ($update && ($codigoBarrasID && $codigoBarrasNumero)) {
-                    $queryCheck .= CODIGO_BARRAS_NUMERO . " = ? AND " . CODIGO_BARRAS_ID . " != ? AND " . CODIGO_BARRAS_ESTADO . " != FALSE";
+                    $queryCheck .= CODIGO_BARRAS_NUMERO . " = ? AND " . CODIGO_BARRAS_ID . " != ? ";
                     $params[] = $codigoBarrasNumero;
                     $params[] = $codigoBarrasID;
                     $types .= 'si';
@@ -66,9 +66,11 @@
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
 
-                // Verificar si existe un registro con los datos proporcionados
-                if (mysqli_num_rows($result) > 0) {
-                    return ["success" => true, "exists" => true];
+                // Verificar si existe un código de barras con el ID o número ingresado
+                if ($row = mysqli_fetch_assoc($result)) {
+                    // Verificar si está inactivo (bit de estado en 0)
+                    $isInactive = $row[CODIGO_BARRAS_ESTADO] == 0;
+                    return ["success" => true, "exists" => true, "inactive" => $isInactive, "codigoBarrasID" => $row[CODIGO_BARRAS_ID]];
                 }
 
                 // Retorna false si no se encontraron resultados
@@ -78,8 +80,6 @@
                 $params = implode(" y ", $messageParams);
 
                 $message = "No se encontró ningún código de barras con $params en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
-
                 return ["success" => true, "exists" => false, "message" => $message];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -109,8 +109,14 @@
                 // Verifica si ya existe el código de barras
                 $check = $this->existeCodigoBarras(null, $codigoBarrasNumero, false, true);
                 if (!$check['success']) { return $check; } //<- Error al verificar la existencia
+            
+                // En caso de ya existir el código de barras pero estar inactivo
+				if ($check["exists"] && $check["inactive"]) {
+					$message = "Ya existe un código de barras con el mismo número ($codigoBarrasNumero) en la base de datos, pero está inactivo. Desea reactivarlo?";
+                    return ["success" => true, "message" => $message, "inactive" => $check["inactive"], "id" => $check["codigoBarrasID"]];
+				}
 
-                // En caso de ya existir un código de barras con el mismo número
+                // En caso de ya existir un código de barras y estar activo
                 if ($check['exists']) {
                     $message = "El código de barras con 'Número [$codigoBarrasNumero]' ya existe en la base de datos.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
@@ -126,7 +132,7 @@
                 }
 
                 // Obtenemos el último ID de la tabla tbcodigobarras
-				$queryGetLastId = "SELECT MAX(" . CODIGO_BARRAS_ID . ") AS codigoBarrasID FROM " . TB_CODIGO_BARRAS;
+				$queryGetLastId = "SELECT MAX(" . CODIGO_BARRAS_ID . ") FROM " . TB_CODIGO_BARRAS;
 				$idCont = mysqli_query($conn, $queryGetLastId);
 				$nextId = 1;
 		
@@ -136,17 +142,18 @@
 				}
 
                 // Crea una consulta y un statement SQL para insertar el nuevo registro
-				$queryInsert = "INSERT INTO " . TB_CODIGO_BARRAS . " ("
-                    . CODIGO_BARRAS_ID . ", "
-                    . CODIGO_BARRAS_NUMERO
-                    . ") VALUES (?, ?)";
+				$queryInsert = 
+                    "INSERT INTO " . TB_CODIGO_BARRAS . " ("
+                        . CODIGO_BARRAS_ID . ", "
+                        . CODIGO_BARRAS_NUMERO . 
+                    ") VALUES (?, ?)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
 
                 // Asigna los valores a cada '?' de la consulta
 				mysqli_stmt_bind_param($stmt, 'is', $nextId, $codigoBarrasNumero);
 
                 // Ejecuta la consulta de inserción
-				$result = mysqli_stmt_execute($stmt);
+				mysqli_stmt_execute($stmt);
 				return ["success" => true, "message" => "Código de Barras insertado exitosamente", "id" => $nextId];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -166,8 +173,9 @@
             }
         }
 
-        public function updateCodigoBarras($codigoBarras) {
-            $conn = null; $stmt = null;
+        public function updateCodigoBarras($codigoBarras, $conn = null) {
+            $createdConnection = false; //<- Indica si la conexión se creó aquí o viene por parámetro
+            $stmt = null;
 
             try {
                 // Obtener el ID y Codigo de Barras
@@ -193,12 +201,22 @@
                 }
 
                 // Establece una conexion con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) { throw new Exception($result["message"]); }
-				$conn = $result["connection"];
+				if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+                }
 
                 // Crea una consulta y un statement SQL para actualizar el registro
-				$queryUpdate = "UPDATE " . TB_CODIGO_BARRAS . " SET " . CODIGO_BARRAS_NUMERO . " = ? " . "WHERE " . CODIGO_BARRAS_ID . " = ?";
+                $queryUpdate = "
+                    UPDATE " . TB_CODIGO_BARRAS . " 
+                    SET 
+                        " . CODIGO_BARRAS_NUMERO . " = ?, 
+                        " . CODIGO_BARRAS_ESTADO . " = TRUE 
+                    WHERE 
+                        " . CODIGO_BARRAS_ID . " = ?
+                ";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
                 mysqli_stmt_bind_param($stmt, 'si', $codigoBarrasNumero, $codigoBarrasID);
 
@@ -220,8 +238,8 @@
                 return ["success" => false, "message" => $userMessage];
             } finally {
                 // Cierra la conexión y el statement
-				if (isset($stmt)) { mysqli_stmt_close($stmt); }
-				if (isset($conn)) { mysqli_close($conn); }
+				if (isset($stmt) && $stmt instanceof mysqli_stmt) { mysqli_stmt_close($stmt); }
+                if ($createdConnection && isset($conn) && $conn instanceof mysqli) { mysqli_close($conn); }
             }
         }
 
@@ -275,7 +293,7 @@
             }
         }
 
-        public function getAllTBCodigoBarras($onlyActiveOrInactive = false, $deleted = false) {
+        public function getAllTBCodigoBarras($onlyActive = false, $deleted = false) {
             $conn = null;
 
             try {
@@ -286,21 +304,20 @@
 
                 // Consulta SQL para obtener todos los registros de la tabla tbtelefono
                 $querySelect = "SELECT * FROM " . TB_CODIGO_BARRAS;
-                if ($onlyActiveOrInactive) { $querySelect .= " WHERE " . CODIGO_BARRAS_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); }
+                if ($onlyActive) { $querySelect .= " WHERE " . CODIGO_BARRAS_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); }
                 $result = mysqli_query($conn, $querySelect);
 
                 // Crear un array para almacenar los registros
                 $codigosBarras = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $codigoBarras = [
-                        'ID' => $row[CODIGO_BARRAS_ID],
-                        'Numero' => $row[CODIGO_BARRAS_NUMERO],
-                        'CreacionISO' => Utils::formatearFecha($row[CODIGO_BARRAS_FECHA_CREACION], 'Y-MM-dd'),
-                        'Creacion' => Utils::formatearFecha($row[CODIGO_BARRAS_FECHA_CREACION]),
-                        'ModificacionISO' => Utils::formatearFecha($row[CODIGO_BARRAS_FECHA_MODIFICACION], 'Y-MM-dd'),
-                        'Modificacion' => Utils::formatearFecha($row[CODIGO_BARRAS_FECHA_MODIFICACION]),
-                        'Estado' => $row[CODIGO_BARRAS_ESTADO]
-                    ];
+                    $codigoBarras = new CodigoBarras(
+                        $row[CODIGO_BARRAS_ID],
+                        $row[CODIGO_BARRAS_NUMERO],
+                        $row[CODIGO_BARRAS_FECHA_CREACION],
+                        $row[CODIGO_BARRAS_FECHA_MODIFICACION],
+                        $row[CODIGO_BARRAS_ESTADO]
+                    );
+                    $codigosBarras[] = $codigoBarras;
                 }
 
                 // Devuelve el resultado de la consulta
@@ -321,56 +338,10 @@
 			}
         }
 
-        public function getAllTBProductoCodigoBarras() {
-            $response = [];
-            try {
-                // Establece una conexion con la base de datos
-				$result = $this->getConnection();
-				if (!$result["success"]) { throw new Exception($result["message"]); }
-				$conn = $result["connection"];
-
-                // Consulta SQL para obtener todos los registros de la tabla tbtelefono
-                $querySelect = "SELECT " . CODIGO_BARRAS_ID . ", " . CODIGO_BARRAS_NUMERO . " FROM " . TB_CODIGO_BARRAS . " WHERE " . CODIGO_BARRAS_ESTADO . " !=false";
-                $result = mysqli_query($conn, $querySelect);
-
-                // Crear un array para almacenar los registros
-                $listaProductoCdigosBarras = [];
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $listaProductoCdigosBarras = [
-                        'ID' => $row[CODIGO_BARRAS_ID],
-                        'BarrasNumero' => $row[CODIGO_BARRAS_NUMERO],
-                    ];
-                }
-
-                // Devuelve el resultado de la consulta
-                return ["success" => true, "listaProductoCdigosBarras" => $listaProductoCdigosBarras];
-            } catch (Exception $e) {
-                // Manejo del error dentro del bloque catch
-                $userMessage = $this->handleMysqlError(
-                    $e->getCode(), 
-                    $e->getMessage(),
-                    'Error al obtener la lista de códigos de barras desde la base de datos',
-                );
-                // Devolver mensaje amigable para el usuario
-                return ["success" => false, "message" => $userMessage];
-            } finally {
-				// Cerramos la conexion
-				if (isset($conn)) { mysqli_close($conn); }
-			}
-            return $response;
-        }
-
-        public function getPaginatedCodigosBarras($page, $size, $sort = null, $onlyActiveOrInactive = false, $deleted = false) {
+        public function getPaginatedCodigosBarras($page, $size, $sort = null, $onlyActive = false, $deleted = false) {
             $conn = null; $stmt = null;
             
             try {
-                // Validar los parámetros de paginación
-                if (!is_numeric($page) || $page < 1) {
-                    throw new Exception("El número de página debe ser un entero positivo.");
-                }
-                if (!is_numeric($size) || $size < 1) {
-                    throw new Exception("El tamaño de la página debe ser un entero positivo.");
-                }
                 $offset = ($page - 1) * $size;
 
                 // Establece una conexión con la base de datos
@@ -380,7 +351,9 @@
 
                 // Consultar el total de registros
                 $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_CODIGO_BARRAS . " ";
-                if ($onlyActiveOrInactive) { $queryTotalCount .= " WHERE " . CODIGO_BARRAS_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($onlyActive) { $queryTotalCount .= " WHERE " . CODIGO_BARRAS_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                
+                // Ejecutar la consulta y obtener el total de registros
                 $totalResult = mysqli_query($conn, $queryTotalCount);
                 $totalRow = mysqli_fetch_assoc($totalResult);
                 $totalRecords = (int) $totalRow['total'];
@@ -397,36 +370,32 @@
                     FROM
                         " . TB_CODIGO_BARRAS . " C
                 ";
-                if ($onlyActiveOrInactive) { $querySelect .= " WHERE C." . CODIGO_BARRAS_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") . " "; }
+                if ($onlyActive) { $querySelect .= " WHERE C." . CODIGO_BARRAS_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); }
 
                 // Añadir la cláusula de ordenamiento si se proporciona
-                if ($sort) { $querySelect .= "ORDER BY codigobarras" . $sort . " ";
-                }
+                if ($sort) { $querySelect .= " ORDER BY codigobarras" . $sort; }
 
                 // Añadir la cláusula de limitación y offset
-                $querySelect .= "LIMIT ? OFFSET ?";
+                $querySelect .= " LIMIT ? OFFSET ?";
 
                 // Preparar la consulta y vincular los parámetros
                 $stmt = mysqli_prepare($conn, $querySelect);
                 mysqli_stmt_bind_param($stmt, "ii", $size, $offset);
 
-                // Ejecutar la consulta
+                // Ejecutar la consulta y obtener el resultado
                 $result = mysqli_stmt_execute($stmt);
-
-				// Obtener el resultado
                 $result = mysqli_stmt_get_result($stmt);
 
                 $codigosBarras = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $codigosBarras[] = [
-                        'ID' => $row[CODIGO_BARRAS_ID],
-						'Numero' => $row[CODIGO_BARRAS_NUMERO],
-						'FechaCreacion' => Utils::formatearFecha($row[CODIGO_BARRAS_FECHA_CREACION]), //<- 20 ago. 2024
-						'FechaModificacion' => Utils::formatearFecha($row[CODIGO_BARRAS_FECHA_CREACION]),
-						'FechaCreacionISO' => Utils::formatearFecha($row[CODIGO_BARRAS_FECHA_MODIFICACION], 'Y-MM-dd'), //<- 2024-08-20
-						'FechaModificacionISO' => Utils::formatearFecha($row[CODIGO_BARRAS_FECHA_MODIFICACION], 'Y-MM-dd'),
-						'Estado' => $row[CODIGO_BARRAS_ESTADO]
-                    ];
+                    $codigoBarras = new CodigoBarras(
+                        $row[CODIGO_BARRAS_ID],
+                        $row[CODIGO_BARRAS_NUMERO],
+                        $row[CODIGO_BARRAS_FECHA_CREACION],
+                        $row[CODIGO_BARRAS_FECHA_MODIFICACION],
+                        $row[CODIGO_BARRAS_ESTADO]
+                    );
+                    $codigosBarras[] = $codigoBarras;
                 }
 
                 return [
@@ -455,12 +424,12 @@
             }
         }
 
-        public function getCodigoBarrasByID($codigoBarrasID, $json = true) {
+        public function getCodigoBarrasByID($codigoBarrasID, $onlyActive = true, $deleted = false) {
             $conn = null; $stmt = null;
 
             try {
                 // Verifica si existe un Código de Barras con el mismo ID en la BD
-                $check = $this->existeCodigoBarrasID($codigoBarrasID);
+                $check = $this->existeCodigoBarras($codigoBarrasID);
                 if (!$check["success"]) { return $check; } // Error al verificar la existencia
                 if (!$check["exists"]) { // No existe el código de barras
                     $message = "El código de barras con 'ID [$codigoBarrasID]' no existe en la base de datos.";
@@ -474,7 +443,15 @@
                 $conn = $result["connection"];
 
                 // Consulta SQL para obtener el código de barras con el ID proporcionado
-                $querySelect = "SELECT * FROM " . TB_CODIGO_BARRAS . " WHERE " . CODIGO_BARRAS_ID . " = ? AND " . CODIGO_BARRAS_ESTADO . " != FALSE";
+                $querySelect = "
+                    SELECT 
+                        * 
+                    FROM " . 
+                        TB_CODIGO_BARRAS . " 
+                    WHERE " . 
+                        CODIGO_BARRAS_ID . " = ?" . ($onlyActive ? " AND " . 
+                        CODIGO_BARRAS_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE") : "")
+                    ;
                 $stmt = mysqli_prepare($conn, $querySelect);
 
                 // Asignar los parámetros y ejecutar la consulta
@@ -485,26 +462,13 @@
                 // Verifica si existe algún registro con los criterios dados
                 if (mysqli_num_rows($result) > 0) {
                     $row = mysqli_fetch_assoc($result);
-                    $codigoBarras = null;
-                    if ($json) {
-                        $codigoBarras = [
-                            'ID' => $row[CODIGO_BARRAS_ID],
-                            'Numero' => $row[CODIGO_BARRAS_NUMERO],
-                            'CreacionISO' => Utils::formatearFecha($row[CODIGO_BARRAS_FECHA_CREACION], 'Y-MM-dd'),
-                            'Creacion' => Utils::formatearFecha($row[CODIGO_BARRAS_FECHA_CREACION]),
-                            'ModificacionISO' => Utils::formatearFecha($row[CODIGO_BARRAS_FECHA_MODIFICACION], 'Y-MM-dd'),
-                            'Modificacion' => Utils::formatearFecha($row[CODIGO_BARRAS_FECHA_MODIFICACION]),
-                            'Estado' => $row[CODIGO_BARRAS_ESTADO]
-                        ];
-                    } else {
-                        $codigoBarras = new CodigoBarras(
-                            $row[CODIGO_BARRAS_ID],
-                            $row[CODIGO_BARRAS_NUMERO],
-                            $row[CODIGO_BARRAS_FECHA_CREACION],
-                            $row[CODIGO_BARRAS_FECHA_MODIFICACION],
-                            $row[CODIGO_BARRAS_ESTADO]
-                        );
-                    }
+                    $codigoBarras = new CodigoBarras(
+                        $row[CODIGO_BARRAS_ID],
+                        $row[CODIGO_BARRAS_NUMERO],
+                        $row[CODIGO_BARRAS_FECHA_CREACION],
+                        $row[CODIGO_BARRAS_FECHA_MODIFICACION],
+                        $row[CODIGO_BARRAS_ESTADO]
+                    );
 
                     // Devuelve el resultado de la consulta
                     return ["success" => true, "codigoBarras" => $codigoBarras];

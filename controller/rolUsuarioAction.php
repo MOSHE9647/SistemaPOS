@@ -6,6 +6,16 @@
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Acción que se va a realizar
         $accion = isset($_POST['accion']) ? $_POST['accion'] : "";
+        if (empty($accion)) {
+            $response = [
+                'success' => false,
+                'message' => "No se ha especificado una acción."
+            ];
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode($response);
+            exit();
+        }
 
         // Datos recibidos en la solicitud (Form)
         $id = isset($_POST['id']) ? $_POST['id'] : -1;
@@ -36,6 +46,7 @@
                     break;
                 default:
                     // Error en caso de que la accion no sea válida
+                    http_response_code(400);
                     $response['success'] = false;
                     $response['message'] = "Acción no válida.";
                     break;
@@ -51,15 +62,15 @@
         exit();
     }
 
-    if ($_SERVER["REQUEST_METHOD"] == "GET") {
+    else if ($_SERVER["REQUEST_METHOD"] == "GET") {
         $accion = isset($_GET['accion']) ? $_GET['accion'] : "";
         $deleted = isset($_GET['deleted']) ? boolval($_GET['deleted']) : false;
-        $onlyActiveOrInactive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
+        $onlyActive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
 
         $rolBusiness = new RolBusiness();
         switch ($accion) {
             case 'todos':
-                $response = $rolBusiness->getAllTBRolUsuario($onlyActiveOrInactive, $deleted);
+                $response = $rolBusiness->getAllTBRolUsuario($onlyActive, $deleted);
                 break;
             case 'id':
                 $rolID = isset($_GET['id']) ? intval($_GET['id']) : -1;
@@ -73,7 +84,7 @@
                 if ($page < 1) $page = 1;
                 if ($size < 1) $size = 5;
 
-                $response = $rolBusiness->getPaginatedRoles($page, $size, $sort, $onlyActiveOrInactive, $deleted);
+                $response = $rolBusiness->getPaginatedRoles($page, $size, $sort, $onlyActive, $deleted);
                 break;
         }
 

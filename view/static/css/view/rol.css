@@ -1,0 +1,23 @@
+@import url(../gui/modal.css);
+
+.rol-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+.rol-info input, textarea,
+.input-select {
+    width: 100%;
+}
+
+.rol-info textarea {
+    height: 100%;
+}
+
+.input-select label {
+    margin-bottom: 5px;
+    align-self: flex-start;
+}

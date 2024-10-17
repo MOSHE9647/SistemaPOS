@@ -1,7 +1,6 @@
 <?php
 
     require_once __DIR__ . '/../data/codigoBarrasData.php';
-    require_once __DIR__ . '/../service/productoBusiness.php';
 
     class CodigoBarrasBusiness {
 
@@ -17,6 +16,20 @@
             if ($codigoBarrasID === null || !is_numeric($codigoBarrasID) || $codigoBarrasID < 0) {
                 Utils::writeLog("El ID [$codigoBarrasID] del código de barras no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                 return ["is_valid" => false, "message" => "El ID del código de barras está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
+            }
+
+            return ["is_valid" => true];
+        }
+
+        public function validarDatosPaginacion($page, $size) {
+            if ($page === null || !is_numeric($page) || $page < 0) {
+                Utils::writeLog("El 'page [$page]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ["is_valid" => false, "message" => "El número de página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
+            }
+
+            if ($size === null || !is_numeric($size) || $size < 0) {
+                Utils::writeLog("El 'size [$size]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ["is_valid" => false, "message" => "El tamaño de la página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
             }
 
             return ["is_valid" => true];
@@ -82,38 +95,34 @@
             return $this->codigoBarrasData->deleteCodigoBarras($codigoBarrasID, $conn);
         }
 
-        public function getAllTBCodigoBarras($onlyActiveOrInactive = false, $deleted = false) {
-            return $this->telefonoData->getAllTBCodigoBarras($onlyActiveOrInactive, $deleted);
+        public function getAllTBCodigoBarras($onlyActive = false, $deleted = false) {
+            return $this->codigoBarrasData->getAllTBCodigoBarras($onlyActive, $deleted);
         }
 
-        public function getAllTBProductoCodigoBarras() {
-            return $this->codigoBarrasData->getAllTBProductoCodigoBarras();
-        }
-        public function getPaginatedCodigosBarras($page, $size, $sort = null, $onlyActiveOrInactive = true, $deleted = false) {
-            return $this->telefonoData->getPaginatedCodigosBarras($page, $size, $sort, $onlyActiveOrInactive, $deleted);
+        public function getPaginatedCodigosBarras($page, $size, $sort = null, $onlyActive = true, $deleted = false) {
+            // Verifica que los datos de paginación sean válidos
+            $check = $this->validarDatosPaginacion($page, $size);
+            if (!$check['is_valid']) {
+                return ["success" => $check["is_valid"], "message" => $check["message"]];
+            }
+
+            return $this->codigoBarrasData->getPaginatedCodigosBarras($page, $size, $sort, $onlyActive, $deleted);
         }
 
-        public function getCodigoBarrasByID($codigoBarrasID) {
+        public function getCodigoBarrasByID($codigoBarrasID, $onlyActive = true, $deleted = false) {
             // Verifica que los datos del Código de Barras sean validos
             $check = $this->validarCodigoBarrasID($codigoBarrasID);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
 
-            return $this->codigoBarrasData->getCodigoBarrasByID($codigoBarraID);
+            return $this->codigoBarrasData->getCodigoBarrasByID($codigoBarrasID, $onlyActive, $deleted);
         }
 
-        public function generarCodigoDeBarras($productoID) {
+        public function generarCodigoDeBarras() {
             try {
-                // Verificar que el ID del producto sea válido
-                $productoBusiness = new ProductoBusiness();
-                $check = $productoBusiness->validarProductoID($productoID);
-                if (!$check["is_valid"]) {
-                    return ["success" => $check["is_valid"], "message" => $check["message"]];
-                }
-
-                // Generar el código de barras a partir del ID del Producto
-                $ean13 = $this->generateBarcodeFromHash($productoID);
+                // Generar el código de barras a partir de un ID único
+                $ean13 = $this->generateBarcodeFromHash(Utils::generateCodeFromUUID());
                 return ['success' => true, 'code' => $ean13];
             } catch (Exception $e) {
                 // Manejo de errores y logging
@@ -143,7 +152,7 @@
          * @return string El código EAN-13 completo con el dígito de control.
          * @throws InvalidArgumentException Si el código no tiene 12 dígitos.
          */
-        private function calculateEAN13Checksum($code) {
+        private function calculateEAN13Checksum($code): string {
             // Verificar que el código tenga 12 dígitos
             if (!is_string($code) || strlen($code) != 12 || !ctype_digit($code)) {
                 $message = "Error al generar el checksum del código de barras para [$code]: El código debe tener 12 dígitos";
