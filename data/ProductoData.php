@@ -107,7 +107,7 @@
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if (isset($conn)) { mysqli_close($conn); }
             }
-        }        
+        }
         
         public function insertProducto($producto, $conn = null) {
             $createdConnection = false;

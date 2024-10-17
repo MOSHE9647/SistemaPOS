@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 17-10-2024 a las 22:04:13
+-- Tiempo de generación: 15-10-2024 a las 01:44:30
 -- Versión del servidor: 8.0.39-0ubuntu0.24.04.2
 -- Versión de PHP: 8.3.6
 
@@ -29,8 +29,8 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `tbcategoria` (
   `categoriaid` int NOT NULL,
-  `categorianombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `categoriadescripcion` text COLLATE utf8mb4_unicode_ci,
+  `categorianombre` varchar(100) NOT NULL,
+  `categoriadescripcion` text,
   `categoriaestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -58,9 +58,8 @@ INSERT INTO `tbcategoria` (`categoriaid`, `categorianombre`, `categoriadescripci
 
 CREATE TABLE `tbcliente` (
   `clienteid` int NOT NULL,
-  `clienteusuarioid` int DEFAULT (-(1)),
   `clientenombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'No Definido',
-  `clientealias` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'No Definido',
+  `clientealias` varchar(50) DEFAULT 'No Definido',
   `clientetelefonoid` int NOT NULL,
   `clientefechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `clientefechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -71,8 +70,8 @@ CREATE TABLE `tbcliente` (
 -- Volcado de datos para la tabla `tbcliente`
 --
 
-INSERT INTO `tbcliente` (`clienteid`, `clienteusuarioid`, `clientenombre`, `clientealias`, `clientetelefonoid`, `clientefechacreacion`, `clientefechamodificacion`, `clienteestado`) VALUES
-(1, -1, 'Isaac', 'No Definido', 7, '2024-10-14 19:35:30', '2024-10-14 19:39:36', 1);
+INSERT INTO `tbcliente` (`clienteid`, `clientenombre`, `clientealias`, `clientetelefonoid`, `clientefechacreacion`, `clientefechamodificacion`, `clienteestado`) VALUES
+(1, 'Isaac', 'No Definido', 7, '2024-10-14 19:35:30', '2024-10-14 19:39:36', 1);
 
 -- --------------------------------------------------------
 
@@ -82,7 +81,7 @@ INSERT INTO `tbcliente` (`clienteid`, `clienteusuarioid`, `clientenombre`, `clie
 
 CREATE TABLE `tbcodigobarras` (
   `codigobarrasid` int NOT NULL,
-  `codigobarrasnumero` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `codigobarrasnumero` varchar(100) NOT NULL,
   `codigobarrasfechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `codigobarrasfechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `codigobarrasestado` tinyint NOT NULL DEFAULT '1'
@@ -103,10 +102,10 @@ INSERT INTO `tbcodigobarras` (`codigobarrasid`, `codigobarrasnumero`, `codigobar
 
 CREATE TABLE `tbcompra` (
   `compraid` int NOT NULL,
-  `compranumerofactura` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `compranumerofactura` varchar(100) NOT NULL,
   `compramontobruto` decimal(10,2) NOT NULL,
   `compramontoneto` decimal(10,2) NOT NULL,
-  `compratipopago` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `compratipopago` varchar(50) NOT NULL,
   `compraproveedorid` int NOT NULL,
   `comprafechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `comprafechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -122,6 +121,7 @@ CREATE TABLE `tbcompra` (
 CREATE TABLE `tbcompradetalle` (
   `compradetalleid` int NOT NULL,
   `compradetallecompraid` int NOT NULL,
+  `compradetalleloteid` int NOT NULL,
   `compradetalleproductoid` int NOT NULL,
   `compradetalleprecioproducto` decimal(10,2) NOT NULL,
   `compradetallecantidad` int NOT NULL,
@@ -133,37 +133,19 @@ CREATE TABLE `tbcompradetalle` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `tbcompraporpagar`
+-- Estructura de tabla para la tabla `tbcuentaporpagar`
 --
 
-CREATE TABLE `tbcompraporpagar` (
-  `compraporpagarid` int NOT NULL,
-  `compraporpagarcompradetalleid` int NOT NULL,
-  `compraporpagarfechavencimiento` date NOT NULL,
-  `compraporpagarmontototal` decimal(10,2) NOT NULL,
-  `compraporpagarmontopagado` decimal(10,2) NOT NULL,
-  `compraporpagarfechapago` date NOT NULL,
-  `compraporpagarestadocuenta` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT (_utf8mb4'Pendiente'),
-  `compraporpagarnotas` text COLLATE utf8mb4_unicode_ci,
-  `compraporpagarestado` tinyint NOT NULL DEFAULT (_utf8mb4'1')
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `tbcuentaporcobrar`
---
-
-CREATE TABLE `tbcuentaporcobrar` (
-  `cuentaporcobrarid` int NOT NULL,
-  `cuentaporcobrarventadetalleid` int NOT NULL,
-  `cuentaporcobrarfechavencimiento` date NOT NULL,
-  `cuentaporcobrarmontototal` decimal(10,2) NOT NULL,
-  `compraporpagarmontopagado` decimal(10,2) NOT NULL,
-  `cuentaporcobrarfechapago` date NOT NULL,
-  `compraporpagarestadocuenta` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT (_utf8mb4'Pendiente'),
-  `cuentaporcobrarnotas` text COLLATE utf8mb4_unicode_ci,
-  `cuentaporcobrarestado` tinyint NOT NULL DEFAULT (_utf8mb4'1')
+CREATE TABLE `tbcuentaporpagar` (
+  `cuentaporpagarid` int NOT NULL,
+  `cuentaporpagarcompradetalleid` int NOT NULL,
+  `cuentaporpagarfechavencimiento` date NOT NULL,
+  `cuentaporpagarmontototal` decimal(10,2) NOT NULL,
+  `cuentaporpagarmontopagado` decimal(10,2) NOT NULL,
+  `cuentaporpagarfechapago` date NOT NULL,
+  `cuentaporpagarestadocuenta` varchar(50) NOT NULL DEFAULT 'Pendiente',
+  `cuentaporpagarnotas` text,
+  `cuentaporpagarestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -174,11 +156,11 @@ CREATE TABLE `tbcuentaporcobrar` (
 
 CREATE TABLE `tbdireccion` (
   `direccionid` int NOT NULL,
-  `direccionprovincia` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `direccioncanton` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `direcciondistrito` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `direccionbarrio` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT '',
-  `direccionsennas` text COLLATE utf8mb4_unicode_ci,
+  `direccionprovincia` varchar(100) NOT NULL,
+  `direccioncanton` varchar(100) NOT NULL,
+  `direcciondistrito` varchar(100) NOT NULL,
+  `direccionbarrio` varchar(100) DEFAULT '',
+  `direccionsennas` text,
   `direcciondistancia` decimal(5,2) NOT NULL,
   `direccionestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -193,32 +175,14 @@ INSERT INTO `tbdireccion` (`direccionid`, `direccionprovincia`, `direccioncanton
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `tbfacturatemporal`
---
-
-CREATE TABLE `tbfacturatemporal` (
-  `facturatemporalid` int NOT NULL,
-  `facturatemporalnumerofactura` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `facturatemporalmontobruto` decimal(10,2) NOT NULL,
-  `facturatemporalmontoneto` decimal(10,2) NOT NULL,
-  `facturatemporalusuarioid` int NOT NULL,
-  `facturatemporalclienteid` int NOT NULL,
-  `facturatemporalproductoid` int NOT NULL,
-  `facturatemporalcantidad` int NOT NULL,
-  `facturatemporalestado` tinyint NOT NULL DEFAULT (1)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `tbimpuesto`
 --
 
 CREATE TABLE `tbimpuesto` (
   `impuestoid` int NOT NULL,
-  `impuestonombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `impuestonombre` varchar(100) NOT NULL,
   `impuestovalor` decimal(5,2) NOT NULL,
-  `impuestodescripcion` text COLLATE utf8mb4_unicode_ci,
+  `impuestodescripcion` text,
   `impuestofechainiciovigencia` date NOT NULL,
   `impuestofechafinvigencia` date NOT NULL,
   `impuestoestado` tinyint NOT NULL DEFAULT '1'
@@ -237,13 +201,26 @@ INSERT INTO `tbimpuesto` (`impuestoid`, `impuestonombre`, `impuestovalor`, `impu
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `tblote`
+--
+
+CREATE TABLE `tblote` (
+  `loteid` int NOT NULL,
+  `lotecodigo` varchar(100) NOT NULL,
+  `lotefechavencimiento` date NOT NULL,
+  `loteestado` tinyint NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `tbmarca`
 --
 
 CREATE TABLE `tbmarca` (
   `marcaid` int NOT NULL,
-  `marcanombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `marcadescripcion` text COLLATE utf8mb4_unicode_ci,
+  `marcanombre` varchar(100) NOT NULL,
+  `marcadescripcion` text,
   `marcaestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -262,8 +239,8 @@ INSERT INTO `tbmarca` (`marcaid`, `marcanombre`, `marcadescripcion`, `marcaestad
 
 CREATE TABLE `tbpresentacion` (
   `presentacionid` int NOT NULL,
-  `presentacionnombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `presentaciondescripcion` text COLLATE utf8mb4_unicode_ci,
+  `presentacionnombre` varchar(100) NOT NULL,
+  `presentaciondescripcion` text,
   `presentacionestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -283,17 +260,15 @@ INSERT INTO `tbpresentacion` (`presentacionid`, `presentacionnombre`, `presentac
 CREATE TABLE `tbproducto` (
   `productoid` int NOT NULL,
   `productocodigobarrasid` int NOT NULL,
-  `productonombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `productocantidad` int NOT NULL,
+  `productonombre` varchar(100) NOT NULL,
   `productopreciocompra` decimal(10,2) NOT NULL,
   `productoporcentajeganancia` decimal(10,2) NOT NULL,
-  `productodescripcion` text COLLATE utf8mb4_unicode_ci,
+  `productodescripcion` text,
   `productocategoriaid` int NOT NULL,
   `productosubcategoriaid` int NOT NULL,
   `productomarcaid` int NOT NULL,
   `productopresentacionid` int NOT NULL,
-  `productoimagen` text COLLATE utf8mb4_unicode_ci,
-  `productofechavencimiento` date DEFAULT NULL,
+  `productoimagen` text,
   `productoestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -301,8 +276,8 @@ CREATE TABLE `tbproducto` (
 -- Volcado de datos para la tabla `tbproducto`
 --
 
-INSERT INTO `tbproducto` (`productoid`, `productocodigobarrasid`, `productonombre`, `productocantidad`, `productopreciocompra`, `productoporcentajeganancia`, `productodescripcion`, `productocategoriaid`, `productosubcategoriaid`, `productomarcaid`, `productopresentacionid`, `productoimagen`, `productofechavencimiento`, `productoestado`) VALUES
-(1, 1, 'PRUEBA 1', 0, 1600.00, 10.00, '', 4, 3, 1, 1, '/view/static/img/productos/0004/0003/1_PRUEBA_1.webp', NULL, 1);
+INSERT INTO `tbproducto` (`productoid`, `productocodigobarrasid`, `productonombre`, `productopreciocompra`, `productoporcentajeganancia`, `productodescripcion`, `productocategoriaid`, `productosubcategoriaid`, `productomarcaid`, `productopresentacionid`, `productoimagen`, `productoestado`) VALUES
+(1, 1, 'PRUEBA 1', 1600.00, 10.00, '', 4, 3, 1, 1, '/view/static/img/productos/0004/0003/1_PRUEBA_1.webp', 1);
 
 -- --------------------------------------------------------
 
@@ -312,8 +287,8 @@ INSERT INTO `tbproducto` (`productoid`, `productocodigobarrasid`, `productonombr
 
 CREATE TABLE `tbproveedor` (
   `proveedorid` int NOT NULL,
-  `proveedornombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `proveedoremail` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `proveedornombre` varchar(100) NOT NULL,
+  `proveedoremail` varchar(100) NOT NULL,
   `proveedorcategoriaid` int NOT NULL,
   `proveedorfechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `proveedorfechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -393,8 +368,8 @@ INSERT INTO `tbproveedortelefono` (`proveedortelefonoid`, `proveedorid`, `telefo
 
 CREATE TABLE `tbrolusuario` (
   `rolusuarioid` int NOT NULL,
-  `rolusuarionombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `rolusuariodescripcion` text COLLATE utf8mb4_unicode_ci,
+  `rolusuarionombre` varchar(100) NOT NULL,
+  `rolusuariodescripcion` text,
   `rolusuarioestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -417,8 +392,8 @@ INSERT INTO `tbrolusuario` (`rolusuarioid`, `rolusuarionombre`, `rolusuariodescr
 CREATE TABLE `tbsubcategoria` (
   `subcategoriaid` int NOT NULL,
   `subcategoriacategoriaid` int NOT NULL,
-  `subcategorianombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `subcategoriadescripcion` text COLLATE utf8mb4_unicode_ci,
+  `subcategorianombre` varchar(100) NOT NULL,
+  `subcategoriadescripcion` text,
   `subcategoriaestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -439,10 +414,10 @@ INSERT INTO `tbsubcategoria` (`subcategoriaid`, `subcategoriacategoriaid`, `subc
 
 CREATE TABLE `tbtelefono` (
   `telefonoid` int NOT NULL,
-  `telefonotipo` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `telefonocodigopais` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `telefononumero` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `telefonoextension` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `telefonotipo` varchar(50) NOT NULL,
+  `telefonocodigopais` varchar(10) NOT NULL,
+  `telefononumero` varchar(20) NOT NULL,
+  `telefonoextension` varchar(10) DEFAULT NULL,
   `telefonofechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `telefonofechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `telefonoestado` tinyint NOT NULL DEFAULT '1'
@@ -468,12 +443,12 @@ INSERT INTO `tbtelefono` (`telefonoid`, `telefonotipo`, `telefonocodigopais`, `t
 
 CREATE TABLE `tbusuario` (
   `usuarioid` int NOT NULL,
-  `usuarionombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `usuarioapellido1` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `usuarioapellido2` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `usuarionombre` varchar(100) NOT NULL,
+  `usuarioapellido1` varchar(100) NOT NULL,
+  `usuarioapellido2` varchar(100) NOT NULL,
   `usuariorolusuarioid` int NOT NULL,
-  `usuarioemail` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `usuariopassword` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `usuarioemail` varchar(100) NOT NULL,
+  `usuariopassword` varchar(255) NOT NULL,
   `usuariofechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `usuariofechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `usuarioestado` tinyint NOT NULL DEFAULT '1'
@@ -493,34 +468,14 @@ INSERT INTO `tbusuario` (`usuarioid`, `usuarionombre`, `usuarioapellido1`, `usua
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `tbventa`
+-- Estructura de tabla para la tabla `tbusuariotelefono`
 --
 
-CREATE TABLE `tbventa` (
-  `ventaid` int NOT NULL,
-  `ventanumerofactura` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `ventamontobruto` decimal(10,2) NOT NULL,
-  `ventamontoneto` decimal(10,2) NOT NULL,
-  `ventacancelada` tinyint NOT NULL DEFAULT (0),
-  `ventausuarioid` int NOT NULL COMMENT 'El usuario que hizo la venta',
-  `ventaclienteid` int NOT NULL COMMENT 'El cliente al que se le vendió',
-  `ventaestado` tinyint NOT NULL DEFAULT (1)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `tbventadetalle`
---
-
-CREATE TABLE `tbventadetalle` (
-  `ventadetalleid` int NOT NULL,
-  `ventadetalleventaid` int NOT NULL,
-  `ventadetalleproductoid` int NOT NULL,
-  `ventadetallecantidad` int NOT NULL,
-  `ventadetallemontopago` decimal(10,2) NOT NULL,
-  `ventadetallemontovuelto` decimal(10,2) NOT NULL,
-  `ventadetalleestado` tinyint NOT NULL DEFAULT (1)
+CREATE TABLE `tbusuariotelefono` (
+  `usuariotelefonoid` int NOT NULL,
+  `usuarioid` int NOT NULL,
+  `telefonoid` int NOT NULL,
+  `usuariotelefonoestado` tinyint NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -558,16 +513,10 @@ ALTER TABLE `tbcompradetalle`
   ADD PRIMARY KEY (`compradetalleid`);
 
 --
--- Indices de la tabla `tbcompraporpagar`
+-- Indices de la tabla `tbcuentaporpagar`
 --
-ALTER TABLE `tbcompraporpagar`
-  ADD PRIMARY KEY (`compraporpagarid`);
-
---
--- Indices de la tabla `tbcuentaporcobrar`
---
-ALTER TABLE `tbcuentaporcobrar`
-  ADD PRIMARY KEY (`cuentaporcobrarid`);
+ALTER TABLE `tbcuentaporpagar`
+  ADD PRIMARY KEY (`cuentaporpagarid`);
 
 --
 -- Indices de la tabla `tbdireccion`
@@ -576,16 +525,16 @@ ALTER TABLE `tbdireccion`
   ADD PRIMARY KEY (`direccionid`);
 
 --
--- Indices de la tabla `tbfacturatemporal`
---
-ALTER TABLE `tbfacturatemporal`
-  ADD PRIMARY KEY (`facturatemporalid`);
-
---
 -- Indices de la tabla `tbimpuesto`
 --
 ALTER TABLE `tbimpuesto`
   ADD PRIMARY KEY (`impuestoid`);
+
+--
+-- Indices de la tabla `tblote`
+--
+ALTER TABLE `tblote`
+  ADD PRIMARY KEY (`loteid`);
 
 --
 -- Indices de la tabla `tbmarca`
@@ -654,16 +603,10 @@ ALTER TABLE `tbusuario`
   ADD PRIMARY KEY (`usuarioid`);
 
 --
--- Indices de la tabla `tbventa`
+-- Indices de la tabla `tbusuariotelefono`
 --
-ALTER TABLE `tbventa`
-  ADD PRIMARY KEY (`ventaid`);
-
---
--- Indices de la tabla `tbventadetalle`
---
-ALTER TABLE `tbventadetalle`
-  ADD PRIMARY KEY (`ventadetalleid`);
+ALTER TABLE `tbusuariotelefono`
+  ADD PRIMARY KEY (`usuariotelefonoid`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
