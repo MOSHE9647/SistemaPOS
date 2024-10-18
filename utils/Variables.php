@@ -6,228 +6,226 @@
 	*/
 
 	// VARIABLES PARA EL MANEJO DE SESIONES:
-	define('SESSION_AUTHENTICATED_USER', 'usuario_autenticado');
-	define('SESSION_AUTHENTICATED', 'autenticado');
-	define('SESSION_ACCESS_DENIED', 'acceso_denegado');
-	define('SESSION_LOGGED_OUT', 'logout');
-	define('SESSION_ORIGIN_URL', 'url_origen');
+	define('SESSION_AUTHENTICATED_USER', 'usuario_autenticado'); //<- Usuario Autenticado
+	define('SESSION_AUTHENTICATED', 'autenticado'); //<- Sesión Autenticada
+	define('SESSION_ACCESS_DENIED', 'acceso_denegado'); //<- Acceso Denegado
+	define('SESSION_LOGGED_OUT', 'logout'); //<- Sesión Cerrada
+	define('SESSION_ORIGIN_URL', 'url_origen'); //<- URL de Origen
 
 	// VARIABLES PARA ROLES DE USUARIO:
-	define('ROL_ADMIN', 1);
-	define('ROL_DEPENDIENTE', 2);
-	define('ROL_CLIENTE', 3);
+	define('ROL_ADMIN', 1); //<- Rol de Administrador
+	define('ROL_DEPENDIENTE', 2); //<- Rol de Dependiente
+	define('ROL_CLIENTE', 3); //<- Rol de Cliente
 
 	// VARIABLES PARA ENLACES DE PÁGINAS:
-	define('DEFAULT_PRODUCT_IMAGE', '/view/static/img/product.webp');
+	define('DEFAULT_PRODUCT_IMAGE', '/view/static/img/product.webp'); //<- Imagen por defecto de los productos
 
 	// VARIABLES PARA LOG:
-	define('UTILS_LOG_FILE', 'utils-log.log');
-	define('DATA_LOG_FILE', 'database-log.log');
-	define('BUSINESS_LOG_FILE', 'business-log.log');
-	define('CONTROLLER_LOG_FILE', 'controller-log.log');
-	define('ERROR_MESSAGE', 'ERROR');
-	define('INFO_MESSAGE', 'INFO');
-	define('WARN_MESSAGE', 'WARN');
+	define('UTILS_LOG_FILE', 'utils-log.log'); //<- Nombre del Archivo de Log
+	define('DATA_LOG_FILE', 'database-log.log'); //<- Nombre del Archivo de Log
+	define('BUSINESS_LOG_FILE', 'business-log.log'); //<- Nombre del Archivo de Log
+	define('CONTROLLER_LOG_FILE', 'controller-log.log'); //<- Nombre del Archivo de Log
+	define('ERROR_MESSAGE', 'ERROR'); //<- Tipo de Mensaje de Error
+	define('INFO_MESSAGE', 'INFO'); //<- Tipo de Mensaje de Información
+	define('WARN_MESSAGE', 'WARN'); //<- Tipo de Mensaje de Advertencia
 
 	// VARIABLES CLEVER-CLOUD (BD EN LA NUBE)
-	define('CLOUD_DB_HOST', 'bdpbhgi0jbzwpoftwisg-mysql.services.clever-cloud.com');
-	define('CLOUD_DB_NAME', 'bdpbhgi0jbzwpoftwisg');
-	define('CLOUD_DB_USER', 'ucbd34lboyoad3gt');
-	define('CLOUD_DB_PASS', 'EleYfGcbzdD9q1DJ11GQ');
+	define('CLOUD_DB_HOST', 'bdpbhgi0jbzwpoftwisg-mysql.services.clever-cloud.com'); //<- Host de la Base de Datos
+	define('CLOUD_DB_NAME', 'bdpbhgi0jbzwpoftwisg'); //<- Nombre de la Base de Datos
+	define('CLOUD_DB_USER', 'ucbd34lboyoad3gt'); //<- Usuario de la Base de Datos
+	define('CLOUD_DB_PASS', 'EleYfGcbzdD9q1DJ11GQ'); //<- Contraseña de la Base de Datos
 
 	// VARIABLES DE MYSQL (LOCAL):
-	define('DB_HOST', 'localhost');
-	define('DB_NAME', 'bdpuntoventa');
-	define('DB_USER', 'root');
-	define('DB_PASS', '#SistemaPOS1234');
+	define('DB_HOST', 'localhost'); //<- Host de la Base de Datos
+	define('DB_NAME', 'bdpuntoventa'); //<- Nombre de la Base de Datos
+	define('DB_USER', 'root'); //<- Usuario de la Base de Datos
+	define('DB_PASS', '#SistemaPOS1234'); //<- Contraseña de la Base de Datos
 
 	// TABLA 'tbCategoria'
 	define('TB_CATEGORIA', 'tbcategoria'); //<- Nombre de la Tabla
-	define('CATEGORIA_ID', 'categoriaid');
-	define('CATEGORIA_NOMBRE', 'categorianombre');
-	define('CATEGORIA_DESCRIPCION', 'categoriadescripcion');
-	define('CATEGORIA_ESTADO', 'categoriaestado');
+	define('CATEGORIA_ID', 'categoriaid'); //<- ID de la Categoría
+	define('CATEGORIA_NOMBRE', 'categorianombre'); //<- Nombre de la Categoría
+	define('CATEGORIA_DESCRIPCION', 'categoriadescripcion'); //<- Descripción de la Categoría
+	define('CATEGORIA_ESTADO', 'categoriaestado'); //<- Estado de la Categoría
 
 	// TABLA 'tbCliente'
 	define('TB_CLIENTE', 'tbcliente'); //<- Nombre de la Tabla
-	define('CLIENTE_ID', 'clienteid');
-	define('CLIENTE_NOMBRE', 'clientenombre');
-	define('CLIENTE_ALIAS', 'clientealias');
-	define('CLIENTE_TELEFONO_ID', 'clientetelefonoid');
-	define('CLIENTE_FECHA_CREACION', 'clientefechacreacion');
-	define('CLIENTE_FECHA_MODIFICACION', 'clientefechamodificacion');
-	define('CLIENTE_ESTADO', 'clienteestado');
+	define('CLIENTE_ID', 'clienteid'); //<- ID del Cliente
+	define('CLIENTE_NOMBRE', 'clientenombre'); //<- Nombre del Cliente
+	define('CLIENTE_ALIAS', 'clientealias'); //<- Alias del Cliente
+	define('CLIENTE_USUARIO_ID', 'clienteusuarioid'); //<- ID del Usuario del Cliente
+	define('CLIENTE_TELEFONO_ID', 'clientetelefonoid'); //<- ID del Teléfono del Cliente
+	define('CLIENTE_FECHA_CREACION', 'clientefechacreacion'); //<- Fecha de Creación del Cliente
+	define('CLIENTE_FECHA_MODIFICACION', 'clientefechamodificacion'); //<- Fecha de Modificación del Cliente
+	define('CLIENTE_ESTADO', 'clienteestado'); //<- Estado del Cliente
 
 	// TABLA 'tbCodigoBarras'
 	define('TB_CODIGO_BARRAS', 'tbcodigobarras'); //<- Nombre de la Tabla
-	define('CODIGO_BARRAS_ID', 'codigobarrasid');
-	define('CODIGO_BARRAS_NUMERO', 'codigobarrasnumero');
-	define('CODIGO_BARRAS_FECHA_CREACION', 'codigobarrasfechacreacion');
-	define('CODIGO_BARRAS_FECHA_MODIFICACION', 'codigobarrasfechamodificacion');
-	define('CODIGO_BARRAS_ESTADO', 'codigobarrasestado');
+	define('CODIGO_BARRAS_ID', 'codigobarrasid'); //<- ID del Código de Barras
+	define('CODIGO_BARRAS_NUMERO', 'codigobarrasnumero'); //<- Número del Código de Barras
+	define('CODIGO_BARRAS_FECHA_CREACION', 'codigobarrasfechacreacion'); //<- Fecha de Creación del Código de Barras
+	define('CODIGO_BARRAS_FECHA_MODIFICACION', 'codigobarrasfechamodificacion'); //<- Fecha de Modificación del Código de Barras
+	define('CODIGO_BARRAS_ESTADO', 'codigobarrasestado'); //<- Estado del Código de Barras
 
 	// TABLA 'tbCompra'
 	define('TB_COMPRA', 'tbcompra'); //<- Nombre de la Tabla
-	define('COMPRA_ID', 'compraid');
-	define('COMPRA_NUMERO_FACTURA', 'compranumerofactura');
-	define('COMPRA_MONTO_BRUTO', 'compramontobruto');
-	define('COMPRA_MONTO_NETO', 'compramontoneto');
-	define('COMPRA_TIPO_PAGO', 'compratipopago');
-	define('COMPRA_PROVEEDOR_ID', 'compraproveedorid');
-	define('COMPRA_FECHA_CREACION', 'comprafechacreacion');
-	define('COMPRA_FECHA_MODIFICACION', 'comprafechamodificacion');
-	define('COMPRA_ESTADO', 'compraestado');
+	define('COMPRA_ID', 'compraid'); //<- ID de la Compra
+	define('COMPRA_NUMERO_FACTURA', 'compranumerofactura'); //<- Número de Factura de la Compra
+	define('COMPRA_MONTO_BRUTO', 'compramontobruto'); //<- Monto Bruto de la Compra
+	define('COMPRA_MONTO_NETO', 'compramontoneto'); //<- Monto Neto de la Compra
+	define('COMPRA_TIPO_PAGO', 'compratipopago'); //<- Tipo de Pago de la Compra
+	define('COMPRA_PROVEEDOR_ID', 'compraproveedorid'); //<- ID del Proveedor de la Compra
+	define('COMPRA_FECHA_CREACION', 'comprafechacreacion'); //<- Fecha de Creación de la Compra
+	define('COMPRA_FECHA_MODIFICACION', 'comprafechamodificacion'); //<- Fecha de Modificación de la Compra
+	define('COMPRA_ESTADO', 'compraestado'); //<- Estado de la Compra
 
 	// TABLA 'tbCompraDetalle'
 	define('TB_COMPRA_DETALLE', 'tbcompradetalle'); //<- Nombre de la Tabla
-	define('COMPRA_DETALLE_ID', 'compradetalleid');
-	define('COMPRA_DETALLE_COMPRA_ID', 'compradetallecompraid');
-	define('COMPRA_DETALLE_LOTE_ID', 'compradetalleloteid');
-	define('COMPRA_DETALLE_PRODUCTO_ID', 'compradetalleproductoid');
-	define('COMPRA_DETALLE_PRECIO_PRODUCTO', 'compradetalleprecioproducto');
-	define('COMPRA_DETALLE_CANTIDAD', 'compradetallecantidad');
-	define('COMPRA_DETALLE_FECHA_CREACION', 'compradetallefechacreacion');
-	define('COMPRA_DETALLE_FECHA_MODIFICACION', 'compradetallefechamodificacion');
-	define('COMPRA_DETALLE_ESTADO', 'compradetalleestado');
+	define('COMPRA_DETALLE_ID', 'compradetalleid'); //<- ID del Detalle de la Compra
+	define('COMPRA_DETALLE_COMPRA_ID', 'compradetallecompraid'); //<- ID de la Compra del Detalle
+	define('COMPRA_DETALLE_PRODUCTO_ID', 'compradetalleproductoid'); //<- ID del Producto del Detalle
+	define('COMPRA_DETALLE_FECHA_CREACION', 'compradetallefechacreacion'); //<- Fecha de Creación del Detalle
+	define('COMPRA_DETALLE_FECHA_MODIFICACION', 'compradetallefechamodificacion'); //<- Fecha de Modificación del Detalle
+	define('COMPRA_DETALLE_ESTADO', 'compradetalleestado'); //<- Estado del Detalle
+	// ** Eliminado de la tabla de forma temporal **/
+	// Estos datos ya los tiene Producto
+	define('COMPRA_DETALLE_PRECIO_PRODUCTO', 'compradetalleprecioproducto'); //<- Precio del Producto del Detalle
+	define('COMPRA_DETALLE_CANTIDAD', 'compradetallecantidad'); //<- Cantidad del Producto del Detalle
 
-	// TABLA 'tbCuentaPorPagar'
-	define('TB_CUENTA_POR_PAGAR', 'tbcuentaporpagar');
-	define('CUENTA_POR_PAGAR_ID', 'cuentaporpagarid');
-	define('CUENTA_POR_PAGAR_COMPRA_DETALLE_ID', 'cuentaporpagarcompradetalleid');
-	define('CUENTA_POR_PAGAR_FECHA_VENCIMIENTO', 'cuentaporpagarfechavencimiento');
-	define('CUENTA_POR_PAGAR_MONTO_TOTAL', 'cuentaporpagarmontototal');
-	define('CUENTA_POR_PAGAR_MONTO_PAGADO', 'cuentaporpagarmontopagado');
-	define('CUENTA_POR_PAGAR_FECHA_PAGO', 'cuentaporpagarfechapago');
-	define('CUENTA_POR_PAGAR_ESTADO_CUENTA', 'cuentaporpagarestadocuenta'); //<- Pendiente, Pagada, Vencida
-	define('CUENTA_POR_PAGAR_NOTAS', 'cuentaporpagarnotas');
-	define('CUENTA_POR_PAGAR_ESTADO', 'cuentaporpagarestado');
+	// TABLA 'tbCompraPorPagar'
+	define('TB_COMPRA_POR_PAGAR', 'tbcompraporpagar'); //<- Nombre de la Tabla
+	define('COMPRA_POR_PAGAR_ID', 'compraporpagarid'); //<- ID de la Compra por Pagar
+	define('COMPRA_POR_PAGAR_COMPRA_DETALLE_ID', 'compraporpagarcompradetalleid'); //<- ID del Detalle de la Compra por Pagar
+	define('COMPRA_POR_PAGAR_FECHA_VENCIMIENTO', 'compraporpagarfechavencimiento'); //<- Fecha de Vencimiento de la Compra por Pagar
+	define('COMPRA_POR_PAGAR_MONTO_TOTAL', 'compraporpagarmontototal'); //<- Monto Total de la Compra por Pagar
+	define('COMPRA_POR_PAGAR_MONTO_PAGADO', 'compraporpagarmontopagado'); //<- Monto Pagado de la Compra por Pagar
+	define('COMPRA_POR_PAGAR_FECHA_PAGO', 'compraporpagarfechapago'); //<- Fecha de Pago de la Compra por Pagar
+	define('COMPRA_POR_PAGAR_ESTADO_COMPRA', 'compraporpagarestadocompra'); //<- Pendiente, Pagada, Vencida
+	define('COMPRA_POR_PAGAR_NOTAS', 'compraporpagarnotas'); //<- Notas de la Compra por Pagar
+	define('COMPRA_POR_PAGAR_ESTADO', 'compraporpagarestado'); //<- Estado de la Compra por Pagar
 
 	// TABLA 'tbDireccion'
 	define('TB_DIRECCION', 'tbdireccion'); //<- Nombre de la Tabla
-	define('DIRECCION_ID', 'direccionid');
-	define('DIRECCION_PROVINCIA', 'direccionprovincia');
-	define('DIRECCION_CANTON', 'direccioncanton');
-	define('DIRECCION_DISTRITO', 'direcciondistrito');
-	define('DIRECCION_BARRIO', 'direccionbarrio');
-	define('DIRECCION_SENNAS', 'direccionsennas');
-	define('DIRECCION_DISTANCIA', 'direcciondistancia');
-	define('DIRECCION_ESTADO', 'direccionestado');
+	define('DIRECCION_ID', 'direccionid'); //<- ID de la Dirección
+	define('DIRECCION_PROVINCIA', 'direccionprovincia'); //<- Provincia de la Dirección
+	define('DIRECCION_CANTON', 'direccioncanton'); //<- Cantón de la Dirección
+	define('DIRECCION_DISTRITO', 'direcciondistrito'); //<- Distrito de la Dirección
+	define('DIRECCION_BARRIO', 'direccionbarrio'); //<- Barrio de la Dirección
+	define('DIRECCION_SENNAS', 'direccionsennas'); //<- Señas de la Dirección
+	define('DIRECCION_DISTANCIA', 'direcciondistancia'); //<- Distancia de la Dirección
+	define('DIRECCION_ESTADO', 'direccionestado'); //<- Estado de la Dirección
 
 	// TABLA 'tbImpuesto'
 	define('TB_IMPUESTO', 'tbimpuesto'); //<- Nombre de la Tabla
-	define('IMPUESTO_ID', 'impuestoid');
-	define('IMPUESTO_NOMBRE', 'impuestonombre');
-	define('IMPUESTO_VALOR', 'impuestovalor');
-	define('IMPUESTO_DESCRIPCION', 'impuestodescripcion');
-	define('IMPUESTO_FECHA_INICIO_VIGENCIA', 'impuestofechainiciovigencia');
-	define('IMPUESTO_FECHA_FIN_VIGENCIA', 'impuestofechafinvigencia');
-	define('IMPUESTO_ESTADO', 'impuestoestado');
-
-	// Tabla 'tbLote'
-	define('TB_LOTE','tblote'); //<- Nombre de la Tabla
-	define('LOTE_ID','loteid');
-	define('LOTE_CODIGO','lotecodigo');
-	define('LOTE_FECHA_VENCIMIENTO','lotefechavencimiento');
-	define('LOTE_ESTADO','loteestado');
+	define('IMPUESTO_ID', 'impuestoid'); //<- ID del Impuesto
+	define('IMPUESTO_NOMBRE', 'impuestonombre'); //<- Nombre del Impuesto (IVA, ISV, etc.)
+	define('IMPUESTO_VALOR', 'impuestovalor'); //<- Valor del Impuesto
+	define('IMPUESTO_DESCRIPCION', 'impuestodescripcion'); //<- Descripción del Impuesto
+	define('IMPUESTO_FECHA_INICIO_VIGENCIA', 'impuestofechainiciovigencia'); //<- Fecha de Inicio de Vigencia del Impuesto
+	define('IMPUESTO_FECHA_FIN_VIGENCIA', 'impuestofechafinvigencia'); //<- Fecha de Fin de Vigencia del Impuesto
+	define('IMPUESTO_ESTADO', 'impuestoestado'); //<- Estado del Impuesto
 
 	// TABLA 'tbMarca'
 	define('TB_MARCA', 'tbmarca'); //<- Nombre de la Tabla
-	define('MARCA_ID', 'marcaid');
-	define('MARCA_NOMBRE', 'marcanombre');
-	define('MARCA_DESCRIPCION', 'marcadescripcion');
-	define('MARCA_ESTADO', 'marcaestado');
+	define('MARCA_ID', 'marcaid'); //<- ID de la Marca (DosPinos, CocaCola, etc.)
+	define('MARCA_NOMBRE', 'marcanombre'); //<- Nombre de la Marca
+	define('MARCA_DESCRIPCION', 'marcadescripcion'); //<- Descripción de la Marca
+	define('MARCA_ESTADO', 'marcaestado'); //<- Estado de la Marca
 
 	// TABLA 'tbPresentacion'
 	define('TB_PRESENTACION', 'tbpresentacion'); //<- Nombre de la Tabla
-	define('PRESENTACION_ID', 'presentacionid');
-	define('PRESENTACION_NOMBRE', 'presentacionnombre');
-	define('PRESENTACION_DESCRIPCION', 'presentaciondescripcion');
-	define('PRESENTACION_ESTADO', 'presentacionestado');
+	define('PRESENTACION_ID', 'presentacionid'); //<- ID de la Presentación
+	define('PRESENTACION_NOMBRE', 'presentacionnombre'); //<- Nombre de la Presentación (Litros, Mililitros, etc.)
+	define('PRESENTACION_DESCRIPCION', 'presentaciondescripcion'); //<- Descripción de la Presentación
+	define('PRESENTACION_ESTADO', 'presentacionestado'); //<- Estado de la Presentación
 
 	// Tabla 'tbProducto'
 	define('TB_PRODUCTO','tbproducto'); //<- Nombre de la Tabla
-	define('PRODUCTO_ID','productoid');
-	define('PRODUCTO_CODIGO_BARRAS_ID','productocodigobarrasid');
-	define('PRODUCTO_NOMBRE','productonombre');
-	define('PRODUCTO_PRECIO_COMPRA','productopreciocompra');
-	define('PRODUCTO_PORCENTAJE_GANANCIA','productoporcentajeganancia');
-	define('PRODUCTO_DESCRIPCION','productodescripcion');
-	define('PRODUCTO_CATEGORIA_ID','productocategoriaid');
-	define('PRODUCTO_SUBCATEGORIA_ID','productosubcategoriaid');
-	define('PRODUCTO_MARCA_ID','productomarcaid');
-	define('PRODUCTO_PRESENTACION_ID','productopresentacionid');
-	define('PRODUCTO_IMAGEN', 'productoimagen');
-	define('PRODUCTO_ESTADO','productoestado');
+	define('PRODUCTO_ID','productoid'); //<- ID del Producto
+	define('PRODUCTO_CODIGO_BARRAS_ID','productocodigobarrasid'); //<- ID del Código de Barras del Producto
+	define('PRODUCTO_NOMBRE','productonombre'); //<- Nombre del Producto
+	define('PRODUCTO_CANTIDAD','productocantidad'); //<- Cantidad del Producto
+	define('PRODUCTO_PRECIO_COMPRA','productopreciocompra'); //<- Precio de Compra del Producto
+	define('PRODUCTO_PORCENTAJE_GANANCIA','productoporcentajeganancia'); //<- Porcentaje de Ganancia del Producto
+	define('PRODUCTO_DESCRIPCION','productodescripcion'); //<- Descripción del Producto
+	define('PRODUCTO_CATEGORIA_ID','productocategoriaid'); //<- ID de la Categoría del Producto
+	define('PRODUCTO_SUBCATEGORIA_ID','productosubcategoriaid'); //<- ID de la Subcategoría del Producto
+	define('PRODUCTO_MARCA_ID','productomarcaid'); //<- ID de la Marca del Producto
+	define('PRODUCTO_PRESENTACION_ID','productopresentacionid'); //<- ID de la Presentación del Producto
+	define('PRODUCTO_IMAGEN', 'productoimagen'); //<- Imagen del Producto
+	define('PRODUCTO_FECHA_VENCIMIENTO','productofechavencimiento'); //<- Fecha de Vencimiento del Producto
+	define('PRODUCTO_ESTADO','productoestado'); //<- Estado del Producto
 
 	// TABLA 'tbProveedor'
 	define('TB_PROVEEDOR', 'tbproveedor'); //<- Nombre de la Tabla
-	define('PROVEEDOR_ID', 'proveedorid');
-	define('PROVEEDOR_NOMBRE', 'proveedornombre'); 
-	define('PROVEEDOR_EMAIL', 'proveedoremail');
-	define('PROVEEDOR_CATEGORIA_ID', 'proveedorcategoriaid');
-	define('PROVEEDOR_FECHA_CREACION', 'proveedorfechacreacion');
-	define('PROVEEDOR_FECHA_MODIFICACION', 'proveedorfechamodificacion');
-	define('PROVEEDOR_ESTADO', 'proveedorestado');
+	define('PROVEEDOR_ID', 'proveedorid'); //<- ID del Proveedor
+	define('PROVEEDOR_NOMBRE', 'proveedornombre'); //<- Nombre del Proveedor
+	define('PROVEEDOR_EMAIL', 'proveedoremail'); //<- Email del Proveedor
+	define('PROVEEDOR_CATEGORIA_ID', 'proveedorcategoriaid'); //<- ID de la Categoría del Proveedor
+	define('PROVEEDOR_FECHA_CREACION', 'proveedorfechacreacion'); //<- Fecha de Creación del Proveedor
+	define('PROVEEDOR_FECHA_MODIFICACION', 'proveedorfechamodificacion'); //<- Fecha de Modificación del Proveedor
+	define('PROVEEDOR_ESTADO', 'proveedorestado'); //<- Estado del Proveedor
 
 	// TABLA 'tbRolUsuario'
 	define('TB_ROL', 'tbrolusuario'); //<- Nombre de la Tabla
-	define('ROL_ID', 'rolusuarioid');
-	define('ROL_NOMBRE', 'rolusuarionombre');
-	define('ROL_DESCRIPCION', 'rolusuariodescripcion');
-	define('ROL_ESTADO', 'rolusuarioestado');
+	define('ROL_ID', 'rolusuarioid'); //<- ID del Rol de Usuario
+	define('ROL_NOMBRE', 'rolusuarionombre'); //<- Nombre del Rol de Usuario
+	define('ROL_DESCRIPCION', 'rolusuariodescripcion'); //<- Descripción del Rol de Usuario
+	define('ROL_ESTADO', 'rolusuarioestado'); //<- Estado del Rol de Usuario
 
 	//Tabla 'tbSubCategoria'
-	define('TB_SUBCATEGORIA','tbsubcategoria');
-	define('SUBCATEGORIA_ID','subcategoriaid');
-	define('SUBCATEGORIA_CATEGORIA_ID','subcategoriacategoriaid');
-	define('SUBCATEGORIA_NOMBRE','subcategorianombre');
-	define('SUBCATEGORIA_DESCRIPCION','subcategoriadescripcion');
-	define('SUBCATEGORIA_ESTADO','subcategoriaestado');
+	define('TB_SUBCATEGORIA','tbsubcategoria'); //<- Nombre de la Tabla
+	define('SUBCATEGORIA_ID','subcategoriaid'); //<- ID de la Subcategoría
+	define('SUBCATEGORIA_CATEGORIA_ID','subcategoriacategoriaid'); //<- ID de la Categoría de la Subcategoría
+	define('SUBCATEGORIA_NOMBRE','subcategorianombre'); //<- Nombre de la Subcategoría
+	define('SUBCATEGORIA_DESCRIPCION','subcategoriadescripcion'); //<- Descripción de la Subcategoría
+	define('SUBCATEGORIA_ESTADO','subcategoriaestado'); //<- Estado de la Subcategoría
 
 	// TABLA 'tbTelefono'
 	define('TB_TELEFONO', 'tbtelefono'); //<- Nombre de la Tabla
-	define('TELEFONO_ID', 'telefonoid');
-	define('TELEFONO_TIPO', 'telefonotipo');
-	define('TELEFONO_CODIGO_PAIS', 'telefonocodigopais');
-	define('TELEFONO_NUMERO', 'telefononumero');
-	define('TELEFONO_EXTENSION', 'telefonoextension');
-	define('TELEFONO_FECHA_CREACION', 'telefonofechacreacion');
-	define('TELEFONO_FECHA_MODIFICACION', 'telefonofechamodificacion');
-	define('TELEFONO_ESTADO', 'telefonoestado');
+	define('TELEFONO_ID', 'telefonoid'); //<- ID del Teléfono
+	define('TELEFONO_TIPO', 'telefonotipo'); //<- Tipo de Teléfono (Móvil, Fijo, Fax, etc.)
+	define('TELEFONO_CODIGO_PAIS', 'telefonocodigopais'); //<- Código de País del Teléfono
+	define('TELEFONO_NUMERO', 'telefononumero'); //<- Número del Teléfono
+	define('TELEFONO_EXTENSION', 'telefonoextension'); //<- Extensión del Teléfono
+	define('TELEFONO_FECHA_CREACION', 'telefonofechacreacion'); //<- Fecha de Creación del Teléfono
+	define('TELEFONO_FECHA_MODIFICACION', 'telefonofechamodificacion'); //<- Fecha de Modificación del Teléfono
+	define('TELEFONO_ESTADO', 'telefonoestado'); //<- Estado del Teléfono
 
 	// TABLA 'tbUsuario'
 	define('TB_USUARIO', 'tbusuario'); //<- Nombre de la Tabla
-	define('USUARIO_ID', 'usuarioid');
-	define('USUARIO_NOMBRE', 'usuarionombre');
-	define('USUARIO_APELLIDO_1', 'usuarioapellido1');
-	define('USUARIO_APELLIDO_2', 'usuarioapellido2');
-	define('USUARIO_ROL_ID', 'usuariorolusuarioid');
-	define('USUARIO_EMAIL', 'usuarioemail');
-	define('USUARIO_PASSWORD', 'usuariopassword');
-	define('USUARIO_FECHA_CREACION', 'usuariofechacreacion');
-	define('USUARIO_FECHA_MODIFICACION', 'usuariofechamodificacion');
-	define('USUARIO_ESTADO', 'usuarioestado');
+	define('USUARIO_ID', 'usuarioid'); //<- ID del Usuario
+	define('USUARIO_NOMBRE', 'usuarionombre'); //<- Nombre del Usuario
+	define('USUARIO_APELLIDO_1', 'usuarioapellido1'); //<- Primer Apellido del Usuario
+	define('USUARIO_APELLIDO_2', 'usuarioapellido2'); //<- Segundo Apellido del Usuario
+	define('USUARIO_ROL_ID', 'usuariorolusuarioid'); //<- ID del Rol del Usuario
+	define('USUARIO_EMAIL', 'usuarioemail'); //<- Email del Usuario
+	define('USUARIO_PASSWORD', 'usuariopassword'); //<- Contraseña del Usuario
+	define('USUARIO_FECHA_CREACION', 'usuariofechacreacion'); //<- Fecha de Creación del Usuario
+	define('USUARIO_FECHA_MODIFICACION', 'usuariofechamodificacion'); //<- Fecha de Modificación del Usuario
+	define('USUARIO_ESTADO', 'usuarioestado'); //<- Estado del Usuario
+
+	// ** FALTA DE AGREGAR LAS TABLAS RELACIONADAS A LA VENTA ** //
+	// TABLA 'tbVenta'
+	// TABLA 'tbVentaDetalle'
+	// TABLA 'tbFacturaTemporal'
+	// TABLA 'tbCuentaPorCobrar'
 		
 	/*************** TABLAS INTERMEDIAS ***************/
 
 	// TABLA INTERMEDIA PARA Proveedor Y Direccion 'tbProveedorDireccion'
 	define('TB_PROVEEDOR_DIRECCION', 'tbproveedordireccion'); //<- Nombre de la Tabla
-	define('PROVEEDOR_DIRECCION_ID', 'proveedordireccionid');
-	define('PROVEEDOR_DIRECCION_ESTADO', 'proveedordireccionestado');
+	define('PROVEEDOR_DIRECCION_ID', 'proveedordireccionid'); //<- ID de la tabla proveedor-direccion
+	define('PROVEEDOR_DIRECCION_ESTADO', 'proveedordireccionestado'); //<- Estado de la tabla proveedor-direccion
 
 	//TABLA INTERMEDIA PARA Proveedor Y Producto 'tbProveedorProducto
     define('TB_PROVEEDOR_PRODUCTO', 'tbproveedorproducto'); // Nombre de la Tabla
     define('PROVEEDOR_PRODUCTO_ID', 'proveedorproductoid'); // ID de la tabla proveedor-producto
-	define('PROVEEDOR_PRODUCTO_ESTADO', 'proveedorproductoestado');
+	define('PROVEEDOR_PRODUCTO_ESTADO', 'proveedorproductoestado'); // Estado de la tabla proveedor-producto
 
 	//TABLA INTERMEDIA PARA Proveedor Y Telefono 'tbProveedorTelefono'
     define('TB_PROVEEDOR_TELEFONO', 'tbproveedortelefono'); // Nombre de la Tabla
     define('PROVEEDOR_TELEFONO_ID', 'proveedortelefonoid'); // ID de la tabla proveedor-telefono
-	define('PROVEEDOR_TELEFONO_ESTADO', 'proveedortelefonoestado');
-
-	//TABLA INTERMEDIA PARA Usuario Y Telefono 'tbUsuarioTelefono'
-	define('TB_USUARIO_TELEFONO', 'tbusuariotelefono'); // Nombre de la Tabla
-	define('USUARIO_TELEFONO_ID', 'usuariotelefonoid'); // ID de la tabla usuario-telefono
-	define('USUARIO_TELEFONO_ESTADO', 'usuariotelefonoestado');
+	define('PROVEEDOR_TELEFONO_ESTADO', 'proveedortelefonoestado'); // Estado de la tabla proveedor-telefono
 
 ?>

@@ -11,14 +11,38 @@
 
 	class ProductoData extends Data {
         
+        // Nombre de la clase
         private $className;
 
-        // Constructor
+        /**
+         * Inicializa una nueva instancia de la clase ProductoData.
+         */
 		public function __construct() {
 			parent::__construct();
             $this->className = get_class($this);
         }
 
+        /**
+         * Verifica la existencia de un producto en la base de datos.
+         *
+         * Este método permite verificar si un producto existe en la base de datos
+         * utilizando diferentes criterios como el ID del producto, el nombre del producto
+         * o el código de barras del producto. Dependiendo de los parámetros proporcionados,
+         * la función puede verificar la existencia para operaciones de consulta, inserción o actualización.
+         *
+         * @param int|null $productoID El ID del producto (opcional).
+         * @param string|null $productoNombre El nombre del producto (opcional).
+         * @param int|null $productoCodigoBarrasID El ID del código de barras del producto (opcional).
+         * @param bool $update Indica si se está realizando una operación de actualización (opcional).
+         * @param bool $insert Indica si se está realizando una operación de inserción (opcional).
+         * @return array Un arreglo asociativo con el resultado de la verificación:
+         *               - "success" (bool): Indica si la operación fue exitosa.
+         *               - "exists" (bool): Indica si el producto existe en la base de datos.
+         *               - "inactive" (bool, opcional): Indica si el producto está inactivo (solo si existe).
+         *               - "productoID" (int, opcional): El ID del producto (solo si existe).
+         *               - "message" (string, opcional): Mensaje de error o información adicional.
+         * @throws Exception Si ocurre un error durante la verificación.
+         */
         private function productoExiste($productoID = null, $productoNombre = null, $productoCodigoBarrasID = null, $update = false, $insert = false) {
             try {
                 // Establece una conexión con la base de datos
@@ -109,6 +133,22 @@
             }
         }
         
+        /**
+         * Inserta un nuevo producto en la base de datos.
+         *
+         * Este método permite insertar un nuevo producto en la base de datos. 
+         * Verifica si el producto ya existe y maneja la reactivación de productos inactivos.
+         * También procesa la imagen del producto y maneja la transacción de la inserción.
+         *
+         * @param Producto $producto El objeto Producto a insertar.
+         * @param mysqli|null $conn La conexión a la base de datos (opcional).
+         * @return array Un arreglo asociativo con el resultado de la inserción:
+         *               - "success" (bool): Indica si la operación fue exitosa.
+         *               - "message" (string): Mensaje de error o información adicional.
+         *               - "id" (int, opcional): El ID del producto insertado (solo si la operación fue exitosa).
+         *               - "inactive" (bool, opcional): Indica si el producto estaba inactivo (solo si ya existía).
+         * @throws Exception Si ocurre un error durante la inserción.
+         */
         public function insertProducto($producto, $conn = null) {
             $createdConnection = false;
             $stmt = null;
@@ -186,6 +226,7 @@
                         . PRODUCTO_ID . ", "
                         . PRODUCTO_CODIGO_BARRAS_ID . ", "
                         . PRODUCTO_NOMBRE . ", "
+                        . PRODUCTO_CANTIDAD . ", "
                         . PRODUCTO_PRECIO_COMPRA . ", "
                         . PRODUCTO_PORCENTAJE_GANANCIA . ", "
                         . PRODUCTO_DESCRIPCION . ", "
@@ -193,11 +234,13 @@
                         . PRODUCTO_SUBCATEGORIA_ID . ", "
                         . PRODUCTO_MARCA_ID . ", "
                         . PRODUCTO_PRESENTACION_ID . ", "
-                        . PRODUCTO_IMAGEN
-                    . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        . PRODUCTO_IMAGEN . ', '
+                        . PRODUCTO_FECHA_VENCIMIENTO
+                    . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
         
                 // Obtenemos los valores faltantes de las propiedades del objeto
+                $productoCantidad = $producto->getProductoCantidad();
                 $productoPrecioCompra = $producto->getProductoPrecioCompra();
                 $productoPorcentajeGanancia = $producto->getProductoPorcentajeGanancia();
                 $productoDescripcion = $producto->getProductoDescripcion();
@@ -206,14 +249,16 @@
                 $productoMarcaID = $producto->getProductoMarca()->getMarcaID();
                 $productoPresentacionID = $producto->getProductoPresentacion()->getPresentacionID();
                 $productoImagen = $producto->getProductoImagen();
+                $productoFechaVencimiento = $producto->getProductoFechaVencimiento();
 
                 // Asigna los valores a cada '?' y ejecuta la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'iisddsiiiis', // i: entero, s: Cadena, d: Decimal
+                    'iisiddsiiiiss', // i: entero, s: Cadena, d: Decimal
                     $nextId,
                     $codigoBarrasID,
                     $productoNombre,
+                    $productoCantidad,
                     $productoPrecioCompra,
                     $productoPorcentajeGanancia,
                     $productoDescripcion,
@@ -221,7 +266,8 @@
                     $productoSubcategoriaID,
                     $productoMarcaID,
                     $productoPresentacionID,
-                    $productoImagen
+                    $productoImagen,
+                    $productoFechaVencimiento
                 );
                 $result = mysqli_stmt_execute($stmt);
 
@@ -248,6 +294,15 @@
             }
         }
         
+        /**
+         * Actualiza la información de un producto en la base de datos.
+         *
+         * @param Producto $producto El objeto Producto que contiene la información actualizada.
+         * @param mysqli|null $conn La conexión a la base de datos. Si es null, se creará una nueva conexión.
+         * @return array Un array asociativo con las claves 'success' y 'message'. 'success' es un booleano 
+         *               que indica si la operación fue exitosa, y 'message' es un mensaje descriptivo.
+         * @throws Exception Si ocurre un error durante la actualización del producto.
+         */
         public function updateProducto($producto, $conn = null) {
             $createdConnection = false;
             $stmt = null;
@@ -314,6 +369,7 @@
                     " SET " . 
                         PRODUCTO_CODIGO_BARRAS_ID . " = ?, " .
                         PRODUCTO_NOMBRE . " = ?, " .
+                        PRODUCTO_CANTIDAD . " = ?, " .
                         PRODUCTO_PRECIO_COMPRA . " = ?, " .
                         PRODUCTO_PORCENTAJE_GANANCIA . " = ?, " .
                         PRODUCTO_DESCRIPCION . " = ?, " .
@@ -322,11 +378,13 @@
                         PRODUCTO_MARCA_ID . " = ?, " .
                         PRODUCTO_PRESENTACION_ID . " = ?, " .
                         PRODUCTO_IMAGEN . " = ?, " .
+                        PRODUCTO_FECHA_VENCIMIENTO . " = ? " .
                         PRODUCTO_ESTADO . " = TRUE " .
                     "WHERE " . PRODUCTO_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
         
                 // Obtiene los valores faltantes de las propiedades del objeto
+                $productoCantidad = $producto->getProductoCantidad();
                 $productoPrecioCompra = $producto->getProductoPrecioCompra();
                 $productoPorcentajeGanancia = $producto->getProductoPorcentajeGanancia();
                 $productoDescripcion = $producto->getProductoDescripcion();
@@ -335,13 +393,15 @@
                 $productoMarcaID = $producto->getProductoMarca()->getMarcaID();
                 $productoPresentacionID = $producto->getProductoPresentacion()->getPresentacionID();
                 $productoImagen = $producto->getProductoImagen();
+                $productoFechaVencimiento = $producto->getProductoFechaVencimiento();
 
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'isddsiiiisi', // s: Cadena, i: Entero
+                    'isiddsiiiissi', // s: Cadena, i: Entero
                     $codigoBarrasID,
                     $productoNombre,
+                    $productoCantidad,
                     $productoPrecioCompra,
                     $productoPorcentajeGanancia,
                     $productoDescripcion,
@@ -350,6 +410,7 @@
                     $productoMarcaID,
                     $productoPresentacionID,
                     $productoImagen,
+                    $productoFechaVencimiento,
                     $productoID
                 );
         
@@ -379,6 +440,21 @@
             }
         }
         
+        /**
+         * Elimina un producto de la base de datos.
+         *
+         * Este método realiza un borrado lógico del producto en la base de datos, 
+         * actualizando su estado a FALSE. Además, elimina el código de barras asociado 
+         * y la imagen del producto, si existe.
+         *
+         * @param int $productoID El ID del producto a eliminar.
+         * @param mysqli|null $conn (Opcional) Conexión a la base de datos. Si no se proporciona, 
+         *                          se creará una nueva conexión.
+         * @return array Un array asociativo con las claves 'success' y 'message'. 
+         *               'success' indica si la operación fue exitosa, y 'message' 
+         *               proporciona información adicional.
+         * @throws Exception Si ocurre un error durante la operación.
+         */
         public function deleteProducto($productoID, $conn = null) {
             $createdConnection = false;
             $stmt = null;
@@ -462,7 +538,24 @@
             }
         }
 
-        public function getAllTBProductos($onlyActive = false, $deleted = false) {
+        /**
+         * Obtiene todos los productos de la tabla TB_PRODUCTO.
+         *
+         * @param bool $onlyActive Indica si solo se deben obtener los productos activos.
+         * @param bool $deleted Indica si se deben incluir los productos eliminados.
+         * @return array Un array asociativo que contiene:
+         *               - "success" (bool): Indica si la operación fue exitosa.
+         *               - "productos" (array): Una lista de objetos Producto si la operación fue exitosa.
+         *               - "message" (string): Un mensaje de error en caso de que la operación falle.
+         *
+         * @throws Exception Si ocurre un error al establecer la conexión con la base de datos.
+         * @throws Exception Si ocurre un error al obtener el código de barras del producto.
+         * @throws Exception Si ocurre un error al obtener la categoría del producto.
+         * @throws Exception Si ocurre un error al obtener la subcategoría del producto.
+         * @throws Exception Si ocurre un error al obtener la marca del producto.
+         * @throws Exception Si ocurre un error al obtener la presentación del producto.
+         */
+        public function getAllTBProducto($onlyActive = false, $deleted = false) {
             $conn = null;
             
             try {
@@ -508,14 +601,16 @@
                         $row[PRODUCTO_ID],
                         $codigoBarras["codigoBarras"],
                         $row[PRODUCTO_NOMBRE],
+                        $row[PRODUCTO_CANTIDAD],
                         $row[PRODUCTO_PRECIO_COMPRA],
                         $row[PRODUCTO_PORCENTAJE_GANANCIA],
+                        $row[PRODUCTO_DESCRIPCION],
                         $categoria["categoria"],
                         $subcategoria["subcategoria"],
                         $marca["marca"],
                         $presentacion["presentacion"],
-                        $row[PRODUCTO_DESCRIPCION],
                         $row[PRODUCTO_IMAGEN],
+                        $row[PRODUCTO_FECHA_VENCIMIENTO],
                         $row[PRODUCTO_ESTADO]
                     );
                     $productos[] = $producto;
@@ -539,6 +634,27 @@
             }
         }
 
+        /**
+         * Obtiene una lista paginada de productos desde la base de datos.
+         *
+         * @param string $search Término de búsqueda para filtrar productos por nombre o código de barras.
+         * @param int $page Número de página actual para la paginación.
+         * @param int $size Cantidad de registros por página.
+         * @param string|null $sort Campo por el cual ordenar los resultados (opcional).
+         * @param bool $onlyActive Indica si solo se deben incluir productos activos (opcional).
+         * @param bool $deleted Indica si se deben incluir productos eliminados (opcional).
+         * 
+         * @return array Un array asociativo con los siguientes elementos:
+         *               - "success" (bool): Indica si la operación fue exitosa.
+         *               - "page" (int): Número de página actual.
+         *               - "size" (int): Cantidad de registros por página.
+         *               - "totalPages" (int): Número total de páginas.
+         *               - "totalRecords" (int): Número total de registros.
+         *               - "productos" (array): Lista de objetos Producto.
+         *               - "message" (string): Mensaje de error en caso de fallo.
+         * 
+         * @throws Exception Si ocurre un error al obtener la conexión a la base de datos o al ejecutar las consultas.
+         */
         public function getPaginatedProductos($search, $page, $size, $sort = null, $onlyActive = false, $deleted = false) {
             $conn = null; $stmt = null;
             
@@ -643,14 +759,16 @@
                         $row[PRODUCTO_ID],
                         $codigoBarras["codigoBarras"],
                         $row[PRODUCTO_NOMBRE],
+                        $row[PRODUCTO_CANTIDAD],
                         $row[PRODUCTO_PRECIO_COMPRA],
                         $row[PRODUCTO_PORCENTAJE_GANANCIA],
+                        $row[PRODUCTO_DESCRIPCION],
                         $categoria["categoria"],
                         $subcategoria["subcategoria"],
                         $marca["marca"],
                         $presentacion["presentacion"],
-                        $row[PRODUCTO_DESCRIPCION],
                         $row[PRODUCTO_IMAGEN],
+                        $row[PRODUCTO_FECHA_VENCIMIENTO],
                         $row[PRODUCTO_ESTADO]
                     );
                     $productos[] = $producto;
@@ -681,6 +799,18 @@
             }
         }
         
+        /**
+         * Obtiene la información de un producto por su ID.
+         *
+         * @param int $productoID El ID del producto a buscar.
+         * @param bool $onlyActive (Opcional) Indica si solo se deben considerar productos activos. Por defecto es true.
+         * @param bool $deleted (Opcional) Indica si se deben considerar productos marcados como eliminados. Por defecto es false.
+         * @return array Un arreglo asociativo que contiene:
+         *               - "success" (bool): Indica si la operación fue exitosa.
+         *               - "message" (string): Un mensaje descriptivo del resultado.
+         *               - "producto" (Producto|null): Un objeto Producto con la información del producto, si se encontró.
+         * @throws Exception Si ocurre un error durante la ejecución.
+         */
         public function getProductoByID($productoID, $onlyActive = true, $deleted = false) {
             $conn = null; $stmt = null;
 
@@ -748,14 +878,16 @@
                         $row[PRODUCTO_ID],
                         $codigoBarras["codigoBarras"],
                         $row[PRODUCTO_NOMBRE],
+                        $row[PRODUCTO_CANTIDAD],
                         $row[PRODUCTO_PRECIO_COMPRA],
                         $row[PRODUCTO_PORCENTAJE_GANANCIA],
+                        $row[PRODUCTO_DESCRIPCION],
                         $categoria["categoria"],
                         $subcategoria["subcategoria"],
                         $marca["marca"],
                         $presentacion["presentacion"],
-                        $row[PRODUCTO_DESCRIPCION],
                         $row[PRODUCTO_IMAGEN],
+                        $row[PRODUCTO_FECHA_VENCIMIENTO],
                         $row[PRODUCTO_ESTADO]
                     );
                     return ["success" => true, "producto" => $producto];
@@ -782,6 +914,26 @@
             }
         }
 
+        /**
+         * Procesa la imagen de un producto, verificando su formato, cargándola y convirtiéndola a WebP.
+         *
+         * @param Producto $producto El objeto del producto que contiene la imagen a procesar.
+         * @param array $formatosPermitidos (Opcional) Array de formatos de imagen permitidos. Por defecto: ['jpg', 'jpeg', 'png', 'webp'].
+         * @return array Resultado del procesamiento de la imagen. Contiene:
+         *               - 'success' (bool): Indica si el procesamiento fue exitoso.
+         *               - 'message' (string, opcional): Mensaje descriptivo en caso de error o éxito.
+         *
+         * El método realiza las siguientes acciones:
+         * 1. Verifica si se ha cargado un archivo de imagen.
+         * 2. Comprueba que la extensión del archivo esté permitida.
+         * 3. Verifica que el archivo haya sido cargado correctamente.
+         * 4. Obtiene la ruta de destino para la imagen.
+         * 5. Mueve la imagen cargada a la ruta de destino.
+         * 6. Convierte la imagen a formato WebP y la redimensiona a 512x512 píxeles.
+         * 7. Asigna la nueva ruta de la imagen al producto.
+         *
+         * Si ocurre algún error durante el proceso, se asigna una imagen por defecto al producto y se retorna un mensaje descriptivo del error.
+         */
         private function procesarImagen($producto, $formatosPermitidos = ['jpg', 'jpeg', 'png', 'webp']) {
             // Verificar si se ha cargado un archivo
             $imagen = $producto->getProductoImagen();
@@ -818,11 +970,35 @@
             return ['success' => true, 'message' => 'Imagen guardada correctamente.'];
         }
         
+        /**
+         * Asigna una imagen por defecto a un producto.
+         *
+         * Este método establece una imagen por defecto para un producto dado y 
+         * registra esta acción en el archivo de log correspondiente.
+         *
+         * @param Producto $producto El objeto producto al cual se le asignará la imagen por defecto.
+         * @param string $rutaPorDefecto La ruta de la imagen por defecto que se asignará al producto.
+         * 
+         * @return void
+         */
         private function asignarImagenPorDefecto($producto, $rutaPorDefecto) {
             $producto->setProductoImagen($rutaPorDefecto);
             Utils::writeLog("Imagen por defecto asignada.", BUSINESS_LOG_FILE, INFO_MESSAGE, $this->className);
         }
         
+        /**
+         * Obtiene la ruta de la imagen de un producto basado en su categoría, subcategoría y nombre.
+         *
+         * @param Producto $producto El objeto del producto del cual se obtendrá la ruta de la imagen.
+         * @param string $extension La extensión del archivo de imagen (por ejemplo, 'jpg', 'png').
+         * @return string La ruta completa de la imagen del producto.
+         *
+         * Este método genera una ruta de imagen única para un producto específico. 
+         * Primero, obtiene los IDs de la categoría y subcategoría del producto, así como el ID y nombre del producto.
+         * Luego, reemplaza cualquier carácter no alfanumérico en el nombre del producto con un guion bajo.
+         * Finalmente, construye la ruta de la carpeta utilizando la categoría y subcategoría, y crea la ruta completa de la imagen 
+         * utilizando una función auxiliar.
+         */
         private function obtenerRutaImagen($producto, $extension) {
             $categoriaID = $producto->getProductoCategoria()->getCategoriaID();
             $subcategoriaID = $producto->getProductoSubcategoria()->getSubcategoriaID();
@@ -833,6 +1009,18 @@
             return Utils::crearRutaImagen($carpeta, "{$productoID}_{$nombreProducto}.{$extension}");
         }
 
+        /**
+         * Elimina la imagen antigua de un producto si es diferente a la nueva imagen proporcionada.
+         *
+         * Este método realiza los siguientes pasos:
+         * 1. Obtiene la imagen actual del producto desde la base de datos.
+         * 2. Verifica si la imagen actual es la misma que la nueva imagen proporcionada.
+         * 3. Si las imágenes son diferentes y la imagen actual no es la imagen por defecto, elimina la imagen actual.
+         * 4. Elimina carpetas vacías en el directorio de imágenes de productos.
+         *
+         * @param object $productoActualizar El objeto del producto que contiene la nueva imagen.
+         * @return array Un arreglo asociativo con la clave "success" que indica si la operación fue exitosa.
+         */
         private function eliminarImagenAntigua($productoActualizar) {
             // Obtener la imagen actual del producto
             $productoEnBD = $this->getProductoByID($productoActualizar->getProductoID());
@@ -856,6 +1044,16 @@
             return ["success" => true];
         }
 
+        /**
+         * Elimina carpetas vacías de manera recursiva hasta un límite especificado.
+         *
+         * @param string $directorio La ruta del directorio inicial desde donde comenzar la limpieza.
+         * @param string $limite La ruta del directorio límite hasta donde se permitirá la limpieza.
+         *
+         * La función revisa si el directorio dado está vacío y, si es así, lo elimina.
+         * Luego, sube un nivel en la jerarquía de carpetas y repite el proceso hasta
+         * que se alcance el directorio límite o se encuentre un directorio no vacío.
+         */
         private function limpiarCarpetasVacias($directorio, $limite) {
             // Limpiar carpetas recursivamente hasta el límite especificado
             while (is_dir($directorio) && $directorio !== $limite && count(glob("$directorio/*")) === 0) {
@@ -864,6 +1062,16 @@
             }
         }
         
+        /**
+         * Convierte una imagen a formato WebP, con la opción de redimensionarla y eliminar la imagen original.
+         *
+         * @param string $sourcePath La ruta de la imagen original.
+         * @param int|null $newWidth (Opcional) El nuevo ancho de la imagen. Si no se especifica, se mantiene el ancho original.
+         * @param int|null $newHeight (Opcional) La nueva altura de la imagen. Si no se especifica, se mantiene la altura original.
+         * @param int $quality (Opcional) La calidad de la imagen WebP (0-100). Por defecto es 80.
+         * @param bool $removeOriginal (Opcional) Si se debe eliminar la imagen original después de la conversión. Por defecto es true.
+         * @return string La ruta de la imagen convertida en formato WebP.
+         */
         private function convertToWebP($sourcePath, $newWidth = null, $newHeight = null, $quality = 80, $removeOriginal = true) {
             // Obtiene la información de la imagen original
             list($originalWidth, $originalHeight, $imageType) = getimagesize($sourcePath);

@@ -32,7 +32,21 @@
             // Formatear el mensaje con la fecha, tipo, clase y mensaje
             $formattedMessage = "[$date] $type $class $message" . PHP_EOL;
             file_put_contents($logDir . $logFile, $formattedMessage, FILE_APPEND | LOCK_EX);
-        }        
+        }
+
+        /**
+         * Envia una respuesta JSON con el código de estado, el estado de la operación y un mensaje.
+         *
+         * @param int $statusCode El código de estado HTTP.
+         * @param bool $success El estado de la operación.
+         * @param string $message El mensaje de la operación.
+         */
+        public static function enviarRespuesta($statusCode, $success, $message) {
+            http_response_code($statusCode);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => $success, 'message' => $message]);
+            exit();
+        }
 
         /**
          * Valida si una fecha está en el formato 'Y-m-d'.

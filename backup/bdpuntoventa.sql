@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 17-10-2024 a las 22:04:13
+-- Tiempo de generación: 18-10-2024 a las 15:08:14
 -- Versión del servidor: 8.0.39-0ubuntu0.24.04.2
 -- Versión de PHP: 8.3.6
 
@@ -58,9 +58,9 @@ INSERT INTO `tbcategoria` (`categoriaid`, `categorianombre`, `categoriadescripci
 
 CREATE TABLE `tbcliente` (
   `clienteid` int NOT NULL,
-  `clienteusuarioid` int DEFAULT (-(1)),
   `clientenombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'No Definido',
   `clientealias` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT 'No Definido',
+  `clienteusuarioid` int DEFAULT (-(1)),
   `clientetelefonoid` int NOT NULL,
   `clientefechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `clientefechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -71,8 +71,8 @@ CREATE TABLE `tbcliente` (
 -- Volcado de datos para la tabla `tbcliente`
 --
 
-INSERT INTO `tbcliente` (`clienteid`, `clienteusuarioid`, `clientenombre`, `clientealias`, `clientetelefonoid`, `clientefechacreacion`, `clientefechamodificacion`, `clienteestado`) VALUES
-(1, -1, 'Isaac', 'No Definido', 7, '2024-10-14 19:35:30', '2024-10-14 19:39:36', 1);
+INSERT INTO `tbcliente` (`clienteid`, `clientenombre`, `clientealias`, `clienteusuarioid`, `clientetelefonoid`, `clientefechacreacion`, `clientefechamodificacion`, `clienteestado`) VALUES
+(1, 'Isaac', 'No Definido', -1, 7, '2024-10-14 19:35:30', '2024-10-14 19:39:36', 1);
 
 -- --------------------------------------------------------
 
@@ -123,8 +123,6 @@ CREATE TABLE `tbcompradetalle` (
   `compradetalleid` int NOT NULL,
   `compradetallecompraid` int NOT NULL,
   `compradetalleproductoid` int NOT NULL,
-  `compradetalleprecioproducto` decimal(10,2) NOT NULL,
-  `compradetallecantidad` int NOT NULL,
   `compradetallefechacreacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `compradetallefechamodificacion` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `compradetalleestado` tinyint NOT NULL DEFAULT '1'

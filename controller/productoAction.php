@@ -1,20 +1,19 @@
 <?php
-    require_once __DIR__ . '/../service/productoBusiness.php';
-    require_once __DIR__ . '/../service/codigoBarrasBusiness.php';
 
-    $response = [];
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Acción que se va a realizar
+    require_once dirname(__DIR__, 1) . '/service/productoBusiness.php';
+    require_once dirname(__DIR__, 1) . '/service/codigoBarrasBusiness.php';
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
+
+    $response = [];                                         //<- Respuesta a enviar al cliente
+    $method = $_SERVER["REQUEST_METHOD"];                   //<- Método de la solicitud
+    $productoBusiness = new ProductoBusiness();             //<- Lógica de negocio de Producto
+    $codigoBarrasBusiness = new CodigoBarrasBusiness();     //<- Lógica de negocio de Código de Barras
+
+    if ($method == "POST") {
+        // Acción a realizar en el controlador
         $accion = $_POST['accion'] ?? "";
         if (empty($accion)) {
-            $response = [
-                'success' => false,
-                'message' => "No se ha especificado una acción."
-            ];
-            http_response_code(400);
-            header('Content-Type: application/json');
-            echo json_encode($response);
-            exit();
+            Utils::enviarRespuesta(400, false, "No se ha especificado una acción.");
         }
 
         // Datos del Producto recibidos en la solicitud
@@ -22,6 +21,7 @@
         $codigoBarrasID     = isset($_POST['codigobarras'])         ? intval($_POST['codigobarras'])    : -1;
         $codigoBarrasNumero = isset($_POST['codigobarrasnumero'])   ? $_POST['codigobarrasnumero']      : "";
         $nombre             = isset($_POST['nombre'])               ? $_POST['nombre']                  : "";
+        $cantidad           = isset($_POST['cantidad'])             ? intval($_POST['cantidad'])        :  0;
         $precioCompra       = isset($_POST['preciocompra'])         ? floatval($_POST['preciocompra'])  :  0;
         $ganancia           = isset($_POST['ganancia'])             ? floatval($_POST['ganancia'])      :  0;
         $descripcion        = isset($_POST['descripcion'])          ? $_POST['descripcion']             : "";
@@ -29,107 +29,96 @@
         $subcategoriaID     = isset($_POST['subcategoria'])         ? intval($_POST['subcategoria'])    : -1;
         $marcaID            = isset($_POST['marca'])                ? intval($_POST['marca'])           : -1;
         $presentacionID     = isset($_POST['presentacion'])         ? intval($_POST['presentacion'])    : -1;
+        $vencimiento        = isset($_POST['vencimiento'])          ? $_POST['vencimiento']             : "";
         $imagen             = isset($_FILES['imagen'])              ? $_FILES['imagen']                 : null;
 
-        // Se crea el Service para las operaciones
-        $productoBusiness = new ProductoBusiness();
-        $codigoBarrasBusiness = new CodigoBarrasBusiness();
-
-        // Si no se ha especificado un código de barras, se genera uno
+        // Validar si se ha enviado un código de barras
         if (empty($codigoBarrasNumero) && $accion != 'eliminar') {
             $barcode = $codigoBarrasBusiness->generarCodigoDeBarras();
             if (!$barcode['success']) {
-                $response = $barcode;
-                http_response_code(500);
-                header('Content-Type: application/json');
-                echo json_encode($response);
-                exit();
+                Utils::enviarRespuesta(500, false, $barcode['message']);
             }
             $codigoBarrasNumero = $barcode['code'];
         }
-        
-        // Crea y verifica que los datos del producto sean correctos
+
+        // Crear un objeto Producto con los datos recibidos
         $codigoBarras = new CodigoBarras($codigoBarrasID, $codigoBarrasNumero);
         $producto = new Producto(
-            $id, $codigoBarras, $nombre, $precioCompra, $ganancia, new Categoria($categoriaID), new Subcategoria($subcategoriaID),
-            new Marca($marcaID), new Presentacion($presentacionID), $descripcion, $imagen
+            $id, $codigoBarras, $nombre, $cantidad, $precioCompra, $ganancia, $descripcion, 
+            new Categoria($categoriaID), new Subcategoria($subcategoriaID), new Marca($marcaID), 
+            new Presentacion($presentacionID), $imagen, $vencimiento
         );
 
-        $check = $productoBusiness->validarProducto($producto, $accion != 'eliminar', $accion == 'insertar'); //<- Indica si se validan (o no) los campos además del ID
+        // Realizar la acción solicitada si los datos son válidos
+        $check = $productoBusiness->validarProducto($producto, $accion != 'eliminar', $accion == 'insertar');
         if ($check['is_valid']) {
-            // Si los datos son válidos se realiza la acción correspondiente
             switch ($accion) {
                 case 'insertar':
-                    // Inserta el producto en la base de datos
                     $response = $productoBusiness->insertTBProducto($producto);
                     break;
                 case 'actualizar':
-                    // Actualiza la info del producto en la base de datos
                     $response = $productoBusiness->updateTBProducto($producto);
                     break;
                 case 'eliminar':
                     $response = $productoBusiness->deleteTBProducto($id);
-                    // Elimina el producto de la base de datos
                     break;
                 default:
-                    // Error en caso de que la acción no sea válida
-                    $response['success'] = false;
-                    $response['message'] = "Acción no válida.";
-                    break;
+                    Utils::enviarRespuesta(400, false, "Acción no válida.");
             }
         } else {
-            // Si los datos no son válidos, se devuelve un mensaje de error
-            $response['success'] = $check['is_valid'];
-            $response['message'] = $check['message'];
+            Utils::enviarRespuesta(400, false, $check['message']);
         }
 
-        header('Content-Type: application/json');
+        // Enviar respuesta al cliente
+        http_response_code($response['success'] ? 200 : 400);
+        header("Content-Type: application/json");
         echo json_encode($response);
         exit();
-    }
+    } 
+    
+    else if ($method == "GET") {
+        // Parámetros de la solicitud
+        $accion     = isset($_GET['accion'])    ? $_GET['accion']           : "";
+        $deleted    = isset($_GET['deleted'])   ? boolval($_GET['deleted']) : false;
+        $onlyActive = isset($_GET['filter'])    ? boolval($_GET['filter'])  : true;
 
-    else if ($_SERVER["REQUEST_METHOD"] == "GET") {
-        $accion = isset($_GET['accion']) ? $_GET['accion'] : "";
-        $deleted = isset($_GET['deleted']) ? boolval($_GET['deleted']) : false;
-        $onlyActive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
-
-        $productoBusiness = new ProductoBusiness();
+        // Realizar la acción solicitada
         switch ($accion) {
             case 'all':
+                // Obtener todos los productos
                 $response = $productoBusiness->getAllTBProducto($onlyActive, $deleted);
                 break;
             case 'id':
-                $productoID = isset($_GET['id']) ? intval($_GET['id']) : -1;
+                // Obtener un producto por su ID
+                $productoID = intval($_GET['id'] ?? -1);
                 $response = $productoBusiness->getProductoByID($productoID, $onlyActive, $deleted);
                 break;
             default:
-                // Obtener parámetros de la solicitud GET
-                $search = isset($_GET['search']) ? $_GET['search'] : null;
-                $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
-                $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
-                $sort = isset($_GET['sort']) ? $_GET['sort'] : null;
+                // Parámetros de paginación
+                $search = isset($_GET['search']) ? $_GET['search']          : null;
+                $page   = isset($_GET['page'])   ? intval($_GET['page'])    : 1;
+                $size   = isset($_GET['size'])   ? intval($_GET['size'])    : 5;
+                $sort   = isset($_GET['sort'])   ? $_GET['sort']            : null;
 
                 // Validar los parámetros
                 if ($page < 1) $page = 1;
                 if ($size < 1) $size = 5;
 
+                // Obtener los productos paginados
                 $response = $productoBusiness->getPaginatedProductos($search, $page, $size, $sort, $onlyActive, $deleted);
                 break;
         }
-        
-        header('Content-Type: application/json');
+
+        // Enviar respuesta al cliente
+        http_response_code($response['success'] ? 200 : 400);
+        header("Content-Type: application/json");
         echo json_encode($response);
         exit();
-    }
-
+    } 
+    
     else {
-        $response['success'] = false;
-        $response['message'] = "Método no permitido (" . $_SERVER["REQUEST_METHOD"] . ").";
-
-        http_response_code(405);
-        header('Content-Type: application/json');
-        echo json_encode($response);
-        exit();
+        // Enviar respuesta de método no permitido
+        Utils::enviarRespuesta(405, false, "Método no permitido ($method).");
     }
 
 ?>
