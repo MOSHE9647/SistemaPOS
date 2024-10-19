@@ -3,32 +3,37 @@
 require_once __DIR__ . '/../service/compraDetalleBusiness.php';
 
 $response = [];
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Acción que se va a realizar
     $accion = $_POST['accion'];
 
     // Datos recibidos en la solicitud (Form)
-    $id = isset($_POST['id']) ? $_POST['id'] : 0;
-    $compraid = isset($_POST['compranumerofactura']) ? $_POST['compranumerofactura'] : 0;
-    $loteid = isset($_POST['lotecodigo']) ? $_POST['lotecodigo'] : 0;
-    //$loteid = isset($_POST['loteid']) ? $_POST['loteid'] : 0;
-    $productoid = isset($_POST['productonombre']) ? $_POST['productonombre'] : 0;
-    $precioproducto = isset($_POST['precioproducto']) ? $_POST['precioproducto'] : 0.00;
-    $cantidad = isset($_POST['cantidad']) ? $_POST['cantidad'] : 0;
-    
+    $compraDetalleID = isset($_POST['compradetalleid']) ? intval($_POST['compradetalleid']) : 0;
+    $compraDetalleCompra = isset($_POST['compradetallecompraid']) ? intval($_POST['compradetallecompraid']) : 0;
+    $compraDetalleProducto = isset($_POST['compradetalleproductoid']) ? intval($_POST['compradetalleproductoid']) : 0;
+
     // Para los campos de fechas y estado
-    $fechacreacion = isset($_POST['fechacreacion']) ? $_POST['fechacreacion'] : '';
-    $fechamodificacion = isset($_POST['fechamodificacion']) ? $_POST['fechamodificacion'] : '';
-    $estado = isset($_POST['estado']) ? $_POST['estado'] : 1;
+    $compraDetalleFechaCreacion = isset($_POST['compradetallefechacreacion']) ? $_POST['compradetallefechacreacion'] : '';
+    $compraDetalleFechaModificacion = isset($_POST['compradetallefechamodificacion']) ? $_POST['compradetallefechamodificacion'] : '';
+    $compraDetalleEstado = isset($_POST['compradetalleestado']) ? intval($_POST['compradetalleestado']) : 1;
 
     // Se crea el Service para las operaciones
     $compraDetalleBusiness = new CompraDetalleBusiness();
 
     // Crea y verifica que los datos del detalle de compra sean correctos
-    $compraDetalle = new CompraDetalle($id, $compraid, $loteid, $productoid, $precioproducto, $cantidad, $fechacreacion, $fechamodificacion, $estado);
-    $check = $compraDetalleBusiness->validarCompraDetalle($compraDetalle, $accion != 'eliminar'); //<- Indica si se validan (o no) los campos además del ID
+    $compraDetalle = new CompraDetalle(
+        $compraDetalleID, 
+        $compraDetalleCompraID, 
+        $compraDetalleProductoID, 
+        $compraDetalleFechaCreacion, 
+        $compraDetalleFechaModificacion, 
+        $compraDetalleEstado
+    );
 
-    // Si los datos son válidos se realiza acción correspondiente
+    $check = $compraDetalleBusiness->validarCompraDetalle($compraDetalle, $accion != 'eliminar'); // Indica si se validan (o no) los campos además del ID
+
+    // Si los datos son válidos se realiza la acción correspondiente
     if ($check['is_valid']) {
         switch ($accion) {
             case 'insertar':
@@ -41,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 break;
             case 'eliminar':
                 // Elimina el detalle de compra de la base de datos (ID se verifica en validarCompraDetalle)
-                $response = $compraDetalleBusiness->deleteCompraDetalle($id);
+                $response = $compraDetalleBusiness->deleteCompraDetalle($compraDetalleID);
                 break;
             default:
                 // Error en caso de que la acción no sea válida
