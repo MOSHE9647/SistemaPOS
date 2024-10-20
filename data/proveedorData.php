@@ -180,19 +180,19 @@
                 // Insertar las direcciones del proveedor en la base de datos
                 $direcciones = $proveedor->getProveedorDirecciones();
                 foreach ($direcciones as $proveedorDireccion) {
-                    $direccion = new Direccion(
-                        $proveedorDireccion['ID'],
-                        $proveedorDireccion['Provincia'],
-                        $proveedorDireccion['Canton'],
-                        $proveedorDireccion['Distrito'],
-                        $proveedorDireccion['Barrio'],
-                        $proveedorDireccion['Sennas'],
-                        $proveedorDireccion['Distancia']
-                    );
+                    // $direccion = new Direccion(
+                    //     $proveedorDireccion['ID'],
+                    //     $proveedorDireccion['Provincia'],
+                    //     $proveedorDireccion['Canton'],
+                    //     $proveedorDireccion['Distrito'],
+                    //     $proveedorDireccion['Barrio'],
+                    //     $proveedorDireccion['Sennas'],
+                    //     $proveedorDireccion['Distancia']
+                    // );
 
-                    // Insertar la dirección en la base de datos
-                    $insert = $this->direccionData->insertDireccion($direccion, $conn);
-                    if (!$insert["success"]) { throw new Exception($insert["message"]); }
+                    // // Insertar la dirección en la base de datos
+                    // $insert = $this->direccionData->insertDireccion($direccion, $conn);
+                    // if (!$insert["success"]) { throw new Exception($insert["message"]); }
 
                     // Insertar la relación entre el proveedor y la dirección
                     $direccionID = $insert["id"];
@@ -235,7 +235,7 @@
 
                 // Verificar si el proveedor ya existe
                 $check = $this->proveedorExiste($proveedorID);
-                if (!$check["success"]) { return $check; } // Error al verificar la existencia
+                if (!$check["success"]) { throw new Exception($check['message']); } // Error al verificar la existencia
 
                 // En caso de no existir el proveedor
                 if (!$check["exists"]) {
@@ -246,7 +246,7 @@
 
                 // Verificar si el proveedor ya existe con el mismo nombre y correo
                 $check = $this->proveedorExiste($proveedorID, $proveedorNombre, $proveedorEmail, true);
-                if (!$check["success"]) { return $check; } // Error al verificar la existencia
+                if (!$check["success"]) { throw new Exception($check['message']); } // Error al verificar la existencia
 
                 // En caso de ya existir el proveedor
                 if ($check["exists"]) {
@@ -287,8 +287,8 @@
                 if (!$direccion["success"]) { throw new Exception($direccion["message"]); }
 
                 // Actualizar los teléfonos del proveedor
-                $telefono = $this->proveedorTelefonoData->updateTelefonosProveedor($proveedor, $conn);
-                if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
+                // $telefono = $this->proveedorTelefonoData->updateTelefonosProveedor($proveedor, $conn);
+                // if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
 
                 // Confirmar la transacción si no se proporcionó una conexión
                 if ($createdConn) { mysqli_commit($conn); }
@@ -337,6 +337,9 @@
                     if (!$result["success"]) { throw new Exception($result["message"]); }
                     $conn = $result["connection"];
                     $createdConn = true;
+
+                    // Inicia una transacción si no se proporcionó una conexión
+                    mysqli_begin_transaction($conn);
                 }
 
                 // Crea una consulta y un statement SQL para eliminar el registro
@@ -346,16 +349,29 @@
                     "WHERE " . PROVEEDOR_ID . " = ?"
                 ;
                 $stmt = mysqli_prepare($conn, $queryDelete);
-
-                // Vincula los parámetros de la consulta con los datos del proveedor
                 mysqli_stmt_bind_param($stmt, 'i', $proveedorID);
-
-                // Ejecuta la consulta de eliminación
                 mysqli_stmt_execute($stmt);
+
+                // Obtener las direcciones del proveedor
+                $direcciones = $this->proveedorDireccionData->getDireccionesByProveedorID($proveedorID);
+                if (!$direcciones["success"]) { throw new Exception($direcciones["message"]); }
+
+                // Eliminar las direcciones del proveedor
+                foreach ($direcciones["direcciones"] as $direccion) {
+                    $direccionID = $direccion->getDireccionID();
+                    $delete = $this->proveedorDireccionData->removeDireccionFromProveedor($proveedorID, $direccionID, $conn);
+                    if (!$delete["success"]) { throw new Exception($delete["message"]); }
+                }
+
+                // Confirmar la transacción si no se proporcionó una conexión
+                if ($createdConn) { mysqli_commit($conn); }
 
                 // Devuelve un mensaje de éxito
                 return ["success" => true, "message" => "Proveedor eliminado exitosamente"];
             } catch (Exception $e) {
+                // Hacer rollback si se creó una conexión y ocurrió un error
+                if ($createdConn && isset($conn)) { mysqli_rollback($conn); }
+
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
@@ -503,7 +519,7 @@
                     $categoria = $categoriaData->getCategoriaByID($row[PROVEEDOR_CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
-                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID], false);
+                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID]);
                     if (!$direccion["success"]) { throw new Exception($direccion["message"]); }
 
                     $telefono = $this->proveedorTelefonoData->getTelefonosByProveedorID($row[PROVEEDOR_ID], false);

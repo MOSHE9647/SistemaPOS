@@ -45,7 +45,10 @@
         function setDireccionEstado(bool $direccionEstado) { $this->direccionEstado = $direccionEstado; }
 
         public function getDireccionCompleta(): string {
-            return "{$this->direccionProvincia}, {$this->direccionCanton}, {$this->direccionDistrito}, {$this->direccionBarrio}, {$this->direccionSennas}";
+            $direccionCompleta = "{$this->direccionProvincia}, {$this->direccionCanton}, {$this->direccionDistrito}";
+            if (!empty($this->direccionBarrio)) { $direccionCompleta .= ", {$this->direccionBarrio}"; }
+            if (!empty($this->direccionSennas)) { $direccionCompleta .= ", {$this->direccionSennas}"; }
+            return $direccionCompleta;
         }
 
         public function jsonSerialize() {

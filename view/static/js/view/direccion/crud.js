@@ -22,6 +22,11 @@ async function existeDireccion(direccion, insert = false, update = false) {
             throw new Error(data.message);
         }
 
+        if (data.inactive) {
+            const confirm = window.confirm(data.message);
+            return confirm ? false : true;
+        }
+
         return data.exists;
     } catch (error) {
         throw new Error(error.message);
@@ -57,7 +62,7 @@ export async function insertDireccion(direcciones) {
         // Obtener la fila de creación
         const row = document.querySelector('.creating-row');
         if (!row) {
-            mostrarMensaje('No se encontró la fila de creación', 'error', 'Error en la inserción');
+            mostrarMensaje('No se encontró la fila de creación', 'error', 'Error al añadir la dirección');
             return false;
         }
 
@@ -74,7 +79,7 @@ export async function insertDireccion(direcciones) {
             // Validar si el campo 'Distancia' es un número mayor a 0
             if (fieldName === 'Distancia') {
                 if (value === '' || parseFloat(value) === 0) {
-                    mostrarMensaje(`El campo '${fieldName}' no puede estar vacío ni ser 0`, 'error', 'Error en la inserción');
+                    mostrarMensaje(`El campo '${fieldName}' no puede estar vacío ni ser 0`, 'error', 'Error al añadir la dirección');
                     return false;
                 }
                 value = parseFloat(value).toFixed(2);
@@ -88,16 +93,15 @@ export async function insertDireccion(direcciones) {
 
         // Verificar si la dirección ya existe en base de datos
         if (await existeDireccion(data, true)) {
-            mostrarMensaje('La dirección ya existe en la base de datos', 'error', 'Error en la inserción');
+            mostrarMensaje('La dirección ya existe en la base de datos', 'error', 'Error al añadir la dirección');
             return false;
         }
 
         // Añadir la nueva dirección a la lista de direcciones
         direcciones.unshift(data);
-        mostrarMensaje('Dirección añadida exitosamente', 'success', 'Inserción exitosa');
         return true;
     } catch (error) {
-        mostrarMensaje(`${error}`, 'error', 'Error en la inserción');
+        mostrarMensaje(`${error}`, 'error', 'Error al añadir la dirección');
         return false;
     }
 }
@@ -142,7 +146,7 @@ export async function updateDireccion(direcciones, row) {
 
             if (fieldName === 'Distancia') {
                 if (value === '' || parseFloat(value) === 0) {
-                    mostrarMensaje(`El campo '${fieldName}' no puede estar vacío ni ser 0`, 'error', 'Error en la actualización');
+                    mostrarMensaje(`El campo '${fieldName}' no puede estar vacío ni ser 0`, 'error', 'Error al actualizar la dirección');
                     return false;
                 }
                 value = parseFloat(value).toFixed(2);
@@ -155,7 +159,7 @@ export async function updateDireccion(direcciones, row) {
 
         // Verificar si la dirección ya existe en base de datos
         if (await existeDireccion(data, false, true)) {
-            mostrarMensaje('Ya existe una dirección con los mismos datos en la base de datos', 'error', 'Error en la actualización');
+            mostrarMensaje('Ya existe una dirección con los mismos datos en la base de datos', 'error', 'Error al actualizar la dirección');
             return false;
         }
 
@@ -166,10 +170,9 @@ export async function updateDireccion(direcciones, row) {
         }
 
         direcciones[index] = data;
-        mostrarMensaje('Dirección actualizada exitosamente', 'success', 'Actualización exitosa');
         return true;
     } catch (error) {
-        mostrarMensaje(`${error}`, 'error', 'Error en la actualización');
+        mostrarMensaje(`${error}`, 'error', 'Error al actualizar la dirección');
         return false;
     }
 }
@@ -193,7 +196,10 @@ export async function updateDireccion(direcciones, row) {
  * @returns {void}
  */
 export function deleteDireccion(direcciones, id) {
-    if (!confirm('¿Está seguro de que desea eliminar esta dirección?')) return;
+    if (!confirm('¿Está seguro de que desea eliminar esta dirección?')) {
+        mostrarMensaje('No se eliminó la dirección', 'info', 'Eliminación cancelada');
+        return;
+    }
 
     const index = direcciones.findIndex(direccion => direccion.ID === parseInt(id));
     if (index === -1) {
@@ -202,5 +208,4 @@ export function deleteDireccion(direcciones, id) {
     }
 
     direcciones.splice(index, 1);
-    mostrarMensaje('Dirección eliminada exitosamente', 'success', 'Eliminación exitosa');
 }

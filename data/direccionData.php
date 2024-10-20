@@ -81,21 +81,26 @@
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Obtener los datos de la dirección desde la base de datos
                     $id = $row[DIRECCION_ID];
-                    $provincia = $row[DIRECCION_PROVINCIA];
-                    $canton = $row[DIRECCION_CANTON];
-                    $distrito = $row[DIRECCION_DISTRITO];
-                    $barrio = $row[DIRECCION_BARRIO];
                     $sennas = $row[DIRECCION_SENNAS];
+                    $direccionEnBD = new Direccion(
+                        $id,
+                        $row[DIRECCION_PROVINCIA],
+                        $row[DIRECCION_CANTON],
+                        $row[DIRECCION_DISTRITO],
+                        $row[DIRECCION_BARRIO],
+                        $sennas
+                    );
                     $inactivo = $row[DIRECCION_ESTADO] == 0;
 
                     // Concatenar los datos de la dirección para comparar con la dirección ingresada
-                    $direccionCompletaBD = "$provincia, $canton, $distrito, $barrio, $sennas";
+                    $direccionCompletaBD = $direccionEnBD->getDireccionCompleta();
                     $direccionCompleta = $direccion->getDireccionCompleta();
 
                     // Verificar si la dirección ya existe en la base de datos con un 98% de similitud
                     $exists = Utils::esSimiliar($direccionCompletaBD, $direccionCompleta, 98, $sennas != "");
                     if ($exists) {
-                        return ["success" => true, "exists" => $exists, "inactive" => $inactivo, "direccionID" => $id];
+                        $message = "Ya existe una dirección similar en la base de datos: [" . $direccionCompletaBD . "]";
+                        return ["success" => true, "exists" => $exists, "message" => $message, "inactive" => $inactivo, "direccionID" => $id];
                     }
                 }
         
@@ -218,15 +223,6 @@
             $stmt = null;
             
             try {
-                // Verificar si existe la dirección en la base de datos
-                $check = $this->existeDireccion($direccion, true);
-                if (!$check["success"]) { throw new Exception($check['message']); } // Error al verificar la existencia
-                if (!$check["exists"]) { // No existe la dirección
-                    $message = "La dirección con 'ID [" . $direccion->getDireccionID() . "]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
-                    return ['success' => false, 'message' => "La dirección seleccionada no existe en la base de datos."];
-                }
-                
                 // Establece una conexion con la base de datos
 				if (is_null($conn)) {
                     $result = $this->getConnection();
@@ -250,6 +246,7 @@
                 $stmt = mysqli_prepare($conn, $queryUpdate);
         
                 // Obtener los valores de las propiedades del objeto $direccion
+                $direccionID = $direccion->getDireccionID();
                 $direccionProvincia = $direccion->getDireccionProvincia();
                 $direccionCanton = $direccion->getDireccionCanton();
                 $direccionDistrito = $direccion->getDireccionDistrito();
