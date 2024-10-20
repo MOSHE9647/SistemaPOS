@@ -2,6 +2,7 @@
 
     require_once dirname(__DIR__, 1) . '/data/data.php';
     require_once dirname(__DIR__, 1) . '/data/categoriaData.php';
+    require_once dirname(__DIR__, 1) . '/data/direccionData.php';
     require_once dirname(__DIR__, 1) . '/data/proveedorTelefonoData.php';
     require_once dirname(__DIR__, 1) . '/data/proveedorDireccionData.php';
     require_once dirname(__DIR__, 1) . '/domain/Proveedor.php';
@@ -12,6 +13,7 @@
 
         private $proveedorTelefonoData;
         private $proveedorDireccionData;
+        private $direccionData;
         private $categoriaData;
         private $className;
         
@@ -21,6 +23,7 @@
             $this->className = get_class($this);
             $this->proveedorTelefonoData = new  ProveedorTelefonoData();
             $this->proveedorDireccionData = new ProveedorDireccionData();
+            $this->direccionData = new DireccionData();
             $this->categoriaData = new CategoriaData();
         }
 
@@ -98,7 +101,8 @@
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), 
                     $e->getMessage(),
-                    'Error al verificar la existencia del proveedor en la base de datos'
+                    'Error al verificar la existencia del proveedor en la base de datos',
+                    $this->className
                 );
                 // Devolver mensaje amigable para el usuario
                 return ["success" => false, "message" => $userMessage];
@@ -142,16 +146,19 @@
                     if (!$result["success"]) { throw new Exception($result["message"]); }
                     $conn = $result["connection"];
                     $createdConn = true;
+
+                    // Inicia una transacción si no se proporcionó una conexión
+                    mysqli_begin_transaction($conn);
                 }
 
-                // Obtener el último ID de la tabla tbproveedor
-                $queryLastID = "SELECT MAX(" . PROVEEDOR_ID . ") FROM " . TB_PROVEEDOR;
-                $idCont = mysqli_query($conn, $queryLastID);
-                $nextID = 1;
-
+                // Obtenemos el último ID de la tabla tbproducto
+                $queryGetLastId = "SELECT MAX(" . PROVEEDOR_ID . ") FROM " . TB_PROVEEDOR;
+                $idCont = mysqli_query($conn, $queryGetLastId);
+                $nextId = 1;
+        
                 // Calcula el siguiente ID para la nueva entrada
-                if ($row = mysqli_fetch_assoc($idCont)) {
-                    $nextID = (int) trim($row[0]) + 1;
+                if ($row = mysqli_fetch_row($idCont)) {
+                    $nextId = (int) trim($row[0]) + 1;
                 }
 
                 // Crea una consulta y un statement SQL para insertar el registro
@@ -167,13 +174,40 @@
 
                 // Vincula los parámetros de la consulta con los datos del proveedor
                 $proveedorCategoriaID = $proveedor->getProveedorCategoria()->getCategoriaID();
-                mysqli_stmt_bind_param($stmt, 'issi', $nextID, $proveedorNombre, $proveedorEmail, $proveedorCategoriaID);
-
-                // Ejecuta la consulta de inserción
+                mysqli_stmt_bind_param($stmt, 'issi', $nextId, $proveedorNombre, $proveedorEmail, $proveedorCategoriaID);
                 mysqli_stmt_execute($stmt);
+
+                // Insertar las direcciones del proveedor en la base de datos
+                $direcciones = $proveedor->getProveedorDirecciones();
+                foreach ($direcciones as $proveedorDireccion) {
+                    $direccion = new Direccion(
+                        $proveedorDireccion['ID'],
+                        $proveedorDireccion['Provincia'],
+                        $proveedorDireccion['Canton'],
+                        $proveedorDireccion['Distrito'],
+                        $proveedorDireccion['Barrio'],
+                        $proveedorDireccion['Sennas'],
+                        $proveedorDireccion['Distancia']
+                    );
+
+                    // Insertar la dirección en la base de datos
+                    $insert = $this->direccionData->insertDireccion($direccion, $conn);
+                    if (!$insert["success"]) { throw new Exception($insert["message"]); }
+
+                    // Insertar la relación entre el proveedor y la dirección
+                    $direccionID = $insert["id"];
+                    $add = $this->proveedorDireccionData->addDireccionToProveedor($nextId, $direccionID, $conn);
+                    if (!$add["success"]) { throw new Exception($add["message"]); }
+                }
+
+                // Confirmar la transacción si no se proporcionó una conexión
+                if ($createdConn) { mysqli_commit($conn); }
 
                 return ["success" => true, "message" => "Proveedor insertado exitosamente", "id" => $nextId];
             } catch (Exception $e) {
+                // Hacer rollback si se creó una conexión y ocurrió un error
+                if ($createdConn && isset($conn)) { mysqli_rollback($conn); }
+
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
@@ -187,8 +221,6 @@
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if ($createdConn && isset($conn)) { mysqli_close($conn); }
             }
-
-            return $response;
         }
 
         public function updateProveedor($proveedor, $conn = null) {

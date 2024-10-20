@@ -124,9 +124,9 @@ export function makeRowEditable(row, tableBodyID = 'tableBody') {
     initializeSelects();
 
     row.querySelector('.btn-save').addEventListener('click', () => {
-        if (crud.updateDireccion(direcciones, row.dataset.id)) {
-            renderTable(direcciones, tableBodyID);
-        }
+        crud.updateDireccion(direcciones, row).then((success) => {
+            if (success) renderTable(direcciones, tableBodyID);
+        });
     });
 
     row.querySelector('.btn-cancel').addEventListener('click', cancelEdit);
@@ -178,9 +178,9 @@ export function showCreateRow(tableBodyID = 'tableBody') {
     initializeSelects();
 
     newRow.querySelector('.btn-save').addEventListener('click', () => {
-        if (crud.insertDireccion(direcciones)) {
-            renderTable(direcciones, tableBodyID);
-        }
+        crud.insertDireccion(direcciones).then((success) => {
+            if (success) renderTable(direcciones, tableBodyID);
+        });
     });
 
     newRow.querySelector('.btn-cancel').addEventListener('click', cancelEdit);
@@ -248,7 +248,7 @@ export function searchDirecciones(searchInputID = 'search-input', tableBodyID = 
 
     let searchValue = searchInput.value.trim().toUpperCase();
     if (searchValue === '') {
-        renderTable(direcciones, tableBodyID);
+        renderTable(direcciones, tableBodyID, isInfo);
         return;
     }
 

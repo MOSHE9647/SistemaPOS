@@ -17,7 +17,6 @@
             $conn = null; $stmt = null;
 
             try {
-                $missingParamsLog="";
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) { throw new Exception($result["message"]); }
@@ -34,19 +33,22 @@
                     $queryCheck .= PROVEEDOR_ID . " = ? AND " . DIRECCION_ID . " = ? AND " . PROVEEDOR_DIRECCION_ESTADO . " != FALSE";
                     $params = [$proveedorID, $direccionID];
                     $types = "ii";
-                } else if ($proveedorID) {
+                } 
+                else if ($proveedorID) {
                     // Consulta para verificar si existe un proveedor con el ID ingresado
                     $estadoCampo = $tbProveedor ? PROVEEDOR_ESTADO : PROVEEDOR_DIRECCION_ESTADO;
                     $queryCheck .= PROVEEDOR_ID . " = ? AND $estadoCampo != FALSE";
                     $params = [$proveedorID];
                     $types = "i";
-                } else if ($direccionID) {
+                } 
+                else if ($direccionID) {
                     // Consulta para verificar si existe una dirección con el ID ingresado
                     $estadoCampo = $tbDireccion ? DIRECCION_ESTADO : PROVEEDOR_DIRECCION_ESTADO;
                     $queryCheck .= DIRECCION_ID . " = ? AND $estadoCampo != FALSE";
                     $params = [$direccionID];
                     $types = "i";
-                } else {
+                } 
+                else {
                     // Registrar parámetros faltantes y lanzar excepción
                     $missingParamsLog = "Faltan parámetros para verificar la existencia del proveedor y/o direccion:";
                     if (!$proveedorID) $missingParamsLog .= " proveedorID [" . ($proveedorID ?? 'null') . "]";
@@ -67,7 +69,8 @@
                 }
 
                 // Retorna false si no se encontraron resultados
-                return ["success" => true, "exists" => false, "message" => $missingParamsLog];
+                $message = "No se encontraron registros con los criterios proporcionados.";
+                return ["success" => true, "exists" => false, "message" => $message];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
@@ -111,25 +114,27 @@
             $stmt = null;
             
             try {
-                // Verificar la existencia del proveedor y de la dirección en la base de datos
-                $check = $this->verificarExistenciaProveedorDireccion($proveedorID, $direccionID);
-                if (!$check['success']) { return $check; }
-
-                // Verificar si la dirección ya está asignada a algún proveedor
-                $check = $this->existeProveedorDireccion(null, $direccionID);
-                if (!$check['success']) { return $check; }
-                if ($check['exists']) {
-                    $message = "La dirección con ID [$direccionID] ya está asignada a otro proveedor.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
-                    return ['success' => false, 'message' => $message];
-                }
-
                 // Si no se proporcionó una conexión, crea una nueva
                 if (is_null($conn)) {
                     $result = $this->getConnection();
                     if (!$result["success"]) { throw new Exception($result["message"]); }
                     $conn = $result["connection"];
                     $createdConnection = true;
+                }
+
+                // Verificar la existencia del proveedor y de la dirección en la base de datos
+                if ($createdConnection) {
+                    $check = $this->verificarExistenciaProveedorDireccion($proveedorID, $direccionID);
+                    if (!$check['success']) { throw new Exception($check['message']); }
+                }
+
+                // Verificar si la dirección ya está asignada a algún proveedor
+                $check = $this->existeProveedorDireccion(null, $direccionID);
+                if (!$check['success']) { throw new Exception($check['message']); }
+                if ($check['exists']) {
+                    $message = "La dirección con ID [$direccionID] ya está asignada a otro proveedor.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ['success' => false, 'message' => $message];
                 }
 
                 // Obtenemos el último ID de la tabla tbproveedordireccion
@@ -152,7 +157,7 @@
 
                 // Prepara y ejecuta la consulta de inserción
                 mysqli_stmt_bind_param($stmt, 'iii', $nextId, $proveedorID, $direccionID);
-                $result = mysqli_stmt_execute($stmt);
+                mysqli_stmt_execute($stmt);
 
                 return ["success" => true, "message" => "Dirección asignada exitosamente al proveedor."];
             } catch (Exception $e) {
@@ -176,6 +181,17 @@
             $stmt = null;
 
             try {
+                // Si no se proporcionó una conexión, crea una nueva
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+        
+                    // Desactivar el autocommit para manejar transacciones si la conexión fue creada aquí
+                    mysqli_autocommit($conn, false);
+                }
+
                 // Verificar la existencia del proveedor y de la dirección en la base de datos
                 $check = $this->verificarExistenciaProveedorDireccion($proveedorID, $direccionID);
                 if (!$check['success']) { return $check; }
@@ -187,17 +203,6 @@
                     $message = "La dirección con ID [$direccionID] no está asignada al proveedor con ID [$proveedorID].";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
                     return ['success' => false, 'message' => "La dirección seleccionada no está asignada al proveedor."];
-                }
-
-                // Si no se proporcionó una conexión, crea una nueva
-                if (is_null($conn)) {
-                    $result = $this->getConnection();
-                    if (!$result["success"]) { throw new Exception($result["message"]); }
-                    $conn = $result["connection"];
-                    $createdConnection = true;
-        
-                    // Desactivar el autocommit para manejar transacciones si la conexión fue creada aquí
-                    mysqli_autocommit($conn, false);
                 }
 
                 // Crea una consulta y un statement SQL para eliminar el registro (borrado logico)

@@ -15,43 +15,99 @@
 			parent::__construct();
 		}
 
-        private function existeDireccion($direccionID) {
+        public function existeDireccion($direccion, $update = false, $insert = false) {
             $conn = null; $stmt = null;
             
             try {
-                if ($direccionID === null && !is_numeric($direccionID)) {
-                    $message = "Faltan parámetros para verificar la existencia de la dirección: direccionID [" . ($direccionID ?? 'null') . "]";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
-                    throw new Exception("Faltan parámetros para verificar la existencia de la dirección.");
+                if (!$direccion) {
+                    $errorMessage = "No se proporcionó una dirección para verificar su existencia.";
+                    Utils::writeLog($errorMessage, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    throw new Exception($errorMessage);
                 }
-
+            
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
 
                 // Crea una consulta y un statement SQL para buscar el registro
-                $queryCheck = "SELECT 1 FROM " . TB_DIRECCION . " WHERE " . DIRECCION_ID . " = ? AND " . DIRECCION_ESTADO . " != FALSE";
-                $stmt = mysqli_prepare($conn, $queryCheck);
+                $queryCheck = "
+                    SELECT " . 
+                        DIRECCION_ID . ", " .
+                        DIRECCION_PROVINCIA . ", " .
+                        DIRECCION_CANTON . ", " .
+                        DIRECCION_DISTRITO . ", " .
+                        DIRECCION_BARRIO . ", " . 
+                        DIRECCION_SENNAS . ", " .
+                        DIRECCION_ESTADO . "
+                    FROM " .
+                        TB_DIRECCION;
+                $params = [];
+                $types = "";
 
-                // Asignar los parámetros y ejecutar la consulta
-                mysqli_stmt_bind_param($stmt, "i", $direccionID);
+                // Obtener los valores de las propiedades del objeto $direccion
+                $direccionID = $direccion->getDireccionID();
+                if ($direccionID === -1 && $update) {
+                    $missingParamsLog = "Faltan parámetros para verificar la existencia de la dirección:";
+                    $missingParamsLog .= " direccionID [" . ($direccionID ?? 'null') . "]";
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    throw new Exception("Faltan parámetros para verificar la existencia de la dirección.");
+                }
+
+                // Consulta para verificar si existe una Direccion con el ID ingresado
+                if ((!$update && !$insert)) {
+                    $queryCheck .= " WHERE " . DIRECCION_ID . " = ?";
+                    $params[] = $direccionID;
+                    $types .= "i";
+                }
+                else if ($update && !$insert) {
+                    $queryCheck .= " WHERE " . DIRECCION_ID . " <> ?";
+                    $params[] = $direccionID;
+                    $types .= "i";
+                }
+
+                // Preparar la consulta y vincular los parámetros
+                $stmt = mysqli_prepare($conn, $queryCheck);
+                if (!$insert) mysqli_stmt_bind_param($stmt, $types, ...$params);
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
 
                 // Verifica si existe algún registro con los criterios dados
-                if (mysqli_num_rows($result) > 0) {
+                if ((!$insert && !$update) && mysqli_num_rows($result) > 0) {
                     return ["success" => true, "exists" => true];
                 }
+
+                // Verificar si existe una dirección con los mismos datos
+                while ($row = mysqli_fetch_assoc($result)) {
+                    // Obtener los datos de la dirección desde la base de datos
+                    $id = $row[DIRECCION_ID];
+                    $provincia = $row[DIRECCION_PROVINCIA];
+                    $canton = $row[DIRECCION_CANTON];
+                    $distrito = $row[DIRECCION_DISTRITO];
+                    $barrio = $row[DIRECCION_BARRIO];
+                    $sennas = $row[DIRECCION_SENNAS];
+                    $inactivo = $row[DIRECCION_ESTADO] == 0;
+
+                    // Concatenar los datos de la dirección para comparar con la dirección ingresada
+                    $direccionCompletaBD = "$provincia, $canton, $distrito, $barrio, $sennas";
+                    $direccionCompleta = $direccion->getDireccionCompleta();
+
+                    // Verificar si la dirección ya existe en la base de datos con un 98% de similitud
+                    $exists = Utils::esSimiliar($direccionCompletaBD, $direccionCompleta, 98, $sennas != "");
+                    if ($exists) {
+                        return ["success" => true, "exists" => $exists, "inactive" => $inactivo, "direccionID" => $id];
+                    }
+                }
         
-                $message = "No se encontró ninguna dirección ('ID [$direccionID]') en la base de datos.";
+                // Retorna false si no se encontraron resultados
+                $message = "No se encontró ninguna dirección que coincida en la base de datos.";
                 return ["success" => true, "exists" => false, "message" => $message];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), 
                     $e->getMessage(),
-                    'Error al obtener la lista de direcciones desde la base de datos',
+                    'Error al verificar la existencia de la dirección en la base de datos',
                     $this->className
                 );
 
@@ -69,6 +125,21 @@
             $stmt = null;
 
             try {
+                // Verificar si la dirección ya existe en la base de datos
+                $check = $this->existeDireccion($direccion, false, true);
+                if (!$check["success"]) { throw new Exception($check['message']); } // Error al verificar la existencia
+
+                // En caso de ya existir pero estar inactiva, se activa y se actualiza
+                if ($check["exists"] && $check["inactive"]) {
+                    $direccion->setDireccionID($check["direccionID"]);
+                    return $this->updateDireccion($direccion, $conn);
+                }
+                else if ($check["exists"]) {
+                    $message = "Ya existe una dirección similar en la base de datos: [" . $direccion->getDireccionCompleta() . "]";
+                    Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    return ['success' => false, 'message' => $message];
+                }
+
                 // Establece una conexión con la base de datos
                 if (is_null($conn)) {
                     $result = $this->getConnection();
@@ -122,7 +193,7 @@
                 );
         
                 // Ejecuta la consulta de inserción
-                $result = mysqli_stmt_execute($stmt);
+                mysqli_stmt_execute($stmt);
                 return ["success" => true, "message" => "Dirección insertada exitosamente", "id" => $nextId];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -147,14 +218,11 @@
             $stmt = null;
             
             try {
-                // Obtener el ID de la dirección a actualizar
-                $direccionID = $direccion->getDireccionID();
-
-                // Verificar si existe el ID y que el Estado no sea false
-                $check = $this->existeDireccion($direccionID);
-                if (!$check["success"]) { return $check; } // Error al verificar la existencia
+                // Verificar si existe la dirección en la base de datos
+                $check = $this->existeDireccion($direccion, true);
+                if (!$check["success"]) { throw new Exception($check['message']); } // Error al verificar la existencia
                 if (!$check["exists"]) { // No existe la dirección
-                    $message = "La dirección con 'ID [$direccionID]' no existe en la base de datos.";
+                    $message = "La dirección con 'ID [" . $direccion->getDireccionID() . "]' no existe en la base de datos.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
                     return ['success' => false, 'message' => "La dirección seleccionada no existe en la base de datos."];
                 }
@@ -176,7 +244,8 @@
                         DIRECCION_DISTRITO . " = ?, " .
                         DIRECCION_BARRIO . " = ?, " .
                         DIRECCION_SENNAS . " = ?, " .
-                        DIRECCION_DISTANCIA . " = ? " .
+                        DIRECCION_DISTANCIA . " = ?, " .
+                        DIRECCION_ESTADO . " = TRUE " .
                     "WHERE " . DIRECCION_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
         
@@ -202,9 +271,7 @@
                 );
         
                 // Ejecuta la consulta de actualización
-                $result = mysqli_stmt_execute($stmt);
-        
-                // Devuelve el resultado de la consulta
+                mysqli_stmt_execute($stmt);
                 return ["success" => true, "message" => "Dirección actualizada exitosamente"];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -229,9 +296,10 @@
             $stmt = null;
 
             try {
-                // Verificar si existe el ID y que el Estado no sea false
-                $check = $this->existeDireccion($direccionID);
-                if (!$check["success"]) { return $check; } // Error al verificar la existencia
+                // Verificar si existe la dirección en la base de datos
+                $direccion = new Direccion($direccionID);
+                $check = $this->existeDireccion($direccion);
+                if (!$check["success"]) { throw new Exception($check['message']); } // Error al verificar la existencia
                 if (!$check["exists"]) { // No existe la dirección
                     $message = "La dirección con 'ID [$direccionID]' no existe en la base de datos.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
@@ -247,7 +315,7 @@
                 }
 
                 // Crea una consulta y un statement SQL para eliminar el registro (borrado logico)
-				$queryDelete = "UPDATE " . TB_DIRECCION . " SET " . DIRECCION_ESTADO . " = false WHERE " . DIRECCION_ID . " = ?";
+				$queryDelete = "UPDATE " . TB_DIRECCION . " SET " . DIRECCION_ESTADO . " = FALSE WHERE " . DIRECCION_ID . " = ?";
 				$stmt = mysqli_prepare($conn, $queryDelete);
 				mysqli_stmt_bind_param($stmt, 'i', $direccionID);
                 mysqli_stmt_execute($stmt);
@@ -406,9 +474,10 @@
             $conn = null; $stmt = null;
 
             try {
-                // Verificar si existe el ID y que el Estado no sea false
-                $check = $this->existeDireccion($direccionID);
-                if (!$check["success"]) { return $check; } // Error al verificar la existencia
+                // Verificar si existe la dirección en la base de datos
+                $direccion = new Direccion($direccionID);
+                $check = $this->existeDireccion($direccion);
+                if (!$check["success"]) { throw new Exception($check['message']); } // Error al verificar la existencia
                 if (!$check["exists"]) { // No existe la dirección
                     $message = "La dirección con 'ID [$direccionID]' no existe en la base de datos.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
