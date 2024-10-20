@@ -438,7 +438,6 @@ export function editProveedor(proveedorID) {
     }).then((result) => {
         if (result.isConfirmed) {
             const formData = result.value;
-            console.debug('Datos del formulario:', Object.fromEntries(formData));
             updateProveedor(formData);
         }
     });
@@ -647,7 +646,6 @@ export function createProveedor() {
     }).then((result) => {
         if (result.isConfirmed) {
             const formData = result.value;
-            console.debug('Datos del formulario:', Object.fromEntries(formData));
             insertProveedor(formData);
         }
     });
@@ -701,7 +699,7 @@ function initializeDireccionTable(direcciones, tableBodyID, isInfo = false) {
 function initializeTelefonoTable(telefonos, tableBodyID, isInfo = false) {
     // Renderizar la tabla de teléfonos
     tel.renderTable(telefonos, tableBodyID, isInfo);
-    tel.sortTelefonos('tipo', tableBodyID, isInfo);
+    tel.sortTelefonos('Tipo', tableBodyID, isInfo);
 
     // Asignar eventos de búsqueda y ordenamiento
     const assignEvent = (elementId, eventType, handler) => {

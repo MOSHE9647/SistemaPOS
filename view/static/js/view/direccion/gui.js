@@ -29,7 +29,6 @@ export function renderTable(listaDirecciones, tableBodyID = 'tableBody', isInfo 
     tableBody.innerHTML = '';
 
     const direccionesToRender = isSearch ? listaDirecciones : direcciones;
-    console.debug('Direcciones a renderizar:', direccionesToRender);
     direccionesToRender.forEach(direccion => {
         const valorFormateado = formatearDecimal(direccion.Distancia);
         const row = document.createElement('tr');

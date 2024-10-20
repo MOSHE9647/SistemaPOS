@@ -7,6 +7,7 @@
 
 	// VARIABLES PARA EL MANEJO DE SESIONES:
 	define('SESSION_AUTHENTICATED_USER', 'usuario_autenticado'); //<- Usuario Autenticado
+	define('SESSION_LAST_ACCESS', 'ultimo_acceso'); //<- Último Acceso
 	define('SESSION_AUTHENTICATED', 'autenticado'); //<- Sesión Autenticada
 	define('SESSION_ACCESS_DENIED', 'acceso_denegado'); //<- Acceso Denegado
 	define('SESSION_LOGGED_OUT', 'logout'); //<- Sesión Cerrada

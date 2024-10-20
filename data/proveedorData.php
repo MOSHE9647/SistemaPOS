@@ -179,24 +179,17 @@
 
                 // Insertar las direcciones del proveedor en la base de datos
                 $direcciones = $proveedor->getProveedorDirecciones();
-                foreach ($direcciones as $proveedorDireccion) {
-                    // $direccion = new Direccion(
-                    //     $proveedorDireccion['ID'],
-                    //     $proveedorDireccion['Provincia'],
-                    //     $proveedorDireccion['Canton'],
-                    //     $proveedorDireccion['Distrito'],
-                    //     $proveedorDireccion['Barrio'],
-                    //     $proveedorDireccion['Sennas'],
-                    //     $proveedorDireccion['Distancia']
-                    // );
-
-                    // // Insertar la dirección en la base de datos
-                    // $insert = $this->direccionData->insertDireccion($direccion, $conn);
-                    // if (!$insert["success"]) { throw new Exception($insert["message"]); }
-
+                foreach ($direcciones as $direccion) {
                     // Insertar la relación entre el proveedor y la dirección
-                    $direccionID = $insert["id"];
-                    $add = $this->proveedorDireccionData->addDireccionToProveedor($nextId, $direccionID, $conn);
+                    $add = $this->proveedorDireccionData->addDireccionToProveedor($nextId, $direccion, $conn);
+                    if (!$add["success"]) { throw new Exception($add["message"]); }
+                }
+
+                // Insertar los teléfonos del proveedor en la base de datos
+                $telefonos = $proveedor->getProveedorTelefonos();
+                foreach ($telefonos as $telefono) {
+                    // Insertar la relación entre el proveedor y el teléfono
+                    $add = $this->proveedorTelefonoData->addTelefonoToProveedor($nextId, $telefono, $conn);
                     if (!$add["success"]) { throw new Exception($add["message"]); }
                 }
 
@@ -287,8 +280,8 @@
                 if (!$direccion["success"]) { throw new Exception($direccion["message"]); }
 
                 // Actualizar los teléfonos del proveedor
-                // $telefono = $this->proveedorTelefonoData->updateTelefonosProveedor($proveedor, $conn);
-                // if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
+                $telefono = $this->proveedorTelefonoData->updateTelefonosProveedor($proveedor, $conn);
+                if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
 
                 // Confirmar la transacción si no se proporcionó una conexión
                 if ($createdConn) { mysqli_commit($conn); }
@@ -363,6 +356,17 @@
                     if (!$delete["success"]) { throw new Exception($delete["message"]); }
                 }
 
+                // Obtener los teléfonos del proveedor
+                $telefonos = $this->proveedorTelefonoData->getTelefonosByProveedorID($proveedorID);
+                if (!$telefonos["success"]) { throw new Exception($telefonos["message"]); }
+
+                // Eliminar los teléfonos del proveedor
+                foreach ($telefonos["telefonos"] as $telefono) {
+                    $telefonoID = $telefono->getTelefonoID();
+                    $delete = $this->proveedorTelefonoData->removeTelefonoFromProveedor($proveedorID, $telefonoID, $conn);
+                    if (!$delete["success"]) { throw new Exception($delete["message"]); }
+                }
+
                 // Confirmar la transacción si no se proporcionó una conexión
                 if ($createdConn) { mysqli_commit($conn); }
 
@@ -408,8 +412,11 @@
                     $categoria = $this->categoriaData->getCategoriaByID($row[PROVEEDOR_CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
-                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID], false);
+                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID]);
                     if (!$direccion["success"]) { throw new Exception($direccion["message"]); }
+
+                    $telefono = $this->proveedorTelefonoData->getTelefonosByProveedorID($row[PROVEEDOR_ID]);
+                    if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
 
                     // Crea un objeto Proveedor con los datos obtenidos
                     $proveedor = new Proveedor(
@@ -419,7 +426,7 @@
                         $direccion["direcciones"],
                         $categoria["categoria"],
                         [], // Productos
-                        [], // Teléfonos
+                        $telefono["telefonos"],
                         $row[PROVEEDOR_FECHA_CREACION],
                         $row[PROVEEDOR_FECHA_MODIFICACION],
                         $row[PROVEEDOR_ESTADO]
@@ -522,7 +529,7 @@
                     $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID]);
                     if (!$direccion["success"]) { throw new Exception($direccion["message"]); }
 
-                    $telefono = $this->proveedorTelefonoData->getTelefonosByProveedorID($row[PROVEEDOR_ID], false);
+                    $telefono = $this->proveedorTelefonoData->getTelefonosByProveedorID($row[PROVEEDOR_ID]);
                     if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
 
                     // Crea un objeto Proveedor con los datos obtenidos
@@ -607,10 +614,10 @@
                     $categoria = $this->categoriaData->getCategoriaByID($row[PROVEEDOR_CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
-                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID], false);
+                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID]);
                     if (!$direccion["success"]) { throw new Exception($direccion["message"]); }
 
-                    $telefono = $this->proveedorTelefonoData->getTelefonosByProveedorID($row[PROVEEDOR_ID], false);
+                    $telefono = $this->proveedorTelefonoData->getTelefonosByProveedorID($row[PROVEEDOR_ID]);
                     if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
 
                     // Crea un objeto Proveedor con los datos obtenidos

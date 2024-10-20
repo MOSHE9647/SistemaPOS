@@ -75,7 +75,6 @@ export async function insertProveedor(formData) {
             const proveedor = await obtenerProveedorPorID(parseInt(data.id), true, true);
             formData.set('accion', 'actualizar');
             formData.append('id', proveedor.ID);
-            formData.append('telefono', proveedor.Telefono.ID);
             updateProveedor(formData); // Actualizar el proveedor
             return; // Salir de la función
         }

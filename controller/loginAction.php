@@ -33,6 +33,7 @@
         session_regenerate_id(true); // Regenera el ID de sesión para prevenir ataques de fijación de sesión
         $_SESSION[SESSION_AUTHENTICATED_USER] = $usuario; // Almacena el usuario autenticado en la sesión
         $_SESSION[SESSION_AUTHENTICATED] = true; // Almacena el estado de autenticación en la sesión
+        $_SESSION[SESSION_LAST_ACCESS] = time(); // Almacena la última vez que se accedió a la sesión
 
         // Crea la respuesta de éxito
         $response = ['success' => true];

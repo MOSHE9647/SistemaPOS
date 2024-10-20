@@ -14,6 +14,27 @@
         exit();
     }
 
+    // Verifica si la sesión ha caducado
+    function verificarSesionCaducada() {
+        $tiempoInactividadMaximo = 1800; // 30 minutos
+        if (isset($_SESSION[SESSION_LAST_ACCESS])) {
+            $tiempoInactividad = time() - $_SESSION[SESSION_LAST_ACCESS];
+            if ($tiempoInactividad > $tiempoInactividadMaximo) {
+                session_unset();
+                session_destroy();
+                return true;
+            }
+        }
+        $_SESSION[SESSION_LAST_ACCESS] = time();
+        return false;
+    }
+
+    if (verificarSesionCaducada()) {
+        $LOGIN_URL = './view/auth/login.php';
+        header("Location: $LOGIN_URL");
+        exit();
+    }
+
     // Función para verificar si el usuario tiene el rol adecuado
     function verificarRol($rolesPermitidos) {
         if (in_array($_SESSION[SESSION_USER_ROLE], $rolesPermitidos)) {

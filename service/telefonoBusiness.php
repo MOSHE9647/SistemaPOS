@@ -63,14 +63,14 @@
             }
         }
 
-        public function insertTBTelefono($telefono, $conn = null) {
+        public function insertTBTelefono($telefono) {
             // Verifica que los datos del telefono sean validos
             $check = $this->validarTelefono($telefono, true, true);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
 
-            return $this->telefonoData->insertTelefono($telefono, $conn);
+            return $this->telefonoData->insertTelefono($telefono);
         }
 
         public function updateTBTelefono($telefono) {
@@ -93,6 +93,22 @@
             return $this->telefonoData->deleteTelefono($telefonoID);
         }
 
+        public function existeTelefono($telefono = null, $update = false, $insert = false) {
+            // Verifica que los datos del telefono sean validos
+            $check = $this->validarTelefono($telefono, $update, $insert);
+            if (!$check["is_valid"]) {
+                return ["success" => $check["is_valid"], "message" => $check["message"]];
+            }
+
+            // Obtener los valores de las propiedades del objeto
+            $ID = $telefono->getTelefonoID();
+            $codigoPais = $telefono->getTelefonoCodigoPais();
+            $numero = $telefono->getTelefonoNumero();
+
+            // Verifica si el telefono ya existe
+            return $this->telefonoData->existeTelefono($ID, $codigoPais, $numero, $update, $insert);
+        }
+
         public function getAllTBTelefono($onlyActive = false, $deleted = false) {
             return $this->telefonoData->getAllTBTelefono($onlyActive, $deleted);
         }
@@ -101,14 +117,14 @@
             return $this->telefonoData->getPaginatedTelefonos($page, $size, $sort, $onlyActive, $deleted);
         }
 
-        public function getTelefonoByID($telefonoID, $json = true) {
+        public function getTelefonoByID($telefonoID, $onlyActive = true, $deleted = false) {
             // Verifica que el ID del telefono sea valido
             $checkID = $this->validarTelefonoID($telefonoID);
             if (!$checkID["is_valid"]) {
                 return ["success" => $checkID["is_valid"], "message" => $checkID["message"]];
             }
 
-            return $this->telefonoData->getTelefonoByID($telefonoID, $json);
+            return $this->telefonoData->getTelefonoByID($telefonoID, $onlyActive, $deleted);
         }
 
     }

@@ -78,10 +78,6 @@
             }
         }
 
-        // public function existeProveedor($proveedorID) {
-        //     return $this->proveedorData->proveedorExiste($proveedorID);
-        // }
-
         public function insertTBProveedor($proveedor) {
             // Verifica que los datos del proveedor sean validos
             $check = $this->validarProveedor($proveedor, true, true);
@@ -123,6 +119,16 @@
             }
 
             return $this->proveedorData->getPaginatedProveedores($search, $page, $size, $sort, $onlyActive, $deleted);
+        }
+
+        public function getProveedorByID($proveedorID, $onlyActive = false, $deleted = false) {
+            // Verifica que los datos del proveedor sean validos
+            $check = $this->validarProveedorID($proveedorID);
+            if (!$check["is_valid"]) {
+                return ["success" => $check["is_valid"], "message" => $check["message"]];
+            }
+
+            return $this->proveedorData->getProveedorByID($proveedorID, $onlyActive, $deleted);
         }
 
     }

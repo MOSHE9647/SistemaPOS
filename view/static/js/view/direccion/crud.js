@@ -4,6 +4,23 @@
 
 import { mostrarMensaje } from "../../gui/notification.js";
 
+/**
+ * Verifica la existencia de una dirección en el sistema.
+ *
+ * @async
+ * @function existeDireccion
+ * @param {Object} direccion - El objeto que representa la dirección a verificar.
+ * @param {boolean} [insert=false] - Indica si se está intentando insertar una nueva dirección.
+ * @param {boolean} [update=false] - Indica si se está intentando actualizar una dirección existente.
+ * @returns {Promise<boolean>} - Retorna una promesa que resuelve a `true` si la dirección existe, `false` si no existe, 
+ *                               o `false` si el usuario decide no reactivar una dirección inactiva.
+ * @throws {Error} - Lanza un error si ocurre algún problema durante la verificación.
+ *
+ * @description
+ * Esta función realiza una solicitud asíncrona al servidor para verificar si una dirección ya existe en el sistema.
+ * Si la dirección está inactiva, se le pregunta al usuario si desea reactivarla. En caso de error, se muestra un mensaje
+ * de error y se lanza una excepción.
+ */
 async function existeDireccion(direccion, insert = false, update = false) {
     try {
         const queryParams = new URLSearchParams({
@@ -23,7 +40,7 @@ async function existeDireccion(direccion, insert = false, update = false) {
         }
 
         if (data.inactive) {
-            const confirm = window.confirm(data.message);
+            const confirm = window.confirm(data.message + '\n\n¿Desea reactivar la dirección?');
             return confirm ? false : true;
         }
 
@@ -73,8 +90,8 @@ export async function insertDireccion(direcciones) {
 
         // Validar los valores de los campos de entrada
         for (const input of inputs) {
-            const fieldName = input.closest('td').dataset.field;
-            let value = input.value.trim().replace(/\s+/g, ' ');
+            const fieldName = input.closest('td').dataset.field; // Obtener el nombre del campo
+            let value = input.value.trim().replace(/\s+/g, ' '); // Eliminar espacios en blanco innecesarios
 
             // Validar si el campo 'Distancia' es un número mayor a 0
             if (fieldName === 'Distancia') {
@@ -91,7 +108,7 @@ export async function insertDireccion(direcciones) {
             data[fieldName] = value;
         }
 
-        // Verificar si la dirección ya existe en base de datos
+        // Verificar si la dirección ya existe en la base de datos
         if (await existeDireccion(data, true)) {
             mostrarMensaje('La dirección ya existe en la base de datos', 'error', 'Error al añadir la dirección');
             return false;

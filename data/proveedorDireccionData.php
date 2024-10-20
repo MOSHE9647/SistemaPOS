@@ -2,7 +2,6 @@
 
     require_once dirname(__DIR__, 1) . '/data/data.php';
     require_once dirname(__DIR__, 1) . '/data/direccionData.php';
-    require_once dirname(__DIR__, 1) . '/data/proveedorData.php';
 	require_once dirname(__DIR__, 1) . '/domain/Direccion.php';
 	require_once dirname(__DIR__, 1) . '/utils/Variables.php';
 
@@ -156,9 +155,7 @@
 
                 // Verificar si la dirección ya está asignada a algún proveedor
                 $check = $this->existeProveedorDireccion(null, $direccionID);
-                if (!$check['success']) { 
-                    throw new Exception($check['message']); 
-                }
+                if (!$check['success']) { throw new Exception($check['message']); }
 
                 // Si ya está asignada a otro proveedor, pero está inactiva
                 if ($check['exists'] && $check['inactive']) {

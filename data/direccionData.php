@@ -96,11 +96,16 @@
                     $direccionCompletaBD = $direccionEnBD->getDireccionCompleta();
                     $direccionCompleta = $direccion->getDireccionCompleta();
 
-                    // Verificar si la dirección ya existe en la base de datos con un 98% de similitud
-                    $exists = Utils::esSimiliar($direccionCompletaBD, $direccionCompleta, 98, $sennas != "");
-                    if ($exists) {
-                        $message = "Ya existe una dirección similar en la base de datos: [" . $direccionCompletaBD . "]";
-                        return ["success" => true, "exists" => $exists, "message" => $message, "inactive" => $inactivo, "direccionID" => $id];
+                    // // Verificar si la dirección ya existe en la base de datos con un 98% de similitud
+                    // $exists = Utils::esSimiliar($direccionCompletaBD, $direccionCompleta, 98, $sennas != "");
+                    // if ($exists) {
+                    //     $message = "Ya existe una dirección similar en la base de datos: [" . $direccionCompletaBD . "].";
+                    //     return ["success" => true, "exists" => $exists, "message" => $message, "inactive" => $inactivo, "direccionID" => $id];
+                    // }
+
+                    if ($direccionCompletaBD == $direccionCompleta) {
+                        $message = "Ya existe una dirección igual en la base de datos: [" . $direccionCompletaBD . "].";
+                        return ["success" => true, "exists" => true, "message" => $message, "inactive" => $inactivo, "direccionID" => $id];
                     }
                 }
         
