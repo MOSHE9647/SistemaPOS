@@ -2,11 +2,11 @@
 // ************* Métodos para el manejo de la GUI ************* //
 // ************************************************************ //
 
+import { checkEmptyTable, getCurrentDate, manejarInputConEnter } from '../../utils.js';
 import { fetchBarcode, generateBarcode } from '../../barcode.js';
 import { showLoader, hideLoader } from '../../gui/loader.js';
 import { mostrarMensaje } from '../../gui/notification.js';
 import { insertProducto, updateProducto } from './crud.js';
-import { checkEmptyTable, manejarInputConEnter } from '../../utils.js';
 import { initializeSelects } from './selects.js';
 
 // Variables globales
@@ -138,6 +138,16 @@ export async function infoProducto(productoID) {
                     </div>
                     <div class="producto-info input-select group">
                         <div class="producto-info input-select">
+                            <label>Cantidad:</label>
+                            <input type="text" value="${producto.Cantidad}" disabled>
+                        </div>
+                        <div class="producto-info input-select">
+                            <label>Fecha de Vencimiento:</label>
+                            <input type="text" value="${producto.Vencimiento}" disabled>
+                        </div>
+                    </div>
+                    <div class="producto-info input-select group">
+                        <div class="producto-info input-select">
                             <label>Precio de Compra (&#162):</label>
                             <input type="text" value="${producto.PrecioCompra}" disabled>
                         </div>
@@ -146,16 +156,22 @@ export async function infoProducto(productoID) {
                             <input type="text" value="${producto.PorcentajeGanancia}" disabled>
                         </div>
                     </div>
+                </div>
+                <div class="producto-info barcode">
+                    <div class="producto-info input-select">
+                        <label>C&oacute;digo de Barras:</label>
+                        <input type="text" value="${producto.CodigoBarras.Numero}" disabled>
+                    </div>
+                    <div class="barcode-image">
+                        <img src="${barcodeImage}" alt="Código de Barras">
+                    </div>
+                </div>
+            </div>
+            <div class="producto-info">
+                <div class="producto-info descripcion">
                     <div class="producto-info input-select">
                         <label>Descripci&oacute;n:</label>
                         <textarea wrap="soft" placeholder="Sin descripci&oacute;n..." disabled>${producto.Descripcion}</textarea>
-                    </div>
-                </div>
-                <div class="producto-info barcode">
-                    <label>C&oacute;digo de Barras:</label>
-                    <input type="text" value="${producto.CodigoBarras.Numero}" disabled>
-                    <div class="barcode-image">
-                        <img src="${barcodeImage}" alt="Código de Barras">
                     </div>
                 </div>
             </div>
@@ -252,6 +268,16 @@ export async function editProducto(productoID) {
                         </div>
                         <div class="producto-info input-select group">
                             <div class="producto-info input-select">
+                                <label>Cantidad:</label>
+                                <input type="number" id="cantidad" value="${producto.Cantidad}" min="0" step="1" max="99999999" required>
+                            </div>
+                            <div class="producto-info input-select">
+                                <label>Fecha de Vencimiento:</label>
+                                <input type="date" id="vencimiento" value="${producto.VencimientoISO}" min="${getCurrentDate()}" required>
+                            </div>
+                        </div>
+                        <div class="producto-info input-select group">
+                            <div class="producto-info input-select">
                                 <label>Precio de Compra (&#162):</label>
                                 <input type="number" id="precio" value="${producto.PrecioCompra}" min="0" step="0.1" max="99999999.99" required>
                             </div>
@@ -259,13 +285,6 @@ export async function editProducto(productoID) {
                                 <label>Ganancia (%):</label>
                                 <input type="number" id="ganancia" value="${producto.PorcentajeGanancia}" min="0" step="0.1" max="100" required>
                             </div>
-                        </div>
-                        <div class="producto-info input-select">
-                            <label>Descripción:</label>
-                            <textarea 
-                                id="descripcion" 
-                                wrap="soft" 
-                                placeholder="Escribe aquí la descripción del producto...">${producto.Descripcion}</textarea>
                         </div>
                     </div>
                     <!-- Código de barras y su imagen -->
@@ -278,6 +297,17 @@ export async function editProducto(productoID) {
                         </div>
                         <div class="barcode-image">
                             <img src="${barcodeImage}" alt="Código de Barras">
+                        </div>
+                    </div>
+                </div>
+                <div class="producto-info">
+                    <div class="producto-info descripcion">
+                        <div class="producto-info input-select">
+                            <label>Descripción:</label>
+                            <textarea 
+                                id="descripcion" 
+                                wrap="soft" 
+                                placeholder="Escribe aquí la descripción del producto...">${producto.Descripcion}</textarea>
                         </div>
                     </div>
                 </div>
@@ -366,6 +396,8 @@ export async function editProducto(productoID) {
             formData.append("codigobarras"      , producto.CodigoBarras.ID);
             formData.append("codigobarrasnumero", producto.CodigoBarras.Numero);
             formData.append("nombre"            , document.getElementById('nombre').value);
+            formData.append("cantidad"          , document.getElementById('cantidad').value);
+            formData.append("vencimiento"       , document.getElementById('vencimiento').value);
             formData.append("preciocompra"      , document.getElementById('precio').value);
             formData.append("ganancia"          , document.getElementById('ganancia').value);
             formData.append("descripcion"       , document.getElementById('descripcion').value);
@@ -427,6 +459,16 @@ export async function createProducto() {
                         </div>
                         <div class="producto-info input-select group">
                             <div class="producto-info input-select">
+                                <label>Cantidad:</label>
+                                <input type="number" id="cantidad" min="0" step="1" max="99999999" required>
+                            </div>
+                            <div class="producto-info input-select">
+                                <label>Fecha de Vencimiento:</label>
+                                <input type="date" id="vencimiento" min="${getCurrentDate()}" required>
+                            </div>
+                        </div>
+                        <div class="producto-info input-select group">
+                            <div class="producto-info input-select">
                                 <label>Precio de Compra (&#162):</label>
                                 <input type="number" id="precio" min="0" step="0.1" max="99999999.99" required>
                             </div>
@@ -434,13 +476,6 @@ export async function createProducto() {
                                 <label>Ganancia (%):</label>
                                 <input type="number" id="ganancia" min="0" step="0.1" max="100" required>
                             </div>
-                        </div>
-                        <div class="producto-info input-select">
-                            <label>Descripci&oacute;n:</label>
-                            <textarea 
-                                id="descripcion" 
-                                wrap="soft" 
-                                placeholder="Escribe aquí la descripción del producto..."></textarea>
                         </div>
                     </div>
                     <div class="producto-info barcode">
@@ -453,6 +488,17 @@ export async function createProducto() {
                         </div>
                         <div class="barcode-image">
                             <img src="${barcodeImage}" alt="Código de Barras">
+                        </div>
+                    </div>
+                </div>
+                <div class="producto-info">
+                    <div class="producto-info descripcion">
+                        <div class="producto-info input-select">
+                            <label>Descripci&oacute;n:</label>
+                            <textarea 
+                                id="descripcion" 
+                                wrap="soft" 
+                                placeholder="Escribe aquí la descripción del producto..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -530,6 +576,8 @@ export async function createProducto() {
             formData.append('accion'            , 'insertar');
             formData.append('codigobarrasnumero', document.getElementById('codigoBarras').value);
             formData.append('nombre'            , document.getElementById('nombre').value);
+            formData.append('cantidad'          , document.getElementById('cantidad').value);
+            formData.append('vencimiento'       , document.getElementById('vencimiento').value);
             formData.append('preciocompra'      , document.getElementById('precio').value);
             formData.append('ganancia'          , document.getElementById('ganancia').value);
             formData.append('descripcion'       , document.getElementById('descripcion').value);

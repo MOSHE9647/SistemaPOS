@@ -242,7 +242,7 @@ export function searchTelefonos(searchInputID = 'search-input', tableBodyID = 't
 
     let searchValue = searchInput.value.trim().toUpperCase();
     if (searchValue === '') {
-        renderTable(telefonos, tableBodyID);
+        renderTable(telefonos, tableBodyID, isInfo);
         return;
     }
 

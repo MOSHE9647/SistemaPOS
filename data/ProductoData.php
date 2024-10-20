@@ -378,7 +378,7 @@
                         PRODUCTO_MARCA_ID . " = ?, " .
                         PRODUCTO_PRESENTACION_ID . " = ?, " .
                         PRODUCTO_IMAGEN . " = ?, " .
-                        PRODUCTO_FECHA_VENCIMIENTO . " = ? " .
+                        PRODUCTO_FECHA_VENCIMIENTO . " = ?, " .
                         PRODUCTO_ESTADO . " = TRUE " .
                     "WHERE " . PRODUCTO_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);

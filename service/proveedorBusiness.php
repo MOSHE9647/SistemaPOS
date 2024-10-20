@@ -27,7 +27,16 @@
             return ["is_valid" => true];
         }
 
-        public function validarProveedor($proveedor, $validarCamposAdicionales = true) {
+        public function validarProveedorID($proveedorID) {
+            if ($proveedorID === null || !is_numeric($proveedorID) || $proveedorID < 0) {
+                Utils::writeLog("El 'proveedorID [$proveedorID]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ["is_valid" => false, "message" => "El ID del proveedor está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
+            }
+
+            return ["is_valid" => true];
+        }
+
+        public function validarProveedor($proveedor, $validarCamposAdicionales = true, $insert = false) {
             try {
                 // Obtener los valores de las propiedades del objeto
                 $proveedorID = $proveedor->getProveedorID();
@@ -37,24 +46,24 @@
                 $errors = [];
 
                 // Verifica que el ID del proveedor sea válido
-                if ($proveedorID === null || !is_numeric($proveedorID) || $proveedorID < 0) {
-                    $errors[] = "El ID del proveedor está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
-                    Utils::writeLog("El ID '[$proveedorID]' del proveedor no es válido.", BUSINESS_LOG_FILE);
+                if (!$insert) {
+                    $checkID = $this->validarProveedorID($proveedorID);
+                    if (!$checkID['is_valid']) { $errors[] = $checkID['message']; }
                 }
 
                 // Si la validación de campos adicionales está activada, valida los otros campos
                 if ($validarCamposAdicionales) {
                     if ($nombre === null || empty($nombre) || is_numeric($nombre)) {
                         $errors[] = "El campo 'Nombre' está vacío o no es válido.";
-                        Utils::writeLog("[Proveedor] El campo 'Nombre [$nombre]' no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("El campo 'Nombre [$nombre]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
                     if ($email === null || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                         $errors[] = "El campo 'Correo' no es válido. Debe digitar un correo electrónico válido (Ej: ejemplo@correo.com).";
-                        Utils::writeLog("[Proveedor] El campo 'Email [$email]' no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("El campo 'Email [$email]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
                     if ($categoriaID=== null || empty($categoriaID)) {
                         $errors[] = "El campo 'Categoria' no es válido.";
-                        Utils::writeLog("[Proveedor] El campo 'Categoriaid [$categoriaID]' no es válido.", BUSINESS_LOG_FILE);
+                        Utils::writeLog("El campo 'Categoriaid [$categoriaID]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
                     }
                 }
 
@@ -69,13 +78,13 @@
             }
         }
 
-        public function existeProveedor($proveedorID) {
-            return $this->proveedorData->proveedorExiste($proveedorID);
-        }
+        // public function existeProveedor($proveedorID) {
+        //     return $this->proveedorData->proveedorExiste($proveedorID);
+        // }
 
         public function insertTBProveedor($proveedor) {
             // Verifica que los datos del proveedor sean validos
-            $check = $this->validarProveedor($proveedor);
+            $check = $this->validarProveedor($proveedor, true, true);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
@@ -92,27 +101,20 @@
             return $this->proveedorData->updateProveedor($proveedor);
         }
 
-        public function deleteTBProveedor($proveedor) {
+        public function deleteTBProveedor($proveedorID) {
             // Verifica que los datos del proveedor sean validos
-            $check = $this->validarProveedor($proveedor, false);
+            $check = $this->validarProveedorID($proveedorID);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
 
-            $proveedorID = $proveedor->getProveedorID(); //<- Obtenemos el ID verificado del Proveedor
-            unset($proveedor); //<- Eliminamos el objeto para no ocupar espacio en memoria (en caso de ser necesario)
             return $this->proveedorData->deleteProveedor($proveedorID);
         }
 
-        public function getAllTBProveedor() {
-            return $this->proveedorData->getAllTBProveedor();
+        public function getAllTBProveedor($onlyActive = true, $deleted = false) {
+            return $this->proveedorData->getAllTBProveedor($onlyActive, $deleted);
         }
 
-        public function getAllTBCompraProveedor() {
-            return $this->proveedorData->getAllTBCompraProveedor();
-        }
-
-        // NO TOCAR, YA ESTÁ IMPLEMENTADO
         public function getPaginatedProveedores($search, $page, $size, $sort, $onlyActive = true, $deleted = false) {
             // Verifica que los datos de paginación sean válidos
             $check = $this->validarDatosPaginacion($page, $size);
