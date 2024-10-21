@@ -29,10 +29,10 @@
                     break;
                 // PC de Gonzalo (Ubuntu WSL2 - Win10)
                 case "DESKTOP-G544DN0":
-                    $this->servername = DB_HOST;
-                    $this->username = "gonzalo";
-                    $this->password = DB_PASS;
-                    $this->dbname = DB_NAME;
+                    $this->servername = CLOUD_DB_HOST;
+                    $this->username = CLOUD_DB_USER;
+                    $this->password = CLOUD_DB_PASS;
+                    $this->dbname = CLOUD_DB_NAME;
                     break;
                 // PC de Jason (Ubuntu 24.04)
                 case "jasonmadrigalo-123":
