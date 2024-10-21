@@ -304,6 +304,138 @@ class CompraPorPagarData extends Data{
 
     }
 
+    function getALLCompraPorPagar($onlyActive = false, $delete = false){
+        
+        try{
+            $result = $this->getConnection();
+            if (!$result["success"]) { throw new Exception($result["message"]); }
+            $conn = $result["connection"];
+
+            $query = "SELECT * FROM " . TB_COMPRA_POR_PAGAR 
+            .( $onlyActive ? " WHERE ". COMPRA_POR_PAGAR_ESTADO . " != ".(delete? 'TRUE': 'FALSE'):" ");
+            $result = mysqli_query($conn,$query);
+
+
+            $ComprasPorPagar =[];
+
+            while($row = mysqli_fetch_assoc($result)){
+                $compra = new CompraPorPagar(
+                    $row[COMPRA_POR_PAGAR_ID],
+                    new CompraDetalle($row[COMPRA_POR_PAGAR_COMPRA_DETALLE_ID]),
+                    $row[COMPRA_POR_PAGAR_FECHA_VENCIMIENTO],
+                    $row[COMPRA_POR_PAGAR_MONTO_TOTAL],
+                    $row[COMPRA_POR_PAGAR_MONTO_PAGADO],
+                    $row[COMPRA_POR_PAGAR_FECHA_PAGO],
+                    $row[COMPRA_POR_PAGAR_ESTADO_COMPRA],
+                    $row[COMPRA_POR_PAGAR_NOTAS],
+                    $row[COMPRA_POR_PAGAR_ESTADO]
+                );
+                $ComprasPorPagar[] = $compra;
+            }
+            return["success"=>true, "ListaComprasPorPagar"=>$ComprasPorPagar];
+        }catch(Exception $e){
+            $message = $this->handleMysqlError(
+                $e->getCode(),$e->getMessage(),
+                "Error al obtener las compras por pagar"
+            );
+            return ["success"=>false, "message"=>$message];
+        }finally{
+             // Cierra la conexión y el statement
+             if (isset($stmt)) { mysqli_stmt_close($stmt); }
+             if (isset($conn)) { mysqli_close($conn); }
+        }
+    }
+
+    function getPaginaCompraPorPagar($search,$page,$size,$sort=null,$onlyActive= false,$deleted=false){
+        try{
+            $offset = ($page-1)*$size;
+
+            $result = $this->getConnection();
+            if (!$result["success"]) { throw new Exception($result["message"]); }
+            $conn = $result["connection"];
+
+            $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_COMPRA_POR_PAGAR;
+            if ($onlyActive) { $queryTotalCount .= " WHERE " . COMPRA_POR_PAGAR_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE'); }
+
+            // Obtener el total de registros y calcular el total de páginas
+            $totalResult = mysqli_query($conn, $queryTotalCount);
+            $totalRow = mysqli_fetch_assoc($totalResult);
+            $totalRecords = (int) $totalRow['total'];
+            $totalPages = ceil($totalRecords / $size);
+
+
+            $querySelect = "SELECT * FROM " . TB_COMPRA_POR_PAGAR;
+
+            $params=[];
+            $types="";
+
+            if($search){
+                $querySelect.= " WHERE (" . COMPRA_POR_PAGAR_ESTADO_COMPRA . " LIKE ? ";
+                $querySelect.=" OR " .COMPRA_POR_PAGAR_NOTAS . " LIKE ? )";
+                $seParam = "%".$search."%";
+                $params =[$seParam,$seParam];
+                $types.="ss";
+            }
+
+            if($onlyActive){
+                $querySelect .= $search ? " AND " : " WHERE ";
+                $querySelect .= COMPRA_POR_PAGAR_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); 
+            }
+
+            if($sort){
+                $querySelect.=" ORDER BY comprarporpagar".$sort." ";
+            }else{
+                $querySelect.=" ORDER BY ".  COMPRA_POR_PAGAR_ID." ";
+            }
+
+            $querySelect.=" LIMIT ? OFFSET ? ";
+            $params= array_merge($params,[$size,$offset]);
+            $types.="ii";
+
+            $stmt = mysqli_prepare($conn, $querySelect);
+            mysqli_stmt_bind_param($stmt, $types, ...$params);
+            mysqli_stmt_execute($stmt);
+    
+            // Ejecutar la consulta y obtener los resultados
+            $result = mysqli_stmt_get_result($stmt);
+
+            $listaComprasPorPagar=[];
+            while($row = mysqli_fetch_assoc($result)){
+                $compra = new CompraPorPagar(
+                    $row[COMPRA_POR_PAGAR_ID],
+                    new CompraDetalle($row[COMPRA_POR_PAGAR_COMPRA_DETALLE_ID]),
+                    $row[COMPRA_POR_PAGAR_FECHA_VENCIMIENTO],
+                    $row[COMPRA_POR_PAGAR_MONTO_TOTAL],
+                    $row[COMPRA_POR_PAGAR_MONTO_PAGADO],
+                    $row[COMPRA_POR_PAGAR_FECHA_PAGO],
+                    $row[COMPRA_POR_PAGAR_ESTADO_COMPRA],
+                    $row[COMPRA_POR_PAGAR_NOTAS],
+                    $row[COMPRA_POR_PAGAR_ESTADO]
+                );
+                $listaComprasPorPagar[] = $compra;
+            }
+
+            return [
+                    "success" => true,
+                    "page" => $page,
+                    "size" => $size,
+                    "totalPages" => $totalPages,
+                    "totalRecords" => $totalRecords,
+                    "listaComprasPorPagar" => $listaComprasPorPagar
+            ];
+        }catch(Exception $e){
+            $message =$this->handleMysqlError(
+                $e->getCode(),$e->getMessage(),
+                "Error al listar la pagina de compras por pagar"
+            );
+            return ["success"=>false,"message"=>$message];
+        }finally{
+            // Cerrar la conexión y el statement
+            if (isset($stmt)) { mysqli_stmt_close($stmt); }
+            if (isset($conn)) { mysqli_close($conn); }
+        }
+    }
+
     function getCompraPorPagarById($id, $onlyActive = true, $delete = false){
         try{
             //Verificar si existe o no
