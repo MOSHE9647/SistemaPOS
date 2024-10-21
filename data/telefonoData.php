@@ -25,7 +25,15 @@
                 $conn = $result["connection"];
         
                 // Inicializa la consulta base
-                $queryCheck = "SELECT " . TELEFONO_ID . ", " . TELEFONO_ESTADO . " FROM " . TB_TELEFONO . " WHERE ";
+                $queryCheck = "
+                    SELECT " . 
+                        TELEFONO_ID . ", " . 
+                        TELEFONO_CODIGO_PAIS . ", " .
+                        TELEFONO_NUMERO . ", " .
+                        TELEFONO_ESTADO . " 
+                    FROM " . 
+                        TB_TELEFONO . " 
+                    WHERE ";
                 $params = [];
                 $types = "";
         
@@ -70,7 +78,10 @@
                 if ($row = mysqli_fetch_assoc($result)) {
                     // Verificar si está inactivo (bit de estado en 0)
                     $isInactive = $row[TELEFONO_ESTADO] == 0;
-                    return ["success" => true, "exists" => true, "inactive" => $isInactive, "telefonoID" => $row[TELEFONO_ID]];
+                    $telefono = new Telefono($row[TELEFONO_ID], "", $row[TELEFONO_CODIGO_PAIS], $row[TELEFONO_NUMERO]);
+                    $numeroCompleto = $telefono->obtenerNumeroCompleto();
+                    $message = "Ya existe un teléfono con la misma información en la base de datos: [$numeroCompleto].";
+                    return ["success" => true, "exists" => true, "message" => $message, "inactive" => $isInactive, "telefonoID" => $row[TELEFONO_ID]];
                 }
         
                 // Retorna false si no se encontraron resultados
@@ -527,64 +538,6 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
-        
-        // public function getTelefonoByProveedorID($idproveedor){
-        //     $conn = null; $stmt = null;
-
-        //     try {
-        //         if(!is_numeric($idproveedor) || $idproveedor <= 0){
-        //             throw new Exception("El 'ID [$proveedor]' para proveedor es invalido.");
-        //         }
-
-        //         // Establece una conexion con la base de datos
-        //         $result = $this->getConnection();
-        //         if (!$result["success"]) { throw new Exception($result["message"]); }
-        //         $conn = $result["connection"];
-
-        //         // Consulta SQL para obtener el telefono con el ID proveedor proporcionado
-        //         $querySelect = "SELECT * FROM " . TB_TELEFONO . " WHERE " . TELEFONO_PROVEEDOR_ID . " = ? AND " . TELEFONO_ESTADO . " != FALSE";
-        //         $stmt = mysqli_prepare($conn, $querySelect);
-
-        //         // Asignar los parámetros y ejecutar la consulta
-        //         mysqli_stmt_bind_param($stmt, "i", $idproveedor);
-        //         mysqli_stmt_execute($stmt);
-        //         $result = mysqli_stmt_get_result($stmt);
-
-        //         $telefonos = [];
-        //         while ($row = mysqli_fetch_assoc($result)) {
-        //             $telefono = new Telefono(
-        //                 $row[TELEFONO_ID],
-        //                 $row[TELEFONO_TIPO],
-        //                 $row[TELEFONO_CODIGO_PAIS],
-        //                 $row[TELEFONO_NUMERO],
-        //                 $row[TELEFONO_EXTENSION],
-        //                 $row[TELEFONO_FECHA_CREACION],
-        //                 $row[TELEFONO_FECHA_MODIFICACION],
-        //                 $row[TELEFONO_ESTADO]
-        //             );
-        //             $telefonos[] = $telefono;
-        //         }
-
-        //         if(!empty($telefonos)){
-        //             return ["success" => true, "listaTelefonos" => $telefonos];
-        //         }
-
-        //         Utils::writeLog("No se encontró ningún teléfono para el proveeedor con ID [$idproveedor] en la base de datos.", DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
-        //         return ["success" => false, "message" => "No se encontraron telefonos en la base de datos"];
-        //     } catch (Exception $e) {
-        //         // Manejo del error dentro del bloque catch
-        //         $userMessage = $this->handleMysqlError($e->getCode(), $e->getMessage(),
-        //             'Error al obtener el teléfono desde la base de datos'
-        //         );
-        
-        //         // Devolver mensaje amigable para el usuario
-        //         return ["success" => false, "message" => $userMessage];
-        //     } finally {
-        //         // Cerrar la conexión y el statement
-        //         if (isset($stmt)) { mysqli_stmt_close($stmt); }
-        //         if (isset($conn)) { mysqli_close($conn); }
-        //     }
-        // }
     
     }
 

@@ -2,6 +2,7 @@
 
     require_once dirname(__DIR__, 1) . '/data/data.php';
     require_once dirname(__DIR__, 1) . '/data/categoriaData.php';
+    require_once dirname(__DIR__, 1) . '/data/direccionData.php';
     require_once dirname(__DIR__, 1) . '/data/proveedorTelefonoData.php';
     require_once dirname(__DIR__, 1) . '/data/proveedorDireccionData.php';
     require_once dirname(__DIR__, 1) . '/domain/Proveedor.php';
@@ -12,6 +13,7 @@
 
         private $proveedorTelefonoData;
         private $proveedorDireccionData;
+        private $direccionData;
         private $categoriaData;
         private $className;
         
@@ -21,6 +23,7 @@
             $this->className = get_class($this);
             $this->proveedorTelefonoData = new  ProveedorTelefonoData();
             $this->proveedorDireccionData = new ProveedorDireccionData();
+            $this->direccionData = new DireccionData();
             $this->categoriaData = new CategoriaData();
         }
 
@@ -98,7 +101,8 @@
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), 
                     $e->getMessage(),
-                    'Error al verificar la existencia del proveedor en la base de datos'
+                    'Error al verificar la existencia del proveedor en la base de datos',
+                    $this->className
                 );
                 // Devolver mensaje amigable para el usuario
                 return ["success" => false, "message" => $userMessage];
@@ -142,16 +146,19 @@
                     if (!$result["success"]) { throw new Exception($result["message"]); }
                     $conn = $result["connection"];
                     $createdConn = true;
+
+                    // Inicia una transacción si no se proporcionó una conexión
+                    mysqli_begin_transaction($conn);
                 }
 
-                // Obtener el último ID de la tabla tbproveedor
-                $queryLastID = "SELECT MAX(" . PROVEEDOR_ID . ") FROM " . TB_PROVEEDOR;
-                $idCont = mysqli_query($conn, $queryLastID);
-                $nextID = 1;
-
+                // Obtenemos el último ID de la tabla tbproducto
+                $queryGetLastId = "SELECT MAX(" . PROVEEDOR_ID . ") FROM " . TB_PROVEEDOR;
+                $idCont = mysqli_query($conn, $queryGetLastId);
+                $nextId = 1;
+        
                 // Calcula el siguiente ID para la nueva entrada
-                if ($row = mysqli_fetch_assoc($idCont)) {
-                    $nextID = (int) trim($row[0]) + 1;
+                if ($row = mysqli_fetch_row($idCont)) {
+                    $nextId = (int) trim($row[0]) + 1;
                 }
 
                 // Crea una consulta y un statement SQL para insertar el registro
@@ -167,13 +174,33 @@
 
                 // Vincula los parámetros de la consulta con los datos del proveedor
                 $proveedorCategoriaID = $proveedor->getProveedorCategoria()->getCategoriaID();
-                mysqli_stmt_bind_param($stmt, 'issi', $nextID, $proveedorNombre, $proveedorEmail, $proveedorCategoriaID);
-
-                // Ejecuta la consulta de inserción
+                mysqli_stmt_bind_param($stmt, 'issi', $nextId, $proveedorNombre, $proveedorEmail, $proveedorCategoriaID);
                 mysqli_stmt_execute($stmt);
+
+                // Insertar las direcciones del proveedor en la base de datos
+                $direcciones = $proveedor->getProveedorDirecciones();
+                foreach ($direcciones as $direccion) {
+                    // Insertar la relación entre el proveedor y la dirección
+                    $add = $this->proveedorDireccionData->addDireccionToProveedor($nextId, $direccion, $conn);
+                    if (!$add["success"]) { throw new Exception($add["message"]); }
+                }
+
+                // Insertar los teléfonos del proveedor en la base de datos
+                $telefonos = $proveedor->getProveedorTelefonos();
+                foreach ($telefonos as $telefono) {
+                    // Insertar la relación entre el proveedor y el teléfono
+                    $add = $this->proveedorTelefonoData->addTelefonoToProveedor($nextId, $telefono, $conn);
+                    if (!$add["success"]) { throw new Exception($add["message"]); }
+                }
+
+                // Confirmar la transacción si no se proporcionó una conexión
+                if ($createdConn) { mysqli_commit($conn); }
 
                 return ["success" => true, "message" => "Proveedor insertado exitosamente", "id" => $nextId];
             } catch (Exception $e) {
+                // Hacer rollback si se creó una conexión y ocurrió un error
+                if ($createdConn && isset($conn)) { mysqli_rollback($conn); }
+
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
@@ -187,8 +214,6 @@
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if ($createdConn && isset($conn)) { mysqli_close($conn); }
             }
-
-            return $response;
         }
 
         public function updateProveedor($proveedor, $conn = null) {
@@ -203,7 +228,7 @@
 
                 // Verificar si el proveedor ya existe
                 $check = $this->proveedorExiste($proveedorID);
-                if (!$check["success"]) { return $check; } // Error al verificar la existencia
+                if (!$check["success"]) { throw new Exception($check['message']); } // Error al verificar la existencia
 
                 // En caso de no existir el proveedor
                 if (!$check["exists"]) {
@@ -214,7 +239,7 @@
 
                 // Verificar si el proveedor ya existe con el mismo nombre y correo
                 $check = $this->proveedorExiste($proveedorID, $proveedorNombre, $proveedorEmail, true);
-                if (!$check["success"]) { return $check; } // Error al verificar la existencia
+                if (!$check["success"]) { throw new Exception($check['message']); } // Error al verificar la existencia
 
                 // En caso de ya existir el proveedor
                 if ($check["exists"]) {
@@ -305,6 +330,9 @@
                     if (!$result["success"]) { throw new Exception($result["message"]); }
                     $conn = $result["connection"];
                     $createdConn = true;
+
+                    // Inicia una transacción si no se proporcionó una conexión
+                    mysqli_begin_transaction($conn);
                 }
 
                 // Crea una consulta y un statement SQL para eliminar el registro
@@ -314,16 +342,40 @@
                     "WHERE " . PROVEEDOR_ID . " = ?"
                 ;
                 $stmt = mysqli_prepare($conn, $queryDelete);
-
-                // Vincula los parámetros de la consulta con los datos del proveedor
                 mysqli_stmt_bind_param($stmt, 'i', $proveedorID);
-
-                // Ejecuta la consulta de eliminación
                 mysqli_stmt_execute($stmt);
+
+                // Obtener las direcciones del proveedor
+                $direcciones = $this->proveedorDireccionData->getDireccionesByProveedorID($proveedorID);
+                if (!$direcciones["success"]) { throw new Exception($direcciones["message"]); }
+
+                // Eliminar las direcciones del proveedor
+                foreach ($direcciones["direcciones"] as $direccion) {
+                    $direccionID = $direccion->getDireccionID();
+                    $delete = $this->proveedorDireccionData->removeDireccionFromProveedor($proveedorID, $direccionID, $conn);
+                    if (!$delete["success"]) { throw new Exception($delete["message"]); }
+                }
+
+                // Obtener los teléfonos del proveedor
+                $telefonos = $this->proveedorTelefonoData->getTelefonosByProveedorID($proveedorID);
+                if (!$telefonos["success"]) { throw new Exception($telefonos["message"]); }
+
+                // Eliminar los teléfonos del proveedor
+                foreach ($telefonos["telefonos"] as $telefono) {
+                    $telefonoID = $telefono->getTelefonoID();
+                    $delete = $this->proveedorTelefonoData->removeTelefonoFromProveedor($proveedorID, $telefonoID, $conn);
+                    if (!$delete["success"]) { throw new Exception($delete["message"]); }
+                }
+
+                // Confirmar la transacción si no se proporcionó una conexión
+                if ($createdConn) { mysqli_commit($conn); }
 
                 // Devuelve un mensaje de éxito
                 return ["success" => true, "message" => "Proveedor eliminado exitosamente"];
             } catch (Exception $e) {
+                // Hacer rollback si se creó una conexión y ocurrió un error
+                if ($createdConn && isset($conn)) { mysqli_rollback($conn); }
+
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
@@ -360,8 +412,11 @@
                     $categoria = $this->categoriaData->getCategoriaByID($row[PROVEEDOR_CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
-                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID], false);
+                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID]);
                     if (!$direccion["success"]) { throw new Exception($direccion["message"]); }
+
+                    $telefono = $this->proveedorTelefonoData->getTelefonosByProveedorID($row[PROVEEDOR_ID]);
+                    if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
 
                     // Crea un objeto Proveedor con los datos obtenidos
                     $proveedor = new Proveedor(
@@ -371,7 +426,7 @@
                         $direccion["direcciones"],
                         $categoria["categoria"],
                         [], // Productos
-                        [], // Teléfonos
+                        $telefono["telefonos"],
                         $row[PROVEEDOR_FECHA_CREACION],
                         $row[PROVEEDOR_FECHA_MODIFICACION],
                         $row[PROVEEDOR_ESTADO]
@@ -471,10 +526,10 @@
                     $categoria = $categoriaData->getCategoriaByID($row[PROVEEDOR_CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
-                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID], false);
+                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID]);
                     if (!$direccion["success"]) { throw new Exception($direccion["message"]); }
 
-                    $telefono = $this->proveedorTelefonoData->getTelefonosByProveedorID($row[PROVEEDOR_ID], false);
+                    $telefono = $this->proveedorTelefonoData->getTelefonosByProveedorID($row[PROVEEDOR_ID]);
                     if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
 
                     // Crea un objeto Proveedor con los datos obtenidos
@@ -559,10 +614,10 @@
                     $categoria = $this->categoriaData->getCategoriaByID($row[PROVEEDOR_CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
-                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID], false);
+                    $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID]);
                     if (!$direccion["success"]) { throw new Exception($direccion["message"]); }
 
-                    $telefono = $this->proveedorTelefonoData->getTelefonosByProveedorID($row[PROVEEDOR_ID], false);
+                    $telefono = $this->proveedorTelefonoData->getTelefonosByProveedorID($row[PROVEEDOR_ID]);
                     if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
 
                     // Crea un objeto Proveedor con los datos obtenidos

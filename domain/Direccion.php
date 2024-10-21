@@ -44,6 +44,13 @@
         function setDireccionDistancia(float $direccionDistancia) { $this->direccionDistancia = $direccionDistancia; }
         function setDireccionEstado(bool $direccionEstado) { $this->direccionEstado = $direccionEstado; }
 
+        public function getDireccionCompleta(): string {
+            $direccionCompleta = "{$this->direccionProvincia}, {$this->direccionCanton}, {$this->direccionDistrito}";
+            if (!empty($this->direccionBarrio)) { $direccionCompleta .= ", {$this->direccionBarrio}"; }
+            if (!empty($this->direccionSennas)) { $direccionCompleta .= ", {$this->direccionSennas}"; }
+            return $direccionCompleta;
+        }
+
         public function jsonSerialize() {
             return [
                 'ID' => $this->direccionID,

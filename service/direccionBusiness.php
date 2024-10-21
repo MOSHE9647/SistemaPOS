@@ -71,7 +71,7 @@
 
         public function insertTBDireccion($direccion) {
             // Verifica que los datos de la direcion sean validos
-            $check = $this->validarDireccion($direccion);
+            $check = $this->validarDireccion($direccion, true, true);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
@@ -90,13 +90,23 @@
         }
 
         public function deleteTBDireccion($direccionID) {
-            // Verifica que los datos de la direcion sean validos
+            // Verifica que los datos de la direccion sean validos
             $check = $this->validarDireccionID($direccionID);
             if (!$check["is_valid"]) {
                 return ["success" => $check["is_valid"], "message" => $check["message"]];
             }
 
             return $this->direccionData->deleteDireccion($direccionID);
+        }
+
+        public function existeDireccion($direccion = null, $update = false, $insert = false) {
+            // Verifica que los datos de la direcion sean validos
+            $check = $this->validarDireccion($direccion, $update, $insert);
+            if (!$check["is_valid"]) {
+                return ["success" => $check["is_valid"], "message" => $check["message"]];
+            }
+
+            return $this->direccionData->existeDireccion($direccion, $update, $insert);
         }
 
         public function getAllTBDireccion($onlyActive = false, $deleted = false) {

@@ -119,9 +119,9 @@ export function makeRowEditable(row, tableBodyID = 'tableBody') {
     initializeSelects();
 
     row.querySelector('.btn-save').addEventListener('click', () => {
-        if (crud.updateTelefono(telefonos, row.dataset.id)) {
-            renderTable(telefonos, tableBodyID);
-        }
+        crud.updateTelefono(telefonos, row).then((success) => {
+            if (success) renderTable(telefonos, tableBodyID);
+        });
     });
     row.querySelector('.btn-cancel').addEventListener('click', cancelEdit);
     
@@ -170,9 +170,9 @@ export function showCreateRow(tableBodyID = 'tableBody') {
     initializeSelects();
 
     newRow.querySelector('.btn-save').addEventListener('click', () => {
-        if (crud.insertTelefono(telefonos)) {
-            renderTable(telefonos, tableBodyID);
-        }
+        crud.insertTelefono(telefonos).then((success) => {
+            if (success) renderTable(telefonos, tableBodyID);
+        });
     });
 
     newRow.querySelector('.btn-cancel').addEventListener('click', cancelEdit);
@@ -242,7 +242,7 @@ export function searchTelefonos(searchInputID = 'search-input', tableBodyID = 't
 
     let searchValue = searchInput.value.trim().toUpperCase();
     if (searchValue === '') {
-        renderTable(telefonos, tableBodyID);
+        renderTable(telefonos, tableBodyID, isInfo);
         return;
     }
 

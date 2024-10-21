@@ -6,19 +6,15 @@
     require_once dirname(__DIR__, 1) . '/domain/Producto.php';
     require_once dirname(__DIR__, 1) . '/domain/Telefono.php';
 
-    $response = [];
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Acción que se va a realizar
+    $response = [];                                 //<- Respuesta a enviar al cliente
+    $method = $_SERVER["REQUEST_METHOD"];           //<- Método de la solicitud
+    $proveedorBusiness = new ProveedorBusiness();   //<- Lógica de negocio de Proveedor
+
+    if ($method == "POST") {
+        // Acción a realizar en el controlador
         $accion = $_POST['accion'] ?? "";
         if (empty($accion)) {
-            $response = [
-                'success' => false,
-                'message' => "No se ha especificado una acción."
-            ];
-            http_response_code(400);
-            header('Content-Type: application/json');
-            echo json_encode($response);
-            exit();
+            Utils::enviarRespuesta(400, false, "No se ha especificado una acción.");
         }
 
         // Datos del Proveedor recibidos en la solicitud
@@ -29,13 +25,10 @@
         $direcciones = isset($_POST['direcciones']) ? json_decode($_POST['direcciones'], true)  : [];
         $productos   = isset($_POST['productos'])   ? json_decode($_POST['productos'], true)    : [];
         $telefonos   = isset($_POST['telefonos'])   ? json_decode($_POST['telefonos'], true)    : [];
-
-        // Se crea el Service para las operaciones
-        $proveedorBusiness = new ProveedorBusiness();
         
         // Crea y verifica que los datos del proveedor sean correctos
         $proveedor = new Proveedor($id, $nombre, $email, $direcciones, new Categoria($categoria), $productos, $telefonos);
-        $check = $proveedorBusiness->validarProveedor($proveedor, $accion != 'eliminar', $accion == 'insertar'); //<- Indica si se validan (o no) los campos además del ID
+        $check = $proveedorBusiness->validarProveedor($proveedor, $accion != 'eliminar', $accion == 'insertar');
 
         // Si los datos son válidos se realiza acción correspondiente
         if ($check['is_valid']) {
@@ -54,34 +47,34 @@
                     break;
                 default:
                     // Error en caso de que la accion no sea válida
-                    $response['success'] = false;
-                    $response['message'] = "Acción no válida.";
-                    break;
+                    Utils::enviarRespuesta(400, false, "Acción no válida.");
             }
         } else {
             // Si los datos no son validos, se devuelve un mensaje de error
-            $response['success'] = $check['is_valid'];
-            $response['message'] = $check['message'];
+            Utils::enviarRespuesta(400, false, $check['message']);
         }
 
+        // Enviar respuesta al cliente
+        http_response_code($response['success'] ? 200 : 400);
         header('Content-Type: application/json');
         echo json_encode($response);
         exit();
     }
 
-    else if ($_SERVER["REQUEST_METHOD"] == "GET") {
-        $accion = isset($_GET['accion']) ? $_GET['accion'] : "";
-        $deleted = isset($_GET['deleted']) ? boolval($_GET['deleted']) : false;
-        $onlyActive = isset($_GET['filter']) ? boolval($_GET['filter']) : true;
+    else if ($method == "GET") {
+        // Parámetros de la solicitud
+        $accion     = isset($_GET['accion'])    ? $_GET['accion']           : "";
+        $deleted    = isset($_GET['deleted'])   ? boolval($_GET['deleted']) : false;
+        $onlyActive = isset($_GET['filter'])    ? boolval($_GET['filter'])  : true;
 
-        $proveedorBusiness = new ProveedorBusiness();
+        // Realizar la acción solicitada
         switch ($accion) {
             case 'all':
-                $response = $proveedorBusiness->getAllTBProveedor($deleted, $onlyActive);
+                $response = $proveedorBusiness->getAllTBProveedor($onlyActive, $deleted);
                 break;
             case 'id':
                 $proveedorID = isset($_GET['id']) ? intval($_GET['id']) : -1;
-                $response = $proveedorBusiness->getProveedorByID($proveedorID);
+                $response = $proveedorBusiness->getProveedorByID($proveedorID, $onlyActive, $deleted);
                 break;
             default:
                 // Obtener parámetros de la solicitud GET
@@ -97,20 +90,17 @@
                 $response = $proveedorBusiness->getPaginatedProveedores($search, $page, $size, $sort, $onlyActive, $deleted);
                 break;
         }
-
+        
+        // Enviar respuesta al cliente
+        http_response_code($response['success'] ? 200 : 400);
         header('Content-Type: application/json');
         echo json_encode($response);
         exit();
     }
     
     else {
-        $response['success'] = false;
-        $response['message'] = "Método no permitido (" . $_SERVER["REQUEST_METHOD"] . ").";
-    
-        http_response_code(405);
-        header('Content-Type: application/json');
-        echo json_encode($response);
-        exit();
+        // Enviar respuesta de método no permitido
+        Utils::enviarRespuesta(405, false, "Método no permitido ($method).");
     }
 
 ?>

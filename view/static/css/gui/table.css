@@ -104,6 +104,7 @@ table {
     border-radius: var(--card-radius);
     box-shadow: var(--card-shadow);
     margin: 20px 0;
+    transition: all 0.3s ease;
 }
 
 table thead tr {
