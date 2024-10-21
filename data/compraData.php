@@ -229,88 +229,110 @@
          *               que indica si la operación fue exitosa, y 'message' es un mensaje descriptivo.
          * @throws Exception Si ocurre un error durante la actualización del producto.
          */
-            public function updateCompra($compra, $conn = null) {
-                $createdConnection = false;
-                $stmt = null;
-                try {
-                   
-                    // Obtener los valores de las propiedades del objeto $lote
-                    $compraID = $compra->getCompraID();
-
+        public function updateCompra($compra, $conn = null) {
+            $createdConnection = false;
+            $stmt = null;
+            try {
+                if ($conn === null) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+        
+                    // Inicia una transacción
+                    mysqli_begin_transaction($conn);
+                }
+        
+                // Obtener el ID de la compra
+                $compraID = $compra->getCompraID();
+        
+                // Verificar si la compra existe
                 $check = $this->compraExiste($compraID);
                 if (!$check["success"]) { throw new Exception($check["message"]); }
-
-                // En caso de no existir
+        
                 if (!$check["exists"]) {
                     $message = "La compra con 'ID [$compraID]' no existe en la base de datos.";
                     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
-                    return ["success" => true, "message" => "La compra seleccionado no existe en la base de datos."];
+                    return ["success" => false, "message" => "La compra seleccionada no existe en la base de datos."];
                 }
-
-                    // Crea una consulta y un statement SQL para actualizar el registro
-                    $queryUpdate = 
-                        "UPDATE " . TB_COMPRA . 
-                        " SET " . 
-                        COMPRA_NUMERO_FACTURA . " = ?, " .
-                        COMPRA_PROVEEDOR_ID . " = ?, " .
-                        COMPRA_MONTO_BRUTO . " = ?, " .
-                        COMPRA_MONTO_NETO . " = ?, " .
-                        COMPRA_TIPO_PAGO . " = ?, " .
-                       
-                        COMPRA_FECHA_CREACION . " = ?, " .
-                        COMPRA_FECHA_MODIFICACION . " = ?, " .
-                        COMPRA_ESTADO . " = true " .
-                        "WHERE " . COMPRA_ID . " = ?";
-                    $stmt = mysqli_prepare($conn, $queryUpdate);
         
-         // Obtener los valores de las propiedades del objeto $lote
-                    $compraID = $compra->getCompraID();
-                    $compraNumeroFactura = $compra->getCompraNumeroFactura();   
-                    $compraMontoBruto = $compra->getCompraMontoBruto();
-                    $compraMontoNeto = $compra->getCompraMontoNeto();
-                    $compraTipoPago = $compra->getCompraTipoPago();
-                  //  $compraProveedorId = $compra->getCompraProveedorId();
-                    $proveedorID = $compra->getProveedorID();
-                    $compraFechaCreacion = $compra->getCompraFechaCreacion();
-                    $compraFechaModificacion = $compra->getCompraFechaModificacion();
-                    // Asigna los valores a cada '?' de la consulta
-                    mysqli_stmt_bind_param(
-                        $stmt,
-                        'siddsssi', // s: String, d: Double (decimal), i: Integer
-                        $compraNumeroFactura, 
-                       // $compraProveedorId,
-                        $proveedorID,
-                        $compraMontoBruto,
-                        $compraMontoNeto,
-                        $compraTipoPago,
-                        $compraFechaCreacion,
-                        $compraFechaModificacion,
-                        $compraID
-                    );
+                // Crea una consulta y un statement SQL para actualizar el registro
+                $queryUpdate = 
+                    "UPDATE " . TB_COMPRA . 
+                    " SET " . 
+                    COMPRA_NUMERO_FACTURA . " = ?, " .
+                    COMPRA_PROVEEDOR_ID . " = ?, " .
+                    COMPRA_MONTO_BRUTO . " = ?, " .
+                    COMPRA_MONTO_NETO . " = ?, " .
+                    COMPRA_TIPO_PAGO . " = ?, " .
+                    COMPRA_FECHA_CREACION . " = ?, " .
+                    COMPRA_FECHA_MODIFICACION . " = ?, " .
+                    COMPRA_ESTADO . " = true " .
+                    "WHERE " . COMPRA_ID . " = ?";
+                
+                $stmt = mysqli_prepare($conn, $queryUpdate);
+                if (!$stmt) {
+                    throw new Exception("Error en la preparación de la consulta: " . mysqli_error($conn));
+                }
         
-                    // Ejecuta la consulta de actualización
-                    $result = mysqli_stmt_execute($stmt);
+                // Obtener los valores del objeto $compra
+                $compraNumeroFactura = $compra->getCompraNumeroFactura();   
+                $proveedorID = $compra->getProveedorID();
+                $compraMontoBruto = $compra->getCompraMontoBruto();
+                $compraMontoNeto = $compra->getCompraMontoNeto();
+                $compraTipoPago = $compra->getCompraTipoPago();
+                $compraFechaCreacion = $compra->getCompraFechaCreacion();
+                $compraFechaModificacion = $compra->getCompraFechaModificacion();
         
-                    // Devuelve el resultado de la consulta
-                    return ["success" => true, "message" => "Compra actualizada exitosamente"];
-                } catch (Exception $e) {
-                    if (isset($conn) && $createdConnection) { mysqli_rollback($conn); }
-
-                    // Manejo del error dentro del bloque catch
-                    $userMessage = $this->handleMysqlError(
-                        $e->getCode(), 
-                        $e->getMessage(),
-                        'Error al actualizar el lote en la base de datos'
-                    );
+                // Asigna los valores a cada '?' de la consulta
+                mysqli_stmt_bind_param(
+                    $stmt,
+                    'siddsssi', // s: String, d: Double (decimal), i: Integer
+                    $compraNumeroFactura, 
+                    $proveedorID,
+                    $compraMontoBruto,
+                    $compraMontoNeto,
+                    $compraTipoPago,
+                    $compraFechaCreacion,
+                    $compraFechaModificacion,
+                    $compraID
+                );
         
-                    // Devolver mensaje amigable para el usuario
-                    return ["success" => false, "message" => $userMessage];
-                } finally {
-                    // Cierra la conexión y el statement si están definidos
-                    if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                  if (isset($conn) && $createdConnection) { mysqli_close($conn); }
+                // Ejecuta la consulta de actualización
+                $result = mysqli_stmt_execute($stmt);
+                if (!$result) {
+                    throw new Exception("Error al ejecutar la consulta: " . mysqli_stmt_error($stmt));
+                }
+        
+                // Confirma la transacción
+                mysqli_commit($conn);
+        
+                return ["success" => true, "message" => "Compra actualizada exitosamente"];
+            } catch (Exception $e) {
+                if (isset($conn) && $createdConnection) { 
+                    mysqli_rollback($conn); 
+                }
+        
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al actualizar la compra en la base de datos'
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra el statement y la conexión si están definidos
+                if (isset($stmt)) { 
+                    mysqli_stmt_close($stmt); 
+                }
+                if (isset($conn) && $createdConnection) { 
+                    mysqli_close($conn); 
                 }
             }
+        }
+        
 
  /**
          * Elimina un producto de la base de datos.
