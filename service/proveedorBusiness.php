@@ -131,6 +131,16 @@
             return $this->proveedorData->getProveedorByID($proveedorID, $onlyActive, $deleted);
         }
 
+        public function getCompraProveedorByID($proveedorID, $onlyActive = false, $deleted = false) {
+            // Verifica que los datos del proveedor sean validos
+            $check = $this->validarProveedorID($proveedorID);
+            if (!$check["is_valid"]) {
+                return ["success" => $check["is_valid"], "message" => $check["message"]];
+            }
+
+            return $this->proveedorData->getCompraProveedorByID($proveedorID, $onlyActive, $deleted);
+        }
+
     }
 
 ?>

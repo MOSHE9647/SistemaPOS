@@ -166,14 +166,15 @@ class CompraBusiness {
          *               - "success" (bool): Indica si la actualización fue exitosa.
          *               - "message" (string): Mensaje descriptivo del resultado de la operación.
          */
-    public function updateTBCompra($compra) {
-        // Verifica que los datos de la compra sean válidos
-        $check = $this->validarCompra($compra);
-        if (!$check["is_valid"]) {
-            return ["success" => false, "message" => $check["message"]];
+        public function updateTBCompra($compra) {
+            // Verifica que los datos de la compra sean válidos
+            $check = $this->validarCompra($compra);
+            if (!$check["is_valid"]) {
+                return ["success" => false, "message" => $check["message"]];
+            }
+            return $this->compraData->updateCompra($compra);
         }
-        return $this->compraData->updateCompra($compra);
-    }
+        
     
     /**
          * Elimina un producto de la base de datos.
@@ -244,5 +245,7 @@ class CompraBusiness {
         }
         return $this->compraData->getCompraByID($compraID, $onlyActive, $deleted);
     }
+
+    
 }
 ?>
