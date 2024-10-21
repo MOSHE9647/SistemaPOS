@@ -59,7 +59,7 @@ class CompraDetalleData extends Data {
             );
     
             $result = mysqli_stmt_execute($stmt);
-            return ["success" => true, "message" => "Detalle de compra insertado exitosamente"];
+            return ["success" => true, "message" => "Detalle de compra insertado exitosamente","Id"=>$nextId];
         } catch (Exception $e) {
             $userMessage = $this->handleMysqlError($e->getCode(), $e->getMessage(), 'Error al insertar el detalle de compra');
             return ["success" => false, "message" => $userMessage];
