@@ -1,86 +1,103 @@
 <?php
 
-require_once __DIR__ . '/../service/compraDetalleBusiness.php';
+require_once dirname(__DIR__, 1) . '/service/compraDetalleBusiness.php';
+require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
-$response = [];
+$response = [];                                         // <- Respuesta a enviar al cliente
+$method = $_SERVER["REQUEST_METHOD"];                   // <- Método de la solicitud
+$compraDetalleBusiness = new CompraDetalleBusiness();   // <- Lógica de negocio de CompraDetalle
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Acción que se va a realizar
-    $accion = $_POST['accion'];
+if ($method == "POST") {
+    // Acción a realizar en el controlador
+    $accion = $_POST['accion'] ?? "";
+    if (empty($accion)) {
+        Utils::enviarRespuesta(400, false, "No se ha especificado una acción.");
+    }
 
-    // Datos recibidos en la solicitud (Form)
-    $compraDetalleID = isset($_POST['compradetalleid']) ? intval($_POST['compradetalleid']) : 0;
-    $compraDetalleCompra = isset($_POST['compradetallecompraid']) ? intval($_POST['compradetallecompraid']) : 0;
-    $compraDetalleProducto = isset($_POST['compradetalleproductoid']) ? intval($_POST['compradetalleproductoid']) : 0;
+    // Datos de CompraDetalle recibidos en la solicitud
+    $compraDetalleID           = isset($_POST['id'])                  ? intval($_POST['id'])                : -1;
+    $compraDetalleCompra       = isset($_POST['compra'])              ? intval($_POST['compra'])            : -1;
+    $compraDetalleProducto     = isset($_POST['producto'])            ? intval($_POST['producto'])          : -1;
+    $compraDetalleFechaCreacion = isset($_POST['fechaCreacion'])      ? $_POST['fechaCreacion']            : "";
+    $compraDetalleFechaModificacion = isset($_POST['fechaModificacion']) ? $_POST['fechaModificacion']    : "";
+    $compraDetalleEstado       = isset($_POST['estado'])              ? intval($_POST['estado'])            : 1;
 
-    // Para los campos de fechas y estado
-    $compraDetalleFechaCreacion = isset($_POST['compradetallefechacreacion']) ? $_POST['compradetallefechacreacion'] : '';
-    $compraDetalleFechaModificacion = isset($_POST['compradetallefechamodificacion']) ? $_POST['compradetallefechamodificacion'] : '';
-    $compraDetalleEstado = isset($_POST['compradetalleestado']) ? intval($_POST['compradetalleestado']) : 1;
-
-    // Se crea el Service para las operaciones
-    $compraDetalleBusiness = new CompraDetalleBusiness();
-
-    // Crea y verifica que los datos del detalle de compra sean correctos
+    // Crear un objeto CompraDetalle con los datos recibidos
     $compraDetalle = new CompraDetalle(
-        $compraDetalleID, 
-        $compraDetalleCompraID, 
-        $compraDetalleProductoID, 
-        $compraDetalleFechaCreacion, 
-        $compraDetalleFechaModificacion, 
-        $compraDetalleEstado
+        $compraDetalleID, $compraDetalleCompraID, $compraDetalleProductoID,
+        $compraDetalleFechaCreacion, $compraDetalleFechaModificacion, $compraDetalleEstado
     );
 
-    $check = $compraDetalleBusiness->validarCompraDetalle($compraDetalle, $accion != 'eliminar'); // Indica si se validan (o no) los campos además del ID
-
-    // Si los datos son válidos se realiza la acción correspondiente
+    // Realizar la acción solicitada si los datos son válidos
+    $check = $compraDetalleBusiness->validarCompraDetalle($compraDetalle, $accion != 'eliminar', $accion == 'insertar');
     if ($check['is_valid']) {
         switch ($accion) {
             case 'insertar':
-                // Inserta el detalle de compra en la base de datos
                 $response = $compraDetalleBusiness->insertCompraDetalle($compraDetalle);
                 break;
             case 'actualizar':
-                // Actualiza la info del detalle de compra en la base de datos
                 $response = $compraDetalleBusiness->updateCompraDetalle($compraDetalle);
                 break;
             case 'eliminar':
-                // Elimina el detalle de compra de la base de datos (ID se verifica en validarCompraDetalle)
                 $response = $compraDetalleBusiness->deleteCompraDetalle($compraDetalleID);
                 break;
             default:
-                // Error en caso de que la acción no sea válida
-                $response['success'] = false;
-                $response['message'] = "Acción no válida.";
-                break;
+                Utils::enviarRespuesta(400, false, "Acción no válida.");
         }
     } else {
-        // Si los datos no son válidos, se devuelve un mensaje de error
-        $response['success'] = $check['is_valid'];
-        $response['message'] = $check['message'];
+        Utils::enviarRespuesta(400, false, $check['message']);
     }
 
-    header('Content-Type: application/json');
+    // Enviar respuesta al cliente
+    http_response_code($response['success'] ? 200 : 400);
+    header("Content-Type: application/json");
     echo json_encode($response);
     exit();
-}
+} 
 
-if ($_SERVER["REQUEST_METHOD"] == "GET") {
-    // Obtener parámetros de la solicitud GET
-    $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
-    $size = isset($_GET['size']) ? intval($_GET['size']) : 5;
+else if ($method == "GET") {
+    // Parámetros de la solicitud
+    $accion     = isset($_GET['accion'])    ? $_GET['accion']           : "";
+    $deleted    = isset($_GET['deleted'])   ? boolval($_GET['deleted']) : false;
+    $onlyActive = isset($_GET['filter'])    ? boolval($_GET['filter'])  : true;
+    Utils::writeLog("accion:".$accion.CONTROLLER_LOG_FILE);
+    // Realizar la acción solicitada
+    switch ($accion) {
+        case 'all':
+            // Obtener todos los detalles de compra
+            $response = $compraDetalleBusiness->getAllCompraDetalle($onlyActive, $deleted);
+            break;
+        case 'id':
+            // Obtener un detalle de compra por su ID
+            $compraDetalleID = intval($_GET['id'] ?? -1);
+            $response = $compraDetalleBusiness->getCompraDetalleByID($compraDetalleID, $onlyActive, $deleted);
+            break;
+        default:
+            // Parámetros de paginación
+            $search = isset($_GET['search']) ? $_GET['search']          : null;
+            $page   = isset($_GET['page'])   ? intval($_GET['page'])    : 1;
+            $size   = isset($_GET['size'])   ? intval($_GET['size'])    : 5;
+            $sort   = isset($_GET['sort'])   ? $_GET['sort']            : null;
 
-    // Validar los parámetros
-    if ($page < 1) $page = 1;
-    if ($size < 1) $size = 5;
+            // Validar los parámetros
+            if ($page < 1) $page = 1;
+            if ($size < 1) $size = 5;
 
-    // Crea el Service y obtiene la lista (paginada) de detalles de compra
-    $compraDetalleBusiness = new CompraDetalleBusiness();
-    $response = $compraDetalleBusiness->getPaginatedCompraDetalles($page, $size);
+            // Obtener los detalles de compra paginados
+            $response = $compraDetalleBusiness->getPaginatedCompraDetalles($search, $page, $size, $sort, $onlyActive, $deleted);
+            break;
+    }
 
-    header('Content-Type: application/json');
+    // Enviar respuesta al cliente
+    http_response_code($response['success'] ? 200 : 400);
+    header("Content-Type: application/json");
     echo json_encode($response);
     exit();
+} 
+
+else {
+    // Enviar respuesta de método no permitido
+    Utils::enviarRespuesta(405, false, "Método no permitido ($method).");
 }
 
 ?>

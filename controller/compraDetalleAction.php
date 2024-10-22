@@ -60,7 +60,7 @@ else if ($method == "GET") {
     $accion     = isset($_GET['accion'])    ? $_GET['accion']           : "";
     $deleted    = isset($_GET['deleted'])   ? boolval($_GET['deleted']) : false;
     $onlyActive = isset($_GET['filter'])    ? boolval($_GET['filter'])  : true;
-
+    Utils::writeLog("accion:".$accion.CONTROLLER_LOG_FILE);
     // Realizar la acción solicitada
     switch ($accion) {
         case 'all':

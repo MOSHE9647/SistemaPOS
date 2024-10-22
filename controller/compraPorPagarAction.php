@@ -13,6 +13,8 @@ if ($method == "POST") {
     if (empty($accion)) {
         Utils::enviarRespuesta(400, false, "No se ha especificado una acción.");
     }
+    
+    Utils::writeLog("Accion : ".$accion,BUSINESS_LOG_FILE);
 
     $id             = isset($_POST['id'])           ?intval($_POST['id'])               :-1;
     $detalleid      = isset($_POST['detalleid'])    ?intval($_POST['detalleid'])        :-1;
@@ -42,6 +44,8 @@ if ($method == "POST") {
                 );
     
     $result = $compraPagarBusiness->validarCamposFecha($ObjetoCompra,($accion === 'actualizar')? true:false, true);
+    Utils::writeLog("Mensaje ".$result["message"]);
+
     if($result["is_valid"]){
             switch($accion){
                 case 'insertar':
@@ -58,7 +62,7 @@ if ($method == "POST") {
                     break;
             }
     }else{
-        Utils::enviarRespuesta(400, false, $check['message']);
+        Utils::enviarRespuesta(400, false, $result['message']);
     }
 
     http_response_code($response['success'] ? 200 : 400);

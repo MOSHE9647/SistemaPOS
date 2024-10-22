@@ -169,8 +169,6 @@ class CompraDetalleData extends Data {
             if (isset($conn)) { mysqli_close($conn); }
         }
     }
-    
-    
 
     public function getAllCompraDetalle($onlyActive = false) {
         $conn = null;

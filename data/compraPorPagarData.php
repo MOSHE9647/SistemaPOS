@@ -1,10 +1,10 @@
 <?php
-require_once dirname(__DIR__, 1) . '/domain/CompraPorPagar.php';
-require_once dirname(__DIR__, 1) . '/domain/CompraDetalle.php';
-require_once dirname(__DIR__, 1) . '/data/compradetalleData';
-require_once dirname(__DIR__, 1) . '/utils/Utils.php';
-require_once dirname(__DIR__, 1) . '/utils/Variables.php';
-require_once dirname(__DIR__, 1) . '/data/data.php';
+require_once __DIR__ . '/../domain/CompraPorPagar.php';
+require_once __DIR__ . '/../domain/CompraDetalle.php';
+require_once __DIR__ . '/../data/compradetalleData.php';
+require_once __DIR__ . '/../utils/Utils.php';
+require_once __DIR__ . '/../utils/Variables.php';
+require_once __DIR__ . '/../data/data.php';
 
 class CompraPorPagarData extends Data{
     private $className;
@@ -96,7 +96,7 @@ class CompraPorPagarData extends Data{
 
             if($detalleId <= 0){
                 $detalleData = new CompraDetalleData();
-                $result = $detalleData->insertCompraDetalle($detalleCompra);
+                $result = $detalleData->insertCompraDetalle($detalleCompra,$conn);
                 if($result["success"]){
                     $ref_detalleID_final = $result["Id"];
                 }else{
@@ -312,7 +312,7 @@ class CompraPorPagarData extends Data{
             $conn = $result["connection"];
 
             $query = "SELECT * FROM " . TB_COMPRA_POR_PAGAR 
-            .( $onlyActive ? " WHERE ". COMPRA_POR_PAGAR_ESTADO . " != ".(delete? 'TRUE': 'FALSE'):" ");
+            .( $onlyActive ? " WHERE ". COMPRA_POR_PAGAR_ESTADO . " != ".($delete? 'TRUE': 'FALSE'):" ");
             $result = mysqli_query($conn,$query);
 
 

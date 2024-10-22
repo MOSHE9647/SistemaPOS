@@ -34,10 +34,10 @@ class CompraPorPagarBussines{
 
          
             if ($validarCamposAdicionales) {
-                if($fechaVence === null){
+                if($fechaVence === null || empty($fechaVence)){
                     $errors[] = "La fecha de vencimiento no puede estar vacia";
                 }
-                if($fechaPago === null){
+                if($fechaPago === null || empty($fechaPago)){
                     $errors[] = "La fecha de pago no puede estar vacia";
                 }
                 if(Utils::fechaMayorOIgualAHoy($fechaVence)){
