@@ -1,21 +1,20 @@
 <?php
-        require_once dirname(__DIR__, 1) . '/data/data.php';
-        require_once dirname(__DIR__, 1) . '/domain/Compra.php';
-        require_once dirname(__DIR__, 1) . '/utils/Utils.php';
-        require_once dirname(__DIR__, 1) . '/utils/Variables.php';
-        require_once __DIR__ . '/../data/ProveedorData.php'; // Ajusta la ruta según sea necesario
+    require_once dirname(__DIR__, 1) . '/data/data.php';
+    require_once dirname(__DIR__, 1) . '/data/ProveedorData.php'; 
+    require_once dirname(__DIR__, 1) . '/domain/Compra.php';
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
+    require_once dirname(__DIR__, 1) . '/utils/Variables.php';
 
+    Class CompraData extends Data{
 
-        Class CompraData extends Data{
-
-              // Nombre de la clase
+        // Nombre de la clase
         private $className;
 
         /**
          * Inicializa una nueva instancia de la clase ProductoData.
          */
-		public function __construct() {
-			parent::__construct();
+        public function __construct() {
+            parent::__construct();
             $this->className = get_class($this);
         }
 
@@ -40,19 +39,18 @@
          *               - "message" (string, opcional): Mensaje de error o información adicional.
          * @throws Exception Si ocurre un error durante la verificación.
          */
-
-         private function compraExiste($compraID, $update = false, $insert = false) {
+        private function compraExiste($compraID, $update = false, $insert = false) {
             try {
                 // Establece una conexión con la base de datos
                 $result = $this->getConnection();
                 if (!$result["success"]) {throw new Exception($result["message"]);}
                 $conn = $result["connection"];
-    
+
                 // Crea una consulta y un statement SQL para buscar el registro
                 $queryCheck = "SELECT  " . COMPRA_ID . ", " . COMPRA_ESTADO . " FROM " . TB_COMPRA . " WHERE ";
                 $params = [];
                 $types = "";
-    
+
                 // Consulta para verificar si existe un producto con el ID ingresado
                 if ($compraID && (!$update && !$insert)) {
                     // Consultar: Verificar existencia por ID
@@ -60,25 +58,25 @@
                     $params = [$compraID];
                     $types .= 'i';
                 }
-                 // Asignar los parámetros y ejecutar la consulta
-                 $stmt = mysqli_prepare($conn, $queryCheck);
-                 mysqli_stmt_bind_param($stmt, $types, ...$params);
-                 mysqli_stmt_execute($stmt);
-                 $result = mysqli_stmt_get_result($stmt);
+                    // Asignar los parámetros y ejecutar la consulta
+                    $stmt = mysqli_prepare($conn, $queryCheck);
+                    mysqli_stmt_bind_param($stmt, $types, ...$params);
+                    mysqli_stmt_execute($stmt);
+                    $result = mysqli_stmt_get_result($stmt);
 
-    
-                 // Verificar si existe un producto con el ID, nombre o código de barras ingresado
+
+                    // Verificar si existe un producto con el ID, nombre o código de barras ingresado
                 if ($row = mysqli_fetch_assoc($result)) {
                     // Verificar si está inactivo (bit de estado en 0)
                     $isInactive = $row[COMPRA_ESTADO] == 0;
                     return ["success" => true, "exists" => true, "inactive" => $isInactive, "compraID" => $row[COMPRA_ID]];
                 }
-             // Retorna false si no se encontraron resultados
-             $messageParams = [];
-             $params = implode(', ', $messageParams);
+                // Retorna false si no se encontraron resultados
+                $messageParams = [];
+                $params = implode(', ', $messageParams);
         
-             $message = "No se encontró ninguna compra ($params) en la base de datos.";
-             return ["success" => true, "exists" => false, "message" => $message];
+                $message = "No se encontró ninguna compra ($params) en la base de datos.";
+                return ["success" => true, "exists" => false, "message" => $message];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(
@@ -86,7 +84,7 @@
                     'Ocurrió un error al verificar la existencia de la compra en la base de datos',
                     $this->className
                 );
-    
+
                 // Devolver mensaje amigable para el usuario
                 return ["success" => false, "message" => $userMessage];
             } finally {
@@ -96,7 +94,7 @@
             }
         }
 
-            /**
+        /**
          * Inserta un nuevo producto en la base de datos.
          *
          * Este método permite insertar un nuevo producto en la base de datos. 
@@ -113,114 +111,112 @@
          * @throws Exception Si ocurre un error durante la inserción.
          */
 
-            public function insertCompra($compra, $conn = null) {
-                $createdConnection = false;
-                $stmt = null;
+        public function insertCompra($compra, $conn = null) {
+            $createdConnection = false;
+            $stmt = null;
 
-                try {
-                    // Establece una conexión con la base de datos
-                    if ($conn === null) {
-                        $result = $this->getConnection();
-                        if (!$result["success"]) { throw new Exception($result["message"]); }
-                        $conn = $result["connection"];
-                        $createdConnection = true;
-            
-                        // Inicia una transacción
-                        mysqli_begin_transaction($conn);
-                    }
-
-                    $checkFactura = $this->existeNumeroFactura($compra->getCompraNumeroFactura());
-                    if (!$checkFactura["success"]) {
-                        return $checkFactura;
-                    }
-                    if ($checkFactura["exists"]) {
-                        return ["success" => false, "message" => "Error: El número de factura ya existe."];
-                    }
-            
-                    // Obtiene el último ID de la tabla tblote
-                    $queryGetLastId = "SELECT MAX(" . COMPRA_ID . ") FROM " . TB_COMPRA;
-                    $idCont = mysqli_query($conn, $queryGetLastId);
-                    $nextId = 1;
-            
-                    // Calcula el siguiente ID para la nueva entrada
-                    if ($row = mysqli_fetch_row($idCont)) {
-                        $nextId = (int) trim($row[0]) + 1;
-                    }
-                    
-                    // Si la fecha de creación está vacía, asignar la fecha actual
-                    if (empty($compraFechaCreacion)) {
-                        $compraFechaCreacion = date('Y-m-d H:i:s'); // Formato de fecha y hora actual
-                    }
-
-                     // Si la fecha de modificación está vacía, asignar la fecha actual
-                    if (empty($compraFechaModificacion)) {
-                       $compraFechaModificacion = date('Y-m-d H:i:s'); // Formato de fecha y hora actual
-                    }
-
-                    // Crea una consulta SQL para insertar el registro
-                    $queryInsert = "INSERT INTO " . TB_COMPRA . " ("
-                        . COMPRA_ID . ", "
-                        . COMPRA_NUMERO_FACTURA . ", "
-                        . COMPRA_PROVEEDOR_ID . ", "
-                        . COMPRA_MONTO_BRUTO . ", "
-                        . COMPRA_MONTO_NETO . ", "
-                        . COMPRA_TIPO_PAGO . ", "
-                        . COMPRA_FECHA_CREACION . ", "
-                        . COMPRA_FECHA_MODIFICACION . ", "
-                        . COMPRA_ESTADO
-                        . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, true)";
-                    $stmt = mysqli_prepare($conn, $queryInsert);
-            
-                     // Obtener los valores de las propiedades del objeto $compra
-                     $compraNumeroFactura = $compra->getCompraNumeroFactura();
-                     $compraMontoBruto = $compra->getCompraMontoBruto();
-                     $compraMontoNeto = $compra->getCompraMontoNeto();
-                     $compraTipoPago = $compra->getCompraTipoPago();
-                     $proveedorID = $compra->getProveedorID();
-                     $compraFechaCreacion = $compra->getCompraFechaCreacion();
-                     $compraFechaModificacion = $compra->getCompraFechaModificacion();
-
-                    // Asigna los valores a cada '?' de la consulta
-                    mysqli_stmt_bind_param(
-                        $stmt,
-                        'isiddsss', // i: Entero, s: Cadena, d: Decimal
-                        $nextId,
-                        $compraNumeroFactura, 
-                        $proveedorID,
-                        $compraMontoBruto,
-                        $compraMontoNeto,
-                        $compraTipoPago,
-                        $compraFechaCreacion,
-                        $compraFechaModificacion
-                    );
-                    $result = mysqli_stmt_execute($stmt);
-
-                      // Confirmar la transacción
-                if ($createdConnection) { mysqli_commit($conn); }
-            
-                    return ["success" => true, "message" => "Compra insertada exitosamente"];
-                } catch (Exception $e) {
-                    if (isset($conn) && $createdConnection) { mysqli_rollback($conn); }
-
-                    // Manejo del error dentro del bloque catch
-                    $userMessage = $this->handleMysqlError(
-                        $e->getCode(), $e->getMessage(),
-                        'Ocurrió un error al insertar la compra en la base de datos',
-                         $this->className
-                    );
-            
-                    // Devolver mensaje amigable para el usuario
-                    return ["success" => false, "message" => $userMessage];
-                } finally {
-                    // Cierra el statement y la conexión si están definidos
-                    if (isset($stmt)) { mysqli_stmt_close($stmt); }
-                    if (isset($conn) && $createdConnection) { mysqli_close($conn); }
+            try {
+                // Establece una conexión con la base de datos
+                if ($conn === null) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+        
+                    // Inicia una transacción
+                    mysqli_begin_transaction($conn);
                 }
-            }
 
+                $checkFactura = $this->existeNumeroFactura($compra->getCompraNumeroFactura());
+                if (!$checkFactura["success"]) {
+                    return $checkFactura;
+                }
+                if ($checkFactura["exists"]) {
+                    return ["success" => false, "message" => "Error: El número de factura ya existe."];
+                }
+        
+                // Obtiene el último ID de la tabla tblote
+                $queryGetLastId = "SELECT MAX(" . COMPRA_ID . ") FROM " . TB_COMPRA;
+                $idCont = mysqli_query($conn, $queryGetLastId);
+                $nextId = 1;
+        
+                // Calcula el siguiente ID para la nueva entrada
+                if ($row = mysqli_fetch_row($idCont)) {
+                    $nextId = (int) trim($row[0]) + 1;
+                }
+                
+                // Si la fecha de creación está vacía, asignar la fecha actual
+                if (empty($compraFechaCreacion)) {
+                    $compraFechaCreacion = date('Y-m-d H:i:s'); // Formato de fecha y hora actual
+                }
+
+                    // Si la fecha de modificación está vacía, asignar la fecha actual
+                if (empty($compraFechaModificacion)) {
+                    $compraFechaModificacion = date('Y-m-d H:i:s'); // Formato de fecha y hora actual
+                }
+
+                // Crea una consulta SQL para insertar el registro
+                $queryInsert = "INSERT INTO " . TB_COMPRA . " ("
+                    . COMPRA_ID . ", "
+                    . COMPRA_NUMERO_FACTURA . ", "
+                    . COMPRA_PROVEEDOR_ID . ", "
+                    . COMPRA_MONTO_BRUTO . ", "
+                    . COMPRA_MONTO_NETO . ", "
+                    . COMPRA_TIPO_PAGO . ", "
+                    . COMPRA_FECHA_CREACION . ", "
+                    . COMPRA_FECHA_MODIFICACION . ", "
+                    . COMPRA_ESTADO
+                    . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, true)";
+                $stmt = mysqli_prepare($conn, $queryInsert);
+        
+                    // Obtener los valores de las propiedades del objeto $compra
+                    $compraNumeroFactura = $compra->getCompraNumeroFactura();
+                    $compraMontoBruto = $compra->getCompraMontoBruto();
+                    $compraMontoNeto = $compra->getCompraMontoNeto();
+                    $compraTipoPago = $compra->getCompraTipoPago();
+                    $proveedorID = $compra->getProveedorID();
+                    $compraFechaCreacion = $compra->getCompraFechaCreacion();
+                    $compraFechaModificacion = $compra->getCompraFechaModificacion();
+
+                // Asigna los valores a cada '?' de la consulta
+                mysqli_stmt_bind_param(
+                    $stmt,
+                    'isiddsss', // i: Entero, s: Cadena, d: Decimal
+                    $nextId,
+                    $compraNumeroFactura, 
+                    $proveedorID,
+                    $compraMontoBruto,
+                    $compraMontoNeto,
+                    $compraTipoPago,
+                    $compraFechaCreacion,
+                    $compraFechaModificacion
+                );
+                $result = mysqli_stmt_execute($stmt);
+
+                    // Confirmar la transacción
+            if ($createdConnection) { mysqli_commit($conn); }
+        
+                return ["success" => true, "message" => "Compra insertada exitosamente"];
+            } catch (Exception $e) {
+                if (isset($conn) && $createdConnection) { mysqli_rollback($conn); }
+
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al insertar la compra en la base de datos',
+                    $this->className
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra el statement y la conexión si están definidos
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn) && $createdConnection) { mysqli_close($conn); }
+            }
+        }
             
-            
-                /**
+        /**
          * Actualiza la información de un producto en la base de datos.
          *
          * @param Compra $producto El objeto Producto que contiene la información actualizada.
@@ -332,9 +328,8 @@
                 }
             }
         }
-        
 
- /**
+        /**
          * Elimina un producto de la base de datos.
          *
          * Este método realiza un borrado lógico del producto en la base de datos, 
@@ -349,10 +344,10 @@
          *               proporciona información adicional.
          * @throws Exception Si ocurre un error durante la operación.
          */
-
-         public function deleteCompra($compraID, $conn = null) {
+        public function deleteCompra($compraID, $conn = null) {
             $createdConnection = false;
             $stmt = null;
+           
             try {
                 // Verifica que el ID no esté vacío y sea numérico
                 if (empty($compraID) || !is_numeric($compraID) || $compraID <= 0) {
@@ -420,9 +415,7 @@
                 }
             }
         }
-        
-        
-
+    
         /**
          * Obtiene todos los productos de la tabla TB_PRODUCTO.
          *
@@ -440,8 +433,7 @@
          * @throws Exception Si ocurre un error al obtener la marca del producto.
          * @throws Exception Si ocurre un error al obtener la presentación del producto.
          */
-
-         public function getAllTBCompra($onlyActive = false, $deleted = false) {
+        public function getAllTBCompra($onlyActive = false, $deleted = false) {
             $conn = null;
             try {
                 // Establecer una conexión con la base de datos
@@ -503,10 +495,8 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
-        
-        
 
-/**
+        /**
          * Obtiene una lista paginada de productos desde la base de datos.
          *
          * @param string $search Término de búsqueda para filtrar productos por nombre o código de barras.
@@ -528,118 +518,118 @@
          * @throws Exception Si ocurre un error al obtener la conexión a la base de datos o al ejecutar las consultas.
          */
 
- public function getPaginatedCompras($search, $page, $size, $sort = null, $onlyActive = false, $deleted = false) {
-    $conn = null; $stmt = null;
-    try {
+        public function getPaginatedCompras($search, $page, $size, $sort = null, $onlyActive = false, $deleted = false) {
+            $conn = null; $stmt = null;
+            try {
 
-          // Calcular el offset para la paginación
-          $offset = ($page - 1) * $size;
+                    // Calcular el offset para la paginación
+                    $offset = ($page - 1) * $size;
 
-          // Establece una conexión con la base de datos
-          $result = $this->getConnection();
-          if (!$result["success"]) {
-              throw new Exception($result["message"]); }
-          $conn = $result["connection"];
-              
-        // Consultar el total de registros en la tabla
-        $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_COMPRA;
-        if ($onlyActive) { $queryTotalCount .= " WHERE " . COMPRA_ESTADO . " != false" . ($deleted ? 'TRUE' : 'FALSE'); }
+                    // Establece una conexión con la base de datos
+                    $result = $this->getConnection();
+                    if (!$result["success"]) {
+                        throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                        
+                // Consultar el total de registros en la tabla
+                $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_COMPRA;
+                if ($onlyActive) { $queryTotalCount .= " WHERE " . COMPRA_ESTADO . " != false" . ($deleted ? 'TRUE' : 'FALSE'); }
 
-        $totalResult = mysqli_query($conn, $queryTotalCount);
-        $totalRow = mysqli_fetch_assoc($totalResult);
-        $totalRecords = (int) $totalRow['total'];
-        $totalPages = ceil($totalRecords / $size);
+                $totalResult = mysqli_query($conn, $queryTotalCount);
+                $totalRow = mysqli_fetch_assoc($totalResult);
+                $totalRecords = (int) $totalRow['total'];
+                $totalPages = ceil($totalRecords / $size);
 
-        // Construir la consulta SQL con joins para obtener nombres en lugar de IDs
-        $querySelect = "
-            SELECT 
-                c." . COMPRA_ID . ", 
-                c." . COMPRA_NUMERO_FACTURA . ",
-                pr.proveedornombre AS proveedorNombre,
-                c." . COMPRA_MONTO_BRUTO . ", 
-                c." . COMPRA_MONTO_NETO . ", 
-                c." . COMPRA_TIPO_PAGO . ", 
-                c." . COMPRA_FECHA_CREACION . ", 
-                c." . COMPRA_FECHA_MODIFICACION . ", 
-                c." . COMPRA_ESTADO . "
-            FROM " . TB_COMPRA . " c
-            JOIN tbproveedor pr ON c." . COMPRA_PROVEEDOR_ID .  " = pr.proveedorid
-            WHERE c." . COMPRA_ESTADO . " != false
-           
-        ";
-         // Filtro de búsqueda
-         $params = [];
-         $types = "";
-         if ($search) {
-             $querySelect .= " WHERE (c." . COMPRA_NUMERO_FACTURA . " LIKE ? OR pr.proveedornombre LIKE ?)";
-             $searchParam = "%" . $search . "%";
-             $params = [$searchParam, $searchParam];
-             $types .= "ss";
-         }
+                // Construir la consulta SQL con joins para obtener nombres en lugar de IDs
+                $querySelect = "
+                    SELECT 
+                        c." . COMPRA_ID . ", 
+                        c." . COMPRA_NUMERO_FACTURA . ",
+                        pr.proveedornombre AS proveedorNombre,
+                        c." . COMPRA_MONTO_BRUTO . ", 
+                        c." . COMPRA_MONTO_NETO . ", 
+                        c." . COMPRA_TIPO_PAGO . ", 
+                        c." . COMPRA_FECHA_CREACION . ", 
+                        c." . COMPRA_FECHA_MODIFICACION . ", 
+                        c." . COMPRA_ESTADO . "
+                    FROM " . TB_COMPRA . " c
+                    JOIN tbproveedor pr ON c." . COMPRA_PROVEEDOR_ID .  " = pr.proveedorid
+                    WHERE c." . COMPRA_ESTADO . " != false
+                    
+                ";
+                    // Filtro de búsqueda
+                    $params = [];
+                    $types = "";
+                    if ($search) {
+                        $querySelect .= " WHERE (c." . COMPRA_NUMERO_FACTURA . " LIKE ? OR pr.proveedornombre LIKE ?)";
+                        $searchParam = "%" . $search . "%";
+                        $params = [$searchParam, $searchParam];
+                        $types .= "ss";
+                    }
 
-         // Ordenamiento
-        if ($sort) {
-            $querySelect .= " ORDER BY c." . $sort . " ";
-        } else {
-            $querySelect .= " ORDER BY c." . COMPRA_ID . " DESC";
+                    // Ordenamiento
+                if ($sort) {
+                    $querySelect .= " ORDER BY c." . $sort . " ";
+                } else {
+                    $querySelect .= " ORDER BY c." . COMPRA_ID . " DESC";
+                }
+
+                // Agregar límites a la consulta
+                $querySelect .= " LIMIT ? OFFSET ?";
+                $params = array_merge($params, [$size, $offset]);
+                $types .= "ii";
+
+                // Preparar la consulta y vincular los parámetros
+                $stmt = mysqli_prepare($conn, $querySelect);
+                mysqli_stmt_bind_param($stmt, $types, ...$params);
+                mysqli_stmt_execute($stmt);
+
+                // Obtener el resultado
+                $result = mysqli_stmt_get_result($stmt);
+
+                // Crear la lista de lotes
+                $listaCompras = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $listaCompras[] = [
+                        'ID' => $row[COMPRA_ID],                    
+                        'NumeroFactura' => $row[COMPRA_NUMERO_FACTURA], 
+                        'Proveedor' => $row['proveedorNombre'],
+                        'MontoBruto' => $row[COMPRA_MONTO_BRUTO],   
+                        'MontoNeto' => $row[COMPRA_MONTO_NETO],     
+                        'TipoPago' => $row[COMPRA_TIPO_PAGO],       
+                        'FechaCreacion' => $row[COMPRA_FECHA_CREACION], 
+                        'FechaModificacion' => $row[COMPRA_FECHA_MODIFICACION], 
+                        'Estado' => $row[COMPRA_ESTADO]             
+                    ];
+                }
+
+                // Devolver el resultado con la lista de direcciones y metadatos de paginación
+                return [
+                    "success" => true,
+                    "page" => $page,
+                    "size" => $size,
+                    "totalPages" => $totalPages,
+                    "totalRecords" => $totalRecords,
+                    "listaCompras" => $listaCompras
+                ];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener la lista de productos desde la base de datos',
+                    $this->className
+                );
+
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cerrar la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn)) { mysqli_close($conn); }
+            }
         }
 
-        // Agregar límites a la consulta
-        $querySelect .= " LIMIT ? OFFSET ?";
-        $params = array_merge($params, [$size, $offset]);
-        $types .= "ii";
-
-        // Preparar la consulta y vincular los parámetros
-        $stmt = mysqli_prepare($conn, $querySelect);
-        mysqli_stmt_bind_param($stmt, $types, ...$params);
-        mysqli_stmt_execute($stmt);
-
-        // Obtener el resultado
-        $result = mysqli_stmt_get_result($stmt);
-
-        // Crear la lista de lotes
-        $listaCompras = [];
-        while ($row = mysqli_fetch_assoc($result)) {
-            $listaCompras[] = [
-                'ID' => $row[COMPRA_ID],                    
-                'NumeroFactura' => $row[COMPRA_NUMERO_FACTURA], 
-                'Proveedor' => $row['proveedorNombre'],
-                'MontoBruto' => $row[COMPRA_MONTO_BRUTO],   
-                'MontoNeto' => $row[COMPRA_MONTO_NETO],     
-                'TipoPago' => $row[COMPRA_TIPO_PAGO],       
-                'FechaCreacion' => $row[COMPRA_FECHA_CREACION], 
-                'FechaModificacion' => $row[COMPRA_FECHA_MODIFICACION], 
-                'Estado' => $row[COMPRA_ESTADO]             
-            ];
-        }
-
-        // Devolver el resultado con la lista de direcciones y metadatos de paginación
-        return [
-            "success" => true,
-            "page" => $page,
-            "size" => $size,
-            "totalPages" => $totalPages,
-            "totalRecords" => $totalRecords,
-            "listaCompras" => $listaCompras
-        ];
-    } catch (Exception $e) {
-        // Manejo del error dentro del bloque catch
-        $userMessage = $this->handleMysqlError(
-            $e->getCode(), $e->getMessage(),
-            'Error al obtener la lista de productos desde la base de datos',
-            $this->className
-        );
-
-      // Devolver mensaje amigable para el usuario
-      return ["success" => false, "message" => $userMessage];
-    } finally {
-        // Cerrar la conexión y el statement
-        if (isset($stmt)) { mysqli_stmt_close($stmt); }
-        if (isset($conn)) { mysqli_close($conn); }
-    }
-}
-
-/**
+        /**
          * Obtiene la información de un producto por su ID.
          *
          * @param int $productoID El ID del producto a buscar.
@@ -651,36 +641,35 @@
          *               - "producto" (Producto|null): Un objeto Producto con la información del producto, si se encontró.
          * @throws Exception Si ocurre un error durante la ejecución.
          */
-
-         public function getCompraByID($compraID, $onlyActive = true, $deleted = false) {
+        public function getCompraByID($compraID, $onlyActive = true, $deleted = false) {
             $conn = null; $stmt = null;
             try {
-               // Verificar si el producto existe en la base de datos
-               $check = $this->compraExiste($compraID);
-               if (!$check["success"]) { throw new Exception($check["message"]); }
+                // Verificar si el producto existe en la base de datos
+                $check = $this->compraExiste($compraID);
+                if (!$check["success"]) { throw new Exception($check["message"]); }
 
-               // En caso de no existir
-               if (!$check["exists"]) {
-                   $message = "La compra con 'ID [$compraID]' no existe en la base de datos.";
-                   Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
-                   return ["success" => true, "message" => "La compra seleccionado no existe en la base de datos."];
-               }
-       
-               // Establece una conexión con la base de datos
-               $result = $this->getConnection();
-               if (!$result["success"]) { throw new Exception($result["message"]); }
-               $conn = $result["connection"];
-    
+                // En caso de no existir
+                if (!$check["exists"]) {
+                    $message = "La compra con 'ID [$compraID]' no existe en la base de datos.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    return ["success" => true, "message" => "La compra seleccionado no existe en la base de datos."];
+                }
+        
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+
                 // Obtenemos la información de la compra
                 $querySelect = "
                 SELECT * FROM " . TB_COMPRA . " WHERE " . COMPRA_ID . " = ? AND " . COMPRA_ESTADO . " != false";
                 $stmt = mysqli_prepare($conn, $querySelect);
-    
+
                 // Asignar los parámetros y ejecutar la consulta
                 mysqli_stmt_bind_param($stmt, 'i', $compraID);
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
-    
+
                 // Verifica si existe algún registro con los criterios dados
                 $compra = null;
                 if ($row = mysqli_fetch_assoc($result)) {
@@ -703,8 +692,8 @@
                 Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
                 return ["success" => false, "message" => "No se encontró la compra seleccionado en la base de datos."];
             } catch (Exception $e) {
-                 // Manejo del error dentro del bloque catch
-                 $userMessage = $this->handleMysqlError(
+                    // Manejo del error dentro del bloque catch
+                    $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
                     'Error al obtener el compra de la base de datos',
                     $this->className
@@ -719,68 +708,65 @@
             }
         }
 
-
-public function getAllTBCompraDetalleCompra() {
-    $response = [];
-    try {
-        // Establece una conexión con la base de datos
-        $result = $this->getConnection();
-        if (!$result["success"]) {
-            throw new Exception($result["message"]);
-        }
-        $conn = $result["connection"];
-
-        // Construir la consulta SQL con joins para obtener nombres en lugar de IDs
-        $querySelect = "SELECT " . COMPRA_ID . ", " . COMPRA_NUMERO_FACTURA . " FROM " . TB_COMPRA . " WHERE " . COMPRA_ESTADO . " !=false"; 
-        $result = mysqli_query($conn, $querySelect);
-
-        // Crear la lista con los datos obtenidos
-        $listaCompraDetalleCompra = [];
-        while ($row = mysqli_fetch_assoc($result)) {
-            $listaCompraDetalleCompra [] = [
-               "ID" =>  $row[COMPRA_ID],                  
-            "NumeroFactura" => $row[COMPRA_NUMERO_FACTURA],         
-            ];
-        }
-        return ["success" => true, "listaCompraDetalleCompra" => $listaCompraDetalleCompra];
-    } catch (Exception $e) {
-        // Manejo del error dentro del bloque catch
-        $userMessage = $this->handleMysqlError(
-            $e->getCode(), 
-            $e->getMessage(),
-            'Error al obtener la lista de compras desde la base de datos'
-        );
-
-        // Devolver mensaje amigable para el usuario
-        $response = ["success" => false, "message" => $userMessage];
-    } finally {
-        // Cerramos la conexión
-        if (isset($conn)) { mysqli_close($conn); }
-    }
-    return $response;
-}
-          
-              
-
-                private function existeNumeroFactura($numeroFactura) {
-                    $conn = $this->getConnection();
-                    if (!$conn["success"]) {
-                        return $conn;
-                    }
-                
-                    $query = "SELECT 1 FROM " . TB_COMPRA . " WHERE " . COMPRA_NUMERO_FACTURA . " = ?";
-                    $stmt = mysqli_prepare($conn['connection'], $query);
-                    mysqli_stmt_bind_param($stmt, 's', $numeroFactura);
-                    mysqli_stmt_execute($stmt);
-                    $result = mysqli_stmt_get_result($stmt);
-                    $exists = mysqli_num_rows($result) > 0;
-                
-                    mysqli_stmt_close($stmt);
-                    mysqli_close($conn['connection']);
-                
-                    return ["success" => true, "exists" => $exists];
+        public function getAllTBCompraDetalleCompra() {
+            $response = [];
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
                 }
+                $conn = $result["connection"];
 
-                
+                // Construir la consulta SQL con joins para obtener nombres en lugar de IDs
+                $querySelect = "SELECT " . COMPRA_ID . ", " . COMPRA_NUMERO_FACTURA . " FROM " . TB_COMPRA . " WHERE " . COMPRA_ESTADO . " !=false"; 
+                $result = mysqli_query($conn, $querySelect);
+
+                // Crear la lista con los datos obtenidos
+                $listaCompraDetalleCompra = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $listaCompraDetalleCompra [] = [
+                        "ID" =>  $row[COMPRA_ID],                  
+                    "NumeroFactura" => $row[COMPRA_NUMERO_FACTURA],         
+                    ];
+                }
+                return ["success" => true, "listaCompraDetalleCompra" => $listaCompraDetalleCompra];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), 
+                    $e->getMessage(),
+                    'Error al obtener la lista de compras desde la base de datos'
+                );
+
+                // Devolver mensaje amigable para el usuario
+                $response = ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cerramos la conexión
+                if (isset($conn)) { mysqli_close($conn); }
+            }
+            return $response;
         }
+
+        private function existeNumeroFactura($numeroFactura) {
+            $conn = $this->getConnection();
+            if (!$conn["success"]) {
+                return $conn;
+            }
+        
+            $query = "SELECT 1 FROM " . TB_COMPRA . " WHERE " . COMPRA_NUMERO_FACTURA . " = ?";
+            $stmt = mysqli_prepare($conn['connection'], $query);
+            mysqli_stmt_bind_param($stmt, 's', $numeroFactura);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+            $exists = mysqli_num_rows($result) > 0;
+        
+            mysqli_stmt_close($stmt);
+            mysqli_close($conn['connection']);
+        
+            return ["success" => true, "exists" => $exists];
+        }
+            
+    }
+
 ?>
