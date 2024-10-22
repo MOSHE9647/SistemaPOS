@@ -1,12 +1,17 @@
 import { mostrarMensaje } from "../gui/notification.js";
 import { eliminarCSS, importarCSS } from "../utils.js";
+import { cargarCategorias } from "./categoria/main.js";
 import { cargarRoles } from "./rol/main.js";
 
 const vistas = {
     roles: {
         css: './view/static/css/view/rol.css',
         script: cargarRoles,
-    }
+    },
+    categorias: {
+        css: './view/static/css/view/categoria.css',
+        script: cargarCategorias,
+    },
 };
 
 // Función para cargar la vista de CRUD

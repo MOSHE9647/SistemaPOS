@@ -14,27 +14,20 @@
     $mainTables = [
         'roles.php' => 'Roles de Usuario',
         'impuestos.php' => 'Impuestos',
-        'proveedores.php' => 'Proveedores',
-        'direcciones.php' => 'Direcciones',
-        'telefonos.php' => 'Teléfonos',
         'categorias.php' => 'Categorías',
         'subcategorias.php' => 'Subcategorías',
-        'lotes.php' => 'Lotes',
+        'presentaciones.php'=> 'Presentaciones',
+        'marcas.php'=> 'Marcas',
         'compras.php' => 'Compras',
         'cuentasporpagar.php' => 'Cuentas por Pagar',
         'compradetalle.php' => 'Detalle de Compras',
-        'presentaciones.php'=> 'Presentaciones',
-        'marcas.php'=> 'Marcas',
     ];
 
     // Array de enlaces intermedios
     $intermediateTables = [
         'productoSubcategoria.php' => 'Producto-Subcategorías',
-        'proveedorDireccion.php' => 'Proveedor-Direcciones',
-        'proveedorTelefono.php' => 'Proveedor-Teléfonos',
         'proveedorProducto.php' => 'Proveedor-Productos',
         'proveedorCategoria.php' => 'Proveedor-Categoría',
-        'usuarioTelefono.php' => 'Usuario-Teléfonos',
     ];
 
     // Función para generar la lista de enlaces
