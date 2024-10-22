@@ -43,18 +43,22 @@ export function renderTable(listaClientes) {
         const numero = cliente.Telefono.Numero;
         const extension = cliente.Telefono.Extension ? `ext. ${cliente.Telefono.Extension}` : '';
         const telefonoCompleto = `${codigoPais} ${numero} ${extension}`;
+        const tieneUsuario = cliente.Usuario ? true : false;
 
         // Crear una fila para el cliente
         let row = `
             <tr data-id="${cliente.ID}">
+            ${tieneUsuario ? `
+                <td data-field="usuarioemail">${cliente.Usuario.Email}</td>
+            ` : ''}
             <td data-field="nombre">${cliente.Nombre}</td>
             <td data-field="alias">${cliente.Alias}</td>
             <td data-field="telefono">${telefonoCompleto}</td>
             <td data-field="telefonotipo">${cliente.Telefono.Tipo}</td>
-                ${isAdmin ? `
-                    <td data-field="creacion" data-iso="${cliente.CreacionISO}">${cliente.Creacion}</td>
-                    <td data-field="modificacion" data-iso="${cliente.ModificacionISO}">${cliente.Modificacion}</td>
-                ` : ''}
+            ${isAdmin ? `
+                <td data-field="creacion" data-iso="${cliente.CreacionISO}">${cliente.Creacion}</td>
+                <td data-field="modificacion" data-iso="${cliente.ModificacionISO}">${cliente.Modificacion}</td>
+            ` : ''}
             <td class="actions">
                 <button class="btn-edit las la-edit" onclick="gui.editCliente(${cliente.ID})"></button>
                 <button class="btn-delete las la-trash" onclick="deleteCliente(${cliente.ID})"></button>

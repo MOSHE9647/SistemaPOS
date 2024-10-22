@@ -4,6 +4,7 @@
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
     require_once dirname(__DIR__, 1) . '/utils/Variables.php';
     require_once dirname(__DIR__, 1) . '/domain/Cliente.php';
+    require_once dirname(__DIR__, 1) . '/domain/Usuario.php';
     require_once dirname(__DIR__, 1) . '/domain/Telefono.php';
 
     class ClienteData extends Data {
@@ -168,7 +169,8 @@
                         . CLIENTE_ID . ", "
                         . CLIENTE_NOMBRE . ", "
                         . CLIENTE_ALIAS . ", "
-                        . CLIENTE_TELEFONO_ID . 
+                        . CLIENTE_TELEFONO_ID . ", "
+                        . CLIENTE_USUARIO_ID . 
                     ") VALUES (?, ?, ?, ?)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
 
@@ -176,9 +178,10 @@
                 $clienteNombre = $cliente->getClienteNombre();
                 $clienteAlias = $cliente->getClienteAlias();
                 $clienteTelefonoID = $clienteTelefono->getTelefonoID();
+                $clienteUsuarioID = $cliente->getClienteUsuario()->getUsuarioID() ?? -1;
 
                 // Asignar los parámetros y ejecutar la consulta
-                mysqli_stmt_bind_param($stmt, "issi", $nextId, $clienteNombre, $clienteAlias, $clienteTelefonoID);
+                mysqli_stmt_bind_param($stmt, "issii", $nextId, $clienteNombre, $clienteAlias, $clienteTelefonoID, $clienteUsuarioID);
                 mysqli_stmt_execute($stmt);
 
                 // Confirmar la transacción
@@ -258,6 +261,7 @@
                         . CLIENTE_NOMBRE . " = ?, "
                         . CLIENTE_ALIAS . " = ?, "
                         . CLIENTE_TELEFONO_ID . " = ?, "
+                        . CLIENTE_USUARIO_ID . " = ?, "
                         . CLIENTE_ESTADO . " = TRUE "
                     . "WHERE " . CLIENTE_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
@@ -265,9 +269,10 @@
                 // Obtener los valores del objeto Cliente
                 $clienteNombre = $cliente->getClienteNombre();
                 $clienteAlias = $cliente->getClienteAlias();
+                $clienteUsuarioID = $cliente->getClienteUsuario()->getUsuarioID() ?? -1;
 
                 // Asignar los parámetros y ejecutar la consulta
-                mysqli_stmt_bind_param($stmt, "ssii", $clienteNombre, $clienteAlias, $clienteTelefonoID, $clienteID);
+                mysqli_stmt_bind_param($stmt, "ssiii", $clienteNombre, $clienteAlias, $clienteTelefonoID, $clienteUsuarioID, $clienteID);
                 mysqli_stmt_execute($stmt);
 
                 // Confirmar la transacción
@@ -389,6 +394,7 @@
                         $row[CLIENTE_NOMBRE],
                         $row[CLIENTE_ALIAS],
                         $telefono["telefono"],
+                        new Usuario($row[CLIENTE_USUARIO_ID]),
                         $row[CLIENTE_FECHA_CREACION],
                         $row[CLIENTE_FECHA_MODIFICACION],
                         $row[CLIENTE_ESTADO]
@@ -441,22 +447,22 @@
                 // Construir la consulta SQL para paginación
                 $querySelect = "
                     SELECT 
-                        c." . CLIENTE_ID . ",
-                        c." . CLIENTE_NOMBRE . ",
-                        c." . CLIENTE_ALIAS . ",
-                        c." . CLIENTE_TELEFONO_ID . ", 
-                        c." . CLIENTE_FECHA_CREACION . ", 
-                        c." . CLIENTE_FECHA_MODIFICACION . ",
-                        c." . CLIENTE_ESTADO . ",
-                        t." . TELEFONO_TIPO . ",
-                        t." . TELEFONO_CODIGO_PAIS . ",
-                        t." . TELEFONO_NUMERO . ",
-                        t." . TELEFONO_EXTENSION . ",
-                        CONCAT(t." . TELEFONO_CODIGO_PAIS . ", ' ', t." . TELEFONO_NUMERO . ") AS telefono
+                        c.*,
+                        t.*,
+                        u.*,
+                        r.*,
+                        u." . USUARIO_EMAIL . " AS email,
+                        CONCAT(t." . TELEFONO_CODIGO_PAIS . ", ' ', t." . TELEFONO_NUMERO . ") AS telefono,
+                        CONCAT(u." . USUARIO_NOMBRE . ", ' ', u." . USUARIO_APELLIDO_1 . ", ' ', u." . USUARIO_APELLIDO_2 . ") AS usuario
                     FROM " . 
                         TB_CLIENTE . " c 
                     INNER JOIN " . TB_TELEFONO . " t 
-                        ON c." . CLIENTE_TELEFONO_ID . " = t." . TELEFONO_ID
+                        ON c." . CLIENTE_TELEFONO_ID . " = t." . TELEFONO_ID . " 
+                    LEFT JOIN " . TB_USUARIO . " u 
+                        ON c." . CLIENTE_USUARIO_ID . " = u." . USUARIO_ID . "
+                    LEFT JOIN " . TB_ROL . " r 
+                        ON u." . USUARIO_ROL_ID . " = r." . ROL_ID . "
+                    "
                 ;
 
                 // Agregar filtro de búsqueda a la consulta
@@ -464,10 +470,12 @@
                 $types = "";
                 if ($search) {
                     $querySelect .= " WHERE (" . CLIENTE_NOMBRE . " LIKE ?";
-                    $querySelect .= " OR CONCAT(t." . TELEFONO_CODIGO_PAIS . ", ' ', t." . TELEFONO_NUMERO . ") LIKE ?)";
+                    $querySelect .= " OR telefono LIKE ?";
+                    $querySelect .= " OR email LIKE ?";
+                    $querySelect .= " OR usuario LIKE ?)";
                     $searchParam = "%" . $search . "%";
-                    $params = [$searchParam, $searchParam];
-                    $types .= "ss";
+                    $params = [$searchParam, $searchParam, $searchParam];
+                    $types .= "sss";
                 }
 
                 // Agregar filtro de estado a la consulta
@@ -477,14 +485,15 @@
                 }
 
                 // Agregar ordenamiento a la consulta
-                if ($sort) { 
-                    if ($sort === 'telefono') {
-                        $querySelect .= " ORDER BY t." . TELEFONO_CODIGO_PAIS . ", t." . TELEFONO_NUMERO . " ";
+                if ($sort) {
+                    $allowedSortFields = ['telefono', 'usuario', 'email'];
+                    if (in_array($sort, $allowedSortFields)) {
+                        $querySelect .= " ORDER BY $sort ";
                     } else {
-                        $querySelect .= " ORDER BY c.cliente" . $sort . " ";
+                        $querySelect .= " ORDER BY c.cliente$sort";
                     }
-                } else { 
-                    $querySelect .= " ORDER BY " . CLIENTE_ID . " DESC"; 
+                } else {
+                    $querySelect .= " ORDER BY " . CLIENTE_ID . " DESC";
                 }
 
                 // Agregar límites a la consulta
@@ -503,6 +512,25 @@
                 // Crear un array para almacenar los clientes
                 $clientes = [];
                 while ($row = mysqli_fetch_assoc($result)) {
+                    $usuarioID = $row[CLIENTE_USUARIO_ID];
+                    $clienteUsuario = $usuarioID != -1 ? new Usuario(
+                        $usuarioID,
+                        $row[USUARIO_NOMBRE],
+                        $row[USUARIO_APELLIDO_1],
+                        $row[USUARIO_APELLIDO_2],
+                        new RolUsuario(
+                            $row[USUARIO_ROL_ID],
+                            $row[ROL_NOMBRE],
+                            $row[ROL_DESCRIPCION],
+                            $row[ROL_ESTADO]
+                        ),
+                        $row['email'],
+                        $row[USUARIO_PASSWORD],
+                        $row[USUARIO_FECHA_CREACION],
+                        $row[USUARIO_FECHA_MODIFICACION],
+                        $row[USUARIO_ESTADO]
+                    ) : null;
+
                     $clientes[] = new Cliente(
                         $row[CLIENTE_ID], 
                         $row[CLIENTE_NOMBRE],
@@ -514,6 +542,7 @@
                             $row[TELEFONO_NUMERO],
                             $row[TELEFONO_EXTENSION]
                         ),
+                        $clienteUsuario,
                         $row[CLIENTE_FECHA_CREACION],
                         $row[CLIENTE_FECHA_MODIFICACION],
                         $row[CLIENTE_ESTADO]
@@ -596,6 +625,7 @@
                         $row[CLIENTE_NOMBRE],
                         $row[CLIENTE_ALIAS],
                         $telefono["telefono"],
+                        new Usuario($row[CLIENTE_USUARIO_ID]),
                         $row[CLIENTE_FECHA_CREACION],
                         $row[CLIENTE_FECHA_MODIFICACION],
                         $row[CLIENTE_ESTADO]
@@ -666,6 +696,7 @@
                         $row[CLIENTE_NOMBRE],
                         $row[CLIENTE_ALIAS],
                         $telefono["telefono"],
+                        new Usuario($row[CLIENTE_USUARIO_ID]),
                         $row[CLIENTE_FECHA_CREACION],
                         $row[CLIENTE_FECHA_MODIFICACION],
                         $row[CLIENTE_ESTADO]
