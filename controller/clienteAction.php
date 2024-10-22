@@ -28,8 +28,8 @@
         $cliente = new Cliente($clienteID, $nombre, $alias, $telefono);
 
         // Realizar la acción solicitada si los datos son válidos
-        $checkCliente = $clienteBusiness->validarCliente($cliente, $accion !== 'eliminar', $accion === 'insertar');
-        if ($checkCliente['is_valid']) {
+        $check = $clienteBusiness->validarCliente($cliente, $accion !== 'eliminar', $accion === 'insertar');
+        if ($check['is_valid']) {
             switch ($accion) {
                 case 'insertar':
                     $response = $clienteBusiness->insertTBCliente($cliente);
@@ -41,10 +41,12 @@
                     $response = $clienteBusiness->deleteTBCliente($clienteID);
                     break;
                 default:
+                    // Error en caso de que la accion no sea válida
                     Utils::enviarRespuesta(400, false, "Acción no válida.");
                     break;
             }
         } else {
+            // Si los datos no son validos, se devuelve un mensaje de error
             Utils::enviarRespuesta(400, false, $check['message']);
         }
 
@@ -55,7 +57,7 @@
         exit();
     }
     
-    else if ($method == "GET") {
+    else if ($method === "GET") {
         // Parámetros de la solicitud
         $accion     = isset($_GET['accion'])    ? $_GET['accion']           : "";
         $deleted    = isset($_GET['deleted'])   ? boolval($_GET['deleted']) : false;
