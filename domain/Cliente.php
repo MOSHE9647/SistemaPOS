@@ -16,7 +16,7 @@
         private $clienteEstado;
 
         public function __construct(int $clienteID = -1, string $clienteNombre = "No Definido", $clienteAlias = "No Definido", 
-            Usuario $clienteUsuario = null, Telefono $clienteTelefono = null, $clienteFechaCreacion = "", $clienteFechaModificacion = "", 
+            Telefono $clienteTelefono = null, Usuario $clienteUsuario = null, $clienteFechaCreacion = "", $clienteFechaModificacion = "", 
             bool $clienteEstado = true) 
         {
             $this->clienteID = $clienteID;
