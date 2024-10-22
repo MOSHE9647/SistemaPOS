@@ -23,7 +23,7 @@ class CompraPorPagarData extends Data{
             }
             $conn = $result['connection'];
 
-            if($id <= 0 || is_numeric($id)){
+            if($id <= 0 || !is_numeric($id)){
                 throw new Exception("El id de la compra por pagar es invalido");
             }
 
@@ -53,6 +53,53 @@ class CompraPorPagarData extends Data{
                 if (isset($conn)) { mysqli_close($conn); }
         }
     }
+
+    function verificarCompraDetalle($compradetalleid, $update = false, $verificarEnCompraPorPagar = true,$compraPagarId = 0){
+        try{
+            $result = $this->getConnection();
+            if (!$result["success"]) { throw new Exception($result["message"]); }
+            $conn = $result["connection"];
+
+            if(empty($compradetalleid) || !is_numeric($compradetalleid) || $compradetalleid <= 0){
+                throw new Exception("La compra detalle no valida");
+            }
+            
+            $tablaVerificacion = ($verificarEnCompraPorPagar) ? TB_COMPRA_POR_PAGAR : TB_COMPRA_DETALLE;
+            $columVerificar = ($verificarEnCompraPorPagar) ? COMPRA_POR_PAGAR_COMPRA_DETALLE_ID : COMPRA_DETALLE_ID;
+
+            $query="SELECT " . COMPRA_DETALLE_ID . " FROM " . $tablaVerificacion ." WHERE " . $columVerificar. " = ? ";
+
+            $params=[$compradetalleid];
+            $types="i";
+
+            if($update && $verificarEnCompraPorPagar){
+                $query .= " AND ". COMPRA_POR_PAGAR_ID . " <> ? ";
+                $params = array_merge($params,[$compraPagarId]);
+                $types .="i";
+            }
+
+            $stmt = mysqli_prepare($conn,$query);
+            mysqli_stmt_bind_param($stmt,$types,$param);
+            mysqli_execute($stmt);
+            $resultado = mysqli_stmt_get_result($stmt);
+
+            if($row = mysqli_fetch_all($resultado)){
+                return ["success"=>true,"exists"=>True];
+            }
+            return ["success"=>true,"exists"=>false];
+        }catch(Exception $e){
+            $message = $this->handleMysqlError(
+                $e->getCode(),$e->getMessage(),
+                "Error al verificar la compra detalle"
+            );
+            return ["success"=>false, "message"=>$message];
+        }finally{
+            if (isset($stmt)) { mysqli_stmt_close($stmt); }
+            if (isset($conn)) { mysqli_close($conn); }
+        }
+
+    }
+
 
     function InsertarCompraPorPagar($compraPagar, $conn = null ){
         $nuevaConexion = false;
@@ -98,12 +145,30 @@ class CompraPorPagarData extends Data{
                 $detalleData = new CompraDetalleData();
                 $result = $detalleData->insertCompraDetalle($detalleCompra,$conn);
                 if($result["success"]){
-                    $ref_detalleID_final = $result["Id"];
+                    $ref_detalleID_final = $result["id"];
                 }else{
                     throw new Exception($result["message"]);
                 }
             }else{
                 $ref_detalleID_final = $detalleId;
+            }
+            
+            // verifica la compra detalle en la tabla TB_COMPRA_DETALLE
+            $result = $this->verificarCompraDetalle($ref_detalleID_final,false,false);
+            if(!$result["success"]){
+                return $result;
+            }
+            if(!$result["exists"]){
+                throw new Exception("La compra detalle no se ha creado.");
+            }
+
+            //verifica compra detalle en la tabla TB_COMPRA_POR_PAGAR
+            $result = $this->verificarCompraDetalle($ref_detalleID_final);
+            if(!$result["success"]){
+                return $result;
+            }
+            if($result["exists"]){
+                throw new Exception("La compra detalle ya esta añadida a otra compra por pagar.");
             }
 
             // Obtenemos el último ID de la tabla tbproducto
@@ -204,6 +269,24 @@ class CompraPorPagarData extends Data{
                 throw new  Exception("La fecha de vencimiento no es valida");
             }
 
+            // verifica la compra detalle en la tabla TB_COMPRA_DETALLE
+            $result = $this->verificarCompraDetalle($detalleId,false,false);
+            if(!$result["success"]){
+                return $result;
+            }
+            if(!$result["exists"]){
+                throw new Exception("La compra detalle no se ha creado.");
+            }
+
+            //verifica compra detalle en la tabla TB_COMPRA_POR_PAGAR
+            $result = $this->verificarCompraDetalle($detalleId,true,true,$id);
+            if(!$result["success"]){
+                return $result;
+            }
+            if($result["exists"]){
+                throw new Exception("La compra detalle ya esta añadida a otra compra por pagar.");
+            }
+
             $queryUdate = 
             "UPDATE " . TB_COMPRA_POR_PAGAR .
             " SET " .
@@ -246,7 +329,7 @@ class CompraPorPagarData extends Data{
                 $e->getCode(),$e->getMessage(),
                 "Error al actualizar la compra por pagar"
             );
-            return ["succes" => true, "message"=>$message];
+            return ["succes" => false, "message"=>$message];
         }finally{
              // Cierra la conexión y el statement
              if (isset($stmt)) { mysqli_stmt_close($stmt); }
@@ -482,7 +565,7 @@ class CompraPorPagarData extends Data{
                 $e->getCode(),$e->getMessage(),
                 "Error al obtener la compra por pagar de la base de datos"
             );
-            return ["success" => true, "message"=>$message];
+            return ["success" => false, "message"=>$message];
         }finally{
             if (isset($stmt)) { mysqli_stmt_close($stmt); }
             if (isset($conn)) { mysqli_close($conn); }

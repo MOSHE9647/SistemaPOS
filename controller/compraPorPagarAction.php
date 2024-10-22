@@ -13,8 +13,6 @@ if ($method == "POST") {
     if (empty($accion)) {
         Utils::enviarRespuesta(400, false, "No se ha especificado una acción.");
     }
-    
-    Utils::writeLog("Accion : ".$accion,BUSINESS_LOG_FILE);
 
     $id             = isset($_POST['id'])           ?intval($_POST['id'])               :-1;
     $detalleid      = isset($_POST['detalleid'])    ?intval($_POST['detalleid'])        :-1;

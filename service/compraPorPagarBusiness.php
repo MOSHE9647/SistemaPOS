@@ -25,22 +25,15 @@ class CompraPorPagarBussines{
             $notas = $compraPagar->getCompraPorPagarNotas();
             $estado = $compraPagar->getCompraPorPagarEstado();
             $errors = [];
-
-            if($update){
-                if(!is_numeric($id) || $id <= 0){
-                    $errors[] = "La compra por pagar no es valido";
-                }
-            }
-
          
             if ($validarCamposAdicionales) {
-                if($fechaVence === null || empty($fechaVence)){
+                if(($fechaVence === null || empty($fechaVence)) && !$update){
                     $errors[] = "La fecha de vencimiento no puede estar vacia";
                 }
                 if($fechaPago === null || empty($fechaPago)){
                     $errors[] = "La fecha de pago no puede estar vacia";
                 }
-                if(Utils::fechaMayorOIgualAHoy($fechaVence)){
+                if(!Utils::fechaMayorOIgualAHoy($fechaVence) && $update){
                     $errors[] = "La fecha de vencimiento debe ser mayor o igual a la actual";
                 }
                 if(empty($estadoCompra)){
