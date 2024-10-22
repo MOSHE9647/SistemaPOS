@@ -1,10 +1,10 @@
 <?php
 
-require_once dirname(__DIR__, 1) . '/data/data.php';
-require_once __DIR__ . '/../domain/CompraDetalle.php';
-require_once __DIR__ . '/../utils/Variables.php';
+    require_once dirname(__DIR__, 1) . '/data/data.php';
+    require_once __DIR__ . '/../domain/CompraDetalle.php';
+    require_once __DIR__ . '/../utils/Variables.php';
 
-class CompraDetalleData extends Data {
+    class CompraDetalleData extends Data {
   
         // Nombre de la clase
         private $className;
@@ -110,7 +110,6 @@ class CompraDetalleData extends Data {
             }
         }
         
-    
     public function updateCompraDetalle($compraDetalle) {
         try {
             $result = $this->getConnection();
@@ -561,8 +560,6 @@ class CompraDetalleData extends Data {
             if (isset($conn)) { mysqli_close($conn); }
         }
     }
-    
-    
                     
 }
 ?>
