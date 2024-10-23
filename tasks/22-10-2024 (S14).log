@@ -1,0 +1,18 @@
+'DISTRIBUCION DE TRABAJOS'
+El trabajo se distribuirá de la siguiente manera:
+    
+    1. Jason:   tbcompradetalle  y tbventadetalle        ['BACK']
+    2. Gonzalo: tbcompraporpagar y tbventaporcobrar      ['BACK']
+    3. Maikel:  tbcompra         y tbventa               ['BACK']
+    4. Javier:  tbcompra         y tbventa               ['BACK']
+    5. Isaac:   tbventadetalleproducto y front           ['FULL']
+
+Guiarse del data. business y controller de Producto para hacer sus códigos.
+Deben seguir la estructura de estos mismo y devolver las cosas de la misma manera.
+
+[INFO]
+    1. Isaac se va a encargar de la tabla 'tbventadetalleproducto' de manera completa y de modificar
+       todos los Domain de cada una de las clases para que se adapten a las nuevas tablas, además de reacomodar el front.
+    
+[WARN]
+    1. Tener el código listo a más tardar el lunes completamente funcional.
