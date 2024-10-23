@@ -18,7 +18,7 @@
             $this->impuestoID = $impuestoID;
             $this->impuestoNombre = strtoupper($impuestoNombre);
             $this->impuestoValor = Utils::formatearDecimal($impuestoValor);
-            $this->impuestoDescripcion = $impuestoDescripcion;
+            $this->impuestoDescripcion = ucfirst($impuestoDescripcion);
             $this->impuestoFechaInicioVigencia = $impuestoFechaInicioVigencia;
             $this->impuestoFechaFinVigencia = $impuestoFechaFinVigencia;
             $this->impuestoEstado = $impuestoEstado;
@@ -33,9 +33,9 @@
         function getImpuestoEstado(): bool { return $this->impuestoEstado; }
 
         function setImpuestoID(int $impuestoID) { $this->impuestoID = $impuestoID; }
-        function setImpuestoNombre(string $impuestoNombre) { $this->impuestoNombre = $impuestoNombre; }
-        function setImpuestoValor(float $impuestoValor) { $this->impuestoValor = $impuestoValor; }
-        function setImpuestoDescripcion(string $impuestoDescripcion) { $this->impuestoDescripcion = $impuestoDescripcion; }
+        function setImpuestoNombre(string $impuestoNombre) { $this->impuestoNombre = strtoupper($impuestoNombre); }
+        function setImpuestoValor(float $impuestoValor) { $this->impuestoValor = Utils::formatearDecimal($impuestoValor); }
+        function setImpuestoDescripcion(string $impuestoDescripcion) { $this->impuestoDescripcion = ucfirst($impuestoDescripcion); }
         function setImpuestoFechaInicioVigencia($impuestoFechaInicioVigencia) { $this->impuestoFechaInicioVigencia = $impuestoFechaInicioVigencia; }
         function setImpuestoFechaFinVigencia($impuestoFechaFinVigencia) { $this->impuestoFechaFinVigencia = $impuestoFechaFinVigencia; }
         function setImpuestoEstado(bool $impuestoEstado) { $this->impuestoEstado = $impuestoEstado; }

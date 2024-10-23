@@ -12,7 +12,7 @@
         public function __construct(int $marcaID = -1, string $marcaNombre = "", string $marcaDescripcion = "", bool $marcaEstado = true) {
             $this->marcaID = $marcaID;
             $this->marcaNombre = strtoupper($marcaNombre);
-            $this->marcaDescripcion = $marcaDescripcion;
+            $this->marcaDescripcion = ucfirst($marcaDescripcion);
             $this->marcaEstado = $marcaEstado;
         }
 
@@ -24,7 +24,7 @@
 
         public function setMarcaID(int $marcaID) { $this->marcaID = $marcaID; }
         public function setMarcaNombre(string $marcaNombre) { $this->marcaNombre = strtoupper($marcaNombre); }
-        public function setMarcaDescripcion(string $marcaDescripcion) { $this->marcaDescripcion = $marcaDescripcion; }
+        public function setMarcaDescripcion(string $marcaDescripcion) { $this->marcaDescripcion = ucfirst($marcaDescripcion); }
         public function setMarcaEstado(bool $marcaEstado) { $this->marcaEstado = $marcaEstado; }
 
         // JsonSerializable

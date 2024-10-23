@@ -10,7 +10,7 @@
         function __construct(int $categoriaID = -1, string $categoriaNombre = "", string $categoriaDescripcion = "", bool $categoriaEstado = true) {
             $this->categoriaID = $categoriaID;
             $this->categoriaNombre = strtoupper($categoriaNombre);
-            $this->categoriaDescripcion = $categoriaDescripcion;
+            $this->categoriaDescripcion = ucfirst($categoriaDescripcion);
             $this->categoriaEstado = $categoriaEstado;
         }
 
@@ -21,7 +21,7 @@
 
         function setCategoriaID(int $categoriaID) { $this->categoriaID = $categoriaID; }
         function setCategoriaNombre(string $categoriaNombre) { $this->categoriaNombre = strtoupper($categoriaNombre); }
-        function setCategoriaDescripcion(string $categoriaDescripcion) { $this->categoriaDescripcion = $categoriaDescripcion; }
+        function setCategoriaDescripcion(string $categoriaDescripcion) { $this->categoriaDescripcion = ucfirst($categoriaDescripcion); }
         function setCategoriaEstado(bool $categoriaEstado) { $this->categoriaEstado = $categoriaEstado; }
         
         function jsonSerialize() {

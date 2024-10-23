@@ -11,15 +11,15 @@
 
         private $productoID;
         private $productoCodigoBarras;
+        private $productoCategoria;
+        private $productoSubCategoria;
+        private $productoMarca;
+        private $productoPresentacion;
         private $productoNombre;
         private $productoCantidad;
         private $productoPrecioCompra;
         private $productoPorcentajeGanancia;
         private $productoDescripcion;
-        private $productoCategoria;
-        private $productoSubCategoria;
-        private $productoMarca;
-        private $productoPresentacion;
         private $productoImagen;
         private $productoFechaVencimiento;
         private $productoEstado;
@@ -36,7 +36,7 @@
             $this->productoCantidad = $productoCantidad;
             $this->productoPrecioCompra = Utils::formatearDecimal($productoPrecioCompra);
             $this->productoPorcentajeGanancia = Utils::formatearDecimal($productoPorcentajeGanancia);
-            $this->productoDescripcion = $productoDescripcion;
+            $this->productoDescripcion = ucfirst($productoDescripcion);
             $this->productoCategoria = $productoCategoria;
             $this->productoSubCategoria = $productoSubCategoria;
             $this->productoMarca = $productoMarca;
@@ -47,27 +47,27 @@
         }
 
         public function getProductoID(): int { return $this->productoID; }
-        public function getProductoCodigoBarras(): CodigoBarras { return $this->productoCodigoBarras; }
+        public function getProductoCodigoBarras(): ?CodigoBarras { return $this->productoCodigoBarras; }
         public function getProductoNombre(): string { return $this->productoNombre; }
         public function getProductoCantidad(): int { return $this->productoCantidad; }
         public function getProductoPrecioCompra(): float { return $this->productoPrecioCompra; }
         public function getProductoPorcentajeGanancia(): float { return $this->productoPorcentajeGanancia; }
         public function getProductoDescripcion(): string { return $this->productoDescripcion; }
-        public function getProductoCategoria(): Categoria { return $this->productoCategoria; }
-        public function getProductoSubCategoria(): Subcategoria { return $this->productoSubCategoria; }
-        public function getProductoMarca(): Marca { return $this->productoMarca; }
-        public function getProductoPresentacion(): Presentacion { return $this->productoPresentacion; }
+        public function getProductoCategoria(): ?Categoria { return $this->productoCategoria; }
+        public function getProductoSubCategoria(): ?Subcategoria { return $this->productoSubCategoria; }
+        public function getProductoMarca(): ?Marca { return $this->productoMarca; }
+        public function getProductoPresentacion(): ?Presentacion { return $this->productoPresentacion; }
         public function getProductoImagen() { return $this->productoImagen; }
         public function getProductoFechaVencimiento() { return $this->productoFechaVencimiento; }
         public function getProductoEstado(): bool { return $this->productoEstado; }
 
         public function setProductoID(int $productoID) { $this->productoID = $productoID; }
         public function setProductoCodigoBarras(CodigoBarras $productoCodigoBarras) { $this->productoCodigoBarras = $productoCodigoBarras; }
-        public function setProductoNombre(string $productoNombre) { $this->productoNombre = $productoNombre; }
+        public function setProductoNombre(string $productoNombre) { $this->productoNombre = strtoupper($productoNombre); }
         public function setProductoCantidad(int $productoCantidad) { $this->productoCantidad = $productoCantidad; }
-        public function setProductoPrecioCompra(float $productoPrecioCompra) { $this->productoPrecioCompra = $productoPrecioCompra; }
-        public function setProductoPorcentajeGanancia(float $productoPorcentajeGanancia) { $this->productoPorcentajeGanancia = $productoPorcentajeGanancia; }
-        public function setProductoDescripcion(string $productoDescripcion) { $this->productoDescripcion = $productoDescripcion; }
+        public function setProductoPrecioCompra(float $productoPrecioCompra) { $this->productoPrecioCompra = Utils::formatearDecimal($productoPrecioCompra); }
+        public function setProductoPorcentajeGanancia(float $productoPorcentajeGanancia) { $this->productoPorcentajeGanancia = Utils::formatearDecimal($productoPorcentajeGanancia); }
+        public function setProductoDescripcion(string $productoDescripcion) { $this->productoDescripcion = ucfirst($productoDescripcion); }
         public function setProductoCategoria(Categoria $productoCategoria) { $this->productoCategoria = $productoCategoria; }
         public function setProductoSubCategoria(Subcategoria $productoSubCategoria) { $this->productoSubCategoria = $productoSubCategoria; }
         public function setProductoMarca(Marca $productoMarca) { $this->productoMarca = $productoMarca; }
@@ -79,16 +79,16 @@
         public function jsonSerialize() {
             return [
                 'ID' => $this->productoID,
-                'CodigoBarras' => $this->productoCodigoBarras,
+                'CodigoBarras' => $this->productoCodigoBarras ? $this->productoCodigoBarras : null,
                 'Nombre' => $this->productoNombre,
                 'Cantidad' => $this->productoCantidad,
                 'PrecioCompra' => $this->productoPrecioCompra,
                 'PorcentajeGanancia' => $this->productoPorcentajeGanancia,
+                'Categoria' => $this->productoCategoria ? $this->productoCategoria : null,
+                'Subcategoria' => $this->productoSubCategoria ? $this->productoSubCategoria : null,
+                'Marca' => $this->productoMarca ? $this->productoMarca : null,
+                'Presentacion' => $this->productoPresentacion ? $this->productoPresentacion : null,
                 'Descripcion' => $this->productoDescripcion,
-                'Categoria' => $this->productoCategoria,
-                'Subcategoria' => $this->productoSubCategoria,
-                'Marca' => $this->productoMarca,
-                'Presentacion' => $this->productoPresentacion,
                 'Imagen' => $this->productoImagen,
                 'Vencimiento' => $this->productoFechaVencimiento ? Utils::formatearFecha($this->productoFechaVencimiento) : '',
                 'VencimientoISO' => $this->productoFechaVencimiento ? Utils::formatearFecha($this->productoFechaVencimiento, 'Y-MM-dd') : '',
