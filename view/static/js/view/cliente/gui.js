@@ -2,7 +2,6 @@
 // ************* Métodos para el manejo de la GUI ************* //
 // ************************************************************ //
 
-import { showLoader, hideLoader } from '../../gui/loader.js';
 import { mostrarMensaje } from '../../gui/notification.js';
 import { checkEmptyTable, manejarInputNumeroTelefono } from '../../utils.js';
 import { initializeSelects } from '../telefono/selects.js';
@@ -26,7 +25,6 @@ let clientes = [];
  * @returns {void}
  */
 export function renderTable(listaClientes) {
-    showLoader();
     clientes = listaClientes;
 
     // Obtener el cuerpo de la tabla
@@ -72,7 +70,6 @@ export function renderTable(listaClientes) {
 
     // Verificar si la tabla está vacía
     checkEmptyTable(tableBodyID, 'las la-user-times');
-    hideLoader();
 }
 
 /**

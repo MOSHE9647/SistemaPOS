@@ -163,8 +163,8 @@
                     . COMPRA_MONTO_BRUTO . ", "
                     . COMPRA_MONTO_NETO . ", "
                     . COMPRA_TIPO_PAGO . ", "
-                    . COMPRA_FECHA_CREACION . ", "
-                    . COMPRA_FECHA_MODIFICACION . ", "
+                    . COMPRA_CREACION . ", "
+                    . COMPRA_MODIFICACION . ", "
                     . COMPRA_ESTADO
                     . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, true)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
@@ -261,8 +261,8 @@
                     COMPRA_MONTO_BRUTO . " = ?, " .
                     COMPRA_MONTO_NETO . " = ?, " .
                     COMPRA_TIPO_PAGO . " = ?, " .
-                    COMPRA_FECHA_CREACION . " = ?, " .
-                    COMPRA_FECHA_MODIFICACION . " = ?, " .
+                    COMPRA_CREACION . " = ?, " .
+                    COMPRA_MODIFICACION . " = ?, " .
                     COMPRA_ESTADO . " = true " .
                     "WHERE " . COMPRA_ID . " = ?";
                 
@@ -471,8 +471,8 @@
                         $row[COMPRA_MONTO_NETO],
                         $row[COMPRA_TIPO_PAGO],
                         $proveedor, // Pasa el objeto Proveedor aquí
-                        $row[COMPRA_FECHA_CREACION],
-                        $row[COMPRA_FECHA_MODIFICACION],
+                        $row[COMPRA_CREACION],
+                        $row[COMPRA_MODIFICACION],
                         $row[COMPRA_ESTADO]
                     );
                     $compras[] = $compra;
@@ -549,8 +549,8 @@
                         c." . COMPRA_MONTO_BRUTO . ", 
                         c." . COMPRA_MONTO_NETO . ", 
                         c." . COMPRA_TIPO_PAGO . ", 
-                        c." . COMPRA_FECHA_CREACION . ", 
-                        c." . COMPRA_FECHA_MODIFICACION . ", 
+                        c." . COMPRA_CREACION . ", 
+                        c." . COMPRA_MODIFICACION . ", 
                         c." . COMPRA_ESTADO . "
                     FROM " . TB_COMPRA . " c
                     JOIN tbproveedor pr ON c." . COMPRA_PROVEEDOR_ID .  " = pr.proveedorid
@@ -597,8 +597,8 @@
                         'MontoBruto' => $row[COMPRA_MONTO_BRUTO],   
                         'MontoNeto' => $row[COMPRA_MONTO_NETO],     
                         'TipoPago' => $row[COMPRA_TIPO_PAGO],       
-                        'FechaCreacion' => $row[COMPRA_FECHA_CREACION], 
-                        'FechaModificacion' => $row[COMPRA_FECHA_MODIFICACION], 
+                        'FechaCreacion' => $row[COMPRA_CREACION], 
+                        'FechaModificacion' => $row[COMPRA_MODIFICACION], 
                         'Estado' => $row[COMPRA_ESTADO]             
                     ];
                 }
@@ -680,8 +680,8 @@
                         $row[COMPRA_MONTO_NETO],
                         $row[COMPRA_TIPO_PAGO],  
                         $row[COMPRA_PROVEEDOR_ID],
-                        $row[COMPRA_FECHA_CREACION],
-                        $row[COMPRA_FECHA_MODIFICACION],  
+                        $row[COMPRA_CREACION],
+                        $row[COMPRA_MODIFICACION],  
                         $row[COMPRA_ESTADO]
                     );
                     return ["success" => true, "compra" => $compra];

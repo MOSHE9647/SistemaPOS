@@ -140,14 +140,14 @@
             return $this->usuarioData->getPaginatedUsuarios($search, $page, $size, $sort, $onlyActive, $deleted);
         }
 
-        public function getUsuarioByID($usuarioID) {
+        public function getUsuarioByID($usuarioID, $onlyActive = true, $deleted = false) {
             // Verifica que el ID del usuario sea válido
             $checkID = $this->validarUsuarioID($usuarioID);
             if (!$checkID['is_valid']) {
                 return ["success" => $checkID["is_valid"], "message" => $checkID["message"]];
             }
 
-            return $this->usuarioData->getUsuarioByID($usuarioID);
+            return $this->usuarioData->getUsuarioByID($usuarioID, $onlyActive, $deleted);
         }
 
         public function getUsuarioByEmail($usuarioEmail) {

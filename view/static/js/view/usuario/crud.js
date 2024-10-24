@@ -46,9 +46,9 @@ async function obtenerUsuarioPorID(id, filter = true, deleted = false) {
  * @returns {Promise<void>}
  */
 export async function insertUsuario(formData) {
+    showLoader(); // Mostrar el loader
+    
     try {
-        showLoader(); // Mostrar el loader
-
         // Enviar la solicitud POST al servidor con los datos del usuario
         const response = await fetch(`${window.baseURL}/controller/usuarioAction.php`, {
             method: 'POST',
@@ -74,7 +74,7 @@ export async function insertUsuario(formData) {
             // Intentar actualizar el usuario existente
             const usuario = await obtenerUsuarioPorID(parseInt(data.id), true, true);
             formData.set('accion', 'actualizar');
-            formData.append('id', usuario.id);
+            formData.append('id', usuario.ID);
             updateUsuario(formData); // Actualizar el usuario
             return; // Salir de la función
         }
@@ -105,9 +105,9 @@ export async function insertUsuario(formData) {
  * @returns {Promise<void>}
  */
 export async function updateUsuario(formData) {
-    try {
-        showLoader(); // Mostrar el loader
+    showLoader(); // Mostrar el loader
 
+    try {
         // Envía la solicitud POST al servidor con los datos del usuario
         const response = await fetch(`${window.baseURL}/controller/usuarioAction.php`, {
             method: 'POST',
@@ -154,10 +154,9 @@ export async function deleteUsuario(id) {
         mostrarMensaje('Se canceló la eliminación del usuario', 'info', 'Eliminación cancelada');
         return; // Salir de la función si se cancela la eliminación
     }
+    showLoader(); // Mostrar el loader
 
     try {
-        showLoader(); // Mostrar el loader
-
         // Enviar la solicitud POST al servidor con el ID del usuario a eliminar
         const response = await fetch(`${window.baseURL}/controller/usuarioAction.php`, {
             method: 'POST',

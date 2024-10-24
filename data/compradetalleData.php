@@ -57,8 +57,8 @@
                     . COMPRA_DETALLE_ID . ", "
                     . COMPRA_DETALLE_COMPRA_ID . ", "
                     . COMPRA_DETALLE_PRODUCTO_ID . ", "
-                    . COMPRA_DETALLE_FECHA_CREACION . ", "
-                    . COMPRA_DETALLE_FECHA_MODIFICACION . ", "
+                    . COMPRA_DETALLE_CREACION . ", "
+                    . COMPRA_DETALLE_MODIFICACION . ", "
                     . COMPRA_DETALLE_ESTADO
                     . ") VALUES (?, ?, ?, ?, ?, ?)";
                 
@@ -123,8 +123,8 @@
                             SET " . 
                             COMPRA_DETALLE_COMPRA_ID . " = ?, " .
                             COMPRA_DETALLE_PRODUCTO_ID . " = ?, " .
-                            COMPRA_DETALLE_FECHA_CREACION . " = ?, " .
-                            COMPRA_DETALLE_FECHA_MODIFICACION . " = ?, " .
+                            COMPRA_DETALLE_CREACION . " = ?, " .
+                            COMPRA_DETALLE_MODIFICACION . " = ?, " .
                             COMPRA_DETALLE_ESTADO . " = ? 
                             WHERE " . COMPRA_DETALLE_ID . " = ?";
     
@@ -184,8 +184,8 @@
                     c." . COMPRA_DETALLE_ID . ", 
                     c." . COMPRA_DETALLE_COMPRA_ID . ", 
                     c." . COMPRA_DETALLE_PRODUCTO_ID . ", 
-                    c." . COMPRA_DETALLE_FECHA_CREACION . ", 
-                    c." . COMPRA_DETALLE_FECHA_MODIFICACION . ", 
+                    c." . COMPRA_DETALLE_CREACION . ", 
+                    c." . COMPRA_DETALLE_MODIFICACION . ", 
                     c." . COMPRA_DETALLE_ESTADO . " 
                 FROM " . TB_COMPRA_DETALLE . " c";
             
@@ -207,8 +207,8 @@
                     $row[COMPRA_DETALLE_ID],
                     $row[COMPRA_DETALLE_COMPRA_ID],
                     $producto["productoNombre"], // Cambia a la propiedad que desees obtener
-                    $row[COMPRA_DETALLE_FECHA_CREACION],
-                    $row[COMPRA_DETALLE_FECHA_MODIFICACION],
+                    $row[COMPRA_DETALLE_CREACION],
+                    $row[COMPRA_DETALLE_MODIFICACION],
                     $row[COMPRA_DETALLE_ESTADO]
                 );
     
@@ -288,8 +288,8 @@
                 c." . COMPRA_DETALLE_ID . ", 
                 c." . COMPRA_DETALLE_COMPRA_ID . " AS compraDetalleCompra,
                 c." . COMPRA_DETALLE_PRODUCTO_ID . " AS compraDetalleProducto,
-                c." . COMPRA_DETALLE_FECHA_CREACION . ", 
-                c." . COMPRA_DETALLE_FECHA_MODIFICACION . ", 
+                c." . COMPRA_DETALLE_CREACION . ", 
+                c." . COMPRA_DETALLE_MODIFICACION . ", 
                 c." . COMPRA_DETALLE_ESTADO . "
             FROM " . TB_COMPRA_DETALLE . " c
             WHERE c." . COMPRA_DETALLE_ESTADO . " != false";
@@ -327,8 +327,8 @@
                     'ID' => $row[COMPRA_DETALLE_ID],
                     'CompraDetalleCompra' => $row["compraDetalleCompra"],
                     'CompraDetalleProducto' => $row["compraDetalleProducto"],
-                    'FechaCreacion' => $row[COMPRA_DETALLE_FECHA_CREACION],
-                    'FechaModificacion' => $row[COMPRA_DETALLE_FECHA_MODIFICACION],
+                    'FechaCreacion' => $row[COMPRA_DETALLE_CREACION],
+                    'FechaModificacion' => $row[COMPRA_DETALLE_MODIFICACION],
                     'Estado' => $row[COMPRA_DETALLE_ESTADO]
                 ];
             }
@@ -519,8 +519,8 @@
                     p.productonombre AS productoNombre,
                     c." . COMPRA_DETALLE_PRECIO_PRODUCTO . ", 
                     c." . COMPRA_DETALLE_CANTIDAD . ", 
-                    c." . COMPRA_DETALLE_FECHA_CREACION . ", 
-                    c." . COMPRA_DETALLE_FECHA_MODIFICACION . ", 
+                    c." . COMPRA_DETALLE_CREACION . ", 
+                    c." . COMPRA_DETALLE_MODIFICACION . ", 
                     c." . COMPRA_DETALLE_ESTADO . " 
                 FROM " . TB_COMPRA_DETALLE . " c 
                 JOIN tbcompra cp ON c." . COMPRA_DETALLE_COMPRA_ID . " = cp.compraid 

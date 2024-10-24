@@ -27,6 +27,12 @@
 
 	// Si la petición es vía AJAX, solo devuelve la vista sin toda la estructura    
 	if ($_SERVER['REQUEST_METHOD'] === 'GET' && $ajax) {
+		if (verificarSesionCaducada()) {
+			$LOGIN_URL = './view/auth/login.php';
+			header("Location: $LOGIN_URL");
+			exit();
+		}
+
 		$url = "./view/html";
 		$views = [
 			'ventas' => "${url}/links/ventas.php",

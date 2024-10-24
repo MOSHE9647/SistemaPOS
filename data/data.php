@@ -18,14 +18,14 @@
             switch ($hostName) {
                 // PC de Isaac (Ubuntu WSL2 - Win11)
                 case "Moshe9647-PC":
-                    // $this->servername = CLOUD_DB_HOST;
-                    // $this->username = CLOUD_DB_USER;
-                    // $this->password = CLOUD_DB_PASS;
-                    // $this->dbname = CLOUD_DB_NAME;
-                    $this->servername = DB_HOST;
-                    $this->username = DB_USER;
-                    $this->password = DB_PASS;
-                    $this->dbname = DB_NAME;
+                    $this->servername = CLOUD_DB_HOST;
+                    $this->username = CLOUD_DB_USER;
+                    $this->password = CLOUD_DB_PASS;
+                    $this->dbname = CLOUD_DB_NAME;
+                    // $this->servername = DB_HOST;
+                    // $this->username = DB_USER;
+                    // $this->password = DB_PASS;
+                    // $this->dbname = DB_NAME;
                     break;
                 // PC de Gonzalo (Ubuntu WSL2 - Win10)
                 case "DESKTOP-G544DN0":

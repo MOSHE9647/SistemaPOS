@@ -427,8 +427,8 @@
                         $categoria["categoria"],
                         [], // Productos
                         $telefono["telefonos"],
-                        $row[PROVEEDOR_FECHA_CREACION],
-                        $row[PROVEEDOR_FECHA_MODIFICACION],
+                        $row[PROVEEDOR_CREACION],
+                        $row[PROVEEDOR_MODIFICACION],
                         $row[PROVEEDOR_ESTADO]
                     );
                     $proveedores[] = $proveedor;
@@ -541,8 +541,8 @@
                         $categoria["categoria"],
                         [], // Productos
                         $telefono["telefonos"],
-                        $row[PROVEEDOR_FECHA_CREACION],
-                        $row[PROVEEDOR_FECHA_MODIFICACION],
+                        $row[PROVEEDOR_CREACION],
+                        $row[PROVEEDOR_MODIFICACION],
                         $row[PROVEEDOR_ESTADO]
                     );
                     $proveedores[] = $proveedor;
@@ -629,8 +629,8 @@
                         $categoria["categoria"],
                         [], // Productos
                         $telefono["telefonos"],
-                        $row[PROVEEDOR_FECHA_CREACION],
-                        $row[PROVEEDOR_FECHA_MODIFICACION],
+                        $row[PROVEEDOR_CREACION],
+                        $row[PROVEEDOR_MODIFICACION],
                         $row[PROVEEDOR_ESTADO]
                     );
 
