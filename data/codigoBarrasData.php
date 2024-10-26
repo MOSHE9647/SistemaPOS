@@ -313,8 +313,6 @@
                     $codigoBarras = new CodigoBarras(
                         $row[CODIGO_BARRAS_ID],
                         $row[CODIGO_BARRAS_NUMERO],
-                        $row[CODIGO_BARRAS_CREACION],
-                        $row[CODIGO_BARRAS_MODIFICACION],
                         $row[CODIGO_BARRAS_ESTADO]
                     );
                     $codigosBarras[] = $codigoBarras;
@@ -364,8 +362,6 @@
                     SELECT
                         C." . CODIGO_BARRAS_ID . ",
                         C." . CODIGO_BARRAS_NUMERO . ",
-                        C." . CODIGO_BARRAS_CREACION . ",
-                        C." . CODIGO_BARRAS_MODIFICACION . ",
                         C." . CODIGO_BARRAS_ESTADO . "
                     FROM
                         " . TB_CODIGO_BARRAS . " C
@@ -391,8 +387,6 @@
                     $codigoBarras = new CodigoBarras(
                         $row[CODIGO_BARRAS_ID],
                         $row[CODIGO_BARRAS_NUMERO],
-                        $row[CODIGO_BARRAS_CREACION],
-                        $row[CODIGO_BARRAS_MODIFICACION],
                         $row[CODIGO_BARRAS_ESTADO]
                     );
                     $codigosBarras[] = $codigoBarras;
@@ -465,8 +459,6 @@
                     $codigoBarras = new CodigoBarras(
                         $row[CODIGO_BARRAS_ID],
                         $row[CODIGO_BARRAS_NUMERO],
-                        $row[CODIGO_BARRAS_CREACION],
-                        $row[CODIGO_BARRAS_MODIFICACION],
                         $row[CODIGO_BARRAS_ESTADO]
                     );
 

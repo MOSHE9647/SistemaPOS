@@ -1,4 +1,5 @@
 <?php
+
     require_once dirname(__DIR__, 1) . '/data/data.php';
     require_once dirname(__DIR__, 1) . '/data/marcaData.php';
     require_once dirname(__DIR__, 1) . '/data/categoriaData.php';
@@ -66,18 +67,18 @@
                 // Consulta para verificar si existe un producto con el nombre o código de barras ingresado
                 else if ($insert && ($productoNombre && $productoCodigoBarrasID)) {
                     // Insertar: Verificar existencia por nombre o código de barras
-                    $queryCheck .= "(" . PRODUCTO_CODIGO_BARRAS_ID . " = ? AND " . PRODUCTO_NOMBRE . " != ?) ";
-                    $queryCheck .= "OR (" . PRODUCTO_NOMBRE . " = ? AND " . PRODUCTO_CODIGO_BARRAS_ID . " != ?) ";
-                    $queryCheck .= "OR (" . PRODUCTO_NOMBRE . " = ? AND " . PRODUCTO_CODIGO_BARRAS_ID . " = ?)";
+                    $queryCheck .= "(" . CODIGO_BARRAS_ID . " = ? AND " . PRODUCTO_NOMBRE . " != ?) ";
+                    $queryCheck .= "OR (" . PRODUCTO_NOMBRE . " = ? AND " . CODIGO_BARRAS_ID . " != ?) ";
+                    $queryCheck .= "OR (" . PRODUCTO_NOMBRE . " = ? AND " . CODIGO_BARRAS_ID . " = ?)";
                     $params = [$productoCodigoBarrasID, $productoNombre, $productoNombre, $productoCodigoBarrasID, $productoNombre, $productoCodigoBarrasID];
                     $types .= 'ssssss';
                 } 
                 // Consulta para actualizar: verificar nombre y código de barras
                 else if ($update && (($productoNombre && $productoCodigoBarrasID) && $productoID)) {
                     // Actualizar: Excluir el ID actual
-                    $queryCheck .= "(" . PRODUCTO_CODIGO_BARRAS_ID . " = ? AND " . PRODUCTO_NOMBRE . " != ? AND " . PRODUCTO_ID . " != ?) ";
-                    $queryCheck .= "OR (" . PRODUCTO_NOMBRE . " = ? AND " . PRODUCTO_CODIGO_BARRAS_ID . " != ? AND " . PRODUCTO_ID . " != ?) ";
-                    $queryCheck .= "OR (" . PRODUCTO_NOMBRE . " = ? AND " . PRODUCTO_CODIGO_BARRAS_ID . " = ? AND " . PRODUCTO_ID . " != ?)";
+                    $queryCheck .= "(" . CODIGO_BARRAS_ID . " = ? AND " . PRODUCTO_NOMBRE . " != ? AND " . PRODUCTO_ID . " != ?) ";
+                    $queryCheck .= "OR (" . PRODUCTO_NOMBRE . " = ? AND " . CODIGO_BARRAS_ID . " != ? AND " . PRODUCTO_ID . " != ?) ";
+                    $queryCheck .= "OR (" . PRODUCTO_NOMBRE . " = ? AND " . CODIGO_BARRAS_ID . " = ? AND " . PRODUCTO_ID . " != ?)";
                     $params = [$productoCodigoBarrasID, $productoNombre, $productoID, $productoNombre, $productoCodigoBarrasID, $productoID, $productoNombre, $productoCodigoBarrasID, $productoID];
                     $types .= 'isisiisii';
                 } 
@@ -224,18 +225,18 @@
                 $queryInsert = 
                     "INSERT INTO " . TB_PRODUCTO . " ("
                         . PRODUCTO_ID . ", "
-                        . PRODUCTO_CODIGO_BARRAS_ID . ", "
+                        . CODIGO_BARRAS_ID . ", "
+                        . CATEGORIA_ID . ", "
+                        . SUBCATEGORIA_ID . ", "
+                        . MARCA_ID . ", "
+                        . PRESENTACION_ID . ", "
                         . PRODUCTO_NOMBRE . ", "
                         . PRODUCTO_CANTIDAD . ", "
                         . PRODUCTO_PRECIO_COMPRA . ", "
-                        . PRODUCTO_PORCENTAJE_GANANCIA . ", "
+                        . PRODUCTO_GANANCIA . ", "
                         . PRODUCTO_DESCRIPCION . ", "
-                        . PRODUCTO_CATEGORIA_ID . ", "
-                        . PRODUCTO_SUBCATEGORIA_ID . ", "
-                        . PRODUCTO_MARCA_ID . ", "
-                        . PRODUCTO_PRESENTACION_ID . ", "
                         . PRODUCTO_IMAGEN . ', '
-                        . PRODUCTO_FECHA_VENCIMIENTO
+                        . PRODUCTO_VENCIMIENTO
                     . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
         
@@ -254,18 +255,18 @@
                 // Asigna los valores a cada '?' y ejecuta la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'iisiddsiiiiss', // i: entero, s: Cadena, d: Decimal
+                    'iiiiiisiddsss', // i: entero, s: Cadena, d: Decimal
                     $nextId,
                     $codigoBarrasID,
+                    $productoCategoriaID,
+                    $productoSubcategoriaID,
+                    $productoMarcaID,
+                    $productoPresentacionID,
                     $productoNombre,
                     $productoCantidad,
                     $productoPrecioCompra,
                     $productoPorcentajeGanancia,
                     $productoDescripcion,
-                    $productoCategoriaID,
-                    $productoSubcategoriaID,
-                    $productoMarcaID,
-                    $productoPresentacionID,
                     $productoImagen,
                     $productoFechaVencimiento
                 );
@@ -367,18 +368,18 @@
                 $queryUpdate = 
                     "UPDATE " . TB_PRODUCTO . 
                     " SET " . 
-                        PRODUCTO_CODIGO_BARRAS_ID . " = ?, " .
+                        CODIGO_BARRAS_ID . " = ?, " .
+                        CATEGORIA_ID . " = ?, " .
+                        SUBCATEGORIA_ID . " = ?, " .
+                        MARCA_ID . " = ?, " .
+                        PRESENTACION_ID . " = ?, " .
                         PRODUCTO_NOMBRE . " = ?, " .
                         PRODUCTO_CANTIDAD . " = ?, " .
                         PRODUCTO_PRECIO_COMPRA . " = ?, " .
-                        PRODUCTO_PORCENTAJE_GANANCIA . " = ?, " .
+                        PRODUCTO_GANANCIA . " = ?, " .
                         PRODUCTO_DESCRIPCION . " = ?, " .
-                        PRODUCTO_CATEGORIA_ID . " = ?, " .
-                        PRODUCTO_SUBCATEGORIA_ID . " = ?, " .
-                        PRODUCTO_MARCA_ID . " = ?, " .
-                        PRODUCTO_PRESENTACION_ID . " = ?, " .
                         PRODUCTO_IMAGEN . " = ?, " .
-                        PRODUCTO_FECHA_VENCIMIENTO . " = ?, " .
+                        PRODUCTO_VENCIMIENTO . " = ?, " .
                         PRODUCTO_ESTADO . " = TRUE " .
                     "WHERE " . PRODUCTO_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
@@ -398,17 +399,17 @@
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'isiddsiiiissi', // s: Cadena, i: Entero
+                    'iiiiisiddsssi', // s: Cadena, i: Entero
                     $codigoBarrasID,
+                    $productoCategoriaID,
+                    $productoSubcategoriaID,
+                    $productoMarcaID,
+                    $productoPresentacionID,
                     $productoNombre,
                     $productoCantidad,
                     $productoPrecioCompra,
                     $productoPorcentajeGanancia,
                     $productoDescripcion,
-                    $productoCategoriaID,
-                    $productoSubcategoriaID,
-                    $productoMarcaID,
-                    $productoPresentacionID,
                     $productoImagen,
                     $productoFechaVencimiento,
                     $productoID
@@ -574,27 +575,27 @@
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Obtiene el Codigo de Barras asociado al producto
                     $codigoBarrasData = new CodigoBarrasData();
-                    $codigoBarras = $codigoBarrasData->getCodigoBarrasByID($row[PRODUCTO_CODIGO_BARRAS_ID], false);
+                    $codigoBarras = $codigoBarrasData->getCodigoBarrasByID($row[CODIGO_BARRAS_ID], false);
                     if (!$codigoBarras["success"]) { throw new Exception($codigoBarras["message"]); }
 
                     // Obtiene la Categoría asociada al producto
                     $categoriaData = new CategoriaData();
-                    $categoria = $categoriaData->getCategoriaByID($row[PRODUCTO_CATEGORIA_ID], false);
+                    $categoria = $categoriaData->getCategoriaByID($row[CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
                     // Obtiene la Subcategoría asociada al producto
                     $subcategoriaData = new SubcategoriaData();
-                    $subcategoria = $subcategoriaData->getSubcategoriaByID($row[PRODUCTO_SUBCATEGORIA_ID], false);
+                    $subcategoria = $subcategoriaData->getSubcategoriaByID($row[SUBCATEGORIA_ID], false);
                     if (!$subcategoria["success"]) { throw new Exception($subcategoria["message"]); }
 
                     // Obtiene la Marca asociada al producto
                     $marcaData = new MarcaData();
-                    $marca = $marcaData->getMarcaByID($row[PRODUCTO_MARCA_ID], false);
+                    $marca = $marcaData->getMarcaByID($row[MARCA_ID], false);
                     if (!$marca["success"]) { throw new Exception($marca["message"]); }
 
                     // Obtiene la Presentación asociada al producto
                     $presentacionData = new PresentacionData();
-                    $presentacion = $presentacionData->getPresentacionByID($row[PRODUCTO_PRESENTACION_ID], false);
+                    $presentacion = $presentacionData->getPresentacionByID($row[PRESENTACION_ID], false);
                     if (!$presentacion["success"]) { throw new Exception($presentacion["message"]); }
 
                     $producto = new Producto(
@@ -603,14 +604,14 @@
                         $row[PRODUCTO_NOMBRE],
                         $row[PRODUCTO_CANTIDAD],
                         $row[PRODUCTO_PRECIO_COMPRA],
-                        $row[PRODUCTO_PORCENTAJE_GANANCIA],
+                        $row[PRODUCTO_GANANCIA],
                         $row[PRODUCTO_DESCRIPCION],
                         $categoria["categoria"],
                         $subcategoria["subcategoria"],
                         $marca["marca"],
                         $presentacion["presentacion"],
                         $row[PRODUCTO_IMAGEN],
-                        $row[PRODUCTO_FECHA_VENCIMIENTO],
+                        $row[PRODUCTO_VENCIMIENTO],
                         $row[PRODUCTO_ESTADO]
                     );
                     $productos[] = $producto;
@@ -684,7 +685,7 @@
                     FROM " . 
                         TB_PRODUCTO. " P 
                     INNER JOIN " . 
-                        TB_CODIGO_BARRAS . " C ON P." . PRODUCTO_CODIGO_BARRAS_ID . " = C." . CODIGO_BARRAS_ID
+                        TB_CODIGO_BARRAS . " C ON P." . CODIGO_BARRAS_ID . " = C." . CODIGO_BARRAS_ID
                 ;
                 
                 // Agregar filtro de búsqueda a la consulta
@@ -732,27 +733,27 @@
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Obtiene el Codigo de Barras asociado al producto
                     $codigoBarrasData = new CodigoBarrasData();
-                    $codigoBarras = $codigoBarrasData->getCodigoBarrasByID($row[PRODUCTO_CODIGO_BARRAS_ID], false);
+                    $codigoBarras = $codigoBarrasData->getCodigoBarrasByID($row[CODIGO_BARRAS_ID], false);
                     if (!$codigoBarras["success"]) { throw new Exception($codigoBarras["message"]); }
 
                     // Obtiene la Categoría asociada al producto
                     $categoriaData = new CategoriaData();
-                    $categoria = $categoriaData->getCategoriaByID($row[PRODUCTO_CATEGORIA_ID], false);
+                    $categoria = $categoriaData->getCategoriaByID($row[CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
                     // Obtiene la Subcategoría asociada al producto
                     $subcategoriaData = new SubcategoriaData();
-                    $subcategoria = $subcategoriaData->getSubcategoriaByID($row[PRODUCTO_SUBCATEGORIA_ID], false);
+                    $subcategoria = $subcategoriaData->getSubcategoriaByID($row[SUBCATEGORIA_ID], false);
                     if (!$subcategoria["success"]) { throw new Exception($subcategoria["message"]); }
 
                     // Obtiene la Marca asociada al producto
                     $marcaData = new MarcaData();
-                    $marca = $marcaData->getMarcaByID($row[PRODUCTO_MARCA_ID], false);
+                    $marca = $marcaData->getMarcaByID($row[MARCA_ID], false);
                     if (!$marca["success"]) { throw new Exception($marca["message"]); }
 
                     // Obtiene la Presentación asociada al producto
                     $presentacionData = new PresentacionData();
-                    $presentacion = $presentacionData->getPresentacionByID($row[PRODUCTO_PRESENTACION_ID], false);
+                    $presentacion = $presentacionData->getPresentacionByID($row[PRESENTACION_ID], false);
                     if (!$presentacion["success"]) { throw new Exception($presentacion["message"]); }
 
                     $producto = new Producto(
@@ -761,14 +762,14 @@
                         $row[PRODUCTO_NOMBRE],
                         $row[PRODUCTO_CANTIDAD],
                         $row[PRODUCTO_PRECIO_COMPRA],
-                        $row[PRODUCTO_PORCENTAJE_GANANCIA],
+                        $row[PRODUCTO_GANANCIA],
                         $row[PRODUCTO_DESCRIPCION],
                         $categoria["categoria"],
                         $subcategoria["subcategoria"],
                         $marca["marca"],
                         $presentacion["presentacion"],
                         $row[PRODUCTO_IMAGEN],
-                        $row[PRODUCTO_FECHA_VENCIMIENTO],
+                        $row[PRODUCTO_VENCIMIENTO],
                         $row[PRODUCTO_ESTADO]
                     );
                     $productos[] = $producto;
@@ -851,27 +852,27 @@
                 if ($row = mysqli_fetch_assoc($result)) {
                     // Obtiene el Codigo de Barras asociado al producto
                     $codigoBarrasData = new CodigoBarrasData();
-                    $codigoBarras = $codigoBarrasData->getCodigoBarrasByID($row[PRODUCTO_CODIGO_BARRAS_ID], false);
+                    $codigoBarras = $codigoBarrasData->getCodigoBarrasByID($row[CODIGO_BARRAS_ID], false);
                     if (!$codigoBarras["success"]) { throw new Exception($codigoBarras["message"]); }
 
                     // Obtiene la Categoría asociada al producto
                     $categoriaData = new CategoriaData();
-                    $categoria = $categoriaData->getCategoriaByID($row[PRODUCTO_CATEGORIA_ID], false);
+                    $categoria = $categoriaData->getCategoriaByID($row[CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
                     // Obtiene la Subcategoría asociada al producto
                     $subcategoriaData = new SubcategoriaData();
-                    $subcategoria = $subcategoriaData->getSubcategoriaByID($row[PRODUCTO_SUBCATEGORIA_ID], false);
+                    $subcategoria = $subcategoriaData->getSubcategoriaByID($row[SUBCATEGORIA_ID], false);
                     if (!$subcategoria["success"]) { throw new Exception($subcategoria["message"]); }
 
                     // Obtiene la Marca asociada al producto
                     $marcaData = new MarcaData();
-                    $marca = $marcaData->getMarcaByID($row[PRODUCTO_MARCA_ID], false);
+                    $marca = $marcaData->getMarcaByID($row[MARCA_ID], false);
                     if (!$marca["success"]) { throw new Exception($marca["message"]); }
 
                     // Obtiene la Presentación asociada al producto
                     $presentacionData = new PresentacionData();
-                    $presentacion = $presentacionData->getPresentacionByID($row[PRODUCTO_PRESENTACION_ID], false);
+                    $presentacion = $presentacionData->getPresentacionByID($row[PRESENTACION_ID], false);
                     if (!$presentacion["success"]) { throw new Exception($presentacion["message"]); }
 
                     $producto = new Producto(
@@ -880,14 +881,14 @@
                         $row[PRODUCTO_NOMBRE],
                         $row[PRODUCTO_CANTIDAD],
                         $row[PRODUCTO_PRECIO_COMPRA],
-                        $row[PRODUCTO_PORCENTAJE_GANANCIA],
+                        $row[PRODUCTO_GANANCIA],
                         $row[PRODUCTO_DESCRIPCION],
                         $categoria["categoria"],
                         $subcategoria["subcategoria"],
                         $marca["marca"],
                         $presentacion["presentacion"],
                         $row[PRODUCTO_IMAGEN],
-                        $row[PRODUCTO_FECHA_VENCIMIENTO],
+                        $row[PRODUCTO_VENCIMIENTO],
                         $row[PRODUCTO_ESTADO]
                     );
                     return ["success" => true, "producto" => $producto];
