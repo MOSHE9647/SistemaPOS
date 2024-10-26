@@ -26,6 +26,7 @@ class CompraDetalleBusiness {
             $compraDetalleID = $compraDetalle->getCompraDetalleID();
             $compraID = $compraDetalle->getCompraDetalleCompra();
             $productoID = $compraDetalle->getCompraDetalleProducto();
+            $cantidad = $compraDetalle->getCompraDetalleCantidad();
             $estado = $compraDetalle->getCompraDetalleEstado();
             $errors = [];
 
@@ -39,6 +40,9 @@ class CompraDetalleBusiness {
             }
             if ($productoID === null || !is_numeric($productoID) || $productoID <= 0) {
                 $errors[] = "El campo 'Producto ID' no es válido. Debe ser un número mayor a 0.";
+            }
+            if ($cantidad === null || !is_numeric($cantidad) || $cantidad <= 0) {
+                $errors[] = "El campo 'Cantidad' no es válido. Debe ser un número mayor a 0.";
             }
             if ($estado === null || !is_numeric($estado)) {
                 $errors[] = "El campo 'Estado' no es válido.";
@@ -91,3 +95,5 @@ class CompraDetalleBusiness {
     }
 
 }
+
+?>
