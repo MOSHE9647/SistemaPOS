@@ -1,6 +1,10 @@
 @import url("../gui/notification.css");
 @import url("../gui/loader.css");
 
+:root {
+    color-scheme: dark;
+}
+
 * {
     margin: 0;
     padding: 0;

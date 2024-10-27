@@ -3,7 +3,6 @@
 // ************************************************************ //
 
 import { checkEmptyTable, formatearDecimal } from "../../utils.js";
-import { hideLoader, showLoader } from "../../gui/loader.js";
 import { initializeSelects } from "./selects.js";
 import * as crud from "./crud.js";
 
@@ -19,7 +18,6 @@ let direcciones = [];
  * @param {boolean} [isSearch=false] - Indica si la tabla se está renderizando como resultado de una búsqueda.
  */
 export function renderTable(listaDirecciones, tableBodyID = 'tableBody', isInfo = false, isSearch = false) {
-    showLoader();
     if (!isSearch) direcciones = listaDirecciones;
 
     cancelCreate(); // Cancelar creación de una nueva dirección
@@ -68,8 +66,6 @@ export function renderTable(listaDirecciones, tableBodyID = 'tableBody', isInfo 
         const btnCreate = document.getElementById('btn-create-dir');
         if (btnCreate) btnCreate.addEventListener('click', () => showCreateRow(tableBodyID));
     }
-
-    hideLoader();
 }
 
 /**
@@ -178,7 +174,7 @@ export function showCreateRow(tableBodyID = 'tableBody') {
     initializeSelects();
 
     newRow.querySelector('.btn-save').addEventListener('click', () => {
-        crud.insertDireccion(direcciones).then((success) => {
+        crud.insertDireccion(direcciones, newRow).then((success) => {
             if (success) renderTable(direcciones, tableBodyID);
         });
     });

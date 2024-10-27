@@ -167,7 +167,7 @@
                         PROVEEDOR_ID . ", " . 
                         PROVEEDOR_NOMBRE . ", " . 
                         PROVEEDOR_EMAIL . ", " . 
-                        PROVEEDOR_CATEGORIA_ID . ") " . 
+                        CATEGORIA_ID . ") " . 
                     "VALUES (?, ?, ?, ?)"
                 ;
                 $stmt = mysqli_prepare($conn, $queryInsert);
@@ -264,7 +264,7 @@
                     "UPDATE " . TB_PROVEEDOR . " SET " . 
                         PROVEEDOR_NOMBRE . " = ?, " . 
                         PROVEEDOR_EMAIL . " = ?, " . 
-                        PROVEEDOR_CATEGORIA_ID . " = ?, " .
+                        CATEGORIA_ID . " = ?, " .
                         PROVEEDOR_ESTADO . " = TRUE " . 
                     "WHERE " . PROVEEDOR_ID . " = ?"
                 ;
@@ -409,7 +409,7 @@
                 // Crear una lista con todos los proveedores
                 $proveedores = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $categoria = $this->categoriaData->getCategoriaByID($row[PROVEEDOR_CATEGORIA_ID], false);
+                    $categoria = $this->categoriaData->getCategoriaByID($row[CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
                     $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID]);
@@ -481,7 +481,7 @@
                     FROM " . 
                         TB_PROVEEDOR . " P
                     INNER JOIN " .
-                        TB_CATEGORIA . " C ON P." . PROVEEDOR_CATEGORIA_ID . " = C." . CATEGORIA_ID
+                        TB_CATEGORIA . " C ON P." . CATEGORIA_ID . " = C." . CATEGORIA_ID
                 ;
 
                 // Agregar filtro de búsqueda a la consulta
@@ -523,7 +523,7 @@
 				$proveedores = [];
 				while ($row = mysqli_fetch_assoc($result)) {
                     $categoriaData = new CategoriaData();
-                    $categoria = $categoriaData->getCategoriaByID($row[PROVEEDOR_CATEGORIA_ID], false);
+                    $categoria = $categoriaData->getCategoriaByID($row[CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
                     $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID]);
@@ -611,7 +611,7 @@
 
                 // Obtener el resultado de la consulta
                 if ($row = mysqli_fetch_assoc($result)) {
-                    $categoria = $this->categoriaData->getCategoriaByID($row[PROVEEDOR_CATEGORIA_ID], false);
+                    $categoria = $this->categoriaData->getCategoriaByID($row[CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
                     $direccion = $this->proveedorDireccionData->getDireccionesByProveedorID($row[PROVEEDOR_ID]);

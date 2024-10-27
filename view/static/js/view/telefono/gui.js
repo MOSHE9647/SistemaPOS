@@ -3,7 +3,6 @@
 // ************************************************************ //
 
 import { checkEmptyTable, manejarInputNumeroTelefono } from "../../utils.js";
-import { hideLoader, showLoader } from "../../gui/loader.js";
 import { initializeSelects } from "./selects.js";
 import * as crud from "./crud.js";
 
@@ -19,7 +18,6 @@ let telefonos = [];
  * @param {boolean} [isSearch=false] - Indica si la tabla se está renderizando como resultado de una búsqueda.
  */
 export function renderTable(listaTelefonos, tableBodyID = 'tableBody', isInfo = false, isSearch = false) {
-    showLoader();
     if (!isSearch) telefonos = listaTelefonos;
     
     cancelCreate(); // Cancelar la creación de un nuevo teléfono
@@ -65,8 +63,6 @@ export function renderTable(listaTelefonos, tableBodyID = 'tableBody', isInfo = 
         const btnCreate = document.getElementById('btn-create-tel');
         if (btnCreate) btnCreate.addEventListener('click', () => showCreateRow(tableBodyID));
     }
-
-    hideLoader();
 }
 
 /**
@@ -170,7 +166,7 @@ export function showCreateRow(tableBodyID = 'tableBody') {
     initializeSelects();
 
     newRow.querySelector('.btn-save').addEventListener('click', () => {
-        crud.insertTelefono(telefonos).then((success) => {
+        crud.insertTelefono(telefonos, newRow).then((success) => {
             if (success) renderTable(telefonos, tableBodyID);
         });
     });

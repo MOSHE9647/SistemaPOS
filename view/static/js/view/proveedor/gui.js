@@ -27,8 +27,6 @@ let proveedores = [];
  * @returns {void}
  */
 export function renderTable(listaProveedores) {
-    showLoader();
-
     // Asignar la lista de proveedores a la variable global
     proveedores = listaProveedores;
 
@@ -65,7 +63,6 @@ export function renderTable(listaProveedores) {
 
     // Verificar si la tabla está vacía
     checkEmptyTable(tableBodyID, 'las la-exclamation-circle');
-    hideLoader();
 }
 
 /**

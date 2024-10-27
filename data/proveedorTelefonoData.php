@@ -380,8 +380,6 @@
                         $row[TELEFONO_CODIGO_PAIS],
                         $row[TELEFONO_NUMERO],
                         $row[TELEFONO_EXTENSION],
-                        $row[TELEFONO_CREACION],
-                        $row[TELEFONO_MODIFICACION],
                         $row[TELEFONO_ESTADO]
                     );
                     $telefonos[] = $telefono;
@@ -542,8 +540,6 @@
                         $row[TELEFONO_CODIGO_PAIS],
                         $row[TELEFONO_NUMERO],
                         $row[TELEFONO_EXTENSION],
-                        $row[TELEFONO_CREACION],
-                        $row[TELEFONO_MODIFICACION],
                         $row[TELEFONO_ESTADO]
                     );
                     $telefonos[] = $telefono;

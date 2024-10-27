@@ -115,7 +115,7 @@
                 }
                 // Obtenemos el último ID de la tabla tbproveedordireccion
                 // generacion de id
-				$queryGetLastId = "SELECT MAX(" . PROVEEDOR_CATEGORIA_ID . ") FROM " . TB_PROVEEDOR_CATEGORIA;
+				$queryGetLastId = "SELECT MAX(" . CATEGORIA_ID . ") FROM " . TB_PROVEEDOR_CATEGORIA;
 				$idCont = mysqli_query($conn, $queryGetLastId);
 				$nextId = 1;
 				if ($row = mysqli_fetch_row($idCont)) {
@@ -124,7 +124,7 @@
 
                 // Crea una consulta y un statement SQL para insertar el registro
                 $queryInsert = "INSERT INTO " . TB_PROVEEDOR_CATEGORIA . " ("
-                    . PROVEEDOR_CATEGORIA_ID. ", "
+                    . CATEGORIA_ID. ", "
                     . PROVEEDOR_ID . ", "
                     . CATEGORIA_ID
                     . ") VALUES (?, ?, ?)";

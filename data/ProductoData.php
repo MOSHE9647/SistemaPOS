@@ -507,7 +507,8 @@
 
                 // Eliminar la imagen actual del producto
                 $rutaImagen = dirname(__DIR__) . $rutaImagen;
-                if ($rutaImagen != DEFAULT_PRODUCT_IMAGE && file_exists($rutaImagen)) {
+                $rutaPorDefecto = dirname(__DIR__) . DEFAULT_PRODUCT_IMAGE;
+                if ($rutaImagen != $rutaPorDefecto && file_exists($rutaImagen)) {
                     unlink($rutaImagen);
                 }
 
