@@ -1,4 +1,5 @@
 <?php
+
     session_start();
     require_once dirname(__DIR__, 1) . '/service/usuarioBusiness.php';
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
@@ -55,4 +56,5 @@
         // Si no se envía una solicitud POST válida, retorna código 405: Solicitud incorrecta
         Utils::enviarRespuesta(405, false, "Método no permitido (" . $_SERVER["REQUEST_METHOD"] . ").");
     }
+    
 ?>
