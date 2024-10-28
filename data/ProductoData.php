@@ -917,6 +917,109 @@
         }
 
         /**
+         * Obtiene un producto por su código de barras.
+         *
+         * @param string $codigoBarras El número del código de barras a buscar.
+         * @return array Un arreglo asociativo que contiene:
+         *               - "success" (bool): Indica si la operación fue exitosa.
+         *               - "message" (string): Un mensaje descriptivo del resultado.
+         *               - "producto" (Producto|null): Un objeto Producto con la información del producto, si se encontró.
+         * @throws Exception Si ocurre un error durante la ejecución.
+         */
+        public function getProductoByCodigoBarras($codigoBarras) {
+            $conn = null; $stmt = null;
+
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+        
+                // Obtenemos la información del producto
+                $querySelect = "
+                    SELECT 
+                        P.*
+                    FROM " . 
+                        TB_PRODUCTO . " P 
+                    INNER JOIN " . 
+                        TB_CODIGO_BARRAS . " C ON P." . CODIGO_BARRAS_ID . " = C." . CODIGO_BARRAS_ID . "
+                    WHERE 
+                        C." . CODIGO_BARRAS_NUMERO . " = ?";
+                $stmt = mysqli_prepare($conn, $querySelect);
+        
+                // Asigna los parámetros y ejecuta la consulta
+                mysqli_stmt_bind_param($stmt, 's', $codigoBarras);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+        
+                // Verifica si existe algún registro con los criterios dados
+                if ($row = mysqli_fetch_assoc($result)) {
+                    // Obtiene el Codigo de Barras asociado al producto
+                    $codigoBarrasData = new CodigoBarrasData();
+                    $codigoBarras = $codigoBarrasData->getCodigoBarrasByID($row[CODIGO_BARRAS_ID], false);
+                    if (!$codigoBarras["success"]) { throw new Exception($codigoBarras["message"]); }
+
+                    // Obtiene la Categoría asociada al producto
+                    $categoriaData = new CategoriaData();
+                    $categoria = $categoriaData->getCategoriaByID($row[CATEGORIA_ID], false);
+                    if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
+
+                    // Obtiene la Subcategoría asociada al producto
+                    $subcategoriaData = new SubcategoriaData();
+                    $subcategoria = $subcategoriaData->getSubcategoriaByID($row[SUBCATEGORIA_ID], false);
+                    if (!$subcategoria["success"]) { throw new Exception($subcategoria["message"]); }
+
+                    // Obtiene la Marca asociada al producto
+                    $marcaData = new MarcaData();
+                    $marca = $marcaData->getMarcaByID($row[MARCA_ID], false);
+                    if (!$marca["success"]) { throw new Exception($marca["message"]); }
+
+                    // Obtiene la Presentación asociada al producto
+                    $presentacionData = new PresentacionData();
+                    $presentacion = $presentacionData->getPresentacionByID($row[PRESENTACION_ID], false);
+                    if (!$presentacion["success"]) { throw new Exception($presentacion["message"]); }
+
+                    $producto = new Producto(
+                        $row[PRODUCTO_ID],
+                        $codigoBarras["codigoBarras"],
+                        $row[PRODUCTO_NOMBRE],
+                        $row[PRODUCTO_CANTIDAD],
+                        $row[PRODUCTO_PRECIO_COMPRA],
+                        $row[PRODUCTO_GANANCIA],
+                        $row[PRODUCTO_DESCRIPCION],
+                        $categoria["categoria"],
+                        $subcategoria["subcategoria"],
+                        $marca["marca"],
+                        $presentacion["presentacion"],
+                        $row[PRODUCTO_IMAGEN],
+                        $row[PRODUCTO_VENCIMIENTO],
+                        $row[PRODUCTO_ESTADO]
+                    );
+                    return ["success" => true, "producto" => $producto];
+                }
+                
+                // En caso de que no se haya encontrado el producto
+                $message = "No se encontró el producto con 'ID [$productoID]' en la base de datos.";
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                return ["success" => false, "message" => "No se encontró el producto seleccionado en la base de datos."];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener el producto de la base de datos',
+                    $this->className
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn)) { mysqli_close($conn); }
+            }
+        }
+
+        /**
          * Procesa la imagen de un producto, verificando su formato, cargándola y convirtiéndola a WebP.
          *
          * @param Producto $producto El objeto del producto que contiene la imagen a procesar.

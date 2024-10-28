@@ -84,6 +84,11 @@
 
         // Realizar la acción solicitada
         switch ($accion) {
+            case 'codigo':
+                // Obtener un producto por su código de barras
+                $codigoBarras = $_GET['codigo'] ?? "";
+                $response = $productoBusiness->getProductoByCodigoBarras($codigoBarras);
+                break;
             case 'all':
                 // Obtener todos los productos
                 $response = $productoBusiness->getAllTBProducto($onlyActive, $deleted);

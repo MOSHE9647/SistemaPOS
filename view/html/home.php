@@ -25,22 +25,21 @@
                         <th data-field="codigo">C&oacute;digo de Barras</th>
                         <th data-field="imagen">Imagen</th>
                         <th data-field="nombre">Nombre del Producto</th>
-                        <th data-field="precio">Precio (Unitario)</th>
+                        <th data-field="precio">Precio Unitario (&#162;)</th>
                         <th data-field="cantidad">Cantidad</th>
-                        <th data-field="impuesto">Impuesto</th>
-                        <th data-field="preciobruto">Subtotal</th>
+                        <th data-field="preciobruto">Subtotal (&#162;)</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="table-sales-body">
                     <!-- Contenido de la tabla (se carga dinámicamente con JS) -->
-                    <!-- <tr>
-                        <td colspan="8" class="nodata">
+                    <tr>
+                        <td colspan="7" class="nodata home">
                             <i class="la la-box"></i>
                             <p>No se han agregado productos</p>
                         </td>
-                    </tr> -->
-                    <tr>
+                    </tr>
+                    <!-- <tr>
                         <td>1234567890123</td>
                         <td><img src=".<?= DEFAULT_PRODUCT_IMAGE ?>" alt="Producto 1" style="width: 50px; height: 50px;"></td>
                         <td>Leche Deslactosada 2L, DOS PINOS</td>
@@ -99,7 +98,7 @@
                         <td class="actions">
                             <button class="btn-delete"><i class="las la-trash"></i></button>
                         </td>
-                    </tr>
+                    </tr> -->
                 </tbody>
             </table>
 

@@ -1,10 +1,11 @@
 import { mostrarMensaje } from './gui/notification.js';
 import { hideLoader, showLoader } from './gui/loader.js';
-import { eliminarCSS, importarCSS } from './utils.js';
+import { eliminarCSS, importarCSS} from './utils.js';
 import { cargarClientes } from './view/cliente/main.js';
 import { cargarUsuarios } from './view/usuario/main.js';
 import { cargarProductos } from './view/producto/main.js';
 import { cargarProveedores } from './view/proveedor/main.js';
+import { cargarHome } from './view/home/main.js';
 import { cargarCRUD } from './view/index-old.js';
 
 // Ruta base para las peticiones fetch y otros recursos
@@ -13,7 +14,8 @@ window.baseURL = window.location.pathname.split('/').slice(0, -1).join('/');
 // Rutas y funciones asociadas a las vistas
 const vistas = {
     home: { 
-        css: './view/static/css/view/home.css' 
+        css: './view/static/css/view/home.css',
+        script: cargarHome
     },
     productos: { 
         css: './view/static/css/view/producto.css', 
@@ -85,6 +87,8 @@ async function cargarVista(url, contID) {
 
 // Delegación de eventos para los enlaces
 document.addEventListener("DOMContentLoaded", () => {
+    cargarHome();
+
     document.body.addEventListener("click", event => {
         // Evento para cargar las vistas
         const enlace = event.target.closest(".sidemenu a, #config-link");
