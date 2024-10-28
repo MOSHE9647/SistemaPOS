@@ -18,10 +18,20 @@
         private $ventaFechaModificacion;
         private $ventaEstado;
 
-        public function __construct(int $ventaID = -1, string $ventaNumeroFactura = "", float $ventaMontoBruto = 0.0, float $ventaMontoNeto = 0.0, 
-            float $ventaMontoImpuesto = 0.0, string $ventaMoneda = "CRC", string $ventaCondicionVenta = "Contado", string $ventaTipoPago = "Efectivo", 
-            Cliente $ventaCliente = null, $ventaFechaCreacion = "", $ventaFechaModificacion = "", bool $ventaEstado = true)
-        {
+        public function __construct(
+            int $ventaID = -1,
+            Cliente $ventaCliente = null,
+            string $ventaNumeroFactura = "",
+            string $ventaMoneda = "CRC",
+            float $ventaMontoBruto = 0.0,
+            float $ventaMontoNeto = 0.0,
+            float $ventaMontoImpuesto = 0.0,
+            string $ventaCondicionVenta = "Contado",
+            string $ventaTipoPago = "Efectivo",
+            $ventaFechaCreacion = "",
+            $ventaFechaModificacion = "",
+            bool $ventaEstado = true
+        ) {
             $this->ventaID = $ventaID;
             $this->ventaCliente = $ventaCliente;
             $this->ventaNumeroFactura = strtoupper($ventaNumeroFactura);
@@ -35,6 +45,7 @@
             $this->ventaFechaModificacion = $ventaFechaModificacion;
             $this->ventaEstado = $ventaEstado;
         }
+        
 
         public function getVentaID(): int { return $this->ventaID; }
         public function getVentaCliente(): ?Cliente { return $this->ventaCliente; }

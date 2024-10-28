@@ -681,6 +681,68 @@
                 if (isset($conn)) { mysqli_close($conn); }
             }
         }
+
+
+        public function getVentaClienteByID($clienteID) {
+            $conn = null;
+            $stmt = null;
+        
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
+                }
+                $conn = $result["connection"];
+        
+                // Consulta SQL para obtener solo el ID y el nombre del proveedor
+                $querySelect = "
+                    SELECT 
+                        " . CLIENTE_ID . ", 
+                        " . CLIENTE_NOMBRE . " 
+                    FROM " . TB_CLIENTE . " 
+                    WHERE " . CLIENTE_ID . " = ?";
+                $stmt = mysqli_prepare($conn, $querySelect);
+        
+                // Vincula los parámetros de la consulta
+                mysqli_stmt_bind_param($stmt, 'i', $clienteID);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+        
+              // Obtener el resultado de la consulta
+        if ($row = mysqli_fetch_assoc($result)) {
+            // Retorna una instancia de Proveedor
+            return new Cliente($row[CLIENTE_ID], $row[CLIENTE_NOMBRE]);
+        }
+        
+                // Retorna false si no se encontraron resultados
+                return [
+                    "success" => false,
+                    "message" => "No se encontró ningún cliente con el ID proporcionado."
+                ];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener el cliente desde la base de datos',
+                    $this->className
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return [
+                    "success" => false,
+                    "message" => $userMessage
+                ];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt)) {
+                    mysqli_stmt_close($stmt);
+                }
+                if (isset($conn)) {
+                    mysqli_close($conn);
+                }
+            }
+        }
         
     }
 
