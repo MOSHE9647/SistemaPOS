@@ -41,6 +41,15 @@
         public function setClienteFechaModificacion($clienteFechaModificacion) { $this->clienteFechaModificacion = $clienteFechaModificacion; }
         public function setClienteEstado(bool $clienteEstado) { $this->clienteEstado = $clienteEstado; }
 
+        public function getCliente() {
+            return $this; // Devuelve el objeto actual de Cliente
+        }
+        
+        public function __toString(): string {
+            return $this->clienteNombre; // O cualquier otro formato que desees
+        }
+        
+
         public function jsonSerialize() {
             return [
                 'ID' => $this->clienteID,

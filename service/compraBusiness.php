@@ -76,6 +76,7 @@ class CompraBusiness {
             $compraMontoNeto = $compra->getCompraMontoNeto();
             $compraTipoPago = $compra->getCompraTipoPago();
             $proveedorid = $compra->getProveedorID();
+            $clienteid = $compra->getClienteID();
             $errors = [];
             
 
@@ -125,6 +126,11 @@ class CompraBusiness {
                 if ($proveedorid === null || !is_numeric($proveedorid) || $proveedorid < 0) {
                     $errors[] = "El campo 'Proveedor' está vacío.";
                     Utils::writeLog("El campo 'Proveedor ID [$proveedorid]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
+                }
+
+                if ($clienteid === null || !is_numeric($clienteid) || $clienteid < 0) {
+                    $errors[] = "El campo 'Cliente' está vacío.";
+                    Utils::writeLog("El campo 'Cliente ID [$clienteid]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
                 }
             }
 

@@ -59,7 +59,8 @@ if ($method == "POST") {
         }
 
         // Crea la instancia de Venta solo si no es una acción de eliminación
-        $venta = new Venta($id, $ventanumerofactura, $ventamontobruto, $ventamontoneto, $ventamontoimpuesto, $cliente, $ventafechacreacion, $ventafechamodificacion);
+        $venta = new Venta($id, $cliente, $ventanumerofactura, $ventamoneda, $ventamontobruto, $ventamontoneto, $ventamontoimpuesto, 
+        $ventacondicionventa, $ventatipopago, $ventafechacreacion, $ventafechamodificacion);
         
         
         // Verifica que los datos de la compra sean válidos

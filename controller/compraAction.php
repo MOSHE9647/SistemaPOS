@@ -3,7 +3,9 @@
 // Importar las dependencias necesarias
 require_once __DIR__ . '/../service/compraBusiness.php';
 require_once dirname(__DIR__, 1) . '/utils/Utils.php';
-require_once dirname(__DIR__, 1) . '/service/ProveedorBusiness.php'; // Asegúrate de que este archivo existe
+require_once dirname(__DIR__, 1) . '/service/proveedorBusiness.php'; // Asegúrate de que este archivo existe
+require_once dirname(__DIR__, 1) . '/service/clienteBusiness.php'; // Asegúrate de que este archivo existe
+
 
 $response = [];
 $method = $_SERVER["REQUEST_METHOD"]; // Método de la solicitud
@@ -33,13 +35,33 @@ if ($method == "POST") {
         exit();
     }
 
+    
+    // Manejar la acción de obtener proveedor por ID
+    if ($accion === 'getCliente') {
+        $clienteid = isset($_POST['clienteid']) ? intval($_POST['clienteid']) : 0; // ID del proveedor
+
+        // Crear una instancia de ProveedorBusiness
+        $clienteBusiness = new ClienteBusiness();
+        $cliente = $clienteBusiness->getCompraClienteByID($clienteid); // Cambiar a getCompraProveedorByID
+
+        // Enviar respuesta al cliente
+        http_response_code($cliente['success'] ? 200 : 400);
+        header("Content-Type: application/json");
+        echo json_encode($cliente);
+        exit();
+    }
+
     // Datos recibidos en la solicitud para acciones de compra
     $id                     = isset($_POST['id'])                     ? intval($_POST['id'])               : 0; // ID de la compra
+    $clienteid           = isset($_POST['clienteid'])               ? intval($_POST['clienteid']) : 0; // ID del proveedor
+    $proveedorid           = isset($_POST['proveedorid'])           ? intval($_POST['proveedorid']) : 0; // ID del proveedor
     $compranumerofactura   = isset($_POST['numerofactura'])         ? $_POST['numerofactura']    : ""; // Número de factura
+    $compramoneda   =       isset($_POST['moneda'])                 ? $_POST['moneda']    : ""; // Número de factura
     $compramontobruto      = isset($_POST['montobruto'])            ? floatval($_POST['montobruto']) : 0.0; // Monto bruto
     $compramontoneto       = isset($_POST['montoneto'])             ? floatval($_POST['montoneto']) : 0.0; // Monto neto
+    $compramontoimpuesto   = isset($_POST['montoimpuesto'])         ? floatval($_POST['montoimpuesto']) : 0.0; // Monto neto
+    $compracondicioncompra   = isset($_POST['condcioncompra'])      ? $_POST['condcioncompra']    : ""; // Número de factura
     $compratipopago        = isset($_POST['tipopago'])              ? $_POST['tipopago']         : ""; // Tipo de pago
-    $proveedorid           = isset($_POST['proveedorid'])           ? intval($_POST['proveedorid']) : 0; // ID del proveedor
     $comprafechacreacion   = isset($_POST['fechacreacion'])         ? $_POST['fechacreacion']    : ''; // Fecha de creación
     $comprafechamodificacion = isset($_POST['fechamodificacion'])   ? $_POST['fechamodificacion'] : ''; // Fecha de modificación
 
@@ -49,12 +71,18 @@ if ($method == "POST") {
         $proveedorBusiness = new ProveedorBusiness();
         $proveedor = $proveedorBusiness->getCompraProveedorByID($proveedorid); // Cambiado aquí también
 
+        $clienteBusiness = new ClienteBusiness();
+        $cliente = $clienteBusiness->getCompraClienteByID($clienteid); // Cambiado aquí también
+
         if ($proveedor === null) {
             Utils::enviarRespuesta(400, false, "Proveedor no encontrado.");
         }
-
+        if ($cliente === null) {
+            Utils::enviarRespuesta(400, false, "Cliente no encontrado.");
+        }
         // Crea la instancia de Compra solo si no es una acción de eliminación
-        $compra = new Compra($id, $compranumerofactura, $compramontobruto, $compramontoneto, $compratipopago, $proveedor, $comprafechacreacion, $comprafechamodificacion);
+        $compra = new Compra($id, $cliente, $proveedor, $compranumerofactura, $compramoneda, $compramontobruto, $compramontoneto,
+        $compramontoimpuesto, $compracondicioncompra, $compratipopago,  $comprafechacreacion, $comprafechamodificacion);
         
         // Verifica que los datos de la compra sean válidos
         $check = $compraBusiness->validarCompra($compra, true, $accion == 'insertar'); // Validar campos

@@ -1,6 +1,7 @@
 <?php
     require_once dirname(__DIR__, 1) . '/data/data.php';
-    require_once dirname(__DIR__, 1) . '/data/ProveedorData.php'; 
+    require_once dirname(__DIR__, 1) . '/data/proveedorData.php'; 
+    require_once dirname(__DIR__, 1) . '/data/clienteData.php'; 
     require_once dirname(__DIR__, 1) . '/domain/Compra.php';
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
     require_once dirname(__DIR__, 1) . '/utils/Variables.php';
@@ -158,39 +159,51 @@
                 // Crea una consulta SQL para insertar el registro
                 $queryInsert = "INSERT INTO " . TB_COMPRA . " ("
                     . COMPRA_ID . ", "
-                    . COMPRA_NUMERO_FACTURA . ", "
-                    . COMPRA_PROVEEDOR_ID . ", "
+                    . CLIENTE_ID . ", "
+                    . PROVEEDOR_ID . ", "
+                    . COMPRA_NUMERO_FACTURA . ", " 
+                    . COMPRA_MONEDA . ", "
                     . COMPRA_MONTO_BRUTO . ", "
                     . COMPRA_MONTO_NETO . ", "
+                    . COMPRA_MONTO_IMPUESTO . ", "
+                    . COMPRA_CONDICION_COMPRA . ", "
                     . COMPRA_TIPO_PAGO . ", "
                     . COMPRA_CREACION . ", "
                     . COMPRA_MODIFICACION . ", "
                     . COMPRA_ESTADO
-                    . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, true)";
+                    . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
         
-                    // Obtener los valores de las propiedades del objeto $compra
-                    $compraNumeroFactura = $compra->getCompraNumeroFactura();
-                    $compraMontoBruto = $compra->getCompraMontoBruto();
-                    $compraMontoNeto = $compra->getCompraMontoNeto();
-                    $compraTipoPago = $compra->getCompraTipoPago();
-                    $proveedorID = $compra->getProveedorID();
-                    $compraFechaCreacion = $compra->getCompraFechaCreacion();
-                    $compraFechaModificacion = $compra->getCompraFechaModificacion();
+               // Obtener los valores del objeto $compra
+        $clienteID = $compra->getClienteID(); // Asegúrate de que este método devuelva el ID del cliente
+        $proveedorID = $compra->getProveedorID();
+        $compraNumeroFactura = $compra->getCompraNumeroFactura();
+        $compraMoneda = $compra->getCompraMoneda();
+        $compraMontoBruto = $compra->getCompraMontoBruto();
+        $compraMontoNeto = $compra->getCompraMontoNeto();
+        $compraMontoImpuesto = $compra->getCompraMontoImpuesto();
+        $compraCondicionCompra = $compra->getCompraCondicionCompra();
+        $compraTipoPago = $compra->getCompraTipoPago();
+        $compraFechaCreacion = $compra->getCompraFechaCreacion();
+        $compraFechaModificacion = $compra->getCompraFechaModificacion();
 
-                // Asigna los valores a cada '?' de la consulta
-                mysqli_stmt_bind_param(
-                    $stmt,
-                    'isiddsss', // i: Entero, s: Cadena, d: Decimal
-                    $nextId,
-                    $compraNumeroFactura, 
-                    $proveedorID,
-                    $compraMontoBruto,
-                    $compraMontoNeto,
-                    $compraTipoPago,
-                    $compraFechaCreacion,
-                    $compraFechaModificacion
-                );
+        // Asigna los valores a cada '?' de la consulta
+        mysqli_stmt_bind_param(
+            $stmt,
+            'iiissdddssss', // Define el tipo de datos correcto para cada parámetro
+            $nextId,
+            $clienteID,
+            $proveedorID,
+            $compraNumeroFactura, 
+            $compraMoneda,
+            $compraMontoBruto,
+            $compraMontoNeto,
+            $compraMontoImpuesto,
+            $compraCondicionCompra,
+            $compraTipoPago,
+            $compraFechaCreacion,
+            $compraFechaModificacion
+        );
                 $result = mysqli_stmt_execute($stmt);
 
                     // Confirmar la transacción
@@ -256,10 +269,14 @@
                 $queryUpdate = 
                     "UPDATE " . TB_COMPRA . 
                     " SET " . 
+                    CLIENTE_ID . " = ?, " .
+                    PROVEEDOR_ID . " = ?, " .
                     COMPRA_NUMERO_FACTURA . " = ?, " .
-                    COMPRA_PROVEEDOR_ID . " = ?, " .
+                    COMPRA_MONEDA . " = ?, " .
                     COMPRA_MONTO_BRUTO . " = ?, " .
                     COMPRA_MONTO_NETO . " = ?, " .
+                    COMPRA_MONTO_IMPUESTO . " = ?, " .
+                    COMPRA_CONDICION_COMPRA . " = ?, " .
                     COMPRA_TIPO_PAGO . " = ?, " .
                     COMPRA_CREACION . " = ?, " .
                     COMPRA_MODIFICACION . " = ?, " .
@@ -271,11 +288,14 @@
                     throw new Exception("Error en la preparación de la consulta: " . mysqli_error($conn));
                 }
         
-                // Obtener los valores del objeto $compra
-                $compraNumeroFactura = $compra->getCompraNumeroFactura();   
+                $clienteID = $compra->getClienteID(); // Asegúrate de que este método devuelva el ID del cliente
                 $proveedorID = $compra->getProveedorID();
+                $compraNumeroFactura = $compra->getCompraNumeroFactura();
+                $compraMoneda = $compra->getCompraMoneda();
                 $compraMontoBruto = $compra->getCompraMontoBruto();
                 $compraMontoNeto = $compra->getCompraMontoNeto();
+                $compraMontoImpuesto = $compra->getCompraMontoImpuesto();
+                $compraCondicionCompra = $compra->getCompraCondicionCompra();
                 $compraTipoPago = $compra->getCompraTipoPago();
                 $compraFechaCreacion = $compra->getCompraFechaCreacion();
                 $compraFechaModificacion = $compra->getCompraFechaModificacion();
@@ -283,11 +303,15 @@
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'siddsssi', // s: String, d: Double (decimal), i: Integer
-                    $compraNumeroFactura, 
+                    'iissdddssssi', // s: String, d: Double (decimal), i: Integer
+                    $clienteID ,
                     $proveedorID,
+                    $compraNumeroFactura,
+                    $compraMoneda, 
                     $compraMontoBruto,
                     $compraMontoNeto,
+                    $compraMontoImpuesto,
+                    $compraCondicionCompra,
                     $compraTipoPago,
                     $compraFechaCreacion,
                     $compraFechaModificacion,
@@ -441,11 +465,14 @@
                 if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
         
-                // Construir la consulta SQL
-                $querySelect = "SELECT c.*, p.proveedornombre FROM " . TB_COMPRA . " c
-                                INNER JOIN " . TB_PROVEEDOR . " p ON c." . COMPRA_PROVEEDOR_ID . " = p.proveedorid";
+                   // Construir la consulta SQL
+                $querySelect = "SELECT c.*, cl.clientenombre, p.proveedornombre 
+                FROM " . TB_COMPRA . " c
+                 INNER JOIN " . TB_CLIENTE . " cl ON c." . CLIENTE_ID . " = cl.clienteid
+                 INNER JOIN " . TB_PROVEEDOR . " p ON c." . PROVEEDOR_ID . " = p.proveedorid";
+
                 if ($onlyActive) {  
-                    $querySelect .= " WHERE c." . COMPRA_ESTADO . " = 1"; // Asegúrate de que 1 represente estado activo
+                $querySelect .= " WHERE c." . COMPRA_ESTADO . " = 1"; // Asegúrate de que 1 represente estado activo
                 }
         
                 // Ejecutar la consulta
@@ -458,19 +485,30 @@
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Crear objeto Proveedor
                     $proveedor = new Proveedor(
-                        $row[COMPRA_PROVEEDOR_ID], // ID del proveedor
+                        $row[PROVEEDOR_ID], // ID del proveedor
                         $row['proveedornombre'] // Nombre del proveedor
                         // Agrega otros parámetros necesarios aquí...
                     );
+
+                        // Crear objeto Proveedor
+                        $cliente = new Cliente(
+                            $row[CLIENTE_ID], // ID del proveedor
+                            $row['clientenombre'] // Nombre del proveedor
+                            // Agrega otros parámetros necesarios aquí...
+                        );
         
                     // Crear objeto Compra
                     $compra = new Compra(
                         $row[COMPRA_ID],
+                        $cliente, // Pasa el objeto Proveedor aquí
+                        $proveedor, // Pasa el objeto Proveedor aquí
                         $row[COMPRA_NUMERO_FACTURA],
+                        $row[COMPRA_MONEDA],
                         $row[COMPRA_MONTO_BRUTO],
                         $row[COMPRA_MONTO_NETO],
+                        $row[COMPRA_MONTO_IMPUESTO],
+                        $row[COMPRA_CONDICION_COMPRA],
                         $row[COMPRA_TIPO_PAGO],
-                        $proveedor, // Pasa el objeto Proveedor aquí
                         $row[COMPRA_CREACION],
                         $row[COMPRA_MODIFICACION],
                         $row[COMPRA_ESTADO]
@@ -544,16 +582,21 @@
                 $querySelect = "
                     SELECT 
                         c." . COMPRA_ID . ", 
-                        c." . COMPRA_NUMERO_FACTURA . ",
+                        cl.clientenombre AS clienteNombre,
                         pr.proveedornombre AS proveedorNombre,
+                        c." . COMPRA_NUMERO_FACTURA . ",
+                        c." . COMPRA_MONEDA . ", 
                         c." . COMPRA_MONTO_BRUTO . ", 
                         c." . COMPRA_MONTO_NETO . ", 
+                        c." . COMPRA_MONTO_IMPUESTO . ", 
+                        c." . COMPRA_CONDICION_COMPRA . ", 
                         c." . COMPRA_TIPO_PAGO . ", 
                         c." . COMPRA_CREACION . ", 
                         c." . COMPRA_MODIFICACION . ", 
                         c." . COMPRA_ESTADO . "
                     FROM " . TB_COMPRA . " c
-                    JOIN tbproveedor pr ON c." . COMPRA_PROVEEDOR_ID .  " = pr.proveedorid
+                    JOIN tbproveedor pr ON c." . PROVEEDOR_ID .  " = pr.proveedorid
+                    JOIN tbcliente cl ON c." . CLIENTE_ID .  " = cl.clienteid
                     WHERE c." . COMPRA_ESTADO . " != false
                     
                 ";
@@ -591,11 +634,15 @@
                 $listaCompras = [];
                 while ($row = mysqli_fetch_assoc($result)) {
                     $listaCompras[] = [
-                        'ID' => $row[COMPRA_ID],                    
+                        'ID' => $row[COMPRA_ID],          
+                        'Cliente' => $row['clienteNombre'],
+                        'Proveedor' => $row['proveedorNombre'],          
                         'NumeroFactura' => $row[COMPRA_NUMERO_FACTURA], 
-                        'Proveedor' => $row['proveedorNombre'],
+                        'Moneda' => $row[COMPRA_MONEDA], // Agregando moneda
                         'MontoBruto' => $row[COMPRA_MONTO_BRUTO],   
-                        'MontoNeto' => $row[COMPRA_MONTO_NETO],     
+                        'MontoNeto' => $row[COMPRA_MONTO_NETO],   
+                        'MontoImpuesto' => $row[COMPRA_MONTO_IMPUESTO], // Agregando monto de impuesto  
+                        'CondicionCompra' => $row[COMPRA_CONDICION_COMPRA], // Agregando condición de compra
                         'TipoPago' => $row[COMPRA_TIPO_PAGO],       
                         'FechaCreacion' => $row[COMPRA_CREACION], 
                         'FechaModificacion' => $row[COMPRA_MODIFICACION], 
@@ -675,11 +722,15 @@
                 if ($row = mysqli_fetch_assoc($result)) {
                     $compra = new Compra(
                         $row[COMPRA_ID],
+                        $row[CLIENTE_ID],
+                        $row[PROVEEDOR_ID],
                         $row[COMPRA_NUMERO_FACTURA],  
+                        $row[COMPRA_MONEDA], // Moneda
                         $row[COMPRA_MONTO_BRUTO],
                         $row[COMPRA_MONTO_NETO],
+                        $row[COMPRA_MONTO_IMPUESTO], // Monto de impuesto
+                        $row[COMPRA_CONDICION_COMPRA], // Condición de compra
                         $row[COMPRA_TIPO_PAGO],  
-                        $row[COMPRA_PROVEEDOR_ID],
                         $row[COMPRA_CREACION],
                         $row[COMPRA_MODIFICACION],  
                         $row[COMPRA_ESTADO]

@@ -262,7 +262,7 @@
         
                 // Crea una consulta y un statement SQL para actualizar el registro
                 $queryUpdate = 
-                    "UPDATE " . TB_COMPRA . 
+                    "UPDATE " . TB_VENTA . 
                     " SET " . 
                     CLIENTE_ID . " = ?, " .
                     VENTA_NUMERO_FACTURA . " = ?, " . 

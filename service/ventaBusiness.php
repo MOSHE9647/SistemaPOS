@@ -90,19 +90,19 @@ Class VentaBusiness {
                 if ($validarCamposAdicionales) {
                     
                     
-                    if ($ventaCliente === null || !is_numeric($ventaCliente) || $ventaCliente < 0) {
-                        $errors[] = "El campo 'Cliente' está vacío.";
-                        Utils::writeLog("El campo 'Cliente ID [$ventaCliente]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
-                    }
+                   // if ($ventaCliente === null || !is_numeric($ventaCliente) || $ventaCliente < 0) {
+                     //   $errors[] = "El campo 'Cliente' está vacío.";
+                       // Utils::writeLog("El campo 'Cliente ID [$ventaCliente]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
+                  // }
 
                     if (empty($ventaNumeroFactura)) {
                         $errors[] = "El campo 'Número de factura' está vacío.";
                         Utils::writeLog("El campo 'Número de factura [$ventaNumeroFactura]' está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
                     }
     
-                    if ($ventaMoneda === null || !is_numeric($ventaMoneda)) {
-                        $errors[] = "El campo 'Número de factura' no puede ser negativo vacío.";
-                        Utils::writeLog("El campo 'Número de factura [$ventaMoneda]' no es valido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
+                    if ($ventaMoneda === null ) {
+                        $errors[] = "El campo 'Modena' no puede ser negativo vacío.";
+                        Utils::writeLog("El campo 'Modena [$ventaMoneda]' no es valido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
                     }
     
                     if ($ventaMontoBruto === null) {

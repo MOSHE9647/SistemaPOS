@@ -73,6 +73,11 @@
         public function setVentaFechaModificacion($ventaFechaModificacion) { $this->ventaFechaModificacion = $ventaFechaModificacion; }
         public function setVentaEstado(bool $ventaEstado) { $this->ventaEstado = $ventaEstado; }
 
+
+        public function getClienteID(): ?int {
+            return $this->ventaCliente ? $this->ventaCliente->getClienteID() : null;
+        }
+
         public function jsonSerialize() {
             return [
                 'ID' => $this->ventaID,

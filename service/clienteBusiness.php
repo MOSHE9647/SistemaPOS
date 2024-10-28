@@ -152,6 +152,16 @@
             return $this->clienteData->getVentaClienteByID($clienteID, $onlyActive, $deleted);
         }
 
+        public function getCompraClienteByID($clienteID, $onlyActive = false, $deleted = false) {
+            // Verifica que los datos del proveedor sean validos
+            $check = $this->validarClienteID($clienteID);
+            if (!$check["is_valid"]) {
+                return ["success" => $check["is_valid"], "message" => $check["message"]];
+            }
+
+            return $this->clienteData->getCompraClienteByID($clienteID, $onlyActive, $deleted);
+        }
+
     }
 
 ?>

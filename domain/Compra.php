@@ -20,9 +20,21 @@
         private $compraFechaModificacion;
         private $compraEstado;
 
-        public function __construct(int $compraID = -1, string $compraNumeroFactura = "", float $compraMontoBruto = 0.0, float $compraMontoNeto = 0.0, 
-            float $compraMontoImpuesto = 0.0, string $compraMoneda = "CRC", string $compraCondicionCompra = "Contado", string $compraTipoPago = "Efectivo", 
-            Proveedor $compraProveedor = null, Cliente $compraCliente = null, $compraFechaCreacion = "", $compraFechaModificacion = "", bool $compraEstado = true)
+        public function __construct(
+        int $compraID = -1, 
+        Cliente $compraCliente = null, 
+        Proveedor $compraProveedor = null, 
+        string $compraNumeroFactura = "", 
+        string $compraMoneda = "CRC", 
+        float $compraMontoBruto = 0.0, 
+        float $compraMontoNeto = 0.0, 
+        float $compraMontoImpuesto = 0.0, 
+        string $compraCondicionCompra = "Contado", 
+        string $compraTipoPago = "Efectivo", 
+        $compraFechaCreacion = "", 
+        $compraFechaModificacion = "", 
+        bool $compraEstado = true)
+
         {
             $this->compraID = $compraID;
             $this->compraCliente = $compraCliente;
@@ -69,6 +81,10 @@
 
         public function getProveedorID(): ?int {
             return $this->compraProveedor ? $this->compraProveedor->getProveedorID() : null;
+        }
+
+        public function getClienteID(): ?int {
+            return $this->compraCliente ? $this->compraCliente->getClienteID() : null;
         }
 
         public function jsonSerialize() {
