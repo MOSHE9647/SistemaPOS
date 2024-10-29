@@ -1042,11 +1042,11 @@
         private function procesarImagen($producto, $formatosPermitidos = ['jpg', 'jpeg', 'png', 'webp']) {
             // Verificar si se ha cargado un archivo
             $imagen = $producto->getProductoImagen();
-            if ($imagen['error'] !== UPLOAD_ERR_OK) {
+            if ($imagen['error'] !== UPLOAD_ERR_OK || $imagen === DEFAULT_PRODUCT_IMAGE) {
                 $this->asignarImagenPorDefecto($producto, DEFAULT_PRODUCT_IMAGE);
                 return ['success' => true];
             }
-        
+
             // Verificar extensión del archivo
             $extension = strtolower(pathinfo($imagen['name'], PATHINFO_EXTENSION));
             if (!in_array($extension, $formatosPermitidos)) {
