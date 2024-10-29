@@ -12,7 +12,7 @@
         {
             $this->presentacionID = $presentacionID;
             $this->presentacionNombre = strtoupper($presentacionNombre);
-            $this->presentacionDescripcion = $presentacionDescripcion;
+            $this->presentacionDescripcion = ucfirst($presentacionDescripcion);
             $this->presentacionEstado = $presentacionEstado;
         }
 
@@ -24,7 +24,7 @@
 
         public function setPresentacionID(int $presentacionID) { $this->presentacionID = $presentacionID; }
         public function setPresentacionNombre(string $presentacionNombre) { $this->presentacionNombre = strtoupper($presentacionNombre); }
-        public function setPresentacionDescripcion(string $presentacionDescripcion) { $this->presentacionDescripcion = $presentacionDescripcion; }
+        public function setPresentacionDescripcion(string $presentacionDescripcion) { $this->presentacionDescripcion = ucfirst($presentacionDescripcion); }
         public function setPresentacionEstado(bool $presentacionEstado) { $this->presentacionEstado = $presentacionEstado; }
 
         // JsonSerializable

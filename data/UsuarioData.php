@@ -151,10 +151,10 @@
                 $queryInsert = 
                     "INSERT INTO " . TB_USUARIO . " ("
                         . USUARIO_ID . ", "
+                        . ROL_ID . ", "
                         . USUARIO_NOMBRE . ", "
                         . USUARIO_APELLIDO_1 . ", "
                         . USUARIO_APELLIDO_2 . ", "
-                        . USUARIO_ROL_ID . ", "
                         . USUARIO_EMAIL . ", "
                         . USUARIO_PASSWORD . 
                     ") VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -170,12 +170,12 @@
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt, 
-                    "isssiss", 
+                    "iisssss", 
                     $nextId, 
+                    $usuarioRolID,
                     $usuarioNombre, 
                     $usuarioApellido1, 
                     $usuarioApellido2, 
-                    $usuarioRolID, 
                     $usuarioEmail, 
                     $usuarioPassword
                 );
@@ -250,10 +250,10 @@
                 // Crea una consulta y un statement SQL para actualizar el registro
                 $queryUpdate = 
                     "UPDATE " . TB_USUARIO . " SET "
+                        . ROL_ID . " = ?, "
                         . USUARIO_NOMBRE . " = ?, "
                         . USUARIO_APELLIDO_1 . " = ?, "
                         . USUARIO_APELLIDO_2 . " = ?, "
-                        . USUARIO_ROL_ID . " = ?, "
                         . USUARIO_EMAIL . " = ?, "
                         . USUARIO_PASSWORD . " = ?, "
                         . USUARIO_ESTADO . " = TRUE "
@@ -269,11 +269,11 @@
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt, 
-                    "sssissi", 
+                    "isssssi", 
+                    $usuarioRolID, 
                     $usuarioNombre, 
                     $usuarioApellido1, 
                     $usuarioApellido2, 
-                    $usuarioRolID, 
                     $usuarioEmail, 
                     $usuarioPassword, 
                     $usuarioID
@@ -365,7 +365,7 @@
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Obtiene el rol del usuario
                     $rolData = new RolData();
-                    $rolUsuario = $rolData->getRolByID($row[USUARIO_ROL_ID], false);
+                    $rolUsuario = $rolData->getRolByID($row[ROL_ID], false);
                     if (!$rolUsuario["success"]) { throw new Exception($rolUsuario["message"]); }
 
                     // Crea un objeto Usuario con los datos obtenidos
@@ -377,8 +377,8 @@
                         $row[USUARIO_EMAIL],
                         $row[USUARIO_PASSWORD],
                         $rolUsuario["rol"],
-                        $row[USUARIO_FECHA_CREACION],
-                        $row[USUARIO_FECHA_MODIFICACION],
+                        $row[USUARIO_CREACION],
+                        $row[USUARIO_MODIFICACION],
                         $row[USUARIO_ESTADO]
                     );
                     $usuarios[] = $usuario;
@@ -431,7 +431,7 @@
                     FROM " . 
                         TB_USUARIO . " U
                     INNER JOIN " .
-                        TB_ROL . " R ON U." . USUARIO_ROL_ID . " = R." . ROL_ID
+                        TB_ROL . " R ON U." . ROL_ID . " = R." . ROL_ID
                 ;
 
                 // Agregar filtro de búsqueda a la consulta
@@ -477,7 +477,7 @@
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Obtiene el rol del usuario
                     $rolData = new RolData();
-                    $rolUsuario = $rolData->getRolByID($row[USUARIO_ROL_ID], false);
+                    $rolUsuario = $rolData->getRolByID($row[ROL_ID], false);
                     if (!$rolUsuario["success"]) { throw new Exception($rolUsuario["message"]); }
 
                     // Crea un objeto Usuario con los datos obtenidos
@@ -489,8 +489,8 @@
                         $row[USUARIO_EMAIL],
                         $row[USUARIO_PASSWORD],
                         $rolUsuario["rol"],
-                        $row[USUARIO_FECHA_CREACION],
-                        $row[USUARIO_FECHA_MODIFICACION],
+                        $row[USUARIO_CREACION],
+                        $row[USUARIO_MODIFICACION],
                         $row[USUARIO_ESTADO]
                     );
                     $usuarios[] = $usuario;
@@ -565,7 +565,7 @@
 
                     // Obtiene el rol del usuario
                     $rolData = new RolData();
-                    $rolUsuario = $rolData->getRolByID($row[USUARIO_ROL_ID], false);
+                    $rolUsuario = $rolData->getRolByID($row[ROL_ID], false);
                     if (!$rolUsuario["success"]) { throw new Exception($rolUsuario["message"]); }
 
                     // Crea un objeto Usuario con los datos obtenidos
@@ -577,8 +577,8 @@
                         $row[USUARIO_EMAIL],
                         $row[USUARIO_PASSWORD],
                         $rolUsuario["rol"],
-                        $row[USUARIO_FECHA_CREACION],
-                        $row[USUARIO_FECHA_MODIFICACION],
+                        $row[USUARIO_CREACION],
+                        $row[USUARIO_MODIFICACION],
                         $row[USUARIO_ESTADO]
                     );
 
@@ -642,7 +642,7 @@
                     
                     // Obtiene el rol del usuario
                     $rolData = new RolData();
-                    $rolUsuario = $rolData->getRolByID($row[USUARIO_ROL_ID], false);
+                    $rolUsuario = $rolData->getRolByID($row[ROL_ID], false);
                     if (!$rolUsuario["success"]) { throw new Exception($rolUsuario["message"]); }
 
                     // Crea un objeto Usuario con los datos obtenidos
@@ -654,8 +654,8 @@
                         $row[USUARIO_EMAIL],
                         $row[USUARIO_PASSWORD],
                         $rolUsuario["rol"],
-                        $row[USUARIO_FECHA_CREACION],
-                        $row[USUARIO_FECHA_MODIFICACION],
+                        $row[USUARIO_CREACION],
+                        $row[USUARIO_MODIFICACION],
                         $row[USUARIO_ESTADO]
                     );
 

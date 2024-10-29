@@ -11,7 +11,7 @@ function limpiarGlobales() {
 }
 
 // Función para cargar la vista de usuarios
-export async function cargarUsuarios() {
+export function cargarUsuarios() {
     // Limpia funciones globales anteriores
     limpiarGlobales();
 

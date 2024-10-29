@@ -16,13 +16,13 @@
         }
 
         // Datos recibidos en la solicitud
-        $id         = isset($_POST['id'])           ? $_POST['id']          :  -1;
-        $provincia  = isset($_POST['provincia'])    ? $_POST['provincia']   :  "";
-        $canton     = isset($_POST['canton'])       ? $_POST['canton']      :  "";
-        $distrito   = isset($_POST['distrito'])     ? $_POST['distrito']    :  "";
-        $barrio     = isset($_POST['barrio'])       ? $_POST['barrio']      :  "";
-        $sennas     = isset($_POST['sennas'])       ? $_POST['sennas']      :  "";
-        $distancia  = isset($_POST['distancia'])    ? $_POST['distancia']   : 0.0;
+        $id         = isset($_POST['id'])           ? intval($_POST['id'])          :  -1;
+        $provincia  = isset($_POST['provincia'])    ? $_POST['provincia']           :  "";
+        $canton     = isset($_POST['canton'])       ? $_POST['canton']              :  "";
+        $distrito   = isset($_POST['distrito'])     ? $_POST['distrito']            :  "";
+        $barrio     = isset($_POST['barrio'])       ? $_POST['barrio']              :  "";
+        $sennas     = isset($_POST['sennas'])       ? $_POST['sennas']              :  "";
+        $distancia  = isset($_POST['distancia'])    ? floatval($_POST['distancia']) : 0.0;
 
         // Crea y verifica que los datos de la direccion sean correctos
         $direccion = new Direccion($id, $provincia, $canton, $distrito, $barrio, $sennas, $distancia);
@@ -46,6 +46,7 @@
                 default:
                     // Error en caso de que la accion no sea válida
                     Utils::enviarRespuesta(400, false, "Acción no válida.");
+                    break;
             }
         } else {
             // Si los datos no son validos, se devuelve un mensaje de error

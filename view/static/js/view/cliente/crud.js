@@ -46,9 +46,9 @@ async function obtenerClientePorID(id, filter = true, deleted = false) {
  * @returns {void}
  */
 export async function insertCliente(formData) {
+    showLoader(); // Mostrar el loader
+    
     try {
-        showLoader(); // Mostrar el loader
-
         // Enviar la solicitud POST al servidor con los datos del cliente
         const response = await fetch(`${window.baseURL}/controller/clienteAction.php`, {
             method: 'POST',
@@ -106,9 +106,9 @@ export async function insertCliente(formData) {
  * @returns {void}
  */
 export async function updateCliente(formData) {
+    showLoader(); // Mostrar el loader
+    
     try {
-        showLoader(); // Mostrar el loader
-
         // Enviar la solicitud POST al servidor con los datos del cliente
         const response = await fetch(`${window.baseURL}/controller/clienteAction.php`, {
             method: 'POST',
@@ -155,10 +155,9 @@ export async function deleteCliente(id) {
         mostrarMensaje("Se canceló la eliminación del cliente", 'info', 'Eliminación cancelada');
         return; // Salir de la función si se cancela la eliminación
     }
+    showLoader(); // Mostrar el loader
 
     try {
-        showLoader(); // Mostrar el loader
-
         // Enviar la solicitud POST al servidor con el id del cliente a eliminar
         const response = await fetch(`${window.baseURL}/controller/clienteAction.php`, {
             method: 'POST',

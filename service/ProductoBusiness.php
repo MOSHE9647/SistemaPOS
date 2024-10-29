@@ -251,5 +251,20 @@
             return $this->productoData->getProductoByID($productoID, $onlyActive, $deleted);
         }      
 
+        /**
+         * Obtiene un producto por su código de barras.
+         *
+         * @param string $codigoBarras El código de barras del producto a obtener.
+         * @return array Resultado de la operación con éxito y mensaje o el producto obtenido.
+         */
+        public function getProductoByCodigoBarras($codigoBarras) {
+            // Verifica que el código de barras sea válido
+            if (!is_string($codigoBarras) || strlen($codigoBarras) != 13 || !ctype_digit($codigoBarras)) {
+                return ["success" => false, "message" => "El Código de Barras introducido no es válido: El código debe tener 13 dígitos"];
+            }
+
+            return $this->productoData->getProductoByCodigoBarras($codigoBarras);
+        }
+
     }
 ?>

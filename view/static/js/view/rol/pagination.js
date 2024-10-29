@@ -1,3 +1,4 @@
+import { showTableLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
 import { renderTable } from "./gui.js";
 
@@ -35,6 +36,8 @@ window.pageSize = DEFAULT_PAGE_SIZE;
  * @returns {void}
  */
 export async function fetchRoles(page, size, sort) {
+    showTableLoader('table-roles-body', 'Cargando lista de roles...'); // Mostrar el loader de la tabla
+
     try {
         // Realizar solicitud GET al servidor para obtener la lista de roles
         const response = await fetch(

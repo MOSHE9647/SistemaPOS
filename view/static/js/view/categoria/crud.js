@@ -45,9 +45,9 @@ async function obtenerCategoriaPorID(id, filter = true, deleted = false) {
  * @returns {void}
  */
 export async function insertCategoria(formData) {
+    showLoader(); // Mostrar el loader
+    
     try {
-        showLoader(); // Mostrar el loader
-
         // Enviar la solicitud POST al servidor con los datos de la categoría
         const response = await fetch(`${window.baseURL}/controller/categoriaAction.php`, {
             method: 'POST',
@@ -105,9 +105,9 @@ export async function insertCategoria(formData) {
  * @returns {void}
  */
 export async function updateCategoria(formData) {
+    showLoader(); // Mostrar el loader
+    
     try {
-        showLoader(); // Mostrar el loader
-
         // Enviar la solicitud POST al servidor con los datos de la categoría
         const response = await fetch(`${window.baseURL}/controller/categoriaAction.php`, {
             method: 'POST',
@@ -153,10 +153,9 @@ export async function deleteCategoria(id) {
         mostrarMensaje('Se canceló la eliminación de la categoría', 'info', 'Eliminación cancelada');
         return; // Salir de la función si se cancela la eliminación
     }
+    showLoader(); // Mostrar el loader
 
     try {
-        showLoader(); // Mostrar el loader
-
         // Enviar la solicitud POST al servidor con el id de la categoría a eliminar
         const response = await fetch(`${window.baseURL}/controller/categoriaAction.php`, {
             method: 'POST',

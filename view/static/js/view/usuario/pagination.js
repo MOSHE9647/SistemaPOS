@@ -1,3 +1,4 @@
+import { hideLoader, showLoader, showTableLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
 import { renderTable } from "./gui.js";
 
@@ -37,6 +38,12 @@ window.pageSize = DEFAULT_PAGE_SIZE;
  * @returns {void}
  */
 export async function fetchUsuarios(page, size, sort, search = '') {
+    // Mostrar el loader
+    showLoader();
+
+    // Vaciar la tabla y mostrar el loader de la misma
+    showTableLoader('table-usuarios-body', 'Cargando lista de usuarios...');
+
     try {
         // Realizar solicitud GET al servidor para obtener la lista de usuarios
         const response = await fetch(
@@ -65,6 +72,9 @@ export async function fetchUsuarios(page, size, sort, search = '') {
     } catch (error) {
         // Mostrar mensaje de error si la solicitud falla
         mostrarMensaje(`Ocurrió un error al obtener la lista de usuarios.<br>${error}`, 'error', 'Error al obtener los usuarios');
+    } finally {
+        // Ocultar el loader
+        hideLoader();
     }
 }
 

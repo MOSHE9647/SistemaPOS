@@ -1,3 +1,4 @@
+import { hideLoader, showLoader, showTableLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
 import { renderTable } from "./gui.js";
 
@@ -37,6 +38,10 @@ window.pageSize = DEFAULT_PAGE_SIZE;
  * @returns {void}
  */
 export async function fetchClientes(page, size, sort, search = '') {
+    // Mostrar el loader
+    showLoader();
+    showTableLoader('table-clientes-body', 'Cargando lista de clientes...'); // Mostrar el loader en la tabla de clientes
+
     try {
         // Realizar solicitud GET al servidor para obtener la lista de clientes
         const response = await fetch(
@@ -65,6 +70,9 @@ export async function fetchClientes(page, size, sort, search = '') {
     } catch (error) {
         // Muestra el mensaje de error detallado
         mostrarMensaje(`Ocurrió un error al obtener la lista de clientes. ${error}`, 'error', 'Error interno');
+    } finally {
+        // Ocultar el loader
+        hideLoader();
     }
 }
 

@@ -2,7 +2,6 @@
 // ************* Métodos para el manejo de la GUI ************* //
 // ************************************************************ //
 
-import { showLoader, hideLoader } from '../../gui/loader.js';
 import { mostrarMensaje } from '../../gui/notification.js';
 import { checkEmptyTable } from '../../utils.js';
 import { updateRol, insertRol } from './crud.js';
@@ -25,7 +24,6 @@ let roles = [];
  * @returns {void}
  */
 export function renderTable(listaRoles) {
-    showLoader();
     roles = listaRoles;
 
     const tableBodyID = 'table-roles-body';
@@ -67,7 +65,6 @@ export function renderTable(listaRoles) {
     });
 
     checkEmptyTable(tableBodyID, 'las la-exclamation-circle');
-    hideLoader();
 }
 
 /**

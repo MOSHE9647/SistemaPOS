@@ -1,3 +1,4 @@
+import { hideLoader, showLoader, showTableLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
 import { renderTable } from "./gui.js";
 
@@ -37,6 +38,10 @@ window.pageSize = DEFAULT_PAGE_SIZE;
  * @returns {void}
  */
 export async function fetchProductos(page, size, sort, search = '') {
+    // Mostrar el loader
+    showLoader();
+    showTableLoader('table-productos-body', 'Cargando lista de productos...'); // Mostrar el loader en la tabla de productos
+
     try {
         // Realizar solicitud GET al servidor para obtener la lista de productos
         const response = await fetch(
@@ -65,6 +70,9 @@ export async function fetchProductos(page, size, sort, search = '') {
     } catch (error) {
         // Mostrar mensaje de error si la solicitud falla
         mostrarMensaje(`Ocurrió un error al obtener los productos.<br>${error}`, 'error', 'Error al obtener productos');
+    } finally {
+        // Ocultar el loader
+        hideLoader();
     }
 }
 

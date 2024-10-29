@@ -16,16 +16,20 @@ if ($method == "POST") {
 
     // Datos de CompraDetalle recibidos en la solicitud
     $compraDetalleID           = isset($_POST['id'])                  ? intval($_POST['id'])                : -1;
-    $compraDetalleCompra       = isset($_POST['compra'])              ? intval($_POST['compra'])            : -1;
-    $compraDetalleProducto     = isset($_POST['producto'])            ? intval($_POST['producto'])          : -1;
-    $compraDetalleFechaCreacion = isset($_POST['fechaCreacion'])      ? $_POST['fechaCreacion']            : "";
-    $compraDetalleFechaModificacion = isset($_POST['fechaModificacion']) ? $_POST['fechaModificacion']    : "";
+    $compraDetalleCompraID     = isset($_POST['compra'])              ? intval($_POST['compra'])            : -1;
+    $compraDetalleProductoID   = isset($_POST['producto'])            ? intval($_POST['producto'])          : -1;
+    $compraDetallePrecio       = isset($_POST['precio'])              ? floatval($_POST['precio'])          : 0.0;
+    $compraDetalleCantidad     = isset($_POST['cantidad'])            ? intval($_POST['cantidad'])          : 0;
     $compraDetalleEstado       = isset($_POST['estado'])              ? intval($_POST['estado'])            : 1;
 
     // Crear un objeto CompraDetalle con los datos recibidos
     $compraDetalle = new CompraDetalle(
-        $compraDetalleID, $compraDetalleCompraID, $compraDetalleProductoID,
-        $compraDetalleFechaCreacion, $compraDetalleFechaModificacion, $compraDetalleEstado
+        $compraDetalleID, 
+        $compraDetallePrecio, 
+        $compraDetalleCantidad, 
+        new Compra($compraDetalleCompraID), 
+        new Producto($compraDetalleProductoID), 
+        boolval($compraDetalleEstado)
     );
 
     // Realizar la acción solicitada si los datos son válidos
@@ -60,7 +64,7 @@ else if ($method == "GET") {
     $accion     = isset($_GET['accion'])    ? $_GET['accion']           : "";
     $deleted    = isset($_GET['deleted'])   ? boolval($_GET['deleted']) : false;
     $onlyActive = isset($_GET['filter'])    ? boolval($_GET['filter'])  : true;
-    Utils::writeLog("accion:".$accion.CONTROLLER_LOG_FILE);
+
     // Realizar la acción solicitada
     switch ($accion) {
         case 'all':

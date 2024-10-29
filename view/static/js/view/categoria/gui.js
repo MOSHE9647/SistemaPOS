@@ -2,7 +2,6 @@
 // ************* Métodos para el manejo de la GUI ************* //
 // ************************************************************ //
 
-import { showLoader, hideLoader } from '../../gui/loader.js';
 import { updateCategoria, insertCategoria } from './crud.js';
 import { mostrarMensaje } from '../../gui/notification.js';
 import { checkEmptyTable } from '../../utils.js';
@@ -25,7 +24,6 @@ let categorias = [];
  * @returns {void}
  */
 export function renderTable(listaCategorias) {
-    showLoader();
     categorias = listaCategorias;
 
     const tableBodyID = 'table-categorias-body';
@@ -59,7 +57,6 @@ export function renderTable(listaCategorias) {
     });
 
     checkEmptyTable(tableBodyID, 'las la-exclamation-circle');
-    hideLoader();
 }
 
 /**

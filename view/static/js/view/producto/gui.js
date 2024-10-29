@@ -27,7 +27,6 @@ let productos = [];
  * @returns {void}
  */
 export function renderTable(listaProductos) {
-    showLoader();
     productos = listaProductos;
 
     // Obtener el cuerpo de la tabla

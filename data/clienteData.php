@@ -26,7 +26,7 @@
 				$conn = $result["connection"];
 
                 // Inicializa la consulta base
-                $queryCheck = "SELECT " . CLIENTE_ID . ", " . CLIENTE_TELEFONO_ID . ", " . CLIENTE_ESTADO . " FROM " . TB_CLIENTE . " WHERE ";
+                $queryCheck = "SELECT " . CLIENTE_ID . ", " . TELEFONO_ID . ", " . CLIENTE_ESTADO . " FROM " . TB_CLIENTE . " WHERE ";
 				$params = [];
 				$types = "";
 
@@ -39,14 +39,14 @@
 
                 // Consulta para verificar si existe un cliente con el teléfono ingresado
                 else if ($insert && $clienteTelefonoID) {
-                    $queryCheck .= CLIENTE_TELEFONO_ID . " = ? ";
+                    $queryCheck .= TELEFONO_ID . " = ? ";
                     $params[] = $clienteTelefonoID;
                     $types .= "i";
                 }
 
                 // Consulta en caso de actualizar para verificar si existe un cliente con el mismo número de teléfono
                 else if ($update && ($clienteID && $clienteTelefonoID)) {
-                    $queryCheck .= CLIENTE_TELEFONO_ID . " = ? AND " . CLIENTE_ID . " != ? ";
+                    $queryCheck .= TELEFONO_ID . " = ? AND " . CLIENTE_ID . " != ? ";
                     $params = [$clienteTelefonoID, $clienteID];
                     $types .= "ii";
                 }
@@ -72,7 +72,7 @@
                     // Verificar si está inactivo (bit de estado en 0)
                     $isInactive = $row[CLIENTE_ESTADO] == 0;
                     return [
-                        "success" => true, "exists" => true, "telefonoID" => $row[CLIENTE_TELEFONO_ID],
+                        "success" => true, "exists" => true, "telefonoID" => $row[TELEFONO_ID],
                         "inactive" => $isInactive, "clienteID" => $row[CLIENTE_ID]
                     ];
                 }
@@ -167,10 +167,9 @@
                 $queryInsert = 
                     "INSERT INTO " . TB_CLIENTE . " ("
                         . CLIENTE_ID . ", "
+                        . TELEFONO_ID . ", "
                         . CLIENTE_NOMBRE . ", "
-                        . CLIENTE_ALIAS . ", "
-                        . CLIENTE_TELEFONO_ID . ", "
-                        . CLIENTE_USUARIO_ID . 
+                        . CLIENTE_ALIAS .
                     ") VALUES (?, ?, ?, ?)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
 
@@ -178,10 +177,9 @@
                 $clienteNombre = $cliente->getClienteNombre();
                 $clienteAlias = $cliente->getClienteAlias();
                 $clienteTelefonoID = $clienteTelefono->getTelefonoID();
-                $clienteUsuarioID = $cliente->getClienteUsuario()->getUsuarioID() ?? -1;
 
                 // Asignar los parámetros y ejecutar la consulta
-                mysqli_stmt_bind_param($stmt, "issii", $nextId, $clienteNombre, $clienteAlias, $clienteTelefonoID, $clienteUsuarioID);
+                mysqli_stmt_bind_param($stmt, "iiss", $nextId, $clienteTelefonoID, $clienteNombre, $clienteAlias);
                 mysqli_stmt_execute($stmt);
 
                 // Confirmar la transacción
@@ -258,10 +256,9 @@
                 // Crea una consulta y un statement SQL para actualizar el registro
                 $queryUpdate = 
                     "UPDATE " . TB_CLIENTE . " SET "
+                        . TELEFONO_ID . " = ?, "
                         . CLIENTE_NOMBRE . " = ?, "
                         . CLIENTE_ALIAS . " = ?, "
-                        . CLIENTE_TELEFONO_ID . " = ?, "
-                        . CLIENTE_USUARIO_ID . " = ?, "
                         . CLIENTE_ESTADO . " = TRUE "
                     . "WHERE " . CLIENTE_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
@@ -269,10 +266,9 @@
                 // Obtener los valores del objeto Cliente
                 $clienteNombre = $cliente->getClienteNombre();
                 $clienteAlias = $cliente->getClienteAlias();
-                $clienteUsuarioID = $cliente->getClienteUsuario()->getUsuarioID() ?? -1;
 
                 // Asignar los parámetros y ejecutar la consulta
-                mysqli_stmt_bind_param($stmt, "ssiii", $clienteNombre, $clienteAlias, $clienteTelefonoID, $clienteUsuarioID, $clienteID);
+                mysqli_stmt_bind_param($stmt, "issi", $clienteTelefonoID, $clienteNombre, $clienteAlias, $clienteID);
                 mysqli_stmt_execute($stmt);
 
                 // Confirmar la transacción
@@ -385,7 +381,7 @@
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Obtiene el telefono del cliente
                     $telefonoData = new TelefonoData();
-                    $telefono = $telefonoData->getTelefonoByID($row[CLIENTE_TELEFONO_ID]);
+                    $telefono = $telefonoData->getTelefonoByID($row[TELEFONO_ID]);
                     if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
 
                     // Crea un objeto Cliente con los datos obtenidos
@@ -394,9 +390,8 @@
                         $row[CLIENTE_NOMBRE],
                         $row[CLIENTE_ALIAS],
                         $telefono["telefono"],
-                        new Usuario($row[CLIENTE_USUARIO_ID]),
-                        $row[CLIENTE_FECHA_CREACION],
-                        $row[CLIENTE_FECHA_MODIFICACION],
+                        $row[CLIENTE_CREACION],
+                        $row[CLIENTE_MODIFICACION],
                         $row[CLIENTE_ESTADO]
                     );
                     $clientes[] = $cliente;
@@ -449,20 +444,11 @@
                     SELECT 
                         c.*,
                         t.*,
-                        u.*,
-                        r.*,
-                        u." . USUARIO_EMAIL . " AS email,
-                        CONCAT(t." . TELEFONO_CODIGO_PAIS . ", ' ', t." . TELEFONO_NUMERO . ") AS telefono,
-                        CONCAT(u." . USUARIO_NOMBRE . ", ' ', u." . USUARIO_APELLIDO_1 . ", ' ', u." . USUARIO_APELLIDO_2 . ") AS usuario
+                        CONCAT(t." . TELEFONO_CODIGO_PAIS . ", ' ', t." . TELEFONO_NUMERO . ") AS telefono
                     FROM " . 
                         TB_CLIENTE . " c 
-                    INNER JOIN " . TB_TELEFONO . " t 
-                        ON c." . CLIENTE_TELEFONO_ID . " = t." . TELEFONO_ID . " 
-                    LEFT JOIN " . TB_USUARIO . " u 
-                        ON c." . CLIENTE_USUARIO_ID . " = u." . USUARIO_ID . "
-                    LEFT JOIN " . TB_ROL . " r 
-                        ON u." . USUARIO_ROL_ID . " = r." . ROL_ID . "
-                    "
+                    INNER JOIN " . 
+                        TB_TELEFONO . " t ON c." . TELEFONO_ID . " = t." . TELEFONO_ID
                 ;
 
                 // Agregar filtro de búsqueda a la consulta
@@ -470,12 +456,10 @@
                 $types = "";
                 if ($search) {
                     $querySelect .= " WHERE (" . CLIENTE_NOMBRE . " LIKE ?";
-                    $querySelect .= " OR telefono LIKE ?";
-                    $querySelect .= " OR email LIKE ?";
-                    $querySelect .= " OR usuario LIKE ?)";
+                    $querySelect .= " OR telefono LIKE ?)";
                     $searchParam = "%" . $search . "%";
-                    $params = [$searchParam, $searchParam, $searchParam];
-                    $types .= "sss";
+                    $params = [$searchParam, $searchParam];
+                    $types .= "ss";
                 }
 
                 // Agregar filtro de estado a la consulta
@@ -486,12 +470,7 @@
 
                 // Agregar ordenamiento a la consulta
                 if ($sort) {
-                    $allowedSortFields = ['telefono', 'usuario', 'email'];
-                    if (in_array($sort, $allowedSortFields)) {
-                        $querySelect .= " ORDER BY $sort ";
-                    } else {
-                        $querySelect .= " ORDER BY c.cliente$sort";
-                    }
+                    $querySelect .= " ORDER BY " . ($sort === 'telefono' ? $sort : "c.cliente$sort");
                 } else {
                     $querySelect .= " ORDER BY " . CLIENTE_ID . " DESC";
                 }
@@ -512,39 +491,19 @@
                 // Crear un array para almacenar los clientes
                 $clientes = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $usuarioID = $row[CLIENTE_USUARIO_ID];
-                    $clienteUsuario = $usuarioID != -1 ? new Usuario(
-                        $usuarioID,
-                        $row[USUARIO_NOMBRE],
-                        $row[USUARIO_APELLIDO_1],
-                        $row[USUARIO_APELLIDO_2],
-                        new RolUsuario(
-                            $row[USUARIO_ROL_ID],
-                            $row[ROL_NOMBRE],
-                            $row[ROL_DESCRIPCION],
-                            $row[ROL_ESTADO]
-                        ),
-                        $row['email'],
-                        $row[USUARIO_PASSWORD],
-                        $row[USUARIO_FECHA_CREACION],
-                        $row[USUARIO_FECHA_MODIFICACION],
-                        $row[USUARIO_ESTADO]
-                    ) : null;
-
                     $clientes[] = new Cliente(
                         $row[CLIENTE_ID], 
                         $row[CLIENTE_NOMBRE],
                         $row[CLIENTE_ALIAS],
                         new Telefono(
-                            $row[CLIENTE_TELEFONO_ID],
+                            $row[TELEFONO_ID],
                             $row[TELEFONO_TIPO],
                             $row[TELEFONO_CODIGO_PAIS],
                             $row[TELEFONO_NUMERO],
                             $row[TELEFONO_EXTENSION]
                         ),
-                        $clienteUsuario,
-                        $row[CLIENTE_FECHA_CREACION],
-                        $row[CLIENTE_FECHA_MODIFICACION],
+                        $row[CLIENTE_CREACION],
+                        $row[CLIENTE_MODIFICACION],
                         $row[CLIENTE_ESTADO]
                     );
                 }
@@ -616,7 +575,7 @@
                 if ($row = mysqli_fetch_assoc($result)) {
                     // Obtiene el telefono del cliente
                     $telefonoData = new TelefonoData();
-                    $telefono = $telefonoData->getTelefonoByID($row[CLIENTE_TELEFONO_ID], false);
+                    $telefono = $telefonoData->getTelefonoByID($row[TELEFONO_ID], false);
                     if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
 
                     // Crea un objeto Cliente con los datos obtenidos
@@ -625,9 +584,8 @@
                         $row[CLIENTE_NOMBRE],
                         $row[CLIENTE_ALIAS],
                         $telefono["telefono"],
-                        new Usuario($row[CLIENTE_USUARIO_ID]),
-                        $row[CLIENTE_FECHA_CREACION],
-                        $row[CLIENTE_FECHA_MODIFICACION],
+                        $row[CLIENTE_CREACION],
+                        $row[CLIENTE_MODIFICACION],
                         $row[CLIENTE_ESTADO]
                     );
                     return ["success" => true, "cliente" => $cliente];
@@ -675,7 +633,7 @@
                 $conn = $result["connection"];
 
                 // Crea una consulta y un statement SQL para obtener el registro
-                $querySelect = "SELECT * FROM " . TB_CLIENTE . " WHERE " . CLIENTE_TELEFONO_ID . " = ? AND " . CLIENTE_ESTADO . " != FALSE";
+                $querySelect = "SELECT * FROM " . TB_CLIENTE . " WHERE " . TELEFONO_ID . " = ? AND " . CLIENTE_ESTADO . " != FALSE";
                 $stmt = mysqli_prepare($conn, $querySelect);
 
                 // Asignar los parámetros y ejecutar la consulta
@@ -687,7 +645,7 @@
                 if ($row = mysqli_fetch_assoc($result)) {
                     // Obtiene el telefono del cliente
                     $telefonoData = new TelefonoData();
-                    $telefono = $telefonoData->getTelefonoByID($row[CLIENTE_TELEFONO_ID]);
+                    $telefono = $telefonoData->getTelefonoByID($row[TELEFONO_ID]);
                     if (!$telefono["success"]) { throw new Exception($telefono["message"]); }
 
                     // Crea un objeto Cliente con los datos obtenidos
@@ -696,9 +654,8 @@
                         $row[CLIENTE_NOMBRE],
                         $row[CLIENTE_ALIAS],
                         $telefono["telefono"],
-                        new Usuario($row[CLIENTE_USUARIO_ID]),
-                        $row[CLIENTE_FECHA_CREACION],
-                        $row[CLIENTE_FECHA_MODIFICACION],
+                        $row[CLIENTE_CREACION],
+                        $row[CLIENTE_MODIFICACION],
                         $row[CLIENTE_ESTADO]
                     );
                     return ["success" => true, "cliente" => $cliente];
@@ -722,6 +679,129 @@
                 // Cerrar la conexión y liberar recursos
                 if (isset($stmt)) { mysqli_stmt_close($stmt); }
                 if (isset($conn)) { mysqli_close($conn); }
+            }
+        }
+
+
+        public function getVentaClienteByID($clienteID) {
+            $conn = null;
+            $stmt = null;
+        
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
+                }
+                $conn = $result["connection"];
+        
+                // Consulta SQL para obtener solo el ID y el nombre del proveedor
+                $querySelect = "
+                    SELECT 
+                        " . CLIENTE_ID . ", 
+                        " . CLIENTE_NOMBRE . " 
+                    FROM " . TB_CLIENTE . " 
+                    WHERE " . CLIENTE_ID . " = ?";
+                $stmt = mysqli_prepare($conn, $querySelect);
+        
+                // Vincula los parámetros de la consulta
+                mysqli_stmt_bind_param($stmt, 'i', $clienteID);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+        
+              // Obtener el resultado de la consulta
+        if ($row = mysqli_fetch_assoc($result)) {
+            // Retorna una instancia de Proveedor
+            return new Cliente($row[CLIENTE_ID], $row[CLIENTE_NOMBRE]);
+        }
+        
+                // Retorna false si no se encontraron resultados
+                return [
+                    "success" => false,
+                    "message" => "No se encontró ningún cliente con el ID proporcionado."
+                ];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener el cliente desde la base de datos',
+                    $this->className
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return [
+                    "success" => false,
+                    "message" => $userMessage
+                ];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt)) {
+                    mysqli_stmt_close($stmt);
+                }
+                if (isset($conn)) {
+                    mysqli_close($conn);
+                }
+            }
+        }
+
+        public function getCompraClienteByID($clienteID) {
+            $conn = null;
+            $stmt = null;
+        
+            try {
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]);
+                }
+                $conn = $result["connection"];
+        
+                // Consulta SQL para obtener solo el ID y el nombre del proveedor
+                $querySelect = "
+                    SELECT 
+                        " . CLIENTE_ID . ", 
+                        " . CLIENTE_NOMBRE . " 
+                    FROM " . TB_CLIENTE . " 
+                    WHERE " . CLIENTE_ID . " = ?";
+                $stmt = mysqli_prepare($conn, $querySelect);
+        
+                // Vincula los parámetros de la consulta
+                mysqli_stmt_bind_param($stmt, 'i', $clienteID);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+        
+              // Obtener el resultado de la consulta
+        if ($row = mysqli_fetch_assoc($result)) {
+            // Retorna una instancia de Proveedor
+            return new Cliente($row[CLIENTE_ID], $row[CLIENTE_NOMBRE]);
+        }
+        
+                // Retorna false si no se encontraron resultados
+                return [
+                    "success" => false,
+                    "message" => "No se encontró ningún cliente con el ID proporcionado."
+                ];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener el cliente desde la base de datos',
+                    $this->className
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return [
+                    "success" => false,
+                    "message" => $userMessage
+                ];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt)) {
+                    mysqli_stmt_close($stmt);
+                }
+                if (isset($conn)) {
+                    mysqli_close($conn);
+                }
             }
         }
         

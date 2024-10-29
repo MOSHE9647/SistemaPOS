@@ -1,3 +1,4 @@
+import { hideLoader, showTableLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
 import { renderTable } from "./gui.js";
 
@@ -35,6 +36,8 @@ window.pageSize = DEFAULT_PAGE_SIZE;
  * @returns {void}
  */
 export async function fetchCategorias(page, size, sort) {
+    showTableLoader('table-categorias-body', 'Cargando lista de categorias...');
+
     try {
         // Realizar solicitud GET al servidor para obtener la lista de categorías
         const response = await fetch(
@@ -63,6 +66,9 @@ export async function fetchCategorias(page, size, sort) {
     } catch (error) {
         // Muestra el mensaje de error detallado
         mostrarMensaje(`Ocurrió un error al obtener la lista de categorías. ${error}`, 'error', 'Error interno');
+    } finally {
+        // Ocultar el loader
+        hideLoader();
     }
 }
 

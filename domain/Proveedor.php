@@ -9,10 +9,10 @@
     class Proveedor implements JsonSerializable {
         
         private $proveedorID;
+        private $proveedorCategoria;
         private $proveedorNombre;
         private $proveedorEmail;
         private $proveedorDirecciones;
-        private $proveedorCategoria;
         private $proveedorProductos;
         private $proveedorTelefonos;
         private $proveedorFechaCreacion;
@@ -24,10 +24,10 @@
             array $proveedorTelefonos = [], $proveedorFechaCreacion = "", $proveedorFechaModificacion = "", bool $proveedorEstado = true) 
         {
             $this->proveedorID = $proveedorID;
+            $this->proveedorCategoria = $proveedorCategoria;
             $this->proveedorNombre = strtoupper($proveedorNombre);
             $this->proveedorEmail = strtolower($proveedorEmail);
             $this->proveedorDirecciones = $proveedorDirecciones;
-            $this->proveedorCategoria = $proveedorCategoria;
             $this->proveedorProductos = $proveedorProductos;
             $this->proveedorTelefonos = $proveedorTelefonos;
             $this->proveedorFechaCreacion = $proveedorFechaCreacion;
@@ -36,28 +36,26 @@
         }
 
         public function getProveedorID(): int { return $this->proveedorID; }
+        public function getProveedorCategoria(): ?Categoria { return $this->proveedorCategoria; }
         public function getProveedorNombre(): string { return $this->proveedorNombre; }
         public function getProveedorEmail(): string { return $this->proveedorEmail; }
-        public function getProveedorDirecciones(): array { return $this->proveedorDirecciones; }
-        public function getProveedorCategoria(): Categoria { return $this->proveedorCategoria; }
-        public function getProveedorProductos(): array { return $this->proveedorProductos; }
-        public function getProveedorTelefonos(): array { return $this->proveedorTelefonos; }
+        public function getProveedorDirecciones(): ?array { return $this->proveedorDirecciones; }
+        public function getProveedorProductos(): ?array { return $this->proveedorProductos; }
+        public function getProveedorTelefonos(): ?array { return $this->proveedorTelefonos; }
         public function getProveedorFechaCreacion() { return $this->proveedorFechaCreacion; }
         public function getProveedorFechaModificacion() { return $this->proveedorFechaModificacion; }
         public function getProveedorEstado(): bool { return $this->proveedorEstado; }
 
         public function setProveedorID(int $proveedorID) { $this->proveedorID = $proveedorID; }
-        public function setProveedorNombre(string $proveedorNombre) { $this->proveedorNombre = $proveedorNombre; }
-        public function setProveedorEmail(string $proveedorEmail) { $this->proveedorEmail = $proveedorEmail; }
-        public function setProveedorDirecciones(array $proveedorDirecciones) { $this->proveedorDirecciones = $proveedorDirecciones; }
         public function setProveedorCategoria(Categoria $proveedorCategoria) { $this->proveedorCategoria = $proveedorCategoria; }
+        public function setProveedorNombre(string $proveedorNombre) { $this->proveedorNombre = strtoupper($proveedorNombre); }
+        public function setProveedorEmail(string $proveedorEmail) { $this->proveedorEmail = strtolower($proveedorEmail); }
+        public function setProveedorDirecciones(array $proveedorDirecciones) { $this->proveedorDirecciones = $proveedorDirecciones; }
         public function setProveedorProductos(array $proveedorProductos) { $this->proveedorProductos = $proveedorProductos; }
         public function setProveedorTelefonos(array $proveedorTelefonos) { $this->proveedorTelefonos = $proveedorTelefonos; }
         public function setProveedorFechaCreacion($proveedorFechaCreacion) { $this->proveedorFechaCreacion = $proveedorFechaCreacion; }
         public function setProveedorFechaModificacion($proveedorFechaModificacion) { $this->proveedorFechaModificacion = $proveedorFechaModificacion; }
         public function setProveedorEstado(bool $proveedorEstado) { $this->proveedorEstado = $proveedorEstado; }
-
-        
 
         public function jsonSerialize() {
             return [

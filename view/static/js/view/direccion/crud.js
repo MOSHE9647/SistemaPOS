@@ -2,7 +2,12 @@
 // ************* Métodos para insertar, actualizar o eliminar un registro de la tabla ************* //
 // ************************************************************************************************ //
 
+import { showTableLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
+
+// Constantes y variables
+const tableBodyID = 'table-direcciones-body';
+const loadingMessage = 'Cargando direcciones...';
 
 /**
  * Verifica la existencia de una dirección en el sistema.
@@ -74,19 +79,21 @@ async function existeDireccion(direccion, insert = false, update = false) {
  * @param {Array<Object>} direcciones - La lista de direcciones a la que se añadirá la nueva dirección.
  * @returns {Promise<boolean>} - Retorna una promesa que resuelve a true si la inserción fue exitosa, de lo contrario false.
  */
-export async function insertDireccion(direcciones) {
+export async function insertDireccion(direcciones, row) {
     try {
         // Obtener la fila de creación
-        const row = document.querySelector('.creating-row');
         if (!row) {
             mostrarMensaje('No se encontró la fila de creación', 'error', 'Error al añadir la dirección');
             return false;
         }
-
+            
         // Obtener los valores de los campos de entrada
         const inputs = row.querySelectorAll('input, select');
         const maxId = direcciones.reduce((max, direccion) => Math.max(max, direccion.ID), 0);
         const data = { ID: maxId + 1, Estado: true };
+
+        // Mostrar el mensaje de carga en la tabla
+        showTableLoader(tableBodyID, loadingMessage);
 
         // Validar los valores de los campos de entrada
         for (const input of inputs) {
@@ -147,15 +154,18 @@ export async function insertDireccion(direcciones) {
  */
 export async function updateDireccion(direcciones, row) {
     try {
-        // const row = document.querySelector(`tr[data-id='${id}']`);
         if (!row) {
             mostrarMensaje('No se encontró la fila de la dirección a actualizar', 'error', 'Error al actualizar la dirección');
             return false;
         }
 
+        // Obtener el ID de la dirección y los valores de los campos de entrada
         const id = row.dataset.id;
         const inputs = row.querySelectorAll('input, select');
         const data = { ID: parseInt(id), Estado: true };
+
+        // Mostrar el mensaje de carga en la tabla
+        showTableLoader(tableBodyID, loadingMessage);
 
         for (const input of inputs) {
             const fieldName = input.closest('td').dataset.field;
@@ -217,6 +227,8 @@ export function deleteDireccion(direcciones, id) {
         mostrarMensaje('No se eliminó la dirección', 'info', 'Eliminación cancelada');
         return;
     }
+    
+    showTableLoader(tableBodyID, loadingMessage);
 
     const index = direcciones.findIndex(direccion => direccion.ID === parseInt(id));
     if (index === -1) {

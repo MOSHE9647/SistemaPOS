@@ -1,3 +1,7 @@
+:root {
+    --table-height: 300px; /* Altura de la tabla */
+}
+
 .table-card {
     margin: 0;
 }
@@ -24,7 +28,7 @@
 #table-sales tbody {
     display: block;
     overflow: auto;
-    height: 340px;
+    height: var(--table-height);
 }
 
 #table-sales thead, 
@@ -42,6 +46,10 @@
 #table-sales thead th:nth-child(3),
 #table-sales tbody td:nth-child(3) {
     width: 230px;
+}
+
+.nodata {
+    height: calc(var(--table-height) - 5px); /* Altura de la tabla menos 5px */
 }
 
 .sales-info {

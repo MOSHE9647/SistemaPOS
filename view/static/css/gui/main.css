@@ -8,6 +8,10 @@
 @import url(../gui/notification.css);
 @import url(../gui/loader.css);
 
+:root {
+    color-scheme: dark;
+}
+
 * {
     font-family: 'Poppins', sans-serif;
     box-sizing: border-box;

@@ -1,4 +1,3 @@
-import { showLoader, hideLoader } from '../../gui/loader.js';
 import { mostrarMensaje } from '../../gui/notification.js';
 import { checkEmptyTable } from '../../utils.js';
 import { initializeSelects } from './selects.js';
@@ -26,7 +25,7 @@ let usuarios = [];
  * @returns {void}
  */
 export function renderTable(listaUsuarios) {
-    showLoader();
+    // Guardar la lista de usuarios en una variable global
     usuarios = listaUsuarios;
 
     // Obtener el cuerpo de la tabla
@@ -68,7 +67,6 @@ export function renderTable(listaUsuarios) {
     });
 
     checkEmptyTable(tableBodyID, 'las la-user-times');
-    hideLoader();
 }
 
 /**

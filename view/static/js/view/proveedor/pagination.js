@@ -1,3 +1,4 @@
+import { hideLoader, showLoader, showTableLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
 import { renderTable } from "./gui.js";
 
@@ -37,6 +38,10 @@ window.pageSize = DEFAULT_PAGE_SIZE;
  * @returns {void}
  */
 export async function fetchProveedores(page, size, sort, search = '') {
+    // Mostrar el loader
+    showLoader();
+    showTableLoader('table-proveedores-body', 'Cargando lista de proveedores...'); // Mostrar el loader en la tabla de proveedores
+
     try {
         // Realizar solicitud GET al servidor para obtener la lista de proveedores
         const response = await fetch(
@@ -65,6 +70,9 @@ export async function fetchProveedores(page, size, sort, search = '') {
     } catch (error) {
         // Muestra el mensaje de error detallado
         mostrarMensaje(`Ocurrió un error al obtener la lista de proveedores. ${error}`, 'error', 'Error interno');
+    } finally {
+        // Ocultar el loader
+        hideLoader();
     }
 }
 

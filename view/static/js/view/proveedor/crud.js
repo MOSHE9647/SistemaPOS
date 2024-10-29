@@ -46,9 +46,9 @@ async function obtenerProveedorPorID(id, filter = true, deleted = false) {
  * @returns {void}
  */
 export async function insertProveedor(formData) {
+    showLoader(); // Mostrar el loader
+    
     try {
-        showLoader(); // Mostrar el loader
-
         // Enviar la solicitud POST al servidor con los datos del proveedor
         const response = await fetch(`${window.baseURL}/controller/proveedorAction.php`, {
             method: 'POST',
@@ -105,9 +105,9 @@ export async function insertProveedor(formData) {
  * @returns {void}
  */
 export async function updateProveedor(formData) {
-    try {
-        showLoader(); // Mostrar el loader
+    showLoader(); // Mostrar el loader
 
+    try {
         // Enviar la solicitud POST al servidor con los datos del proveedor
         const response = await fetch(`${window.baseURL}/controller/proveedorAction.php`, {
             method: 'POST',
@@ -154,9 +154,9 @@ export async function deleteProveedor(id) {
         mostrarMensaje("Se canceló la eliminación del proveedor", 'info', 'Eliminación cancelada');
         return; // Salir de la función si se cancela la eliminación
     }
+    showLoader(); // Mostrar el loader
 
     try {
-        showLoader(); // Mostrar el loader
 
         // Enviar la solicitud POST al servidor con el id del proveedor a eliminar
         const response = await fetch(`${window.baseURL}/controller/proveedorAction.php`, {

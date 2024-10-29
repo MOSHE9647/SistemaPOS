@@ -2,7 +2,12 @@
 // ************* Métodos para insertar, actualizar o eliminar un registro de la tabla ************* //
 // ************************************************************************************************ //
 
+import { showTableLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
+
+// Constantes y variables
+const tableBodyID = 'table-telefonos-body';
+const loadingMessage = 'Cargando teléfonos...';
 
 /**
  * Verifica la existencia de un teléfono en el sistema.
@@ -74,10 +79,9 @@ async function existeTelefono(telefono, insert = false, update = false) {
  * @param {Array<Object>} telefonos - La lista de teléfonos a la que se añadirá el nuevo teléfono.
  * @returns {void}
  */
-export async function insertTelefono(telefonos) {
+export async function insertTelefono(telefonos, row) {
     try {
         // Obtener la fila de creación
-        const row = document.querySelector('.creating-row');
         if (!row) {
             mostrarMensaje('No se encontró la fila de creación', 'error', 'Error al añadir el teléfono');
             return false;
@@ -87,6 +91,9 @@ export async function insertTelefono(telefonos) {
         const inputs = row.querySelectorAll('input, select');
         const maxId = telefonos.reduce((max, telefono) => Math.max(max, telefono.ID), 0);
         const data = { ID: maxId + 1, Estado: true };
+
+        // Mostrar el mensaje de carga en la tabla
+        showTableLoader(tableBodyID, loadingMessage);
 
         for (const input of inputs) {
             const fieldName = input.closest('td').dataset.field; // Obtener el nombre del campo
@@ -147,6 +154,9 @@ export async function updateTelefono(telefonos, row) {
         const id = row.dataset.id;
         const inputs = row.querySelectorAll('input, select');
         const data = { ID: parseInt(id), Estado: true };
+
+        // Mostrar el mensaje de carga en la tabla
+        showTableLoader(tableBodyID, loadingMessage);
     
         for (const input of inputs) {
             const fieldName = input.closest('td').dataset.field; // Obtener el nombre del campo
@@ -207,6 +217,9 @@ export function deleteTelefono(telefonos, id) {
         mostrarMensaje('No se eliminó el teléfono', 'info', 'Eliminación cancelada');
         return;
     }
+
+    // Mostrar el mensaje de carga en la tabla
+    showTableLoader(tableBodyID, loadingMessage);
 
     const index = telefonos.findIndex(telefono => telefono.ID === parseInt(id));
     if (index === -1) {

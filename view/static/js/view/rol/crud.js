@@ -45,9 +45,9 @@ async function obtenerRolPorID(id, filter = true, deleted = false) {
  * @returns {void}
  */
 export async function insertRol(formData) {
-    try {
-        showLoader(); // Mostrar el loader
+    showLoader(); // Mostrar el loader
 
+    try {
         // Enviar la solicitud POST al servidor con los datos del rol
         const response = await fetch(`${window.baseURL}/controller/rolUsuarioAction.php`, {
             method: 'POST',
@@ -105,9 +105,9 @@ export async function insertRol(formData) {
  * @returns {void}
  */
 export async function updateRol(formData) {
+    showLoader(); // Mostrar el loader
+    
     try {
-        showLoader(); // Mostrar el loader
-
         // Enviar la solicitud POST al servidor con los datos del rol
         const response = await fetch(`${window.baseURL}/controller/rolUsuarioAction.php`, {
             method: 'POST',
@@ -153,10 +153,9 @@ export async function deleteRol(id) {
         mostrarMensaje('Se canceló la eliminación del rol', 'info', 'Eliminación cancelada');
         return; // Salir de la función si se cancela la eliminación
     }
+    showLoader(); // Mostrar el loader
 
     try {
-        showLoader(); // Mostrar el loader
-
         // Enviar la solicitud POST al servidor con el id del rol a eliminar
         const response = await fetch(`${window.baseURL}/controller/rolUsuarioAction.php`, {
             method: 'POST',

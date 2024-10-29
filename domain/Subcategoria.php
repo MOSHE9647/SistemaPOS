@@ -5,9 +5,9 @@
     class Subcategoria implements JsonSerializable {
 
         private $subcategoriaID;
+        private $subcategoriaCategoria;
         private $subcategoriaNombre;
         private $subcategoriaDescripcion;
-        private $subcategoriaCategoria;
         private $subcategoriaEstado;
 
         // Constructor
@@ -16,7 +16,7 @@
         {
             $this->subcategoriaID = $subcategoriaID;
             $this->subcategoriaNombre = strtoupper($subcategoriaNombre);
-            $this->subcategoriaDescripcion = $subcategoriaDescripcion;
+            $this->subcategoriaDescripcion = ucfirst($subcategoriaDescripcion);
             $this->subcategoriaCategoria = $subcategoriaCategoria;
             $this->subcategoriaEstado = $subcategoriaEstado;
         }
@@ -25,13 +25,13 @@
         public function getSubcategoriaID(): int { return $this->subcategoriaID; }
         public function getSubcategoriaNombre(): string { return $this->subcategoriaNombre; }
         public function getSubcategoriaDescripcion(): string { return $this->subcategoriaDescripcion; }
-        public function getSubcategoriaCategoria(): Categoria {return $this->subcategoriaCategoria; }
+        public function getSubcategoriaCategoria(): ?Categoria {return $this->subcategoriaCategoria; }
         public function getSubcategoriaEstado(): bool { return $this->subcategoriaEstado; }
 
         // Setters
         public function setSubcategoriaID(int $subcategoriaID) { $this->subcategoriaID = $subcategoriaID; }
         public function setSubcategoriaNombre(string $subcategoriaNombre) { $this->subcategoriaNombre = strtoupper($subcategoriaNombre); }
-        public function setSubcategoriaDescripcion(string $subcategoriaDescripcion) { $this->subcategoriaDescripcion = $subcategoriaDescripcion; }
+        public function setSubcategoriaDescripcion(string $subcategoriaDescripcion) { $this->subcategoriaDescripcion = ucfirst($subcategoriaDescripcion); }
         public function setSubcategoriaCategoriaId(Categoria $subcategoriaCategoria){$this->subcategoriaCategoria = $subcategoriaCategoria;}
         public function setSubcategoriaEstado(bool $subcategoriaEstado) { $this->subcategoriaEstado = $subcategoriaEstado; }
 

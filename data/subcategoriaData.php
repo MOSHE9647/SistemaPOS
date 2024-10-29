@@ -40,14 +40,14 @@
                 // Consulta para verificar si existe una subcategoria con el nombre ingresado
 				else if ($insert && ($subcategoriaNombre && $categoriaID)) {
 					// Verificar existencia por nombre y ID de categoria
-					$queryCheck .= SUBCATEGORIA_NOMBRE . " = ? AND " . SUBCATEGORIA_CATEGORIA_ID . " = ? ";
+					$queryCheck .= SUBCATEGORIA_NOMBRE . " = ? AND " . CATEGORIA_ID . " = ? ";
 					$params = [$subcategoriaNombre, $categoriaID];
 					$types .= 'si';
 				}
 
 				// Consulta en caso de actualizar para verificar si existe ya una subcategoria con el mismo nombre además de la que se va a actualizar
 				else if ($update && (($subcategoriaNombre && $categoriaID) && $subcategoriaID)) {
-					$queryCheck .= SUBCATEGORIA_NOMBRE . " = ? AND " . SUBCATEGORIA_CATEGORIA_ID . " = ? AND " . SUBCATEGORIA_ID . " <> ? ";
+					$queryCheck .= SUBCATEGORIA_NOMBRE . " = ? AND " . CATEGORIA_ID . " = ? AND " . SUBCATEGORIA_ID . " <> ? ";
 					$params = [$subcategoriaNombre, $categoriaID, $subcategoriaID];
 					$types .= 'sii';
 				}
@@ -155,7 +155,7 @@
 				$queryInsert = 
 					"INSERT INTO " . TB_SUBCATEGORIA . " ("
 					. SUBCATEGORIA_ID . ", "
-					. SUBCATEGORIA_CATEGORIA_ID . ", "
+					. CATEGORIA_ID . ", "
 					. SUBCATEGORIA_NOMBRE . ", "
 					. SUBCATEGORIA_DESCRIPCION .
 					") VALUES (?, ?, ?, ?)";
@@ -233,7 +233,7 @@
 
 				// Crea la consulta SQL para actualizar la subcategoría
 				$queryUpdate = "UPDATE " . TB_SUBCATEGORIA . " SET "
-                    . SUBCATEGORIA_CATEGORIA_ID . " = ?, "
+                    . CATEGORIA_ID . " = ?, "
 					. SUBCATEGORIA_NOMBRE . " = ?, "
 					. SUBCATEGORIA_DESCRIPCION . " = ? "
 					. "WHERE " . SUBCATEGORIA_ID . " = ?";
@@ -335,7 +335,7 @@
 				while ($row = mysqli_fetch_array($result)) {
                     // Obtener la categoría a la que pertenece la subcategoría
                     $categoriaData = new CategoriaData();
-                    $categoria = $categoriaData->getCategoriaByID($row[SUBCATEGORIA_CATEGORIA_ID], false);
+                    $categoria = $categoriaData->getCategoriaByID($row[CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
 					$subcategoria = new Subcategoria(
@@ -417,7 +417,7 @@
 				while ($row = mysqli_fetch_assoc($result)) {
                     // Obtener la categoría a la que pertenece la subcategoría
                     $categoriaData = new CategoriaData();
-                    $categoria = $categoriaData->getCategoriaByID($row[SUBCATEGORIA_CATEGORIA_ID], false);
+                    $categoria = $categoriaData->getCategoriaByID($row[CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
 					$subcategoria = new Subcategoria(
@@ -466,7 +466,7 @@
                 $conn = $result["connection"];
 
                 // Consultar las subcategorías de una categoría
-                $querySelect = "SELECT * FROM " . TB_SUBCATEGORIA . " WHERE " . SUBCATEGORIA_CATEGORIA_ID . " = ? AND " . SUBCATEGORIA_ESTADO . " != FALSE";
+                $querySelect = "SELECT * FROM " . TB_SUBCATEGORIA . " WHERE " . CATEGORIA_ID . " = ? AND " . SUBCATEGORIA_ESTADO . " != FALSE";
                 $stmt = mysqli_prepare($conn, $querySelect);
                 mysqli_stmt_bind_param($stmt, 'i', $categoriaID);
                 mysqli_stmt_execute($stmt);
@@ -479,7 +479,7 @@
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Obtener la categoría a la que pertenece la subcategoría
                     $categoriaData = new CategoriaData();
-                    $categoria = $categoriaData->getCategoriaByID($row[SUBCATEGORIA_CATEGORIA_ID], false);
+                    $categoria = $categoriaData->getCategoriaByID($row[CATEGORIA_ID], false);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
                     $subcategoria = new Subcategoria(
@@ -551,7 +551,7 @@
 				if ($row = mysqli_fetch_assoc($result)) {
                     // Obtener la categoría a la que pertenece la subcategoría
                     $categoriaData = new CategoriaData();
-                    $categoria = $categoriaData->getCategoriaByID($row[SUBCATEGORIA_CATEGORIA_ID], $onlyActive);
+                    $categoria = $categoriaData->getCategoriaByID($row[CATEGORIA_ID], $onlyActive);
                     if (!$categoria["success"]) { throw new Exception($categoria["message"]); }
 
 					$subcategoria = new Subcategoria(

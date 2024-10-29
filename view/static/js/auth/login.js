@@ -21,26 +21,21 @@ async function iniciarSesion() {
     const url = form.getAttribute('action');
 
     try {
-        const response = await fetch(url, {
-            method: 'POST',
-            body: formData
-        });
-
+        const response = await fetch(url, { method: 'POST', body: formData });
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(interpretarMensaje(response.status, errorData.message));
         }
 
         const data = await response.json();
-        hideLoader(); // Oculta el loader
-
-        if (data.success) {
-            location.href = data.redirect;
-        } else {
+        if (!data.success) {
             mostrarMensaje(data.message, 'error', 'Error al intentar iniciar sesión');
         }
+
+        location.href = data.redirect;
     } catch (error) {
-        hideLoader(); // Oculta el loader
         mostrarMensaje(error.message, 'error', 'Error al intentar iniciar sesión');
+    } finally {
+        hideLoader(); // Oculta el loader
     }
 }
