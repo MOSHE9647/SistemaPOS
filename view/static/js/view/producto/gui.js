@@ -463,7 +463,7 @@ export async function createProducto() {
                             </div>
                             <div class="producto-info input-select">
                                 <label>Fecha de Vencimiento:</label>
-                                <input type="date" id="vencimiento" min="${getCurrentDate()}" required>
+                                <input type="date" id="vencimiento" min="${getCurrentDate(1)}" required>
                             </div>
                         </div>
                         <div class="producto-info input-select group">

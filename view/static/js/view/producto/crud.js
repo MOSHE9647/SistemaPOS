@@ -32,6 +32,34 @@ async function obtenerProductoPorID(id, filter = true, deleted = false) {
 }
 
 /**
+ * Obtiene una lista de productos desde la BD.
+ *
+ * @async
+ * @function obtenerListaProductos
+ * @param {boolean} [filter=true] - Si se deben aplicar filtros a la obtención de la lista.
+ * @param {boolean} [deleted=false] - Si se deben incluir productos eliminados en la obtención.
+ * @returns {Promise<Object>} Los datos de la lista si la solicitud es exitosa.
+ * @throws {Error} Si la solicitud falla o la lista no se encuentra.
+ */
+export function obtenerListaProductos(filter = true, deleted = false) {
+    const filterNum = filter ? 1 : 0, deletedNum = deleted ? 1 : 0;
+    const request = new XMLHttpRequest();
+    request.open('GET', `${window.baseURL}/controller/productoAction.php?accion=all&filter=${filterNum}&deleted=${deletedNum}`, false);
+    request.send(null);
+
+    if (request.status === 200) {
+        const data = JSON.parse(request.responseText);
+        if (data.success) {
+            return data.productos;
+        } else {
+            throw new Error(data.message);
+        }
+    } else {
+        throw new Error('Error en la solicitud');
+    }
+}
+
+/**
  * Crea un nuevo producto enviando una solicitud POST al servidor.
  * 
  * @description Esta función envía los datos del formulario del producto al servidor para crear un nuevo producto.
@@ -54,7 +82,7 @@ export async function insertProducto(formData) {
             method: 'POST',
             body: formData
         });
-        if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
         const data = await response.json();
         
         // Verificar si hubo un error en la solicitud
@@ -114,7 +142,7 @@ export async function updateProducto(formData) {
             method: 'POST',
             body: formData
         });
-        if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
         const data = await response.json();
 
         // Verificar si hubo un error en la solicitud
@@ -165,7 +193,7 @@ export async function deleteProducto(id) {
             body: new URLSearchParams({ accion: 'eliminar', id: id }),
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         })
-        if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
         const data = await response.json();
 
         // Verificar si hubo un error en la solicitud

@@ -53,7 +53,7 @@ export async function insertRol(formData) {
             method: 'POST',
             body: formData
         });
-        if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
         const data = await response.json();
 
         // Verificar si hubo un error en la solicitud
@@ -113,7 +113,7 @@ export async function updateRol(formData) {
             method: 'POST',
             body: formData
         });
-        if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
         const data = await response.json();
 
         // Verificar si hubo un error en la solicitud
@@ -162,7 +162,7 @@ export async function deleteRol(id) {
             body: new URLSearchParams({ accion: 'eliminar', id: id }),
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
-        if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
         const data = await response.json();
 
         // Verificar si hubo un error en la solicitud

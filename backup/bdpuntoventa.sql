@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 23-10-2024 a las 21:56:30
+-- Tiempo de generación: 29-10-2024 a las 16:19:04
 -- Versión del servidor: 8.0.39-0ubuntu0.24.04.2
 -- Versión de PHP: 8.3.6
 
@@ -91,7 +91,9 @@ CREATE TABLE `tbcodigobarras` (
 
 INSERT INTO `tbcodigobarras` (`codigobarrasid`, `codigobarrasnumero`, `codigobarrasestado`) VALUES
 (1, '7945982662925', 1),
-(2, '6236446542321', 1);
+(2, '6236446542321', 1),
+(3, '0119936861002', 1),
+(4, '6031139632675', 1);
 
 -- --------------------------------------------------------
 
@@ -275,7 +277,9 @@ CREATE TABLE `tbproducto` (
 
 INSERT INTO `tbproducto` (`productoid`, `codigobarrasid`, `categoriaid`, `subcategoriaid`, `marcaid`, `presentacionid`, `productonombre`, `productocantidad`, `productopreciocompra`, `productoporcentajeganancia`, `productodescripcion`, `productoimagen`, `productofechavencimiento`, `productoestado`) VALUES
 (1, 1, 4, 3, 1, 1, 'PRUEBA 1', 0, 1600.00, 10.00, '', '/view/static/img/productos/0004/0003/1_PRUEBA_1.webp', '2024-10-19', 1),
-(2, 2, 3, 1, 1, 1, 'BIG COLA', 20, 1500.00, 20.00, '', '/view/static/img/productos/0003/0001/2_BIG_COLA.webp', '2024-10-30', 1);
+(2, 2, 3, 1, 1, 1, 'BIG COLA', 20, 1500.00, 20.00, '', '/view/static/img/productos/0003/0001/2_BIG_COLA.webp', '2024-10-30', 1),
+(3, 3, 5, 2, 1, 1, 'EJEMPLO', 30, 1600.00, 20.00, '', '/view/static/img/product.webp', '2024-11-10', 1),
+(4, 4, 5, 2, 1, 1, 'COCA COLA', 30, 2300.00, 20.00, '', '/view/static/img/product.webp', '2024-10-30', 1);
 
 -- --------------------------------------------------------
 
@@ -463,7 +467,8 @@ INSERT INTO `tbusuario` (`usuarioid`, `rolusuarioid`, `usuarionombre`, `usuarioa
 (2, 1, 'Admin', 'Adminson', 'Adminsen', 'admin@admin.com', '$2y$10$HzXMgCvzRJdx1k9dPniUvuZectQkf4UV6wYt4M5lOk.4vi9kqEXoC', '2024-09-16 17:49:31', '2024-10-03 20:22:29', 1),
 (3, 3, 'Prueba', 'Primero', 'Segundo', 'cajero@gmail.com', '$2y$10$jXNkOrLG49.wJdSf3DDrWuOfden5BzWj8NkU9I15OxoYYNUbwGa1.', '2024-10-03 20:23:56', '2024-10-03 20:47:29', 0),
 (4, 2, 'Dependiente', 'Dependant', 'Dependansen', 'dependiente@dependiente.com', '$2y$10$.Zv7MIUusPu0or0vhVOTEOLGzDO3YB05z/HezBf1HVMY32pl9lGei', '2024-10-09 20:09:02', '2024-10-09 20:09:02', 1),
-(5, 4, 'Cajero', 'Cajerson', 'Cajersen', 'cajero@cajero.com', '$2y$10$bbRGwU2vAzUg.Qmeex1b..7ppgkAWI.qOqUKwPfj4iES7G2pwRbsu', '2024-10-09 20:09:46', '2024-10-09 20:09:46', 1);
+(5, 4, 'Cajero', 'Cajerson', 'Cajersen', 'cajero@cajero.com', '$2y$10$bbRGwU2vAzUg.Qmeex1b..7ppgkAWI.qOqUKwPfj4iES7G2pwRbsu', '2024-10-09 20:09:46', '2024-10-09 20:09:46', 1),
+(6, 1, 'Natalia', 'Ortiz', 'Martinez', 'natortiz@ejemplo.com', '$2y$10$FNEa.x2Nm82JBI3TzHp6rO9wLCeGU9yYmKpxjT.LjdjJ/F9kU49k6', '2024-10-26 19:12:11', '2024-10-26 19:12:11', 1);
 
 -- --------------------------------------------------------
 

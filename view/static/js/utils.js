@@ -81,8 +81,9 @@ export function checkEmptyTable(tableBodyID, iconClass) {
     }
 }
 
-export function getCurrentDate() {
+export function getCurrentDate(daysToAdd = 0) {
     let today = new Date();
+    today.setDate(today.getDate() + daysToAdd); // Agregar los días especificados
     let year = today.getFullYear();
     let month = (today.getMonth() + 1).toString().padStart(2, '0');
     let day = today.getDate().toString().padStart(2, '0');

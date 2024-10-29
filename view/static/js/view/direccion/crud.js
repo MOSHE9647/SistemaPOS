@@ -36,7 +36,7 @@ async function existeDireccion(direccion, insert = false, update = false) {
         });
 
         const response = await fetch(`${window.baseURL}/controller/direccionAction.php?${queryParams}`);
-        if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
         
         const data = await response.json();
         if (!data.success) {
