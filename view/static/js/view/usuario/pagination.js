@@ -49,7 +49,7 @@ export async function fetchUsuarios(page, size, sort, search = '') {
         const response = await fetch(
             `${window.baseURL}/controller/usuarioAction.php?page=${page}&size=${size}&sort=${sort}&search=${search}`
         );
-        if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
         const data = await response.json();
 
         // Verificar si hubo un error en la solicitud

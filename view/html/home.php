@@ -46,10 +46,6 @@
             <!-- Información de la venta (Total, Subtotal, Impuestos) -->
             <div class="sales-info">
                 <div class="sales-price-info">
-                    <!-- <div class="sales-price impuesto">
-                        <span>Impuesto:</span>
-                        <span id="sales-impuesto">&#162;0.00</span>
-                    </div> -->
                     <div class="sales-price subtotal">
                         <span>Subtotal:</span>
                         <span id="sales-subtotal">&#162;0.00</span>
