@@ -12,27 +12,14 @@ class CompraPorPagarBussines{
     function validarCamposFecha($compraPagar,$update = false,$validarCamposAdicionales=false){
         try {
             $id = $compraPagar->getCompraPorPagarID();
-            //id
-            $detalleId = $compraPagar->getCompraPorPagarCompraDetalle()->getCompraDetalleID();
-            //objeto
-            $detalleCompra = $compraPagar->getCompraPorPagarCompraDetalle();
-         
+            $compra = $compraPagar->getCompraPorPagarCompra()->getCompraID();
             $fechaVence = $compraPagar->getCompraPorPagarFechaVencimiento();
-            $montoTotal = $compraPagar->getCompraPorPagarMontoTotal();
-            $montoPagado = $compraPagar->getCompraPorPagarMontoPagado();
-            $fechaPago = $compraPagar->getCompraPorPagarFechaPago();
-            $estadoCompra =$compraPagar->getCompraPorPagarEstadoCompra();
+            $estadoCompra =$compraPagar->getCompraPorPagarCancelado();
             $notas = $compraPagar->getCompraPorPagarNotas();
             $estado = $compraPagar->getCompraPorPagarEstado();
             $errors = [];
          
             if ($validarCamposAdicionales) {
-                if(($fechaVence === null || empty($fechaVence)) && !$update){
-                    $errors[] = "La fecha de vencimiento no puede estar vacia";
-                }
-                if($fechaPago === null || empty($fechaPago) && !$update){
-                    $errors[] = "La fecha de pago no puede estar vacia";
-                }
                 if(!Utils::fechaMayorOIgualAHoy($fechaVence) && $update){
                     $errors[] = "La fecha de vencimiento debe ser mayor o igual a la actual";
                 }

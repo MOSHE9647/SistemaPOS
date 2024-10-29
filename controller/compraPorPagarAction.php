@@ -14,28 +14,18 @@ if ($method == "POST") {
         Utils::enviarRespuesta(400, false, "No se ha especificado una acción.");
     }
 
-    $id             = isset($_POST['id'])           ?intval($_POST['id'])               :-1;
-    $detalleid      = isset($_POST['detalleid'])    ?intval($_POST['detalleid'])        :-1;
+    $id                 = isset($_POST['id'])           ?intval($_POST['id'])               :-1;
     //objeto detalle
-    $DetalleCompra  = isset($_POST['compradetallecompraid']) ? intval($_POST['compradetallecompraid']) : 0;
-    //Objeto Compra
-    $DetalleProducto= isset($_POST['compradetalleproductoid']) ? intval($_POST['compradetalleproductoid']) : 0;
-    //objetoProducto
+    $Compra             = isset($_POST['compraid'])     ? intval($_POST['compraid'])        : 0;
     //resto del objeto CompraPorPagar
-    $fechaVence     = isset($_POST['fechaVence'])   ?$_POST['fechaVence']               :"";
-    $montoTotal     = isset($_POST['montoTotal'])   ?floatval($_POST['montoTotal'])     :0;
-    $montoPagado    = isset($_POST['montoPagado'])  ?floatval($_POST['montoPagado'])    :0;
-    $fechaPago      = isset($_POST['fechaPago'])    ?$_POST['fechaPago']                :"";
-    $estadoCuenta   = isset($_POST['estadoCuenta']) ?$_POST['estadoCuenta']             :"";
-    $notas          = isset($_POST['notas'])        ?$_POST['notas']                    :"";
+    $fechaVence         = isset($_POST['fechaVence'])   ?$_POST['fechaVence']               :"";
+    $estadoCancelado    = isset($_POST['estadoCancelado']) ?$_POST['estadoCancelado']       :"";
+    $notas              = isset($_POST['notas'])        ?$_POST['notas']                    :"";
 
 
     $ObjetoCompra = new CompraPorPagar($id, 
-                    new CompraDetalle($detalleid),
+                    new Compra($compraid),
                     $fechaVence,
-                    $montoTotal,
-                    $montoPagado,
-                    $fechaPago,
                     $estadoCuenta,
                     $notas
                 );

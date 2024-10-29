@@ -64,10 +64,10 @@ class CompraPorPagarData extends Data{
                 throw new Exception("La compra detalle no valida");
             }
             
-            $tablaVerificacion = ($verificarEnCompraPorPagar) ? TB_COMPRA_POR_PAGAR : TB_COMPRA_DETALLE;
-            $columVerificar = ($verificarEnCompraPorPagar) ? COMPRA_POR_PAGAR_COMPRA_DETALLE_ID : COMPRA_DETALLE_ID;
+            $tablaVerificacion = ($verificarEnCompraPorPagar) ? TB_COMPRA_POR_PAGAR : TB_COMPRA;
+            $columVerificar = ($verificarEnCompraPorPagar) ? COMPRA_POR_PAGAR_COMPRA_DETALLE_ID : COMPRA_ID;
 
-            $query="SELECT " . COMPRA_DETALLE_ID . " FROM " . $tablaVerificacion ." WHERE " . $columVerificar. " = ? ";
+            $query="SELECT " . COMPRA_ID. " FROM " . $tablaVerificacion ." WHERE " . $columVerificar. " = ? ";
 
             $params=[$compradetalleid];
             $types="i";
@@ -115,15 +115,10 @@ class CompraPorPagarData extends Data{
             }
             $id = $compraPagar->getCompraPorPagarID();
             //id
-            $detalleId = $compraPagar->getCompraPorPagarCompraDetalle()->getCompraDetalleID();
-            //objeto
-            $detalleCompra = $compraPagar->getCompraPorPagarCompraDetalle();
-         
+            $compraId = $compraPagar->getCompraPorPagarCompra()->getCompraDetalleID();
+            
             $fechaVence = $compraPagar->getCompraPorPagarFechaVencimiento();
-            $montoTotal = $compraPagar->getCompraPorPagarMontoTotal();
-            $montoPagado = $compraPagar->getCompraPorPagarMontoPagado();
-            $fechaPago = $compraPagar->getCompraPorPagarFechaPago();
-            $estadoCompra =$compraPagar->getCompraPorPagarEstadoCompra();
+            $estadoCompra =$compraPagar->getCompraPorPagarCancelado();
             $notas = $compraPagar->getCompraPorPagarNotas();
             $estado = $compraPagar->getCompraPorPagarEstado();
 
@@ -143,7 +138,7 @@ class CompraPorPagarData extends Data{
 
             if($detalleId <= 0){
                 $detalleData = new CompraDetalleData();
-                $result = $detalleData->insertCompraDetalle($detalleCompra,$conn);
+                $result = $detalleData->insertCompraDetalle($compraId,$conn);
                 if($result["success"]){
                     $ref_detalleID_final = $result["id"];
                 }else{
@@ -185,11 +180,8 @@ class CompraPorPagarData extends Data{
             $queryInsert=
             "INSERT INTO " . TB_COMPRA_POR_PAGAR . " ( " 
             . COMPRA_POR_PAGAR_ID . ", "
-            . COMPRA_POR_PAGAR_COMPRA_DETALLE_ID . ","
+            . COMPRA_ID . ","
             . COMPRA_POR_PAGAR_FECHA_VENCIMIENTO . ","
-            . COMPRA_POR_PAGAR_MONTO_TOTAL . ","
-            . COMPRA_POR_PAGAR_MONTO_PAGADO . ","
-            . COMPRA_POR_PAGAR_FECHA_PAGO . ","
             . COMPRA_POR_PAGAR_ESTADO_COMPRA . ","
             . COMPRA_POR_PAGAR_NOTAS
             ." ) VALUES (?,?,?,?,?,?,?,?,?) "; 
