@@ -1,6 +1,6 @@
 import { mostrarMensaje } from "../../gui/notification.js";
 import { manejarInputConEnter } from "../../utils.js";
-import { agregarProducto } from "./crud.js";
+import { agregarProducto } from "./gui.js";
 
 export function cargarHome() {
     const addButton = document.getElementById('sales-add-button');
@@ -16,5 +16,4 @@ export function cargarHome() {
     }
     // Darle el foco al campo de búsqueda al cargar la página
     manejarInputConEnter('sales-search-input', 'sales-add-button');
-
 }

@@ -199,8 +199,8 @@
                         . IMPUESTO_NOMBRE . ", "
                         . IMPUESTO_VALOR . ", "
                         . IMPUESTO_DESCRIPCION . ", "
-                        . IMPUESTO_FECHA_INICIO_VIGENCIA . ", "
-                        . IMPUESTO_FECHA_FIN_VIGENCIA . 
+                        . IMPUESTO_INICIO_VIGENCIA . ", "
+                        . IMPUESTO_FIN_VIGENCIA . 
                     ") VALUES (?, ?, ?, ?, ?, ?)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
 
@@ -291,8 +291,8 @@
                         IMPUESTO_NOMBRE . " = ?, " . 
                         IMPUESTO_VALOR . " = ?, " .
                         IMPUESTO_DESCRIPCION . " = ?, " .
-                        IMPUESTO_FECHA_INICIO_VIGENCIA . " = ?, " .
-                        IMPUESTO_FECHA_FIN_VIGENCIA . " = ?, " .
+                        IMPUESTO_INICIO_VIGENCIA . " = ?, " .
+                        IMPUESTO_FIN_VIGENCIA . " = ?, " .
                         IMPUESTO_ESTADO . " = TRUE " .
                     "WHERE " . IMPUESTO_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
@@ -406,8 +406,8 @@
                         $row[IMPUESTO_NOMBRE],
                         $row[IMPUESTO_VALOR],
                         $row[IMPUESTO_DESCRIPCION],
-                        $row[IMPUESTO_FECHA_INICIO_VIGENCIA],
-                        $row[IMPUESTO_FECHA_FIN_VIGENCIA],
+                        $row[IMPUESTO_INICIO_VIGENCIA],
+                        $row[IMPUESTO_FIN_VIGENCIA],
                         $row[IMPUESTO_ESTADO]
                     );
                     $impuestos[] = $impuesto;
@@ -479,8 +479,8 @@
                         $row[IMPUESTO_NOMBRE],
                         $row[IMPUESTO_VALOR],
                         $row[IMPUESTO_DESCRIPCION],
-                        $row[IMPUESTO_FECHA_INICIO_VIGENCIA],
-                        $row[IMPUESTO_FECHA_FIN_VIGENCIA],
+                        $row[IMPUESTO_INICIO_VIGENCIA],
+                        $row[IMPUESTO_FIN_VIGENCIA],
                         $row[IMPUESTO_ESTADO]
                     );
                     $impuestos[] = $impuesto;
@@ -553,8 +553,8 @@
                         $row[IMPUESTO_NOMBRE],
                         $row[IMPUESTO_VALOR],
                         $row[IMPUESTO_DESCRIPCION],
-                        $row[IMPUESTO_FECHA_INICIO_VIGENCIA],
-                        $row[IMPUESTO_FECHA_FIN_VIGENCIA],
+                        $row[IMPUESTO_INICIO_VIGENCIA],
+                        $row[IMPUESTO_FIN_VIGENCIA],
                         $row[IMPUESTO_ESTADO]
                     );
                     return ["success" => true, "impuesto" => $impuesto];

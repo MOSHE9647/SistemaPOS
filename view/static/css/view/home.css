@@ -1,5 +1,5 @@
 :root {
-    --table-height: 320px; /* Altura de la tabla */
+    --table-height: 300px; /* Altura de la tabla */
 }
 
 .table-card {
@@ -48,7 +48,7 @@
     width: 230px;
 }
 
-.nodata.home {
+.nodata {
     height: calc(var(--table-height) - 5px); /* Altura de la tabla menos 5px */
 }
 
