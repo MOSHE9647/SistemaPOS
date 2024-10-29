@@ -21,7 +21,6 @@ if ($method == "POST") {
     //Objeto Compra
     $DetalleProducto= isset($_POST['compradetalleproductoid']) ? intval($_POST['compradetalleproductoid']) : 0;
     //objetoProducto
-
     //resto del objeto CompraPorPagar
     $fechaVence     = isset($_POST['fechaVence'])   ?$_POST['fechaVence']               :"";
     $montoTotal     = isset($_POST['montoTotal'])   ?floatval($_POST['montoTotal'])     :0;
