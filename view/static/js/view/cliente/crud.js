@@ -5,7 +5,7 @@
 import { hideLoader, showLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
 import { fetchClientes } from "./pagination.js";
-import { resetSearch } from "../../utils.js";
+import { resetSearch, verificarRespuestaJSON } from "../../utils.js";
 
 /**
  * Obtiene un cliente por su ID.
@@ -23,7 +23,10 @@ async function obtenerClientePorID(id, filter = true, deleted = false) {
     const response = await fetch(
         `${window.baseURL}/controller/clienteAction.php?accion=id&id=${id}&filter=${filterNum}&deleted=${deletedNum}`
     );
-    const data = await response.json();
+
+    if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener el cliente');
+    const data = await verificarRespuestaJSON(response);
+    
     if (data.success) {
         return data.cliente;
     } else {
@@ -55,7 +58,7 @@ export async function insertCliente(formData) {
             body: formData
         });
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el cliente');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
         
         // Verificar si hubo un error en la solicitud
         if (!data.success) {
@@ -115,7 +118,7 @@ export async function updateCliente(formData) {
             body: formData
         });
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
 
         // Verificar si hubo un error en la solicitud
         if (!data.success) {
@@ -165,7 +168,7 @@ export async function deleteCliente(id) {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         })
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
 
         // Verificar si hubo un error en la solicitud
         if (!data.success) {

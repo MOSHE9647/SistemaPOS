@@ -3,6 +3,7 @@
 // *********************************************************************************************** //
 
 import { mostrarMensaje } from "../../gui/notification.js";
+import { verificarRespuestaJSON } from "../../utils.js";
 
 /**
  * Carga datos de un archivo JSON y devuelve un objeto JSON.
@@ -20,7 +21,7 @@ import { mostrarMensaje } from "../../gui/notification.js";
 async function loadSelects() {
     try {
         const response = await fetch(`${window.baseURL}/view/static/json/direccion/datos.json`);
-        return await response.json();
+        return await verificarRespuestaJSON(response);
     } catch (error) {
         console.error('Error cargando datos JSON:', error);
         mostrarMensaje(`Error cargando los datos de las listas: ${error}`, 'error', 'Error');

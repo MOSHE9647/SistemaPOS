@@ -3,6 +3,7 @@
 // *********************************************************************** //
 
 import { mostrarMensaje } from "../../gui/notification.js";
+import { verificarRespuestaJSON } from "../../utils.js";
 
 /**
  * Obtiene la lista de categorías desde el servidor.
@@ -11,7 +12,8 @@ import { mostrarMensaje } from "../../gui/notification.js";
 async function loadCategorias() {
     try {
         const response = await fetch(`${window.baseURL}/controller/categoriaAction.php?accion=all`);
-        return await response.json();
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener las categorías');
+        return await verificarRespuestaJSON(response);
     } catch (error) {
         // Muestra un mensaje de error detallado
         mostrarMensaje(`Ocurrió un error al obtener las categorías.<br>${error}`, 'error');

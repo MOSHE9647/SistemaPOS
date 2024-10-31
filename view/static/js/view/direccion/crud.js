@@ -4,6 +4,7 @@
 
 import { showTableLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
+import { verificarRespuestaJSON } from "../../utils.js";
 
 // Constantes y variables
 const tableBodyID = 'table-direcciones-body';
@@ -38,7 +39,7 @@ async function existeDireccion(direccion, insert = false, update = false) {
         const response = await fetch(`${window.baseURL}/controller/direccionAction.php?${queryParams}`);
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
         
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
         if (!data.success) {
             mostrarMensaje(data.message, 'error', 'Error al verificar la existencia de la dirección');
             throw new Error(data.message);

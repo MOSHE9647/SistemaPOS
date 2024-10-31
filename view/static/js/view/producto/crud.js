@@ -5,7 +5,7 @@
 import { hideLoader, showLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
 import { fetchProductos } from "./pagination.js";
-import { resetSearch } from "../../utils.js";
+import { resetSearch, verificarRespuestaJSON } from "../../utils.js";
 
 /**
  * Obtiene un producto por su ID.
@@ -23,7 +23,10 @@ async function obtenerProductoPorID(id, filter = true, deleted = false) {
     const response = await fetch(
         `${window.baseURL}/controller/productoAction.php?accion=id&id=${id}&filter=${filterNum}&deleted=${deletedNum}`
     );
-    const data = await response.json();
+
+    if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener el producto');
+    const data = await verificarRespuestaJSON(response);
+    
     if (data.success) {
         return data.producto;
     } else {
@@ -41,21 +44,23 @@ async function obtenerProductoPorID(id, filter = true, deleted = false) {
  * @returns {Promise<Object>} Los datos de la lista si la solicitud es exitosa.
  * @throws {Error} Si la solicitud falla o la lista no se encuentra.
  */
-export function obtenerListaProductos(filter = true, deleted = false) {
+export async function obtenerListaProductos(filter = true, deleted = false) {
     const filterNum = filter ? 1 : 0, deletedNum = deleted ? 1 : 0;
-    const request = new XMLHttpRequest();
-    request.open('GET', `${window.baseURL}/controller/productoAction.php?accion=all&filter=${filterNum}&deleted=${deletedNum}`, false);
-    request.send(null);
+    try {
+        const response = await fetch(
+            `${window.baseURL}/controller/productoAction.php?accion=all&filter=${filterNum}&deleted=${deletedNum}`
+        );
+        if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+        const data = await verificarRespuestaJSON(response);
 
-    if (request.status === 200) {
-        const data = JSON.parse(request.responseText);
-        if (data.success) {
-            return data.productos;
-        } else {
-            throw new Error(data.message);
-        }
-    } else {
-        throw new Error('Error en la solicitud');
+        if (!data.success) throw new Error(data.message);
+
+        return data.productos;
+    } catch (error) {
+        // Mostrar un mensaje de error claro y específico
+        console.error("Error en la solicitud:", error);
+        mostrarMensaje(`Error en la solicitud: ${error.message}`, "error", "Error al obtener los productos");
+        return [];
     }
 }
 
@@ -83,7 +88,7 @@ export async function insertProducto(formData) {
             body: formData
         });
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
         
         // Verificar si hubo un error en la solicitud
         if (!data.success) {
@@ -143,7 +148,7 @@ export async function updateProducto(formData) {
             body: formData
         });
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
 
         // Verificar si hubo un error en la solicitud
         if (!data.success) {
@@ -194,7 +199,7 @@ export async function deleteProducto(id) {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         })
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
 
         // Verificar si hubo un error en la solicitud
         if (!data.success) {

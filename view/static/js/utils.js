@@ -205,3 +205,17 @@ export function formatearDecimal(numero) {
     }
     return valorFormateado;
 }
+
+export async function verificarRespuestaJSON(response) {
+    const contentType = response.headers.get("content-type") || "";
+    
+    // Verificamos si el tipo de contenido es JSON
+    if (!contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Respuesta inesperada: ", text);
+        throw new Error("La respuesta del servidor no es JSON. Es posible que sea una página de error o inicio de sesión.");
+    }
+    
+    // Si es JSON, devolvemos el JSON parseado
+    return response.json();
+}

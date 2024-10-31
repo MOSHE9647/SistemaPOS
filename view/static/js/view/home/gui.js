@@ -143,10 +143,14 @@ export function agregarProducto(codigoBarras) {
     hideLoader();
 }
 
-export function mostrarListaSeleccionableDeProductos() {
+export async function mostrarListaSeleccionableDeProductos() {
     try {
-        const products = obtenerListaProductos();
+        const products = await obtenerListaProductos();
         if (!products) throw new Error('No se encontraron productos');
+
+        if (!Array.isArray(products)) {
+            throw new Error('La lista de productos no es un arreglo.');
+        }
 
         let html = `
             <div class="sales-product-select">

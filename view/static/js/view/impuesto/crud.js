@@ -2,6 +2,9 @@
 // ************* Métodos para insertar, actualizar o eliminar un registro de la tabla ************* //
 // ************************************************************************************************ //
 
+import { mostrarMensaje } from "../../gui/notification.js";
+import { verificarRespuestaJSON } from "../../utils.js";
+
 /**
  * Obtiene un impuesto por su ID.
  *
@@ -18,7 +21,10 @@ async function obtenerImpuestoPorID(id, filter = true, deleted = false) {
     const response = await fetch(
         `${window.baseURL}/controller/impuestoAction.php?accion=id&id=${id}&filter=${filterNum}&deleted=${deletedNum}`
     );
-    const data = await response.json();
+
+    if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener el impuesto');
+    const data = await verificarRespuestaJSON(response);
+
     if (data.success) {
         return data.impuesto;
     } else {

@@ -3,6 +3,7 @@
 // ************************************************************************************************ //
 
 import { mostrarMensaje } from "../../gui/notification.js";
+import { verificarRespuestaJSON } from "../../utils.js";
 
 /**
  * Obtiene un producto por su código de barras.
@@ -19,7 +20,10 @@ export async function obtenerProductoPorCodigoBarras(codigoBarras) {
     const response = await fetch(
         `${window.baseURL}/controller/productoAction.php?accion=codigo&codigo=${codigoBarras}`
     );
-    const data = await response.json();
+
+    if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener el producto');
+    const data = await verificarRespuestaJSON(response);
+    
     if (data.success) {
         return data.producto;
     } else {

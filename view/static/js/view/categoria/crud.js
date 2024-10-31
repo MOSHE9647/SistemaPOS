@@ -4,6 +4,7 @@
 
 import { hideLoader, showLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
+import { verificarRespuestaJSON } from "../../utils.js";
 import { fetchCategorias } from "./pagination.js";
 
 /**
@@ -22,7 +23,10 @@ async function obtenerCategoriaPorID(id, filter = true, deleted = false) {
     const response = await fetch(
         `${window.baseURL}/controller/categoriaAction.php?accion=id&id=${id}&filter=${filterNum}&deleted=${deletedNum}`
     );
-    const data = await response.json();
+    
+    if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+    const data = await verificarRespuestaJSON(response);
+
     if (data.success) {
         return data.categoria;
     } else {
@@ -54,7 +58,7 @@ export async function insertCategoria(formData) {
             body: formData
         });
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
 
         // Verificar si hubo un error en la solicitud
         if (!data.success) {
@@ -114,7 +118,7 @@ export async function updateCategoria(formData) {
             body: formData
         });
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
 
         // Verificar si hubo un error en la solicitud
         if (!data.success) {
@@ -163,7 +167,7 @@ export async function deleteCategoria(id) {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
 
         // Verificar si hubo un error en la solicitud
         if (!data.success) {

@@ -34,10 +34,8 @@ export function cargarCRUD() {
 
                     // Carga el contenido HTML desde la URL del enlace
                     const response = await fetch(url);
-                    if (!response.ok) {
-                        mostrarMensaje(`Error HTTP! estado: ${response.status}`, 'error', 'Error interno');
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+
                     const html = await response.text();
                     importarCSS(vista.css); // Inserta el archivo CSS de la vista
 
