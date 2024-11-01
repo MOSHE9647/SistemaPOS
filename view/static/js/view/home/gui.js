@@ -96,6 +96,9 @@ export function renderTable(listaProductos) {
             if (cantidad < 1) {
                 mostrarMensaje('La cantidad no puede ser menor a 1.', 'error', 'Error de cantidad');
                 row.querySelector('.cantidad').value = 1;
+            } else if (cantidad > producto.Cantidad) {
+                mostrarMensaje('La cantidad del producto no puede ser mayor a la existencia.', 'error', 'Error de cantidad');
+                row.querySelector('.cantidad').value = producto.Cantidad;
             } else {
                 data.cantidad = cantidad ? cantidad : 1;
                 renderTable(productos[activeTableID]);
@@ -121,8 +124,12 @@ export function renderTable(listaProductos) {
     const total = activeTable.querySelector('#sales-total');
     if (total) total.innerHTML = `&#162;${getTotal(activeTableID)}`;
 
-    const barcodeInput = document.getElementById('sales-search-input');
-    if (barcodeInput) barcodeInput.focus();
+    // const barcodeInput = document.getElementById('sales-search-input');
+    // if (barcodeInput) barcodeInput.focus();
+
+    // Obtener el último input de cantidad y darle foco
+    const lastInput = obtenerUltimoInputCantidad();
+    if (lastInput) lastInput.focus();
 }
 
 export function agregarProducto(codigoBarras) {
@@ -321,6 +328,12 @@ function getSelectedProduct(productos) {
 }
 
 function agregarOActualizarProductoEnLista(tablaID, producto, cantidad) {
+    // Verificar que la cantidad ingresada no supere la existencia
+    if (cantidad > producto.Cantidad) {
+        mostrarMensaje('La cantidad del producto no puede ser mayor a la existencia.', 'error', 'Error de cantidad');
+        return;
+    }
+
     // Verificar si el producto ya existe en la lista
     const existingProductIndex = productos[tablaID].findIndex(p => p.producto.ID === producto.ID);
     if (existingProductIndex !== -1) {
@@ -330,4 +343,15 @@ function agregarOActualizarProductoEnLista(tablaID, producto, cantidad) {
         // Si el producto no existe, agregarlo a la lista
         productos[tablaID].push({ producto, cantidad });
     }
+}
+
+function obtenerUltimoInputCantidad() {
+    const activeTable = getActiveTable();
+    if (!activeTable) return null;
+
+    const tableBody = activeTable.querySelector('#table-sales-body');
+    if (!tableBody) return null;
+
+    const cantidadInputs = tableBody.querySelectorAll('.cantidad');
+    return cantidadInputs[cantidadInputs.length - 1];
 }
