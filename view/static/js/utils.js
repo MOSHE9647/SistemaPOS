@@ -46,9 +46,9 @@ export function eliminarCSS() {
     });
 }
 
-export function checkEmptyTable(tableBodyID, iconClass) {
-    const tableBody = document.getElementById(tableBodyID);
-    const tableHeader = document.querySelector("table thead tr");
+export function checkEmptyTable(tableBodyID, iconClass, sales = false) {
+    const tableBody = sales ? tableBodyID : document.getElementById(tableBodyID);
+    const tableHeader = sales ? tableBody.parentNode.querySelector("table thead tr") : document.querySelector("table thead tr");
 
     // Verifica si el tbody está vacío
     if (tableBody.rows.length === 0) {

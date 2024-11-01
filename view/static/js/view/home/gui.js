@@ -10,7 +10,17 @@ import { checkEmptyTable } from "../../utils.js";
 import * as crud from "./crud.js";
 
 // Variables globales
-let productos = [];
+let productos = {};
+
+function getActiveTable() {
+    // Obtener la tabla activa
+    const activeTable = document.querySelector('.tab-content.active');
+    if (!activeTable) {
+        mostrarMensaje('No se encontró la tabla activa.', 'error', 'Error de tabla');
+        return null;
+    }
+    return activeTable;
+}
 
 /**
  * Renderiza la tabla de productos con los datos proporcionados.
@@ -27,15 +37,20 @@ let productos = [];
  * @returns {void}
  */
 export function renderTable(listaProductos) {
-    productos = listaProductos;
+    const activeTable = getActiveTable();
+    if (!activeTable) return;
+
+    // Obtener el ID de la tabla activa y guardar sus respectivos productos
+    const activeTableID = activeTable.id;
+    productos[activeTableID] = listaProductos;
 
     // Obtener el cuerpo de la tabla
     const tableBodyID = 'table-sales-body';
-    const tableBody = document.getElementById(tableBodyID);
+    const tableBody = activeTable.querySelector(`#${tableBodyID}`);
     tableBody.innerHTML = '';
 
     // Recorrer cada producto en el arreglo
-    productos.forEach(data => {
+    listaProductos.forEach(data => {
         // Obtener la cantidad y el producto
         const cantidad = data.cantidad || 1;
         const producto = data.producto;
@@ -59,6 +74,7 @@ export function renderTable(listaProductos) {
             <td data-field="cantidad"><input type="number" class="cantidad" value="${cantidad}" min="0" style="width: 80px;"></td>
             <td data-field="subtotal">&#162;${subtotal.toFixed(2)}</td>
             <td data-field="impuesto">&#162;${impuesto.toFixed(2)}</td>
+            <td data-field="existencia">${producto.Cantidad}</
         `;
 
         const actionsCell = document.createElement('td');
@@ -70,8 +86,8 @@ export function renderTable(listaProductos) {
 
         // Agregar el evento de eliminación al botón
         row.querySelector('.btn-delete').addEventListener('click', () => {
-            crud.deleteProducto(producto.ID, productos);
-            renderTable(productos);
+            crud.deleteProducto(producto.ID, productos[activeTableID]);
+            renderTable(productos[activeTableID]);
         });
 
         // Agregar el evento de cambio de cantidad al input
@@ -82,7 +98,7 @@ export function renderTable(listaProductos) {
                 row.querySelector('.cantidad').value = 1;
             } else {
                 data.cantidad = cantidad ? cantidad : 1;
-                renderTable(productos);
+                renderTable(productos[activeTableID]);
             }
         });
         
@@ -91,19 +107,19 @@ export function renderTable(listaProductos) {
     });
 
     // Verificar si la tabla está vacía
-    checkEmptyTable(tableBodyID, 'las la-box');
+    checkEmptyTable(tableBody, 'las la-box', true);
 
     // Actualizar el subtotal
-    const subtotal = document.getElementById('sales-subtotal');
-    if (subtotal) subtotal.innerHTML = `&#162;${getSubtotal()}`;
+    const subtotal = activeTable.querySelector('#sales-subtotal');
+    if (subtotal) subtotal.innerHTML = `&#162;${getSubtotal(activeTableID)}`;
 
     // Actualizar el impuesto
-    const impuesto = document.getElementById('sales-impuesto');
-    if (impuesto) impuesto.innerHTML = `&#162;${getImpuesto()}`;
+    const impuesto = activeTable.querySelector('#sales-impuesto');
+    if (impuesto) impuesto.innerHTML = `&#162;${getImpuesto(activeTableID)}`;
 
     // Actualizar el total
-    const total = document.getElementById('sales-total');
-    if (total) total.innerHTML = `&#162;${getTotal()}`;
+    const total = activeTable.querySelector('#sales-total');
+    if (total) total.innerHTML = `&#162;${getTotal(activeTableID)}`;
 
     const barcodeInput = document.getElementById('sales-search-input');
     if (barcodeInput) barcodeInput.focus();
@@ -124,23 +140,31 @@ export function agregarProducto(codigoBarras) {
         codigo = match[2];
     }
 
+    // Obtener la tabla activa
+    const activeTable = getActiveTable();
+    if (!activeTable) {
+        mostrarMensaje('No se encontró la tabla activa.', 'error', 'Error de tabla');
+        hideLoader();
+        return;
+    }
+
+    const activeTableID = activeTable.id;
+    // Inicializar la lista de productos si no existe
+    if (!productos[activeTableID]) {
+        productos[activeTableID] = [];
+    }
+
     crud.obtenerProductoPorCodigoBarras(codigo).then(producto => {
         // Verificar si el producto ya existe en la lista
-        const existingProductIndex = productos.findIndex(p => p.producto.ID === producto.ID);
-        if (existingProductIndex !== -1) {
-            // Si el producto ya existe, actualizar la cantidad
-            productos[existingProductIndex].cantidad += cantidad;
-        } else {
-            // Si el producto no existe, agregarlo a la lista
-            productos.push({ producto, cantidad });
-        }
-        renderTable(productos);
+        agregarOActualizarProductoEnLista(activeTableID, producto, cantidad);
+        renderTable(productos[activeTableID]);
     })
     .catch(error => {
         mostrarMensaje(error.message, 'error', 'Error de búsqueda');
     })
-
-    hideLoader();
+    .finally(() => {
+        hideLoader();
+    });
 }
 
 export async function mostrarListaSeleccionableDeProductos() {
@@ -206,8 +230,18 @@ export async function mostrarListaSeleccionableDeProductos() {
             }
         }).then(result => {
             if (result.isConfirmed) {
-                productos.push({ producto: result.value, cantidad: 1 });
-                renderTable(productos);
+                // Obtener la tabla activa
+                const activeTable = getActiveTable();
+                if (!activeTable) throw new Error('No se encontró la tabla activa.');
+
+                // Inicializar la lista de productos si no existe
+                const activeTableID = activeTable.id;
+                if (!productos[activeTableID]) {
+                    productos[activeTableID] = [];
+                }
+
+                agregarOActualizarProductoEnLista(activeTableID, result.value, 1);
+                renderTable(productos[activeTableID]);
             }
         }).catch(error => {
             mostrarMensaje(error.message, 'error', 'Error al seleccionar producto');
@@ -230,25 +264,29 @@ export function obtenerValorImpuesto() {
     }
 }
 
-export function getSubtotal() {
+export function getSubtotal(tabId) {
     let total = 0.00;
-    productos.forEach(p => {
+    productos[tabId].forEach(p => {
         total += p.producto.PrecioCompra * p.cantidad;
     });
     return total.toFixed(2);
 }
 
-export function getImpuesto() {
-    return (getSubtotal() * obtenerValorImpuesto()).toFixed(2);
+export function getImpuesto(tabId) {
+    return (getSubtotal(tabId) * obtenerValorImpuesto()).toFixed(2);
 }
 
-export function getTotal() {
-    return (parseFloat(getSubtotal()) + parseFloat(getImpuesto())).toFixed(2);
+export function getTotal(tabId) {
+    return (parseFloat(getSubtotal(tabId)) + parseFloat(getImpuesto(tabId))).toFixed(2);
 }
 
 export function clearTable() {
-    productos = [];
-    renderTable(productos);
+    const activeTable = getActiveTable();
+    if (!activeTable) return;
+
+    const activeTableID = activeTable.id;
+    productos[activeTableID] = [];
+    renderTable(productos[activeTableID]);
 }
 
 // Darle funcionalidad de click al producto seleccionado
@@ -271,5 +309,25 @@ function getSelectedProduct(productos) {
     if (!radio) return null;
 
     const productID = radio.dataset.id;
-    return productos.find(producto => producto.ID === parseInt(productID, 10));
+    const producto = productos.find(producto => producto.ID === parseInt(productID, 10));
+
+    if (!producto) return null;
+    if (producto.Cantidad < 1) {
+        mostrarMensaje('El producto seleccionado no tiene existencias.', 'error', 'Error de existencia');
+        return null;
+    }
+
+    return producto;
+}
+
+function agregarOActualizarProductoEnLista(tablaID, producto, cantidad) {
+    // Verificar si el producto ya existe en la lista
+    const existingProductIndex = productos[tablaID].findIndex(p => p.producto.ID === producto.ID);
+    if (existingProductIndex !== -1) {
+        // Si el producto ya existe, actualizar la cantidad
+        productos[tablaID][existingProductIndex].cantidad += cantidad;
+    } else {
+        // Si el producto no existe, agregarlo a la lista
+        productos[tablaID].push({ producto, cantidad });
+    }
 }
