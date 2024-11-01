@@ -88,6 +88,34 @@ export function addTab() {
                 </tr>
             </tbody>
         </table>
+
+        <!-- Información de la venta (Total, Subtotal, Impuestos) -->
+        <div class="sales-info">
+            <div class="sales-price-info">
+                <div class="sales-price subtotal">
+                    <span>Subtotal:</span>
+                    <span id="sales-subtotal">&#162;0.00</span>
+                </div>
+                <div class="sales-price total">
+                    <span>Total:</span>
+                    <span id="sales-total">&#162;0.00</span>
+                </div>
+            </div>
+            <div class="sales-buttons">
+                <button class="sales-button" id="sales-reprint-button">
+                    <span class="las la-print icon"></span>
+                    <span>Reimprimir Ticket</span>
+                </button>
+                <button class="sales-button" id="sales-return-button">
+                    <span class="las la-undo icon"></span>
+                    <span>Devoluciones</span>
+                </button>
+                <button class="sales-button" id="sales-charge-button">
+                    <span class="las la-credit-card icon"></span>
+                    <span>Cobrar</span>
+                </button>
+            </div>
+        </div>
     `;
     tabContainer.insertBefore(newTabContent, tabContainer.lastElementChild);
 
