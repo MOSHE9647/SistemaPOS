@@ -17,9 +17,10 @@ if ($method == "POST") {
     $id                 = isset($_POST['id'])               ?intval($_POST['id'])               :-1;
     $compraid           = isset($_POST['compraid'])         ?intval($_POST['compraid'])         : 0;
     $fechaVence         = isset($_POST['fechaVence'])       ?$_POST['fechaVence']               :"";
-    $estadoCancelado    = isset($_POST['estadoCancelado'])  ?$_POST['estadoCancelado']          :"";
+    $estadoCancelado    = isset($_POST['estadoCancelado'])  ?$_POST['estadoCancelado']          :false;
     $notas              = isset($_POST['notas'])            ?$_POST['notas']                    :"";
-
+    UtilS::writeLog($compraid);
+    
 
     $ObjetoCompra = new CompraPorPagar($id,
                     new Compra($compraid),
