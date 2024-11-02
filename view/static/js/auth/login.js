@@ -1,6 +1,6 @@
 import { mostrarMensaje } from '../../js/gui/notification.js';
 import { showLoader, hideLoader } from '../../js/gui/loader.js';
-import { removeUrlParams, interpretarMensaje } from '../utils.js';
+import { removeUrlParams, interpretarMensaje, verificarRespuestaJSON } from '../utils.js';
 
 // Exporta las funciones para poder ser utilizadas desde el archivo HTML
 window.mostrarMensaje = mostrarMensaje;
@@ -23,11 +23,11 @@ async function iniciarSesion() {
     try {
         const response = await fetch(url, { method: 'POST', body: formData });
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await verificarRespuestaJSON(response);
             throw new Error(interpretarMensaje(response.status, errorData.message));
         }
 
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
         if (!data.success) {
             mostrarMensaje(data.message, 'error', 'Error al intentar iniciar sesión');
         }

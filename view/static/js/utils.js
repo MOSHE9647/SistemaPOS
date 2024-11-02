@@ -46,9 +46,9 @@ export function eliminarCSS() {
     });
 }
 
-export function checkEmptyTable(tableBodyID, iconClass) {
-    const tableBody = document.getElementById(tableBodyID);
-    const tableHeader = document.querySelector("table thead tr");
+export function checkEmptyTable(tableBodyID, iconClass, sales = false) {
+    const tableBody = sales ? tableBodyID : document.getElementById(tableBodyID);
+    const tableHeader = sales ? tableBody.parentNode.querySelector("table thead tr") : document.querySelector("table thead tr");
 
     // Verifica si el tbody está vacío
     if (tableBody.rows.length === 0) {
@@ -190,8 +190,6 @@ export function resetSearch(searchInputID) {
     const searchInput = document.getElementById(searchInputID);
     if (searchInput) {
         searchInput.value = ''; // Limpiar el campo de búsqueda
-        // const event = new KeyboardEvent('keypress', { key: 'Enter' });
-        // searchInput.dispatchEvent(event); // Disparar el evento de tecla Enter
     }
 }
 
@@ -204,4 +202,18 @@ export function formatearDecimal(numero) {
         valorFormateado = valorFormateado.toFixed(2).replace(/\.?0+$/, '');  // Limitar a dos decimales y eliminar ceros innecesarios
     }
     return valorFormateado;
+}
+
+export async function verificarRespuestaJSON(response) {
+    const contentType = response.headers.get("content-type") || "";
+    
+    // Verificamos si el tipo de contenido es JSON
+    if (!contentType.includes("application/json")) {
+        const text = await response.text();
+        console.error("Respuesta inesperada: ", text);
+        throw new Error("La respuesta del servidor no es JSON. Es posible que sea una página de error o inicio de sesión.");
+    }
+    
+    // Si es JSON, devolvemos el JSON parseado
+    return response.json();
 }

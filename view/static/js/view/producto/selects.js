@@ -3,6 +3,7 @@
 // ***************************************************************************************************************** //
 
 import { mostrarMensaje } from "../../gui/notification.js";
+import { verificarRespuestaJSON } from "../../utils.js";
 
 /**
  * Obtiene la lista de categorías desde el servidor.
@@ -11,7 +12,8 @@ import { mostrarMensaje } from "../../gui/notification.js";
 async function loadCategorias() {
     try {
         const response = await fetch(`${window.baseURL}/controller/categoriaAction.php?accion=all`);
-        return await response.json();
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener las categorías');
+        return await verificarRespuestaJSON(response);
     } catch (error) {
         // Muestra un mensaje de error detallado
         mostrarMensaje(`Ocurrió un error al obtener las categorías.<br>${error}`, 'error');
@@ -27,7 +29,8 @@ async function loadCategorias() {
 async function loadSubcategorias(categoriaID) {
     try {
         const response = await fetch(`${window.baseURL}/controller/subcategoriaAction.php?accion=categoria&id=${categoriaID}`);
-        return await response.json();
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener las subcategorías');
+        return await verificarRespuestaJSON(response);
     } catch (error) {
         // Muestra un mensaje de error detallado
         mostrarMensaje(`Ocurrió un error al obtener la lista de subcategorías.<br>${error}`, 'error');
@@ -42,7 +45,8 @@ async function loadSubcategorias(categoriaID) {
 async function loadMarcas() {
     try {
         const response = await fetch(`${window.baseURL}/controller/marcaAction.php?accion=all`);
-        return await response.json();
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener las marcas');
+        return await verificarRespuestaJSON(response);
     } catch (error) {
         // Muestra un mensaje de error detallado
         mostrarMensaje(`Ocurrió un error al obtener las marcas.<br>${error}`, 'error');
@@ -57,7 +61,8 @@ async function loadMarcas() {
 async function loadPresentaciones() {
     try {
         const response = await fetch(`${window.baseURL}/controller/presentacionAction.php?accion=all`);
-        return await response.json();
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener las presentaciones');
+        return await verificarRespuestaJSON(response);
     } catch (error) {
         // Muestra un mensaje de error detallado
         mostrarMensaje(`Ocurrió un error al obtener las presentaciones.<br>${error}`, 'error');

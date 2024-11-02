@@ -2,15 +2,27 @@
 // ************* Métodos para el manejo de la GUI ************* //
 // ************************************************************ //
 
+import { checkEmptyTable, manejarInputNumeroTelefono } from "../../utils.js";
 import { hideLoader, showLoader } from "../../gui/loader.js";
 import { obtenerListaImpuestos } from "../impuesto/crud.js";
 import { obtenerListaProductos } from "../producto/crud.js";
 import { mostrarMensaje } from "../../gui/notification.js";
-import { checkEmptyTable } from "../../utils.js";
+import { initializeSelects } from "../telefono/selects.js";
+import { obtenerListaClientes } from "../cliente/crud.js";
 import * as crud from "./crud.js";
 
 // Variables globales
-let productos = [];
+let productos = { [tab1]: [] };
+
+function getActiveTable() {
+    // Obtener la tabla activa
+    const activeTable = document.querySelector('.tab-content.active');
+    if (!activeTable) {
+        mostrarMensaje('No se encontró la tabla activa.', 'error', 'Error de tabla');
+        return null;
+    }
+    return activeTable;
+}
 
 /**
  * Renderiza la tabla de productos con los datos proporcionados.
@@ -27,15 +39,20 @@ let productos = [];
  * @returns {void}
  */
 export function renderTable(listaProductos) {
-    productos = listaProductos;
+    const activeTable = getActiveTable();
+    if (!activeTable) return;
+
+    // Obtener el ID de la tabla activa y guardar sus respectivos productos
+    const activeTableID = activeTable.id;
+    productos[activeTableID] = listaProductos;
 
     // Obtener el cuerpo de la tabla
     const tableBodyID = 'table-sales-body';
-    const tableBody = document.getElementById(tableBodyID);
+    const tableBody = activeTable.querySelector(`#${tableBodyID}`);
     tableBody.innerHTML = '';
 
     // Recorrer cada producto en el arreglo
-    productos.forEach(data => {
+    listaProductos.forEach(data => {
         // Obtener la cantidad y el producto
         const cantidad = data.cantidad || 1;
         const producto = data.producto;
@@ -59,6 +76,7 @@ export function renderTable(listaProductos) {
             <td data-field="cantidad"><input type="number" class="cantidad" value="${cantidad}" min="0" style="width: 80px;"></td>
             <td data-field="subtotal">&#162;${subtotal.toFixed(2)}</td>
             <td data-field="impuesto">&#162;${impuesto.toFixed(2)}</td>
+            <td data-field="existencia">${producto.Cantidad}</
         `;
 
         const actionsCell = document.createElement('td');
@@ -70,8 +88,8 @@ export function renderTable(listaProductos) {
 
         // Agregar el evento de eliminación al botón
         row.querySelector('.btn-delete').addEventListener('click', () => {
-            crud.deleteProducto(producto.ID, productos);
-            renderTable(productos);
+            crud.deleteProducto(producto.ID, productos[activeTableID]);
+            renderTable(productos[activeTableID]);
         });
 
         // Agregar el evento de cambio de cantidad al input
@@ -80,9 +98,12 @@ export function renderTable(listaProductos) {
             if (cantidad < 1) {
                 mostrarMensaje('La cantidad no puede ser menor a 1.', 'error', 'Error de cantidad');
                 row.querySelector('.cantidad').value = 1;
+            } else if (cantidad > producto.Cantidad) {
+                mostrarMensaje('La cantidad del producto no puede ser mayor a la existencia.', 'error', 'Error de cantidad');
+                row.querySelector('.cantidad').value = producto.Cantidad;
             } else {
                 data.cantidad = cantidad ? cantidad : 1;
-                renderTable(productos);
+                renderTable(productos[activeTableID]);
             }
         });
         
@@ -91,22 +112,26 @@ export function renderTable(listaProductos) {
     });
 
     // Verificar si la tabla está vacía
-    checkEmptyTable(tableBodyID, 'las la-box');
+    checkEmptyTable(tableBody, 'las la-box', true);
 
     // Actualizar el subtotal
-    const subtotal = document.getElementById('sales-subtotal');
-    if (subtotal) subtotal.innerHTML = `&#162;${getSubtotal()}`;
+    const subtotal = activeTable.querySelector('#sales-subtotal');
+    if (subtotal) subtotal.innerHTML = `&#162;${getSubtotal(activeTableID)}`;
 
     // Actualizar el impuesto
-    const impuesto = document.getElementById('sales-impuesto');
-    if (impuesto) impuesto.innerHTML = `&#162;${getImpuesto()}`;
+    const impuesto = activeTable.querySelector('#sales-impuesto');
+    if (impuesto) impuesto.innerHTML = `&#162;${getImpuesto(activeTableID)}`;
 
     // Actualizar el total
-    const total = document.getElementById('sales-total');
-    if (total) total.innerHTML = `&#162;${getTotal()}`;
+    const total = activeTable.querySelector('#sales-total');
+    if (total) total.innerHTML = `&#162;${getTotal(activeTableID)}`;
 
-    const barcodeInput = document.getElementById('sales-search-input');
-    if (barcodeInput) barcodeInput.focus();
+    // const barcodeInput = document.getElementById('sales-search-input');
+    // if (barcodeInput) barcodeInput.focus();
+
+    // Obtener el último input de cantidad y darle foco
+    const lastInput = obtenerUltimoInputCantidad();
+    if (lastInput) lastInput.focus();
 }
 
 export function agregarProducto(codigoBarras) {
@@ -124,34 +149,43 @@ export function agregarProducto(codigoBarras) {
         codigo = match[2];
     }
 
+    // Obtener la tabla activa
+    const activeTable = getActiveTable();
+    if (!activeTable) {
+        mostrarMensaje('No se encontró la tabla activa.', 'error', 'Error de tabla');
+        hideLoader();
+        return;
+    }
+
+    const activeTableID = activeTable.id;
+    // Inicializar la lista de productos si no existe
+    if (!productos[activeTableID]) {
+        productos[activeTableID] = [];
+    }
+
     crud.obtenerProductoPorCodigoBarras(codigo).then(producto => {
         // Verificar si el producto ya existe en la lista
-        const existingProductIndex = productos.findIndex(p => p.producto.ID === producto.ID);
-        if (existingProductIndex !== -1) {
-            // Si el producto ya existe, actualizar la cantidad
-            productos[existingProductIndex].cantidad += cantidad;
-        } else {
-            // Si el producto no existe, agregarlo a la lista
-            productos.push({ producto, cantidad });
-        }
-        renderTable(productos);
+        agregarOActualizarProductoEnLista(activeTableID, producto, cantidad);
+        renderTable(productos[activeTableID]);
     })
     .catch(error => {
         mostrarMensaje(error.message, 'error', 'Error de búsqueda');
     })
-
-    hideLoader();
+    .finally(() => {
+        hideLoader();
+    });
 }
 
-export function mostrarListaSeleccionableDeProductos() {
+export async function mostrarListaSeleccionableDeProductos() {
     try {
-        const products = obtenerListaProductos();
+        const products = await obtenerListaProductos();
         if (!products) throw new Error('No se encontraron productos');
 
-        let html = `
-            <div class="sales-product-select">
-        `;
+        if (!Array.isArray(products)) {
+            throw new Error('La lista de productos no es un arreglo.');
+        }
 
+        let html = `<div class="sales-product-select">`;
         products.forEach(producto => {
             const imagenURL = window.baseURL + producto.Imagen;
             html += `
@@ -172,10 +206,7 @@ export function mostrarListaSeleccionableDeProductos() {
                 </div>
             `;
         });
-
-        html += `
-            </div>
-        `;
+        html += `</div>`;
 
         Swal.fire({
             title: "Seleccione un producto",
@@ -192,7 +223,7 @@ export function mostrarListaSeleccionableDeProductos() {
                 confirmButton: 'modal-confirm',
                 actions: 'modal-actions',
             },
-            preConfirm: () => {
+            preConfirm: async () => {
                 const product = getSelectedProduct(products);
                 if (!product) {
                     mostrarMensaje('Seleccione un producto para agregar a la lista.', 'error', 'Error de selección');
@@ -202,8 +233,18 @@ export function mostrarListaSeleccionableDeProductos() {
             }
         }).then(result => {
             if (result.isConfirmed) {
-                productos.push({ producto: result.value, cantidad: 1 });
-                renderTable(productos);
+                // Obtener la tabla activa
+                const activeTable = getActiveTable();
+                if (!activeTable) throw new Error('No se encontró la tabla activa.');
+
+                // Inicializar la lista de productos si no existe
+                const activeTableID = activeTable.id;
+                if (!productos[activeTableID]) {
+                    productos[activeTableID] = [];
+                }
+
+                agregarOActualizarProductoEnLista(activeTableID, result.value, 1);
+                renderTable(productos[activeTableID]);
             }
         }).catch(error => {
             mostrarMensaje(error.message, 'error', 'Error al seleccionar producto');
@@ -213,6 +254,125 @@ export function mostrarListaSeleccionableDeProductos() {
     } catch (error) {
         mostrarMensaje(error.message, 'error', 'Error al listar productos');
     }
+}
+
+export function mostrarOpcionesDeCobro() {
+    // Obtenemos la tabla activa
+    const activeTable = getActiveTable();
+    if (!activeTable) {
+        mostrarMensaje('No se encontró la tabla activa.', 'error', 'Error de tabla');
+        return;
+    }
+
+    if (!productos[activeTable.id]) {
+        mostrarMensaje('Debe seleccionar, al menos, un producto para cobrar.', 'warning');
+        return;
+    }
+
+    // Obtenemos el ID de la tabla y los datos de la venta
+    // const activeTableID = activeTable.id;
+    // const listaProductos = productos[activeTableID];
+    // const total = getTotal(activeTableID);
+    // const usuario = usuarioActual;
+    // console.log(listaProductos, total, usuario);
+
+    let html = `
+        <div class="modal-form-container">
+            <h2>Informaci&oacute;n del Cliente</h2>
+            <div class="cliente-info">
+                <div class="cliente-info info">
+                    <div class="cliente-info input-select basic">
+                        <label>Cliente atendido (*):</label>
+                        <div class="select">
+                            <select id="cliente-select">
+                                <option value="">-- Seleccionar --</option>
+                            </select>
+                            <button type="button" id="cliente-add-button">
+                                <span class="las la-plus"></span>
+                                <span>Crear Nuevo</span>
+                            </button>
+                        </div>
+                        <form id="cliente-form" class="cliente-form" style="display: none;">
+                            <div class="cliente-form-group">
+                                <div class="cliente-info input-select form">
+                                    <label for="cliente-nombre">Nombre:</label>
+                                    <input type="text" id="cliente-nombre" name="nombre">
+                                </div>
+                                <div class="cliente-info input-select form">
+                                    <label for="cliente-alias">Alias:</label>
+                                    <input type="text" id="cliente-alias" name="alias">
+                                </div>
+                            </div>
+                            <div class="cliente-form-group">
+                                <div class="cliente-info input-select form">
+                                    <label>Tipo de Tel&eacute;fono (*):</label>
+                                    <select id="tipo-select" required>
+                                        <option value="">--Seleccionar--</option>
+                                    </select>
+                                </div>
+                                <div class="cliente-info input-select form">
+                                    <label>Código de Pa&iacute;s (*):</label>
+                                    <select id="codigo-select" required>
+                                        <option value="">--Seleccionar--</option>
+                                    </select>
+                                </div>
+                                <div class="cliente-info input-select form">
+                                    <label for="numero">Número de Tel&eacute;fono (*):</label>
+                                    <input type="text" id="numero" name="numero" required>
+                                </div>
+                            </div>
+                            <div class="cliente-form-group form-buttons">
+                                <button type="submit" class="modal-confirm" id="cliente-save-button">Guardar</button>
+                                <button type="button" class="modal-close" id="cliente-cancel-button">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    Swal.fire({
+        title: "Venta de Productos: Cobrar",
+        html: html,
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: '<i class="las la-print"></i> <span>Cobrar e imprimir ticket</span>',
+        denyButtonText: '<i class="las la-check"></i> <span>Cobrar sin imprimir ticket</span>',
+        cancelButtonText: 'Cancelar',
+        customClass: {
+            popup: 'modal-container modal-cobro',
+            header: 'modal-header',
+            title: 'modal-title',
+            htmlContainer: 'modal-body',
+            denyButton: 'modal-confirm',
+            cancelButton: 'modal-close',
+            confirmButton: 'modal-confirm',
+            actions: 'modal-actions',
+        },
+        preConfirm: () => {
+            mostrarMensaje('Venta realizada e impresa.', 'success', 'Venta realizada');
+        },
+        preDeny: () => {
+            mostrarMensaje('Venta realizada sin imprimir ticket.', 'success', 'Venta realizada');
+        }
+    });
+
+    // Evitar que el formulario se envíe al presionar Enter
+    addEventListenerToElement('cliente-form', 'submit', event => event.preventDefault());
+
+    // Inicializar el select de clientes
+    initializeSelectCliente();
+
+    // Agregar evento al botón de agregar cliente
+    addEventListenerToElement('cliente-add-button', 'click', () => {
+        const clienteForm = document.getElementById('cliente-form');
+        if (clienteForm) clienteForm.style.display = 'block';
+
+        const clienteSelect = document.getElementById('cliente-select');
+        if (clienteSelect) clienteSelect.disabled = true;
+        
+        initializeClienteForm();
+    });
 }
 
 export function obtenerValorImpuesto() {
@@ -226,25 +386,29 @@ export function obtenerValorImpuesto() {
     }
 }
 
-export function getSubtotal() {
+export function getSubtotal(tabId) {
     let total = 0.00;
-    productos.forEach(p => {
+    productos[tabId].forEach(p => {
         total += p.producto.PrecioCompra * p.cantidad;
     });
     return total.toFixed(2);
 }
 
-export function getImpuesto() {
-    return (getSubtotal() * obtenerValorImpuesto()).toFixed(2);
+export function getImpuesto(tabId) {
+    return (getSubtotal(tabId) * obtenerValorImpuesto()).toFixed(2);
 }
 
-export function getTotal() {
-    return (parseFloat(getSubtotal()) + parseFloat(getImpuesto())).toFixed(2);
+export function getTotal(tabId) {
+    return (parseFloat(getSubtotal(tabId)) + parseFloat(getImpuesto(tabId))).toFixed(2);
 }
 
 export function clearTable() {
-    productos = [];
-    renderTable(productos);
+    const activeTable = getActiveTable();
+    if (!activeTable) return;
+
+    const activeTableID = activeTable.id;
+    productos[activeTableID] = [];
+    renderTable(productos[activeTableID]);
 }
 
 // Darle funcionalidad de click al producto seleccionado
@@ -267,5 +431,146 @@ function getSelectedProduct(productos) {
     if (!radio) return null;
 
     const productID = radio.dataset.id;
-    return productos.find(producto => producto.ID === parseInt(productID, 10));
+    const producto = productos.find(producto => producto.ID === parseInt(productID, 10));
+
+    if (!producto) return null;
+    if (producto.Cantidad < 1) {
+        mostrarMensaje('El producto seleccionado no tiene existencias.', 'error', 'Error de existencia');
+        return null;
+    }
+
+    return producto;
+}
+
+function agregarOActualizarProductoEnLista(tablaID, producto, cantidad) {
+    // Verificar que la cantidad ingresada no supere la existencia
+    if (cantidad > producto.Cantidad) {
+        mostrarMensaje('La cantidad del producto no puede ser mayor a la existencia.', 'error', 'Error de cantidad');
+        return;
+    }
+
+    // Verificar si el producto ya existe en la lista
+    const existingProductIndex = productos[tablaID].findIndex(p => p.producto.ID === producto.ID);
+    if (existingProductIndex !== -1) {
+        // Si el producto ya existe, actualizar la cantidad
+        productos[tablaID][existingProductIndex].cantidad += cantidad;
+    } else {
+        // Si el producto no existe, agregarlo a la lista
+        productos[tablaID].push({ producto, cantidad });
+    }
+}
+
+function obtenerUltimoInputCantidad() {
+    const activeTable = getActiveTable();
+    if (!activeTable) return null;
+
+    const tableBody = activeTable.querySelector('#table-sales-body');
+    if (!tableBody) return null;
+
+    const cantidadInputs = tableBody.querySelectorAll('.cantidad');
+    return cantidadInputs[cantidadInputs.length - 1];
+}
+
+function initializeSelectCliente(selectedID = -1) {
+    try {
+        // Obtener la lista de clientes
+        const clientes = obtenerListaClientes();
+        const clienteSelect = document.getElementById('cliente-select');
+        if (!clienteSelect) throw new Error('No se encontró el select de clientes.');
+
+        // Limpiar el select de clientes
+        clienteSelect.innerHTML = '';
+        const option = document.createElement('option');
+        option.value = '';
+        option.text = '-- Seleccionar --';
+        clienteSelect.add(option);
+
+        // Llenar el select de clientes
+        clientes.forEach(cliente => {
+            // Crear el texto del Select
+            const clienteTelefono = cliente.Telefono ? ` (${cliente.Telefono.CodigoPais} ${cliente.Telefono.Numero})` : '';
+            const selectText = cliente.Nombre + ' - ' + cliente.Alias + clienteTelefono;
+
+            // Crear una opción para el select
+            const option = document.createElement('option');
+            option.value = cliente.ID;
+            option.text = selectText;
+            option.selected = cliente.ID === selectedID;
+            clienteSelect.add(option);
+        });
+    } catch (error) {
+        console.error(error);
+        mostrarMensaje(`Error al cargar la lista de clientes: ${error.message}`, 'error');
+    }
+}
+
+function initializeClienteForm() {
+    const clienteForm = document.getElementById('cliente-form');
+    if (!clienteForm) throw new Error('No se encontró el formulario de cliente.');
+
+    if (clienteForm.style.display !== 'none') {
+        initializeSelects();
+
+        addEventListenerToElement('numero', 'input', manejarInputNumeroTelefono);
+        addEventListenerToElement('codigo-select', 'change', manejarInputNumeroTelefono);
+        addEventListenerToElement('cliente-cancel-button', 'click', handleClienteCancelClick);
+        addEventListenerToElement('cliente-save-button', 'click', handleClienteSaveClick);
+    }
+}
+
+function addEventListenerToElement(elementId, event, handler) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.removeEventListener(event, handler);
+        element.addEventListener(event, handler);
+    }
+}
+
+function handleClienteCancelClick() {
+    const clienteForm = document.getElementById('cliente-form');
+    if (clienteForm) clienteForm.style.display = 'none';
+    
+    const clienteSelect = document.getElementById('cliente-select');
+    if (clienteSelect) clienteSelect.disabled = false;
+}
+
+async function handleClienteSaveClick() {
+    try {
+        const clienteForm = document.getElementById('cliente-form');
+        if (!clienteForm) throw new Error('No se encontró el formulario de cliente.');
+
+        const codigoSelect = document.getElementById('codigo-select');
+        if (!codigoSelect) throw new Error('No se encontró el select de código de país.');
+
+        if (!clienteForm.checkValidity()) {
+            clienteForm.reportValidity();
+            return;
+        }
+
+        const nombre = document.getElementById('cliente-nombre').value || 'No Definido';
+        const alias = document.getElementById('cliente-alias').value || 'No Definido';
+        const tipo = document.getElementById('tipo-select').value;
+        const numeroInput = document.getElementById('numero').value;
+
+        const formData = new FormData();
+        formData.append('accion', 'insertar');
+        formData.append('nombre', nombre);
+        formData.append('alias', alias);
+        formData.append('tipo', tipo);
+        formData.append('codigo', codigoSelect.value);
+        formData.append('numero', numeroInput);
+
+        const clienteID = await Promise.resolve(crud.insertCliente(formData));
+        if (clienteID !== -1) {
+            initializeSelectCliente(clienteID);
+            clienteForm.reset();
+            clienteForm.style.display = 'none';
+
+            const clienteSelect = document.getElementById('cliente-select');
+            if (clienteSelect) clienteSelect.disabled = false;
+        }
+    } catch (error) {
+        console.error(error);
+        mostrarMensaje(`Error al guardar el cliente: ${error.message}`, 'error');
+    }
 }

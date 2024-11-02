@@ -73,6 +73,7 @@
 			var isAdmin = <?php echo json_encode($isAdmin); ?>;
 			var correoUsuario = <?php echo json_encode($correoUsuario); ?>;
 			var defaultProductImage = <?php echo json_encode(DEFAULT_PRODUCT_IMAGE); ?>;
+			var usuarioActual = <?php echo json_encode($nombreUsuario); ?>;
 		</script>
 	</head>
 	<body>

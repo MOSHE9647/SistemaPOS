@@ -4,6 +4,7 @@
 
 import { hideLoader, showLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
+import { verificarRespuestaJSON } from "../../utils.js";
 import { fetchRoles } from "./pagination.js";
 
 /**
@@ -22,7 +23,10 @@ async function obtenerRolPorID(id, filter = true, deleted = false) {
     const response = await fetch(
         `${window.baseURL}/controller/rolUsuarioAction.php?accion=id&id=${id}&filter=${filterNum}&deleted=${deletedNum}`
     );
-    const data = await response.json();
+
+    if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener el rol');
+    const data = await verificarRespuestaJSON(response);
+
     if (data.success) {
         return data.rol;
     } else {
@@ -54,7 +58,7 @@ export async function insertRol(formData) {
             body: formData
         });
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
 
         // Verificar si hubo un error en la solicitud
         if (!data.success) {
@@ -114,7 +118,7 @@ export async function updateRol(formData) {
             body: formData
         });
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
 
         // Verificar si hubo un error en la solicitud
         if (!data.success) {
@@ -163,7 +167,7 @@ export async function deleteRol(id) {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
 
         // Verificar si hubo un error en la solicitud
         if (!data.success) {

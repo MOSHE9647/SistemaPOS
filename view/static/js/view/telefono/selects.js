@@ -3,6 +3,7 @@
 // *************************************************************************************************************** //
 
 import { mostrarMensaje } from "../../gui/notification.js";
+import { verificarRespuestaJSON } from "../../utils.js";
 
 /**
  * Carga la lista de tipos de teléfono desde un archivo JSON.
@@ -17,7 +18,8 @@ import { mostrarMensaje } from "../../gui/notification.js";
 async function loadTipos() {
     try {
         const response = await fetch(`${window.baseURL}/view/static/json/telefono/tipos.json`);
-        return await response.json();
+        if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+        return await verificarRespuestaJSON(response);
     } catch (error) {
         // Muestra el mensaje de error detallado
         mostrarMensaje(`Ocurrió un error al obtener la lista de tipos de teléfono.<br>${error}`, 'error', 'Error de carga');
@@ -38,7 +40,8 @@ async function loadTipos() {
 async function loadCodigosPais() {
     try {
         const response = await fetch(`${window.baseURL}/view/static/json/telefono/codigos.json`);
-        return await response.json();
+        if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+        return await verificarRespuestaJSON(response);
     } catch (error) {
         // Muestra el mensaje de error detallado
         mostrarMensaje(`Ocurrió un error al obtener la lista de códigos de país.<br>${error}`, 'error', 'Error de carga');

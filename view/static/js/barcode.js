@@ -1,11 +1,13 @@
 import { mostrarMensaje } from "./gui/notification.js";
+import { verificarRespuestaJSON } from "./utils.js";
 
 export async function fetchBarcode(barcode = "", text = true, scale = 2, transparent = false) {
     try {
         const query = `accion=barcode&barcode=${barcode}&scale=${scale}&text=${text ? 1 : 0}&trans=${transparent}`;
         const response = await fetch(`${window.baseURL}/controller/codigoBarrasAction.php?${query}`);
-        const data = await response.json();
-        
+        if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+
+        const data = await verificarRespuestaJSON(response);
         if (data.success) {
             return data; // Devuelve la imagen en base64
         } else {

@@ -14,7 +14,7 @@ window.baseURL = window.location.pathname.split('/').slice(0, -1).join('/');
 // Rutas y funciones asociadas a las vistas
 const vistas = {
     home: { 
-        css: './view/static/css/view/home.css',
+        css: './view/static/css/view/home/home.css',
         script: cargarHome
     },
     productos: { 

@@ -5,7 +5,7 @@
 import { hideLoader, showLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
 import { fetchClientes } from "./pagination.js";
-import { resetSearch } from "../../utils.js";
+import { resetSearch, verificarRespuestaJSON } from "../../utils.js";
 
 /**
  * Obtiene un cliente por su ID.
@@ -18,16 +18,47 @@ import { resetSearch } from "../../utils.js";
  * @returns {Promise<Object>} Los datos del cliente si la solicitud es exitosa.
  * @throws {Error} Si la solicitud falla o el cliente no se encuentra.
  */
-async function obtenerClientePorID(id, filter = true, deleted = false) {
+export async function obtenerClientePorID(id, filter = true, deleted = false) {
     const filterNum = filter ? 1 : 0, deletedNum = deleted ? 1 : 0;
     const response = await fetch(
         `${window.baseURL}/controller/clienteAction.php?accion=id&id=${id}&filter=${filterNum}&deleted=${deletedNum}`
     );
-    const data = await response.json();
+
+    if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener el cliente');
+    const data = await verificarRespuestaJSON(response);
+    
     if (data.success) {
         return data.cliente;
     } else {
         throw new Error(data.message);
+    }
+}
+
+/**
+ * Obtiene una lista de clientes desde la BD.
+ *
+ * @async
+ * @function obtenerListaClientes
+ * @param {boolean} [filter=true] - Si se deben aplicar filtros a la obtención de la lista.
+ * @param {boolean} [deleted=false] - Si se deben incluir clientes eliminados en la obtención.
+ * @returns {Promise<Object>} Los datos de la lista si la solicitud es exitosa.
+ * @throws {Error} Si la solicitud falla o la lista no se encuentra.
+ */
+export function obtenerListaClientes(filter = true, deleted = false) {
+    const filterNum = filter ? 1 : 0, deletedNum = deleted ? 1 : 0;
+    const request = new XMLHttpRequest();
+    request.open('GET', `${window.baseURL}/controller/clienteAction.php?accion=all&filter=${filterNum}&deleted=${deletedNum}`, false);
+    request.send(null);
+
+    if (request.status === 200) {
+        const data = JSON.parse(request.responseText);
+        if (data.success) {
+            return data.clientes;
+        } else {
+            throw new Error(data.message);
+        }
+    } else {
+        throw new Error('Error en la solicitud');
     }
 }
 
@@ -55,7 +86,7 @@ export async function insertCliente(formData) {
             body: formData
         });
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el cliente');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
         
         // Verificar si hubo un error en la solicitud
         if (!data.success) {
@@ -115,7 +146,7 @@ export async function updateCliente(formData) {
             body: formData
         });
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
 
         // Verificar si hubo un error en la solicitud
         if (!data.success) {
@@ -165,7 +196,7 @@ export async function deleteCliente(id) {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         })
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
 
         // Verificar si hubo un error en la solicitud
         if (!data.success) {

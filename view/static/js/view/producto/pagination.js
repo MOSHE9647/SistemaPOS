@@ -1,5 +1,6 @@
 import { hideLoader, showLoader, showTableLoader } from "../../gui/loader.js";
 import { mostrarMensaje } from "../../gui/notification.js";
+import { verificarRespuestaJSON } from "../../utils.js";
 import { renderTable } from "./gui.js";
 
 // ********************************************************************************** //
@@ -48,7 +49,7 @@ export async function fetchProductos(page, size, sort, search = '') {
             `${window.baseURL}/controller/productoAction.php?page=${page}&size=${size}&sort=${sort}&search=${search}`
         );
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el producto');
-        const data = await response.json();
+        const data = await verificarRespuestaJSON(response);
 
         // Verificar si hubo un error en la solicitud
         if (!data.success) {

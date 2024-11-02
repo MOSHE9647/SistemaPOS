@@ -3,6 +3,7 @@
 // ********************************************************************************** //
 
 import { mostrarMensaje } from "../../gui/notification.js";
+import { verificarRespuestaJSON } from "../../utils.js";
 
 /**
  * Carga la lista de roles desde el servidor.
@@ -19,7 +20,8 @@ async function loadRoles() {
     try {
         // Enviar la solicitud GET al servidor para obtener los roles con los datos en la URL
         const response = await fetch(`${window.baseURL}/controller/rolUsuarioAction.php?accion=obtener`);
-        return await response.json();
+        if (!response.ok) throw new Error(`Error ${response.status} (${response.statusText})`);
+        return await verificarRespuestaJSON(response);
     } catch (error) {
         console.error(`Ocurrió un error al obtener la lista de roles: ${error}`);
         mostrarMensaje(`Ocurrió un error al obtener la lista de roles.<br>${error}`, 'error', 'Error');
