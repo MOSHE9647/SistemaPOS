@@ -1,16 +1,18 @@
 <?php
-require_once __DIR__ . '/../domain/CompraPorPagar.php';
-require_once __DIR__ . '/../domain/CompraDetalle.php';
-require_once __DIR__ . '/../data/compradetalleData.php';
-require_once __DIR__ . '/../utils/Utils.php';
-require_once __DIR__ . '/../utils/Variables.php';
-require_once __DIR__ . '/../data/data.php';
+require_once dirname(__DIR__, 1) . '/domain/CompraPorPagar.php';
+require_once dirname(__DIR__, 1) . "/domain/Compra.php";
+require_once dirname(__DIR__, 1) . '/utils/Utils.php';
+require_once dirname(__DIR__, 1) . '/utils/Variables.php';
+require_once dirname(__DIR__, 1) . '/data/data.php';
+require_once dirname(__DIR__, 1) . '/data/compraData.php';
 
 class CompraPorPagarData extends Data{
     private $className;
+    private $compradata;
     public function __construct(){
         parent::__construct();
         $this->className = get_class($this);
+        $this->compradata = new CompraData();
     }
 
     //Verificar si la compraPoragarExiste
@@ -54,7 +56,7 @@ class CompraPorPagarData extends Data{
         }
     }
 
-    function verificarCompraDetalle($compradetalleid, $update = false, $verificarEnCompraPorPagar = true,$compraPagarId = 0){
+    function verificarComprar($compradetalleid, $update = false, $verificarEnCompraPorPagar = true,$compraPagarId = 0){
         try{
             $result = $this->getConnection();
             if (!$result["success"]) { throw new Exception($result["message"]); }
@@ -68,7 +70,6 @@ class CompraPorPagarData extends Data{
             $columVerificar = ($verificarEnCompraPorPagar) ? COMPRA_POR_PAGAR_COMPRA_DETALLE_ID : COMPRA_ID;
 
             $query="SELECT " . COMPRA_ID. " FROM " . $tablaVerificacion ." WHERE " . $columVerificar. " = ? ";
-
             $params=[$compradetalleid];
             $types="i";
 
@@ -100,7 +101,6 @@ class CompraPorPagarData extends Data{
 
     }
 
-
     function InsertarCompraPorPagar($compraPagar, $conn = null ){
         $nuevaConexion = false;
         $stmt = null;
@@ -114,57 +114,24 @@ class CompraPorPagarData extends Data{
                 mysqli_begin_transaction($conn);
             }
             $id = $compraPagar->getCompraPorPagarID();
-            //id
             $compraId = $compraPagar->getCompraPorPagarCompra()->getCompraDetalleID();
-            
             $fechaVence = $compraPagar->getCompraPorPagarFechaVencimiento();
             $estadoCompra =$compraPagar->getCompraPorPagarCancelado();
             $notas = $compraPagar->getCompraPorPagarNotas();
             $estado = $compraPagar->getCompraPorPagarEstado();
 
-            $result = $this->compraPorPagarIdExiste($id);
-            if(!$result["success"]){
-                throw new Exception($result["message"]);
-            }
-            if(!$result["exists"]){
-                throw new Exception("No existe la compra por por pagar");
-            }
 
-            if(Utils::fechaMayorOIgualAHoy($fechaVence)){
-                throw new  Exception("La fecha de vencimiento no es valida");
-            }
-            //Guardamos el objeto detalle
-            $ref_detalleID_final = 0;
-
-            if($detalleId <= 0){
-                $detalleData = new CompraDetalleData();
-                $result = $detalleData->insertCompraDetalle($compraId,$conn);
-                if($result["success"]){
-                    $ref_detalleID_final = $result["id"];
-                }else{
-                    throw new Exception($result["message"]);
-                }
-            }else{
-                $ref_detalleID_final = $detalleId;
-            }
-            
+            if(Utils::fechaMayorOIgualAHoy($fechaVence)){  throw new  Exception("La fecha de vencimiento no es valida"); }
             // verifica la compra detalle en la tabla TB_COMPRA_DETALLE
-            $result = $this->verificarCompraDetalle($ref_detalleID_final,false,false);
-            if(!$result["success"]){
-                return $result;
-            }
-            if(!$result["exists"]){
-                throw new Exception("La compra detalle no se ha creado.");
-            }
+            $result = $this->verificarComprar($compraId,false,false);
+            if(!$result["success"]){ return $result; }
+            if(!$result["exists"]){ throw new Exception("La compra detalle no se ha creado."); }
 
             //verifica compra detalle en la tabla TB_COMPRA_POR_PAGAR
-            $result = $this->verificarCompraDetalle($ref_detalleID_final);
-            if(!$result["success"]){
-                return $result;
-            }
-            if($result["exists"]){
-                throw new Exception("La compra detalle ya esta añadida a otra compra por pagar.");
-            }
+            $result = $this->verificarComprar($compraId);
+            if(!$result["success"]){ return $result; }
+            if($result["exists"]){ throw new Exception("La compra ya esta añadida a otra compra por pagar."); }
+            
 
             // Obtenemos el último ID de la tabla tbproducto
             $queryGetLastId = "SELECT MAX(" . COMPRA_POR_PAGAR_ID . ") FROM " . TB_COMPRA_POR_PAGAR;
@@ -181,22 +148,19 @@ class CompraPorPagarData extends Data{
             "INSERT INTO " . TB_COMPRA_POR_PAGAR . " ( " 
             . COMPRA_POR_PAGAR_ID . ", "
             . COMPRA_ID . ","
-            . COMPRA_POR_PAGAR_FECHA_VENCIMIENTO . ","
-            . COMPRA_POR_PAGAR_ESTADO_COMPRA . ","
+            . COMPRA_POR_PAGAR_VENCIMIENTO . ","
+            . COMPRA_POR_PAGAR_CANCELADO . ","
             . COMPRA_POR_PAGAR_NOTAS
-            ." ) VALUES (?,?,?,?,?,?,?,?,?) "; 
+            ." ) VALUES (?,?,?,?,?) "; 
 
             $stmt = mysqli_prepare($conn,$queryInsert);
 
             mysqli_stmt_bind_param(
                 $stmt,
-                "iisffsss",
+                "iisss",
                 $id,
-                $$ref_detalleID_final,
+                $compraId,
                 $fechaVence,
-                $montoTotal,
-                $montoPagado,
-                $fechaPago,
                 $estadoCompra,
                 $notas
             );
@@ -235,59 +199,34 @@ class CompraPorPagarData extends Data{
                 mysqli_begin_transaction($conn);
             }
             $id = $compraPagar->getCompraPorPagarID();
-            //id
-            $detalleId = $compraPagar->getCompraPorPagarCompraDetalle()->getCompraDetalleID();
-            //objeto
-            //$detalleCompra = $compraPagar->getCompraPorPagarCompraDetalle();
-         
+            $compraId = $compraPagar->getCompraPorPagarCompra()->getCompraDetalleID();
             $fechaVence = $compraPagar->getCompraPorPagarFechaVencimiento();
-            $montoTotal = $compraPagar->getCompraPorPagarMontoTotal();
-            $montoPagado = $compraPagar->getCompraPorPagarMontoPagado();
-            $fechaPago = $compraPagar->getCompraPorPagarFechaPago();
-            $estadoCompra =$compraPagar->getCompraPorPagarEstadoCompra();
+            $estadoCompra =$compraPagar->getCompraPorPagarCancelado();
             $notas = $compraPagar->getCompraPorPagarNotas();
             $estado = $compraPagar->getCompraPorPagarEstado();
             
             //verificamos la existencia del id
             $result = $this->compraPorPagarIdExiste($id);
-            if(!$result["success"]){
-                throw new Exception($result["message"]);
-            }
-            if(!$result["exists"]){
-                throw new Exception("No existe la compra por por pagar");
-            }
-
-            if(Utils::fechaMayorOIgualAHoy($fechaVence)){
-                throw new  Exception("La fecha de vencimiento no es valida");
-            }
+            if(!$result["success"]){ throw new Exception($result["message"]); }
+            if(!$result["exists"]){ throw new Exception("No existe la compra por por pagar"); }
+            if(Utils::fechaMayorOIgualAHoy($fechaVence)){ throw new  Exception("La fecha de vencimiento no es valida"); }
 
             // verifica la compra detalle en la tabla TB_COMPRA_DETALLE
-            $result = $this->verificarCompraDetalle($detalleId,false,false);
-            if(!$result["success"]){
-                return $result;
-            }
-            if(!$result["exists"]){
-                throw new Exception("La compra detalle no se ha creado.");
-            }
+            $result = $this->verificarComprar($detalleId,false,false);
+            if(!$result["success"]){ return $result; }
+            if(!$result["exists"]){ throw new Exception("La compra detalle no se ha creado."); }
 
             //verifica compra detalle en la tabla TB_COMPRA_POR_PAGAR
-            $result = $this->verificarCompraDetalle($detalleId,true,true,$id);
-            if(!$result["success"]){
-                return $result;
-            }
-            if($result["exists"]){
-                throw new Exception("La compra detalle ya esta añadida a otra compra por pagar.");
-            }
+            $result = $this->verificarComprar($detalleId,true,true,$id);
+            if(!$result["success"]){ return $result; }
+            if($result["exists"]){ throw new Exception("La compra detalle ya esta añadida a otra compra por pagar."); }
 
             $queryUdate = 
             "UPDATE " . TB_COMPRA_POR_PAGAR .
             " SET " .
-                COMPRA_POR_PAGAR_COMPRA_DETALLE_ID . " = ?, ".
-                COMPRA_POR_PAGAR_FECHA_VENCIMIENTO . " = ?, ". 
-                COMPRA_POR_PAGAR_MONTO_TOTAL . " = ?, ".
-                COMPRA_POR_PAGAR_MONTO_PAGADO . " = ?, " . 
-                COMPRA_POR_PAGAR_FECHA_PAGO . " = ?, " .
-                COMPRA_POR_PAGAR_ESTADO_COMPRA . " = ?,".
+                COMPRA_ID . " = ?, ".
+                COMPRA_POR_PAGAR_VENCIMIENTO . " = ?, ". 
+                COMPRA_POR_PAGAR_CANCELADO . " = ?,".
                 COMPRA_POR_PAGAR_NOTAS . " = ?,".
                 COMPRA_POR_PAGAR_ESTADO . " = TRUE " .
             " WHERE " . COMPRA_POR_PAGAR_ID . " = ? ";
@@ -296,12 +235,9 @@ class CompraPorPagarData extends Data{
 
             mysqli_stmt_bind_param(
                 $stmt,
-                "isddsssi",
-                $detalleId,
+                "isssi",
+                $compraId,
                 $fechaVence,
-                $montoTotal,
-                $montoPagado,
-                $fechaPago,
                 $estadoCompra,
                 $notas,
                 $id
@@ -394,18 +330,20 @@ class CompraPorPagarData extends Data{
             $ComprasPorPagar =[];
 
             while($row = mysqli_fetch_assoc($result)){
-                $compra = new CompraPorPagar(
+                $compra = NULL;
+                $result = $this->compradata->getCompraByID($row[COMPRA_ID]);
+                if ($result["success"]){
+                    $compra = $result["compra"];
+                }
+                $compraPorPagarObj = new CompraPorPagar(
                     $row[COMPRA_POR_PAGAR_ID],
-                    new CompraDetalle($row[COMPRA_POR_PAGAR_COMPRA_DETALLE_ID]),
-                    $row[COMPRA_POR_PAGAR_FECHA_VENCIMIENTO],
-                    $row[COMPRA_POR_PAGAR_MONTO_TOTAL],
-                    $row[COMPRA_POR_PAGAR_MONTO_PAGADO],
-                    $row[COMPRA_POR_PAGAR_FECHA_PAGO],
-                    $row[COMPRA_POR_PAGAR_ESTADO_COMPRA],
+                    $compra,
+                    $row[COMPRA_POR_PAGAR_VENCIMIENTO],
+                    $row[COMPRA_POR_PAGAR_CANCELADO],
                     $row[COMPRA_POR_PAGAR_NOTAS],
                     $row[COMPRA_POR_PAGAR_ESTADO]
                 );
-                $ComprasPorPagar[] = $compra;
+                $ComprasPorPagar[] = $compraPorPagarObj ;
             }
             return["success"=>true, "ListaComprasPorPagar"=>$ComprasPorPagar];
         }catch(Exception $e){
@@ -476,18 +414,20 @@ class CompraPorPagarData extends Data{
 
             $listaComprasPorPagar=[];
             while($row = mysqli_fetch_assoc($result)){
-                $compra = new CompraPorPagar(
+                $compra = NULL;
+                $result = $this->compradata->getCompraByID($row[COMPRA_ID]);
+                if ($result["success"]){
+                    $compra = $result["compra"];
+                }
+                $compraPorPagarObj = new CompraPorPagar(
                     $row[COMPRA_POR_PAGAR_ID],
-                    new CompraDetalle($row[COMPRA_POR_PAGAR_COMPRA_DETALLE_ID]),
-                    $row[COMPRA_POR_PAGAR_FECHA_VENCIMIENTO],
-                    $row[COMPRA_POR_PAGAR_MONTO_TOTAL],
-                    $row[COMPRA_POR_PAGAR_MONTO_PAGADO],
-                    $row[COMPRA_POR_PAGAR_FECHA_PAGO],
-                    $row[COMPRA_POR_PAGAR_ESTADO_COMPRA],
+                    $compra,
+                    $row[COMPRA_POR_PAGAR_VENCIMIENTO],
+                    $row[COMPRA_POR_PAGAR_CANCELADO],
                     $row[COMPRA_POR_PAGAR_NOTAS],
                     $row[COMPRA_POR_PAGAR_ESTADO]
                 );
-                $listaComprasPorPagar[] = $compra;
+                $listaComprasPorPagar = $compraPorPagarObj ;
             }
 
             return [
@@ -538,18 +478,20 @@ class CompraPorPagarData extends Data{
             $result = mysqli_stmt_get_result($stmt);
 
             if($row = mysqli_fetch_assoc($result)){
-                $compraPorPagar = new CompraPorPagar(
-                        $row[COMPRA_POR_PAGAR_ID],
-                        new CompraDetalle ($row[COMPRA_POR_PAGAR_COMPRA_DETALLE_ID]),
-                        $row[COMPRA_POR_PAGAR_FECHA_VENCIMIENTO],
-                        $row[COMPRA_POR_PAGAR_MONTO_TOTAL],
-                        $row[COMPRA_POR_PAGAR_MONTO_PAGADO],
-                        $row[COMPRA_POR_PAGAR_FECHA_PAGO],
-                        $row[COMPRA_POR_PAGAR_ESTADO_COMPRA],
-                        $row[COMPRA_POR_PAGAR_NOTAS],
-                        $row[COMPRA_POR_PAGAR_ESTADO]
+                $compra = NULL;
+                $result = $this->compradata->getCompraByID($row[COMPRA_ID]);
+                if ($result["success"]){
+                    $compra = $result["compra"];
+                }
+                $compraPorPagarObj = new CompraPorPagar(
+                    $row[COMPRA_POR_PAGAR_ID],
+                    $compra,
+                    $row[COMPRA_POR_PAGAR_VENCIMIENTO],
+                    $row[COMPRA_POR_PAGAR_CANCELADO],
+                    $row[COMPRA_POR_PAGAR_NOTAS],
+                    $row[COMPRA_POR_PAGAR_ESTADO]
                 );
-                return ["success"=>true, "CompraPorPagar"=>$compraPorPagar];
+                return ["success"=>true, "CompraPorPagar"=>$compraPorPagarObj];
             }
             return ["success"=> false, "message"=>"No se encontro la compra por pagar."];
         }catch(Exception $e){

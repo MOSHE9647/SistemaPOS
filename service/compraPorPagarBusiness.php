@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . "/../data/compraPorPagarData.php";
+require_once dirname(__DIR__,1 ) ."/data/compraPorPagarData.php";
 require_once dirname(__DIR__, 1) . '/utils/Utils.php';
-require_once __DIR__ . "/../domain/CompraPorPagar.php";
+require_once dirname(__DIR__,1). '/domain/CompraPorPagar.php';
 
 class CompraPorPagarBussines{
     private $compraPagarData;
