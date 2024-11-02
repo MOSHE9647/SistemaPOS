@@ -25,8 +25,8 @@ class CompraPorPagarData extends Data{
             $conn = $result['connection'];
     
             if ($id <= 0 || !is_numeric($id)) {
-                Utils::writeLog("Error el id de compra por pagar no es valido. ID [$id]",DATA_LOG_FILE);
-                throw new Exception("El id de la compra por pagar es inválido");
+                Utils::writeLog("LINEA[".__LINE__."]Error el id de compra por pagar no es valido. ID [$id]",DATA_LOG_FILE);
+                throw new Exception("El id de la compra por pagar es inválido.");
             }
     
             $query = "SELECT " . COMPRA_POR_PAGAR_ID . " FROM " . TB_COMPRA_POR_PAGAR . " WHERE " . COMPRA_POR_PAGAR_ID . " = ?";
@@ -63,6 +63,7 @@ class CompraPorPagarData extends Data{
             
 
             if(empty($compraid) || !is_numeric($compraid) || $compraid <= 0){
+                Utils::writeLog("LINEA[".__LINE__."] En compra por pagar la compra id no es valida. compraID [$compraid]",DATA_LOG_FILE);
                 throw new Exception("La compra detalle no valida");
             }
             
@@ -124,16 +125,25 @@ class CompraPorPagarData extends Data{
             $estado = $compraPagar->getCompraPorPagarEstado();
 
 
-            if(!Utils::fechaMayorOIgualAHoy($fechaVence)){  throw new  Exception("La fecha de vencimiento no es valida"); }
+            if(!Utils::fechaMayorOIgualAHoy($fechaVence)){ 
+                Utils::writeLog("LINEA[".__LINE__."] Verificacion fecha vencimiento no valida . fecha vencimiento [$fechaVence]",DATA_LOG_FILE);
+                throw new  Exception("La fecha de vencimiento no es valida"); 
+            }
             // verifica la compra detalle en la tabla TB_COMPRA_DETALLE
             $result = $this->verificarComprar($compraId,false,false);
             if(!$result["success"]){ return $result; }
-            if(!$result["exists"]){ throw new Exception("La compra detalle no se ha creado."); }
+            if(!$result["exists"]){ 
+                Utils::writeLog("LINEA[".__LINE__."] Verificacion de la compra por pagar compra id no existe. compraID [$compraId]",DATA_LOG_FILE);
+                throw new Exception("La compra no se ha creado."); 
+            }
 
             //verifica compra detalle en la tabla TB_COMPRA_POR_PAGAR
             $result = $this->verificarComprar($compraId);
             if(!$result["success"]){ return $result; }
-            if($result["exists"]){ throw new Exception("La compra ya esta añadida a otra compra por pagar."); }
+            if($result["exists"]){ 
+                Utils::writeLog("LINEA[".__LINE__."] Verificacion de la compra por pagar compra id ya esta relacionada con otra compra. compraID [$compraId]",DATA_LOG_FILE);
+                throw new Exception("La compra ya esta añadida a otra compra por pagar."); 
+            }
             
 
             // Obtenemos el último ID de la tabla tbproducto
@@ -212,18 +222,29 @@ class CompraPorPagarData extends Data{
             //verificamos la existencia del id
             $result = $this->compraPorPagarIdExiste($id);
             if(!$result["success"]){ throw new Exception($result["message"]); }
-            if(!$result["exists"]){ throw new Exception("No existe la compra por por pagar"); }
-            if(!Utils::fechaMayorOIgualAHoy($fechaVence)){ throw new  Exception("La fecha de vencimiento no es valida"); }
-
+            if(!$result["exists"]){ 
+                Utils::writeLog("LINEA[".__LINE__."] Verificacion de la compra por pagar compra id no existe. compraID [$compraId]",DATA_LOG_FILE);
+                throw new Exception("No existe la compra por por pagar"); 
+            }
+            // if(!Utils::fechaMayorOIgualAHoy($fechaVence)){ 
+            //     Utils::writeLog("Verificacion fecha vencimiento no valida . fecha vencimiento [$fechaVence]",DATA_LOG_FILE);
+            //     throw new  Exception("La fecha de vencimiento no es valida"); 
+            // }
             // verifica la compra detalle en la tabla TB_COMPRA_DETALLE
             $result = $this->verificarComprar($compraId,false,false);
             if(!$result["success"]){ return $result; }
-            if(!$result["exists"]){ throw new Exception("La compra detalle no se ha creado."); }
+            if(!$result["exists"]){ 
+                Utils::writeLog("LINEA[".__LINE__."] Verificacion de la compra por pagar compra id no existe. compraID [$id]",DATA_LOG_FILE);
+                throw new Exception("La compra no se ha creado."); 
+            }
 
             //verifica compra detalle en la tabla TB_COMPRA_POR_PAGAR
             $result = $this->verificarComprar($compraId,true,true,$id);
             if(!$result["success"]){ return $result; }
-            if($result["exists"]){ throw new Exception("La compra detalle ya esta añadida a otra compra por pagar."); }
+            if($result["exists"]){ 
+                Utils::writeLog("LINEA[".__LINE__."] Verificacion de la compra por pagar compra id esta relacionada con otra compra por pagar. compraID [$id]",DATA_LOG_FILE);
+                throw new Exception("La compra detalle ya esta añadida a otra compra por pagar."); 
+            }
 
             $queryUdate = 
             "UPDATE " . TB_COMPRA_POR_PAGAR .
@@ -288,6 +309,7 @@ class CompraPorPagarData extends Data{
                 throw new Exception($result["message"]);
             }
             if(!$result["exists"]){
+                Utils::writeLog("LINEA[".__LINE__."] La compra por pagar no existe . ID [$id]",DATA_LOG_FILE);
                 throw new Exception("No existe la compra por por pagar");
             }
             //Creacion del query
@@ -472,6 +494,7 @@ class CompraPorPagarData extends Data{
                 throw new Exception($result["message"]);
             }
             if(!$result["exists"]){
+                Utils::writeLog("LINEA[".__LINE__."] La compra por pagar no existe . ID [$id]",DATA_LOG_FILE);
                 throw new Exception("No existe la compra por por pagar");
             }
 
