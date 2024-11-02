@@ -14,7 +14,7 @@
 
         public function validarTelefonoID($telefonoID) {
             if ($telefonoID === null || !is_numeric($telefonoID) || $telefonoID < 0) {
-                Utils::writeLog("El ID [$telefonoID] del teléfono no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El ID [$telefonoID] del teléfono no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El ID del teléfono está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
             }
 
@@ -40,15 +40,15 @@
                 if ($validarCamposAdicionales) {
                     if ($tipo === null || empty($tipo) || is_numeric($tipo)) {
                         $errors[] = "El campo 'Tipo' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Tipo [$tipo]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Tipo [$tipo]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                     if ($codigoPais === null || empty($codigoPais)) {
                         $errors[] = "El campo 'Código de País' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Código de País [$codigoPais]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Código de País [$codigoPais]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                     if ($numero === null || empty($numero) || is_numeric($numero)) {
                         $errors[] = "El campo 'Número de Teléfono' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Número de Teléfono [$numero]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Número de Teléfono [$numero]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                 }
 

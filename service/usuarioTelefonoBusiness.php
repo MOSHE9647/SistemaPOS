@@ -21,7 +21,7 @@
                 if ($both || $usuarioID !== null) {
                     if (!is_numeric($usuarioID) || $usuarioID <= 0) {
                         $errors[] = "El ID del usuario está vacío o no es válido. Debe ser un número mayor a 0.";
-                        Utils::writeLog("El ID [$usuarioID] del usuario no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El ID [$usuarioID] del usuario no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                 }
         
@@ -29,7 +29,7 @@
                 if ($both || $telefonoID !== null) {
                     if (!is_numeric($telefonoID) || $telefonoID <= 0) {
                         $errors[] = "El ID del teléfono está vacío o no es válido. Debe ser un número mayor a 0.";
-                        Utils::writeLog("El ID [$telefonoID] del teléfono no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El ID [$telefonoID] del teléfono no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                 }
         
@@ -39,7 +39,7 @@
                     $missingParamsLog = "Faltan parámetros para validar:";
                     $missingParamsLog .= " usuarioID [" . ($usuarioID ?? 'null') . "]";
                     $missingParamsLog .= " telefonoID [" . ($telefonoID ?? 'null') . "]";
-                    Utils::writeLog(trim($missingParamsLog), BUSINESS_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog(trim($missingParamsLog), BUSINESS_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("No se proporcionaron los parámetros necesarios para realizar la validación.");
                 }
         

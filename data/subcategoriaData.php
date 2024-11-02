@@ -59,7 +59,7 @@
                     if (!$categoriaID) $missingParamsLog .= " categoriaID [" . ($categoriaID ?? 'null') . "]";
                     if (!$subcategoriaID) $missingParamsLog .= " subcategoriaID [" . ($subcategoriaID ?? 'null') . "]";
                     if (!$subcategoriaNombre) $missingParamsLog .= " subcategoriaNombre [" . ($subcategoriaNombre ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia de la subcategoría en la base de datos.");
                 }
 
@@ -126,7 +126,7 @@
 				if ($check["exists"]) {
                     $categoriaNombre = $subcategoria->getSubcategoriaCategoria()->getCategoriaNombre();
 					$message = "La subcategoría con 'Nombre [$subcategoriaNombre]' y 'Categoría [$categoriaID]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return [
                         "success" => true, 
                         "message" => "Ya existe un subcategoria con el mismo nombre ($subcategoriaNombre) y categoria ($categoriaNombre) en la base de datos."
@@ -204,7 +204,7 @@
 				// En caso de no existir la subcategoría
 				if (!$check["exists"]) {
 					$message = "No se encontró la subcategoría con 'ID [$subcategoriaID]' en la base de datos.";
-					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ["success" => false, "message" => "La subcategoría seleccionada no existe en la base de datos."];
 				}
 
@@ -216,7 +216,7 @@
 				if ($check["exists"]) {
                     $categoriaNombre = $categoria->getCategoriaNombre();
 					$message = "La subcategoría con 'Nombre [$subcategoriaNombre]' y 'Categoría [$categoriaID]' ya existe en la base de datos.";
-					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return [
                         "success" => true, 
                         "message" => "Ya existe un subcategoria con el mismo nombre ($subcategoriaNombre) y categoria ($categoriaNombre) en la base de datos."
@@ -278,7 +278,7 @@
 				// En caso de no existir la subcategoría
 				if (!$check["exists"]) {
 					$message = "No se encontró la subcategoría con 'ID [$subcategoriaID]' en la base de datos.";
-					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ["success" => false, "message" => "La subcategoría seleccionada no existe en la base de datos."];
 				}
 
@@ -522,7 +522,7 @@
 				// En caso de no existir la subcategoría
 				if (!$check["exists"]) {
 					$message = "No se encontró la subcategoría con 'ID [$subcategoriaID]' en la base de datos.";
-					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ["success" => false, "message" => "La subcategoría seleccionada no existe en la base de datos."];
 				}
 
@@ -566,7 +566,7 @@
 
 				// En caso de no encontrarse la subcategoría
 				$message = "No se encontró la subcategoría con 'ID [$subcategoriaID]' en la base de datos.";
-				Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+				Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 				return ["success" => false, "message" => "La subcategoría seleccionada no existe en la base de datos."];
 			}catch (Exception $e) {
 				// Manejo del error dentro del bloque catch

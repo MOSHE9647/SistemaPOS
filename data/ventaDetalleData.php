@@ -60,7 +60,7 @@
                     if (!$ventaDetalleID) $missingParamsLog .= " ventaDetalleID [" . ($ventaDetalleID ?? 'null') . "]";
                     if (!$ventaID) $missingParamsLog .= " ventaID [" . ($ventaID ?? 'null') . "]";
                     if (!$productoID) $missingParamsLog .= " productoID [" . ($productoID ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia del detalle de venta en la base de datos.");
                 }
 
@@ -126,7 +126,7 @@
         
                 if ($check["exists"]) {
                     $message = "El detalle de venta para 'Venta ID [$ventaDetalleVenta]' y 'Precio [$ventaDetallePrecio]' ya existe.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => $message];
                 }
         
@@ -204,7 +204,7 @@
                 // En caso de no existir
                 if (!$check["exists"]) {
                     $message = "El detalle de venta con 'ID [$ventaDetalleID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "El detalle de venta seleccionado no existe en la base de datos."];
                 }
         
@@ -279,7 +279,7 @@
                 // En caso de no existir
                 if (!$check["exists"]) {
                     $message = "El detalle de venta con 'ID [$ventaDetalleID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "El detalle de venta seleccionado no existe en la base de datos."];
                 }
         
@@ -513,7 +513,7 @@
                 // En caso de no existir
                 if (!$check["exists"]) {
                     $message = "El detalle de venta con 'ID [$ventaDetalleID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "El detalle de venta seleccionado no existe en la base de datos."];
                 }
         
@@ -555,7 +555,7 @@
         
                 // En caso de que no se haya encontrado el detalle de venta
                 $message = "No se encontró el detalle de venta con 'ID [$ventaDetalleID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => "No se encontró el detalle de venta seleccionado en la base de datos."];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch

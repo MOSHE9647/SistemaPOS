@@ -16,7 +16,7 @@
 
         public function validarClienteID($clienteID) {
             if ($clienteID === null || !is_numeric($clienteID) || $clienteID < 0) {
-                Utils::writeLog("El 'ID [$clienteID]' del cliente no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'ID [$clienteID]' del cliente no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El ID del cliente está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
             }
 
@@ -25,7 +25,7 @@
 
         public function validarClienteTelefonoID($clienteTelefonoID) {
             if ($clienteTelefonoID === null || !is_numeric($clienteTelefonoID) || $clienteTelefonoID < 0) {
-                Utils::writeLog("El 'ID [$clienteTelefonoID]' del teléfono del cliente no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'ID [$clienteTelefonoID]' del teléfono del cliente no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El ID del teléfono del cliente está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
             }
 
@@ -34,12 +34,12 @@
 
         public function validarDatosPaginacion($page, $size) {
             if ($page === null || !is_numeric($page) || $page < 0) {
-                Utils::writeLog("El 'page [$page]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'page [$page]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El número de página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
             }
 
             if ($size === null || !is_numeric($size) || $size < 0) {
-                Utils::writeLog("El 'size [$size]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'size [$size]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El tamaño de la página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
             }
 

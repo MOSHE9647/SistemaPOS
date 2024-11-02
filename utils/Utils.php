@@ -15,8 +15,9 @@
          * @param string $logFile El nombre del archivo de log (por defecto UTILS_LOG_FILE).
          * @param string $type El tipo de mensaje (por defecto ERROR_MESSAGE).
          * @param string|null $class La clase desde donde se llama el log (opcional).
+         * @param int|null $line El número de línea desde donde se llama el log (opcional).
          */
-        public static function writeLog($message, $logFile = UTILS_LOG_FILE, $type = ERROR_MESSAGE, $class = null) {
+        public static function writeLog($message, $logFile = UTILS_LOG_FILE, $type = ERROR_MESSAGE, $class = null, $line = null) {
             $logDir = __DIR__ . '/../logs/';
             
             // Verifica si la carpeta de logs existe; si no, la crea
@@ -27,10 +28,11 @@
             // Formatear el mensaje de log
             $date = date('Y-m-d H:i:s');
             $class = $class ? "['$class']" : '';
+            $line = $line ? "[linea $line]" : '';
             $type = $type == INFO_MESSAGE || $type == WARN_MESSAGE ? "[$type] " : "[$type]";
-
-            // Formatear el mensaje con la fecha, tipo, clase y mensaje
-            $formattedMessage = "[$date] $type $class $message" . PHP_EOL;
+            
+            // Formatear el mensaje con la fecha, tipo, clase, línea y mensaje
+            $formattedMessage = "[$date] $type $class $line $message" . PHP_EOL;
             file_put_contents($logDir . $logFile, $formattedMessage, FILE_APPEND | LOCK_EX);
         }
 

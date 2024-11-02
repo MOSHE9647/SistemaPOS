@@ -261,7 +261,7 @@
         
                 if (!$check["exists"]) {
                     $message = "La compra con 'ID [$compraID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "La compra seleccionada no existe en la base de datos."];
                 }
         
@@ -698,7 +698,7 @@
                 // En caso de no existir
                 if (!$check["exists"]) {
                     $message = "La compra con 'ID [$compraID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "La compra seleccionado no existe en la base de datos."];
                 }
         
@@ -740,7 +740,7 @@
         
                 // En caso de que no se haya encontrado el producto
                 $message = "No se encontró la compra con 'ID [$compraID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => "No se encontró la compra seleccionado en la base de datos."];
             } catch (Exception $e) {
                     // Manejo del error dentro del bloque catch

@@ -15,7 +15,7 @@ class CompraDetalleBusiness {
 
     public function validarCompraDetalleID($compraDetalleID) {
         if ($compraDetalleID === null || !is_numeric($compraDetalleID) || $compraDetalleID < 0) {
-            Utils::writeLog("El ID [$compraDetalleID] del detalle de compra no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+            Utils::writeLog("El ID [$compraDetalleID] del detalle de compra no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
             return ["is_valid" => false, "message" => "El ID del detalle de compra está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
         }
         return ["is_valid" => true];

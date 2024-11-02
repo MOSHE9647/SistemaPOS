@@ -66,7 +66,7 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia del proveedor y/o telefono:";
                     if (!$proveedorID) $missingParamsLog .= " proveedorID [" . ($proveedorID ?? 'null') . "]";
                     if (!$telefonoID) $missingParamsLog .= " telefonoID [" . ($telefonoID ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "No se proporcionaron los parámetros necesarios para realizar la verificación."];
                 }
         
@@ -120,7 +120,7 @@
             if (!$checkProveedorID["success"]) { return $checkProveedorID; }
             if (!$checkProveedorID["exists"]) {
                 $message = "El proveedor con 'ID [$proveedorID]' no existe en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ['success' => false, 'message' => "El proveedor seleccionado no existe en la base de datos."];
             }
 
@@ -129,7 +129,7 @@
             if (!$checkTelefonoID["success"]) { return $checkTelefonoID; }
             if (!$checkTelefonoID["exists"]) {
                 $message = "El teléfono con ID [$telefonoID] no existe en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ['success' => false, 'message' => "El telefono seleccionado no existe en la base de datos."];
             }
 
@@ -204,7 +204,7 @@
                 // En caso de existir y no estar inactiva la asignación
                 if ($checkID["exists"]) {
                     $message = "El teléfono con ID [$telefonoID] ya está asignado a otro proveedor.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ['success' => false, 'message' => "El teléfono seleccionado ya está asignado a un proveedor."];
                 }
         
@@ -286,7 +286,7 @@
                 // Verificar si el teléfono está asignado al proveedor
                 if (!$check["exists"]) {
                     $message = "El teléfono con ID [$telefonoID] no está asignado al proveedor con ID [$proveedorID].";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ['success' => false, 'message' => "El teléfono seleccionado no está asignado al proveedor."];
                 }
         

@@ -64,7 +64,7 @@
                     if (!$telefonoID) $missingParamsLog .= " telefonoID [" . ($telefonoID ?? 'null') . "]";
                     if (!$telefonoCodigoPais) $missingParamsLog .= " telefonoCodigoPais [" . ($telefonoCodigoPais ?? 'null') . "]";
                     if (!$telefonoNumero) $missingParamsLog .= " telefonoNumero [" . ($telefonoNumero ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia del telefono.");
                 }
         
@@ -92,7 +92,7 @@
                 $params = implode(', ', $messageParams);
 
                 $message = "No se encontró ningún telefono ($params) en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
 
                 return ["success" => true, "exists" => false, "message" => $message];
             } catch (Exception $e) {
@@ -134,7 +134,7 @@
                 // En caso de ya existir el telefono
                 if ($check['exists']) {
                     $message = "El telefono con 'Código [$telefonoCodigoPais]' y 'Número [$telefonoNumero]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ["success" => false, "message" => "Ya existe un telefono con el mismo número y código de país en la base de datos."];
                 }
 
@@ -216,7 +216,7 @@
                 if (!$checkID['success']) { return $checkID; } //<- Error al verificar la existencia
                 if (!$checkID['exists']) { //<- El telefono no existe
                     $message = "El telefono con 'ID [$telefonoID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "El teléfono seleccionado no existe en la base de datos"];
                 }
 
@@ -225,7 +225,7 @@
                 if (!$check['success']) { return $check; } //<- Error al verificar la existencia
                 if ($check['exists']) { //<- El telefono existe
                     $message = "El telefono con 'ID [$telefonoID]', 'Código [$telefonoCodigoPais]' y 'Número [$telefonoNumero]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ["success" => false, "message" => "Ya existe un telefono con el mismo número y código de país."];
                 }
 
@@ -295,7 +295,7 @@
                 if (!$check["success"]) { return $check; } // Error al verificar la existencia
 				if (!$check["exists"]) { //<- El telefono no existe
 					$message = "El telefono con 'ID [$telefonoID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "El teléfono seleccionado no existe en la base de datos"];
 				}
 
@@ -474,7 +474,7 @@
                 if (!$checkID["success"]) { return $checkID; } // Error al verificar la existencia
                 if (!$checkID["exists"]) { // El telefono no existe
                     $message = "El telefono con 'ID [$telefonoID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "El teléfono seleccionado no existe en la base de datos"];
                 }
 
@@ -516,7 +516,7 @@
                 
                 // Retorna false si no se encontraron resultados
                 $message = "No se encontró ningún teléfono con el 'ID [$telefonoID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => "No se encontró el teléfono en la base de datos"];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch

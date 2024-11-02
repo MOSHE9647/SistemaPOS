@@ -56,7 +56,7 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia de la presentación:";
                     if (!$presentacionID) $missingParamsLog .= " presentacionID [" . ($presentacionID ?? 'null') . "]";
                     if (!$presentacionNombre) $missingParamsLog .= " presentacionNombre [" . ($presentacionNombre ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia de la presentación en la base de datos.");
                 }
 
@@ -120,7 +120,7 @@
                 // En caso de ya existir la presentación y estar activa
                 if ($check["exists"]) {
                     $message = "La presentación con 'Nombre [$presentacionNombre]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "Ya existe una presentación con el mismo nombre ($presentacionNombre) en la base de datos."];
                 }
 
@@ -193,7 +193,7 @@
                 // En caso de no existir la presentación
                 if (!$check["exists"]) {
                     $message = "No se encontró la presentación con 'ID [$presentacionID]' en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "La presentación seleccionada no existe en la base de datos."];
                 }
 
@@ -204,7 +204,7 @@
                 // En caso de ya existir la presentación
                 if ($check["exists"]) {
                     $message = "La presentación con 'Nombre [$presentacionNombre]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "Ya existe una presentación con el mismo nombre ($presentacionNombre) en la base de datos."];
                 }
 
@@ -263,7 +263,7 @@
                 // En caso de no existir la presentación
                 if (!$check["exists"]) {
                     $message = "No se encontró la presentación con 'ID [$presentacionID]' en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "La presentación seleccionada no existe en la base de datos."];
                 }
 
@@ -440,7 +440,7 @@
                 // En caso de no existir la presentación
                 if (!$check["exists"]) {
                     $message = "No se encontró la presentación con 'ID [$presentacionID]' en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "La presentación seleccionada no existe en la base de datos."];
                 }
 
@@ -478,7 +478,7 @@
 
                 // En caso de no encontrarse la presentación
                 $message = "No se encontró la presentación con 'ID [$presentacionID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => "La presentación seleccionada no existe en la base de datos."];
             }catch (Exception $e) {
                 // Manejo del error dentro del bloque catch

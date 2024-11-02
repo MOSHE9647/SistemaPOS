@@ -256,7 +256,7 @@
         
                 if (!$check["exists"]) {
                     $message = "La venta con 'ID [$ventaID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "La venta seleccionada no existe en la base de datos."];
                 }
         
@@ -671,7 +671,7 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
                 // En caso de no existir
                 if (!$check["exists"]) {
                     $message = "La venta con 'ID [$ventaID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "La venta seleccionado no existe en la base de datos."];
                 }
         
@@ -712,7 +712,7 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
         
                 // En caso de que no se haya encontrado el producto
                 $message = "No se encontró la venta con 'ID [$ventaID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => "No se encontró la venta seleccionado en la base de datos."];
             } catch (Exception $e) {
                     // Manejo del error dentro del bloque catch

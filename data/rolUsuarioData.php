@@ -55,7 +55,7 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia del rol:";
                     if (!$rolID) $missingParamsLog .= " rolID [" . ($rolID ?? 'null') . "]";
                     if (!$rolNombre) $missingParamsLog .= " rolNombre [" . ($rolNombre ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia del rol en la base de datos.");
                 }
 
@@ -118,7 +118,7 @@
                 // En caso de ya existir el rol y estar activo
                 if ($result["exists"]) {
                     $message = "El rol con 'Nombre [$rolNombre]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "Ya existe un rol con el mismo nombre ($rolNombre) en la base de datos."];
                 }
 
@@ -189,7 +189,7 @@
                 // En caso de no existir el rol
                 if (!$result["exists"]) {
                     $message = "No se encontró el rol con 'ID [$rolID]' en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "El rol seleccionado no existe en la base de datos."];
                 }
 
@@ -200,7 +200,7 @@
                 // En caso de ya existir el rol
                 if ($result["exists"]) {
                     $message = "Ya existe un rol con el mismo 'Nombre [$rolNombre]' en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "Ya existe un rol con el mismo nombre ($rolNombre) en la base de datos."];
                 }
 
@@ -255,7 +255,7 @@
                 // En caso de no existir el rol
                 if (!$result["exists"]) {
                     $message = "No se encontró el rol con 'ID [$rolID]' en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "El rol seleccionado no existe en la base de datos."];
                 }
 
@@ -429,7 +429,7 @@
                 // En caso de no existir el rol
                 if (!$result["exists"]) {
                     $message = "No se encontró el rol con 'ID [$rolID]' en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "El rol seleccionado no existe en la base de datos."];
                 }
 
@@ -468,7 +468,7 @@
 
                 // En caso de no encontrarse el rol
                 $message = "No se encontró el rol con 'ID [$rolID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => true, "message" => "El rol seleccionado no existe en la base de datos."];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch

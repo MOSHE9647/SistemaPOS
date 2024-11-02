@@ -57,7 +57,7 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia del cliente:";
                     if (!$clienteID) $missingParamsLog .= " clienteID [" . ($clienteID ?? 'null') . "]";
                     if (!$clienteTelefonoID) $missingParamsLog .= " clienteTelefonoID [" . ($clienteTelefonoID ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia del cliente.");
                 }
 
@@ -149,7 +149,7 @@
                 // En caso de que el cliente ya exista y esté activo
                 if ($result["exists"]) {
                     $message = "El cliente con 'TelefonoID [$clienteTelefonoID]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "Ya existe un cliente con el mismo teléfono en la base de datos."];
                 }
 
@@ -222,7 +222,7 @@
                 // En caso de que el cliente no exista
                 if (!$result["exists"]) {
                     $message = "El cliente con 'ID [$clienteID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "El cliente seleccionado no existe en la base de datos."];
                 }
 
@@ -233,7 +233,7 @@
                 // En caso de que el cliente exista
                 if ($result["exists"]) {
                     $message = "El cliente con 'TelefonoID [$clienteTelefonoID]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "Ya existe un cliente con el mismo teléfono en la base de datos."];
                 }
 
@@ -307,7 +307,7 @@
                 // En caso de que el cliente no exista
                 if (!$result["exists"]) {
                     $message = "El cliente con 'ID [$clienteID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "El cliente seleccionado no existe en la base de datos."];
                 }
                 $clienteTelefonoID = $result["telefonoID"];
@@ -545,7 +545,7 @@
                 // En caso de que el cliente no exista
                 if (!$result["exists"]) {
                     $message = "El cliente con 'ID [$clienteID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "El cliente seleccionado no existe en la base de datos."];
                 }
 
@@ -593,7 +593,7 @@
 
                 // En caso de que no se haya encontrado el cliente
                 $message = "No se encontró el cliente con 'ID [$clienteID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => true, "message" => "No se encontró el cliente seleccionado en la base de datos."];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -623,7 +623,7 @@
                 // En caso de que el cliente no exista
                 if (!$result["exists"]) {
                     $message = "El cliente con 'TelefonoID [$clienteTelefonoID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "El cliente seleccionado no existe en la base de datos."];
                 }
 
@@ -663,7 +663,7 @@
 
                 // En caso de que no se haya encontrado el cliente
                 $message = "No se encontró el cliente con 'TelefonoID [$clienteTelefonoID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => true, "message" => "No se encontró el cliente seleccionado en la base de datos."];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch

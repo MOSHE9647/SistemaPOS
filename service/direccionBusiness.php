@@ -15,7 +15,7 @@
 
         public function validarDireccionID($direccionID) {
             if ($direccionID === null || !is_numeric($direccionID) || $direccionID < 0) {
-                Utils::writeLog("El ID [$direccionID] de la dirección no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El ID [$direccionID] de la dirección no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El ID de la dirección está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
             }
 
@@ -42,19 +42,19 @@
                 if ($validarCamposAdicionales) {
                     if ($provincia === null || empty($provincia) || is_numeric($provincia)) {
                         $errors[] = "El campo 'Provincia' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Provincia [$provincia]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Provincia [$provincia]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                     if ($canton === null || empty($canton) || is_numeric($canton)) {
                         $errors[] = "El campo 'Cantón' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Cantón [$canton]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Cantón [$canton]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                     if ($distrito === null || empty($distrito) || is_numeric($distrito)) {
                         $errors[] = "El campo 'Distrito' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Distrito [$distrito]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Distrito [$distrito]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                     if ($distancia === null || empty($distancia) || !is_numeric($distancia) || $distancia <= 0) {
                         $errors[] = "El campo 'Distancia' está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
-                        Utils::writeLog("El campo 'Distancia [$distancia]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Distancia [$distancia]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                 }
         

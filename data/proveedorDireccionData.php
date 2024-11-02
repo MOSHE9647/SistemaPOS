@@ -56,7 +56,7 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia del proveedor y/o direccion:";
                     if (!$proveedorID) $missingParamsLog .= " proveedorID [" . ($proveedorID ?? 'null') . "]";
                     if (!$direccionID) $missingParamsLog .= " direccionID [" . ($direccionID ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "No se proporcionaron los parámetros necesarios para realizar la verificación."];
                 }
 
@@ -103,7 +103,7 @@
             if (!$checkProveedor["success"]) { return $checkProveedor; }
             if (!$checkProveedor["exists"]) {
                 $message = "El proveedor con ID [$proveedorID] no existe en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ['success' => false, 'message' => "El proveedor seleccionado no existe en la base de datos."];
             }
 
@@ -112,7 +112,7 @@
             if (!$checkDireccion["success"]) { return $checkDireccion; }
             if (!$checkDireccion["exists"]) {
                 $message = "La dirección con ID [$direccionID] no existe en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ['success' => false, 'message' => "La dirección seleccionada no existe en la base de datos."];
             }
 
@@ -173,7 +173,7 @@
                 // En caso de existir y no estar inactiva la asignación
                 if ($check['exists']) {
                     $message = "La dirección con ID [$direccionID] ya está asignada a otro proveedor.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ['success' => false, 'message' => $message];
                 }
 
@@ -247,7 +247,7 @@
                 // Verificar si la dirección está asignada al proveedor
                 if (!$check['exists']) {
                     $message = "La dirección con ID [$direccionID] no está asignada al proveedor con ID [$proveedorID].";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ['success' => false, 'message' => "La dirección seleccionada no está asignada al proveedor."];
                 }
 

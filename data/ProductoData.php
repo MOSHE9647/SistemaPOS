@@ -89,7 +89,7 @@
                     if (!$productoID) $missingParamsLog .= " productoID [" . ($productoID ?? 'null') . "]";
                     if (!$productoNombre) $missingParamsLog .= " productoNombre [" . ($productoNombre ?? 'null') . "]";
                     if (!$productoCodigoBarrasID) $missingParamsLog .= " productoCodigoBarrasID [" . ($productoCodigoBarrasID ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia del producto en la base de datos.");
                 }
         
@@ -199,7 +199,7 @@
                 if ($check["exists"]) {
                     $codigoBarrasNumero = $productoCodigoBarras->getCodigoBarrasNumero();
                     $message = "El producto 'Nombre [$productoNombre]' y 'CodigoBarrasID [$codigoBarrasID]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return [
                         "success" => false, 
                         "message" => "Ya existe un producto con el mismo nombre ($productoNombre) o código de barras ($codigoBarrasNumero) en la base de datos."
@@ -322,7 +322,7 @@
                 // En caso de no existir
                 if (!$check["exists"]) {
                     $message = "El producto con 'ID [$productoID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "El producto seleccionado no existe en la base de datos."];
                 }
 
@@ -334,7 +334,7 @@
                 if ($check["exists"]) {
                     $codigoBarrasNumero = $productoCodigoBarras->getCodigoBarrasNumero();
                     $message = "El producto 'Nombre [$productoNombre]' y 'CodigoBarrasID [$codigoBarrasID]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return [
                         "success" => false, 
                         "message" => "Ya existe un producto con el mismo nombre ($productoNombre) o código de barras ($codigoBarrasNumero) en la base de datos."
@@ -468,7 +468,7 @@
                 // En caso de no existir
                 if (!$check["exists"]) {
                     $message = "El producto con 'ID [$productoID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "El producto seleccionado no existe en la base de datos."];
                 }
         
@@ -824,7 +824,7 @@
                 // En caso de no existir
                 if (!$check["exists"]) {
                     $message = "El producto con 'ID [$productoID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "El producto seleccionado no existe en la base de datos."];
                 }
         
@@ -897,7 +897,7 @@
 
                 // En caso de que no se haya encontrado el producto
                 $message = "No se encontró el producto con 'ID [$productoID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => "No se encontró el producto seleccionado en la base de datos."];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -1000,7 +1000,7 @@
                 
                 // En caso de que no se haya encontrado el producto
                 $message = "No se encontró el producto con 'ID [$productoID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => "No se encontró el producto seleccionado en la base de datos."];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -1088,7 +1088,7 @@
          */
         private function asignarImagenPorDefecto($producto, $rutaPorDefecto) {
             $producto->setProductoImagen($rutaPorDefecto);
-            Utils::writeLog("Imagen por defecto asignada.", BUSINESS_LOG_FILE, INFO_MESSAGE, $this->className);
+            Utils::writeLog("Imagen por defecto asignada.", BUSINESS_LOG_FILE, INFO_MESSAGE, $this->className, __LINE__);
         }
         
         /**

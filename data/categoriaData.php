@@ -58,7 +58,7 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia de la categoría:";
                     if (!$categoriaID) $missingParamsLog .= " categoriaID [" . ($categoriaID ?? 'null') . "]";
                     if (!$categoriaNombre) $missingParamsLog .= " categoriaNombre [" . ($categoriaNombre ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia de la categoría en la base de datos.");
                 }
 
@@ -122,7 +122,7 @@
 				// En caso de ya existir la categoría y estar activa
 				if ($check["exists"]) {
 					$message = "La categoría con 'Nombre [$categoriaNombre]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "Ya existe un categoria con el mismo nombre ($categoriaNombre) en la base de datos."];
 				}
 
@@ -195,7 +195,7 @@
 				// En caso de no existir la categoría
 				if (!$check["exists"]) {
 					$message = "No se encontró la categoría con 'ID [$categoriaID]' en la base de datos.";
-					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ["success" => false, "message" => "La categoría seleccionada no existe en la base de datos."];
 				}
 
@@ -206,7 +206,7 @@
 				// En caso de ya existir la categoría
 				if ($check["exists"]) {
 					$message = "La categoría con 'Nombre [$categoriaNombre]' ya existe en la base de datos.";
-					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ["success" => true, "message" => "Ya existe un categoria con el mismo nombre ($categoriaNombre) en la base de datos."];
 				}
 
@@ -265,7 +265,7 @@
 				// En caso de no existir la categoría
 				if (!$check["exists"]) {
 					$message = "No se encontró la categoría con 'ID [$categoriaID]' en la base de datos.";
-					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ["success" => false, "message" => "La categoría seleccionada no existe en la base de datos."];
 				}
 
@@ -436,7 +436,7 @@
 				// En caso de no existir la categoría
 				if (!$check["exists"]) {
 					$message = "No se encontró la categoría con 'ID [$categoriaID]' en la base de datos.";
-					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ["success" => false, "message" => "La categoría seleccionada no existe en la base de datos."];
 				}
 
@@ -475,7 +475,7 @@
 
 				// En caso de no encontrarse la categoría
 				$message = "No se encontró la categoría con 'ID [$categoriaID]' en la base de datos.";
-				Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+				Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 				return ["success" => false, "message" => "La categoría seleccionada no existe en la base de datos."];
 			}catch (Exception $e) {
 				// Manejo del error dentro del bloque catch

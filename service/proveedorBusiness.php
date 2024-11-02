@@ -15,12 +15,12 @@
 
         public function validarDatosPaginacion($page, $size) {
             if ($page === null || !is_numeric($page) || $page < 0) {
-                Utils::writeLog("El 'page [$page]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'page [$page]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El número de página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
             }
 
             if ($size === null || !is_numeric($size) || $size < 0) {
-                Utils::writeLog("El 'size [$size]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'size [$size]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El tamaño de la página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
             }
 
@@ -29,7 +29,7 @@
 
         public function validarProveedorID($proveedorID) {
             if ($proveedorID === null || !is_numeric($proveedorID) || $proveedorID < 0) {
-                Utils::writeLog("El 'proveedorID [$proveedorID]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'proveedorID [$proveedorID]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El ID del proveedor está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
             }
 
@@ -55,15 +55,15 @@
                 if ($validarCamposAdicionales) {
                     if ($nombre === null || empty($nombre) || is_numeric($nombre)) {
                         $errors[] = "El campo 'Nombre' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Nombre [$nombre]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Nombre [$nombre]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                     if ($email === null || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                         $errors[] = "El campo 'Correo' no es válido. Debe digitar un correo electrónico válido (Ej: ejemplo@correo.com).";
-                        Utils::writeLog("El campo 'Email [$email]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Email [$email]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                     if ($categoriaID=== null || empty($categoriaID)) {
                         $errors[] = "El campo 'Categoria' no es válido.";
-                        Utils::writeLog("El campo 'Categoriaid [$categoriaID]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Categoriaid [$categoriaID]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                 }
 

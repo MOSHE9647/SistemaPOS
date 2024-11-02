@@ -24,7 +24,7 @@ class CompraBusiness {
          */
         public function validarCompraID($compraID) {
             if ($compraID === null || !is_numeric($compraID) || $compraID < 0) {
-                Utils::writeLog("El ID [$compraID] de la compra no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El ID [$compraID] de la compra no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El ID de la compra está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
             }
             return ["is_valid" => true];
@@ -43,12 +43,12 @@ class CompraBusiness {
 
          public function validarDatosPaginacion($page, $size) {
             if ($page === null || !is_numeric($page) || $page < 0) {
-                Utils::writeLog("El 'page [$page]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'page [$page]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El número de página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
             }
 
             if ($size === null || !is_numeric($size) || $size < 0) {
-                Utils::writeLog("El 'size [$size]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'size [$size]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El tamaño de la página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
             }
 
@@ -91,46 +91,46 @@ class CompraBusiness {
 
                 if (empty($compraNumeroFactura)) {
                     $errors[] = "El campo 'Número de factura' está vacío.";
-                    Utils::writeLog("El campo 'Número de factura [$compraNumeroFactura]' está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
+                    Utils::writeLog("El campo 'Número de factura [$compraNumeroFactura]' está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
                 }
 
                 if ($compraNumeroFactura < 0) {
                     $errors[] = "El campo 'Número de factura' no puede ser negativo vacío.";
-                    Utils::writeLog("El campo 'Número de factura [$compraNumeroFactura]' no es valido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
+                    Utils::writeLog("El campo 'Número de factura [$compraNumeroFactura]' no es valido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
                 }
 
                 if ($compraMontoBruto === null) {
                     $errors[] = "El campo 'Monto bruto' está vacío.";
-                    Utils::writeLog("El campo 'Monto bruto [$compraMontoBruto]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
+                    Utils::writeLog("El campo 'Monto bruto [$compraMontoBruto]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
                 }
                 if ($compraMontoBruto < 0) {
                     $errors[] = "El campo 'Monto bruto' tiene que ser positivo.";
-                    Utils::writeLog("El campo 'Monto bruto [$compraMontoBruto]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
+                    Utils::writeLog("El campo 'Monto bruto [$compraMontoBruto]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
                 }
 
                 if ($compraMontoNeto === null) {
                     $errors[] = "El campo 'Monto neto' está vacío.";
-                    Utils::writeLog("El campo 'Monto neto [$compraMontoNeto]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
+                    Utils::writeLog("El campo 'Monto neto [$compraMontoNeto]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
                 }
 
                 if ($compraMontoNeto < 0) {
                     $errors[] = "El campo 'Monto neto' tiene que ser positivo.";
-                    Utils::writeLog("El campo 'Monto neto [$compraMontoNeto]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
+                    Utils::writeLog("El campo 'Monto neto [$compraMontoNeto]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
                 }
 
                 if (empty($compraTipoPago)) {
                     $errors[] = "El campo 'Tipo de pago' está vacío.";
-                    Utils::writeLog("El campo 'Tipo de pago [$compraTipoPago]' está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
+                    Utils::writeLog("El campo 'Tipo de pago [$compraTipoPago]' está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
                 }
 
                 if ($proveedorid === null || !is_numeric($proveedorid) || $proveedorid < 0) {
                     $errors[] = "El campo 'Proveedor' está vacío.";
-                    Utils::writeLog("El campo 'Proveedor ID [$proveedorid]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
+                    Utils::writeLog("El campo 'Proveedor ID [$proveedorid]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
                 }
 
                 if ($clienteid === null || !is_numeric($clienteid) || $clienteid < 0) {
                     $errors[] = "El campo 'Cliente' está vacío.";
-                    Utils::writeLog("El campo 'Cliente ID [$clienteid]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className);
+                    Utils::writeLog("El campo 'Cliente ID [$clienteid]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
                 }
             }
 

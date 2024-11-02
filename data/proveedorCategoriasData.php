@@ -48,7 +48,7 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia del proveedor y/o categoria:";
                     if (!$proveedorID) $missingParamsLog .= " proveedorID [" . ($proveedorID ?? 'null') . "]";
                     if (!$categoriaID) $missingParamsLog .= " categoriaID [" . ($categoriaID ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "No se proporcionaron los parámetros necesarios para realizar la verificación."];
                 }
 

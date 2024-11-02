@@ -20,7 +20,7 @@
                 if ($both || $productoID !== null) {
                     if (!is_numeric($productoID) || $productoID <= 0) {
                         $errors[] = "El ID del producto está vacío o no es válido. Debe ser un número mayor a 0.";
-                        Utils::writeLog("El ID [$productoID] del producto no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El ID [$productoID] del producto no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                 }
 
@@ -28,7 +28,7 @@
                 if ($both || $subcategoriaID !== null) {
                     if (!is_numeric($subcategoriaID) || $subcategoriaID <= 0) {
                         $errors[] = "El ID de la subcategoría está vacío o no es válido. Debe ser un número mayor a 0.";
-                        Utils::writeLog("El ID [$subcategoriaID] de la subcategoría no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El ID [$subcategoriaID] de la subcategoría no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                 }
 
@@ -38,7 +38,7 @@
                     $missingParamsLog = "Faltan parámetros para validar:";
                     $missingParamsLog .= " productoID [" . ($productoID ?? 'null') . "]";
                     $missingParamsLog .= " subcategoriaID [" . ($subcategoriaID ?? 'null') . "]";
-                    Utils::writeLog(trim($missingParamsLog), BUSINESS_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog(trim($missingParamsLog), BUSINESS_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("No se proporcionaron los parámetros necesarios para realizar la validación.");
                 }
 

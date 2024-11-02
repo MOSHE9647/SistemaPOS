@@ -56,7 +56,7 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia de la marca:";
                     if (!$marcaID) $missingParamsLog .= " marcaID [" . ($marcaID ?? 'null') . "]";
                     if (!$marcaNombre) $missingParamsLog .= " marcaNombre [" . ($marcaNombre ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia de la marca en la base de datos.");
                 }
 
@@ -120,7 +120,7 @@
                 // En caso de ya existir la marca y estar activa
                 if ($check["exists"]) {
                     $message = "La marca con 'Nombre [$marcaNombre]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "Ya existe una marca con el mismo nombre ($marcaNombre) en la base de datos."];
                 }
 
@@ -192,7 +192,7 @@
                 // En caso de no existir la marca
                 if (!$check["exists"]) {
                     $message = "No se encontró la marca con 'ID [$marcaID]' en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "La marca seleccionada no existe en la base de datos."];
                 }
 
@@ -203,7 +203,7 @@
                 // En caso de ya existir la marca
                 if ($check["exists"]) {
                     $message = "La marca con 'Nombre [$marcaNombre]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "Ya existe una marca con el mismo nombre ($marcaNombre) en la base de datos."];
                 }
 
@@ -261,7 +261,7 @@
                 // En caso de no existir la marca
                 if (!$check["exists"]) {
                     $message = "No se encontró la marca con 'ID [$marcaID]' en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "La marca seleccionada no existe en la base de datos."];
                 }
 
@@ -438,7 +438,7 @@
                 // En caso de no existir la marca
                 if (!$check["exists"]) {
                     $message = "No se encontró la marca con 'ID [$marcaID]' en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "La marca seleccionada no existe en la base de datos."];
                 }
 
@@ -476,7 +476,7 @@
 
                 // En caso de no encontrarse la marca
                 $message = "No se encontró la marca con 'ID [$marcaID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => "La marca seleccionada no existe en la base de datos."];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch

@@ -560,7 +560,7 @@
             } else {
                 // En caso de que no se haya encontrado el detalle
                 $message = "No se encontró un detalle de compra con el ID [" . $compraDetalleID . "]";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => $message];
             }
         } catch (Exception $e) {

@@ -57,7 +57,7 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia del proveedor y/o producto: ";
                     if ($proveedorID === null) $missingParamsLog .= "proveedorID [null] ";
                     if ($productoID === null) $missingParamsLog .= "productoID [null] ";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "No se proporcionaron los parámetros necesarios para realizar la verificación."];
                 }
 

@@ -56,7 +56,7 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia del codigo de barras:";
                     if (!$codigoBarrasID) { $missingParamsLog .= " codigoBarrasID [" . ($codigoBarrasID ?? 'null') . "]"; }
                     if (!$codigoBarrasNumero) { $missingParamsLog .= " codigoBarrasNumero [" . ($codigoBarrasNumero ?? 'null') . "]"; }
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia del codigo de barras.");
                 }
 
@@ -119,7 +119,7 @@
                 // En caso de ya existir un código de barras y estar activo
                 if ($check['exists']) {
                     $message = "El código de barras con 'Número [$codigoBarrasNumero]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ["success" => false, "message" => "Ya existe un código de barras con el mismo número en la base de datos"];
                 }
 
@@ -187,7 +187,7 @@
                 if (!$checkID["success"]) { return $checkID; } // Error al verificar la existencia
                 if (!$checkID["exists"]) {
                     $message = "El código de barras con 'ID [$codigoBarrasID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     throw new Exception("No existe ningún código de barras en la base de datos que coincida con la información proporcionada.");
                 }
 
@@ -196,7 +196,7 @@
                 if (!$checkNumero["success"]) { return $checkNumero; } // Error al verificar la existencia
                 if ($checkNumero["exists"]) {
                     $message = "El código de barras con 'Número [$codigoBarrasNumero]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ["success" => false, "message" => "Ya existe un código de barras con el mismo número en la base de datos"];
                 }
 
@@ -253,7 +253,7 @@
                 if (!$check["success"]) { return $check; } // Error al verificar la existencia
 				if (!$check["exists"]) { // No existe el código de barras
                     $message = "El código de barras con 'ID [$codigoBarrasID]' no existe en la base de datos.";
-					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ["success" => false, "message" => "No existe ningún código de barras en la base de datos que coincida con la información proporcionada."];
 				}
 
@@ -427,7 +427,7 @@
                 if (!$check["success"]) { return $check; } // Error al verificar la existencia
                 if (!$check["exists"]) { // No existe el código de barras
                     $message = "El código de barras con 'ID [$codigoBarrasID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "No existe ningún código de barras en la base de datos que coincida con la información proporcionada."];
                 }
 
@@ -468,7 +468,7 @@
 
                 // Retorna false si no se encontraron resultados
                 $message = "No se encontró ningún código de barras con 'ID [$codigoBarrasID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => "No se encontró el código de barras en la base de datos"];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch

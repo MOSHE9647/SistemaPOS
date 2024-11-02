@@ -15,7 +15,7 @@
 
         public function validarUsuarioID($usuarioID) {
             if ($usuarioID === null || !is_numeric($usuarioID) || $usuarioID < 0) {
-                Utils::writeLog("El 'ID [$usuarioID]' del usuario no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'ID [$usuarioID]' del usuario no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El ID del usuario está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
             }
 
@@ -24,7 +24,7 @@
 
         public function validarUsuarioEmail($usuarioEmail) {
             if ($usuarioEmail === null || empty($usuarioEmail) || !filter_var($usuarioEmail, FILTER_VALIDATE_EMAIL)) {
-                Utils::writeLog("El 'Correo [$usuarioEmail]' del usuario no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'Correo [$usuarioEmail]' del usuario no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El campo 'Correo' está vacío o no es válido. Revise que este sea un correo electrónico válido."];
             }
 
@@ -33,12 +33,12 @@
 
         public function validarDatosPaginacion($page, $size) {
             if ($page === null || !is_numeric($page) || $page < 0) {
-                Utils::writeLog("El 'page [$page]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'page [$page]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El número de página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
             }
 
             if ($size === null || !is_numeric($size) || $size < 0) {
-                Utils::writeLog("El 'size [$size]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'size [$size]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El tamaño de la página está vacío o no es válido. Revise que este sea un número y que sea mayor o igual a 0"];
             }
 
@@ -67,19 +67,19 @@
                 if ($validarCamposAdicionales) {
                     if ($nombre === null || empty($nombre) || is_numeric($nombre)) {
                         $errors[] = "El campo 'Nombre' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Nombre [$nombre]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Nombre [$nombre]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                     if ($apellido1 === null || empty($apellido1) || is_numeric($apellido1)) {
                         $errors[] = "El campo 'Primer Apellido' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Primer Apellido [$apellido1]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Primer Apellido [$apellido1]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                     if ($apellido2 === null || empty($apellido2) || is_numeric($apellido2)) {
                         $errors[] = "El campo 'Segundo Apellido' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Segundo Apellido [$apellido2]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Segundo Apellido [$apellido2]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                     if ($rolID === null || !is_numeric($rolID) || $rolID < 0) {
                         $errors[] = "El campo 'Rol' está vacío o no es válido. Revise que este sea un número y que sea mayor a 0";
-                        Utils::writeLog("El campo 'Rol [$rolID]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Rol [$rolID]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                     $checkEmail = $this->validarUsuarioEmail($correo);
                     if (!$checkEmail['is_valid']) { $errors[] = $checkEmail['message']; }

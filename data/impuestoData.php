@@ -56,7 +56,7 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia del impuesto:";
                     if (!$impuestoID) $missingParamsLog .= " impuestoID [" . ($impuestoID ?? 'null') . "]";
                     if (!$impuestoNombre) $missingParamsLog .= " impuestoNombre [" . ($impuestoNombre ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia del impuesto.");
                 }
 
@@ -119,7 +119,7 @@
                     if ($valorTotal > 100) {
                         $message = "El porcentaje total de los impuestos supera el 100% permitido.";
                         $logMessage = "$message (Valor actual: $total%, Valor a insertar: $valorAInsertar%, Total: $valorTotal%)";
-                        Utils::writeLog($logMessage, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog($logMessage, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                         return ["success" => true, "check" => false, "message" => "$message (Total: $valorTotal%, Valor a insertar: $valorAInsertar%)"];
                     }
                 }
@@ -163,7 +163,7 @@
                 // En caso de ya existir el impuesto
                 if ($check["exists"]) {
                     $message = "El impuesto con 'Nombre [$impuestoNombre]' ya existe en la base de datos.";
-					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+					Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ['success' => false, 'message' => "Ya existe un impuesto con el mismo nombre en la base de datos."];
 				}
 
@@ -256,7 +256,7 @@
                 if (!$checkID["success"]) { return $checkID; } //<- Error al verificar la existencia
                 if (!$checkID["exists"]) { //<- El impuesto no existe
 					$message = "El impuesto con 'ID [$impuestoID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ['success' => false, 'message' => "El impuesto seleccionado no existe en la base de datos."];
                 }
 
@@ -265,7 +265,7 @@
                 if (!$check["success"]) { return $check; } //<- Error al verificar la existencia
                 if ($check["exists"]) { //<- El impuesto existe
                     $message = "Ya existe un impuesto con el mismo 'Nombre [$impuestoNombre]' en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
 					return ['success' => false, 'message' => "Ya existe un impuesto con el mismo nombre ($impuestoNombre) en la base de datos."];
                 }
 
@@ -347,7 +347,7 @@
                 if (!$check["success"]) { return $check; } //<- Error al verificar la existencia
                 if (!$check["exists"]) { //<- El impuesto no existe
 					$message = "El impuesto con 'ID [$impuestoID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ['success' => false, 'message' => "El impuesto seleccionado no existe en la base de datos."];
                 }
 
@@ -520,7 +520,7 @@
                 if (!$checkID["success"]) { return $checkID; } //<- Error al verificar la existencia
                 if (!$checkID["exists"]) { //<- El impuesto no existe
 					$message = "El impuesto con ID [$impuestoID] no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ['success' => false, 'message' => "El impuesto seleccionado no existe en la base de datos."];
                 }
 
@@ -562,7 +562,7 @@
 
                 // Retorna false si no se encontraron resultados
                 $message = "No se encontró ningún impuesto con 'ID [$impuestoID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => "No se encontró el impuesto en la base de datos"];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch

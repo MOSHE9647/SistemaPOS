@@ -61,7 +61,7 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia del usuario y/o telefono:";
                     if (!$usuarioID) $missingParamsLog .= " usuarioID [" . ($usuarioID ?? 'null') . "]";
                     if (!$telefonoID) $missingParamsLog .= " telefonoID [" . ($telefonoID ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "No se proporcionaron los parámetros necesarios para realizar la verificación."];
                 }
         
@@ -111,7 +111,7 @@
             if (!$checkUsuarioID["success"]) { return $checkUsuarioID; }
             if (!$checkUsuarioID["exists"]) {
                 $message = "El usuario con 'ID [$usuarioID]' no existe en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ['success' => false, 'message' => "El usuario seleccionado no existe en la base de datos."];
             }
 
@@ -120,7 +120,7 @@
             if (!$checkTelefonoID["success"]) { return $checkTelefonoID; }
             if (!$checkTelefonoID["exists"]) {
                 $message = "El teléfono con ID [$telefonoID] no existe en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ['success' => false, 'message' => "El telefono seleccionado no existe en la base de datos."];
             }
 
@@ -151,7 +151,7 @@
                 // Si el teléfono ya está asignado a un usuario, no se puede asignar
                 if ($checkID["exists"]) {
                     $message = "El teléfono con ID [$telefonoID] ya está asignado a otro usuario.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ['success' => false, 'message' => "El teléfono seleccionado ya está asignado a un usuario."];
                 }
 
@@ -243,7 +243,7 @@
                 if (!$check["success"]) { return $check; }
                 if (!$check["exists"]) {
                     $message = "El teléfono con ID [$telefonoID] no está asignado al usuario con ID [$usuarioID].";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ['success' => false, 'message' => "El teléfono seleccionado no está asignado al usuario."];
                 }
         
@@ -321,7 +321,7 @@
                 if (!$checkID["success"]) { throw new Exception($checkID["message"]); }
                 if (!$checkID["exists"]) {
                     $message = "El usuario con ID [$usuarioID] no tiene teléfonos registrados.";
-                    Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     return ["success" => true, "message" => "El usuario seleccionado no tiene teléfonos registrados."];
                 }
 
@@ -414,7 +414,7 @@
                 if (!$checkID["success"]) { throw new Exception($checkID["message"]); }
                 if (!$checkID["exists"]) {
                     $message = "El usuario con ID [$usuarioID] no tiene teléfonos registrados.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "El usuario seleccionado no tiene teléfonos registrados."];
                 }
 

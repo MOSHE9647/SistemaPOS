@@ -70,7 +70,7 @@
                     if (!$proveedorID) { $missingParamsLog .= " proveedorID [" . ($proveedorID ?? 'null') . "]"; }
                     if (!$proveedorNombre) { $missingParamsLog .= " proveedorNombre [" . ($proveedorNombre ?? 'null') . "]"; }
                     if (!$proveedorEmail) { $missingParamsLog .= " proveedorEmail [" . ($proveedorEmail ?? 'null') . "]"; }
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia del proveedor.");
                 }
 
@@ -136,7 +136,7 @@
                 // En caso de ya existir el proveedor y estar activo
                 if ($check["exists"]) {
                     $message = "El proveedor con 'Nombre [$proveedorNombre]' y 'Email [$proveedorEmail]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "Ya existe un proveedor con el mismo nombre y correo en la base de datos"];
                 }
 
@@ -233,7 +233,7 @@
                 // En caso de no existir el proveedor
                 if (!$check["exists"]) {
                     $message = "No existe ningún proveedor en la base de datos con el 'ID [$proveedorID]'.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "No existe ningún proveedor con el ID proporcionado"];
                 }
 
@@ -244,7 +244,7 @@
                 // En caso de ya existir el proveedor
                 if ($check["exists"]) {
                     $message = "Ya existe un proveedor con el mismo 'Nombre [$proveedorNombre}' y/o 'Correo [$proveedorEmail]' en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "Ya existe un proveedor con el mismo nombre y/o correo en la base de datos"];
                 }
 
@@ -320,7 +320,7 @@
                 // En caso de no existir el proveedor
                 if (!$check["exists"]) {
                     $message = "No existe ningún proveedor en la base de datos con el 'ID [$proveedorID]'.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "No existe ningún proveedor con el ID proporcionado"];
                 }
 
@@ -584,7 +584,7 @@
                 // En caso de no existir el proveedor
                 if (!$check["exists"]) {
                     $message = "No existe ningún proveedor en la base de datos con el 'ID [$proveedorID]'.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "No existe ningún proveedor con el ID proporcionado"];
                 }
 
@@ -640,7 +640,7 @@
 
                 // Retorna false si no se encontraron resultados
                 $message = "No se encontró ningún proveedor con el 'ID [$proveedorID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => true, "message" => "No se encontró ningún el proveedor en la base de datos"];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch

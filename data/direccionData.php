@@ -21,7 +21,7 @@
             try {
                 if (!$direccion) {
                     $errorMessage = "No se proporcionó una dirección para verificar su existencia.";
-                    Utils::writeLog($errorMessage, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($errorMessage, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception($errorMessage);
                 }
             
@@ -50,7 +50,7 @@
                 if ($direccionID === -1 && $update) {
                     $missingParamsLog = "Faltan parámetros para verificar la existencia de la dirección:";
                     $missingParamsLog .= " direccionID [" . ($direccionID ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia de la dirección.");
                 }
 
@@ -146,7 +146,7 @@
                 }
                 else if ($check["exists"]) {
                     $message = "Ya existe una dirección similar en la base de datos: [" . $direccion->getDireccionCompleta() . "]";
-                    Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     return ['success' => false, 'message' => $message];
                 }
 
@@ -304,7 +304,7 @@
                 if (!$check["success"]) { throw new Exception($check['message']); } // Error al verificar la existencia
                 if (!$check["exists"]) { // No existe la dirección
                     $message = "La dirección con 'ID [$direccionID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ['success' => false, 'message' => "La dirección seleccionada no existe en la base de datos."];
                 }
 
@@ -482,7 +482,7 @@
                 if (!$check["success"]) { throw new Exception($check['message']); } // Error al verificar la existencia
                 if (!$check["exists"]) { // No existe la dirección
                     $message = "La dirección con 'ID [$direccionID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ['success' => false, 'message' => "La dirección seleccionada no existe en la base de datos."];
                 }
 
@@ -525,7 +525,7 @@
         
                 // Retorna false si no se encontraron resultados
                 $message = "No se encontró ninguna dirección con el 'ID [$direccionID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                 return ["success" => true, "message" => "No se encontró la dirección en la base de datos."];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch

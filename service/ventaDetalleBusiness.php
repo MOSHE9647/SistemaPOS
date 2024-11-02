@@ -25,7 +25,7 @@ class VentaDetalleBusiness {
      */
     public function validarVentaDetalleID($ventaDetalleID) {
         if ($ventaDetalleID === null || !is_numeric($ventaDetalleID) || $ventaDetalleID < 0) {
-            Utils::writeLog("El ID [$ventaDetalleID] del detalle de venta no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+            Utils::writeLog("El ID [$ventaDetalleID] del detalle de venta no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
             return ["is_valid" => false, "message" => "El ID del detalle de venta no es válido. Debe ser un número mayor a 0"];
         }
         return ["is_valid" => true];

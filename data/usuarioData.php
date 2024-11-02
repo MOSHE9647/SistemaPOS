@@ -62,7 +62,7 @@
                     $missingParamsLog = "Faltan parámetros para verificar la existencia del usuario:";
                     if (!$usuarioID) $missingParamsLog .= " usuarioID [" . ($usuarioID ?? 'null') . "]";
                     if (!$usuarioEmail) $missingParamsLog .= " usuarioEmail [" . ($usuarioEmail ?? 'null') . "]";
-                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className);
+                    Utils::writeLog($missingParamsLog, DATA_LOG_FILE, WARN_MESSAGE, $this->className, __LINE__);
                     throw new Exception("Faltan parámetros para verificar la existencia del usuario.");
                 }
 
@@ -128,7 +128,7 @@
                 // En caso de que el usuario ya exista
                 if ($check["exists"]) {
                     $message = "El usuario con 'Correo [$usuarioEmail]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "Ya existe un usuario con el mismo correo en la base de datos."];
                 }
 
@@ -215,7 +215,7 @@
                 // En caso de que el usuario no exista
                 if (!$check["exists"]) {
                     $message = "El usuario con 'ID [$usuarioID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "El usuario seleccionado no existe en la base de datos."];
                 }
                 
@@ -238,7 +238,7 @@
                 // En caso de que el usuario exista
                 if ($check["exists"]) {
                     $message = "El usuario con 'Correo [$usuarioEmail]' ya existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "Ya existe un usuario con el mismo correo ($usuarioEmail) en la base de datos."];
                 }
 
@@ -312,7 +312,7 @@
                 // En caso de que el usuario no exista
                 if (!$check["exists"]) {
                     $message = "El usuario con 'ID [$usuarioID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "El usuario seleccionado no existe en la base de datos."];
                 }
 
@@ -533,7 +533,7 @@
                 // En caso de que el usuario no exista
                 if (!$check["exists"]) {
                     $message = "El usuario con 'ID [$usuarioID]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "El usuario seleccionado no existe en la base de datos."];
                 }
 
@@ -587,7 +587,7 @@
 
                 // Retorna false si no se encontraron resultados
                 $message = "No se encontró ningún usuario con 'ID [$usuarioID]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => "No se encontró ningún usuario con el ID proporcionado."];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch
@@ -617,7 +617,7 @@
                 // En caso de que el usuario no exista
                 if (!$check["exists"]) {
                     $message = "El usuario con 'Correo [$usuarioEmail]' no existe en la base de datos.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "El correo ingresado no existe. Verifique su correo y vuelva a intentarlo."];
                 }
 
@@ -664,7 +664,7 @@
 
                 // Retorna false si no se encontraron resultados
                 $message = "No se encontró ningún usuario con 'Correo [$usuarioEmail]' en la base de datos.";
-                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => "No se encontró ningún usuario con el correo proporcionado."];
             } catch (Exception $e) {
                 // Manejo del error dentro del bloque catch

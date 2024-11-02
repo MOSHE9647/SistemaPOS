@@ -15,7 +15,7 @@
 
         public function validarRolID($rolID) {
             if ($rolID === null || !is_numeric($rolID) || $rolID < 0) {
-                Utils::writeLog("El 'ID [$rolID]' del rol no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                Utils::writeLog("El 'ID [$rolID]' del rol no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["is_valid" => false, "message" => "El ID del rol está vacío o no es válido. Revise que este sea un número y que sea mayor a 0"];
             }
 
@@ -39,7 +39,7 @@
                 if ($validarCamposAdicionales) {
                     if ($nombre === null || empty($nombre) || is_numeric($nombre)) {
                         $errors[] = "El campo 'Nombre' está vacío o no es válido.";
-                        Utils::writeLog("El campo 'Nombre [$nombre]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className);
+                        Utils::writeLog("El campo 'Nombre [$nombre]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     }
                 }
 
