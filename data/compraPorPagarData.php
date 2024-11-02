@@ -25,6 +25,7 @@ class CompraPorPagarData extends Data{
             $conn = $result['connection'];
     
             if ($id <= 0 || !is_numeric($id)) {
+                Utils::writeLog("Error el id de compra por pagar no es valido. ID [$id]",DATA_LOG_FILE);
                 throw new Exception("El id de la compra por pagar es inválido");
             }
     
@@ -92,7 +93,8 @@ class CompraPorPagarData extends Data{
         }catch(Exception $e){
             $message = $this->handleMysqlError(
                 $e->getCode(),$e->getMessage(),
-                "Error al verificar la compra detalle"
+                "Error al verificar la compra detalle",
+                $this->className
             );
             return ["success"=>false, "message"=>$message];
         }finally{
@@ -177,7 +179,8 @@ class CompraPorPagarData extends Data{
             }
             $message = $this->handleMysqlError(
                 $e->getCode(), $e->getMessage(),
-                'Ocurrio un error al insertar la compra a la base de datos'
+                'Ocurrio un error al insertar la compra a la base de datos',
+                $this->className
             );
             return ["succes"=>false, "message"=>$message];
         }finally{
@@ -256,7 +259,8 @@ class CompraPorPagarData extends Data{
             }
             $message = $this->handleMysqlError(
                 $e->getCode(),$e->getMessage(),
-                "Error al actualizar la compra por pagar"
+                "Error al actualizar la compra por pagar",
+                $this->className
             );
             return ["success" => false, "message"=>$message];
         }finally{
@@ -305,7 +309,8 @@ class CompraPorPagarData extends Data{
             }
             $message = $this->handleMysqlError(
                 $e->getCode(),$e->getMessage(),
-                "Error al eliminar la compra por pagar"
+                "Error al eliminar la compra por pagar",
+                $this->className
             );
             return ["success"=> false, "message" => $message];
         }finally{
@@ -350,7 +355,8 @@ class CompraPorPagarData extends Data{
         }catch(Exception $e){
             $message = $this->handleMysqlError(
                 $e->getCode(),$e->getMessage(),
-                "Error al obtener las compras por pagar"
+                "Error al obtener las compras por pagar",
+                $this->className
             );
             return ["success"=>false, "message"=>$message];
         }finally{
@@ -442,7 +448,8 @@ class CompraPorPagarData extends Data{
         }catch(Exception $e){
             $message =$this->handleMysqlError(
                 $e->getCode(),$e->getMessage(),
-                "Error al listar la pagina de compras por pagar"
+                "Error al listar la pagina de compras por pagar",
+                $this->className
             );
             return ["success"=>false,"message"=>$message];
         }finally{
@@ -498,7 +505,8 @@ class CompraPorPagarData extends Data{
         }catch(Exception $e){
             $message = $this->handleMysqlError(
                 $e->getCode(),$e->getMessage(),
-                "Error al obtener la compra por pagar de la base de datos"
+                "Error al obtener la compra por pagar de la base de datos",
+                $this->className
             );
             return ["success" => false, "message"=>$message];
         }finally{
