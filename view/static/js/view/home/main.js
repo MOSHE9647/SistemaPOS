@@ -2,10 +2,12 @@ import { agregarProducto, mostrarListaSeleccionableDeProductos } from "./gui.js"
 import { mostrarMensaje } from "../../gui/notification.js";
 import { manejarInputConEnter } from "../../utils.js";
 import * as tabs from "./tabs.js";
+import * as gui from "./gui.js";
 
 // Función para limpiar las referencias globales
 function limpiarGlobales() {
     delete window.tabs;
+    delete window.gui;
 }
 
 export function cargarHome() {
@@ -14,6 +16,7 @@ export function cargarHome() {
 
     // Asignar nuevas funciones a la ventana global
     window.tabs = tabs; //<- Asignamos el objeto tabs a la ventana global
+    window.gui = gui; //<- Asignamos el objeto gui a la ventana global
 
     const addButton = document.getElementById('sales-add-button');
     if (addButton) {

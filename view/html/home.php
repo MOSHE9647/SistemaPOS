@@ -75,7 +75,7 @@
                                 <span class="las la-undo icon"></span>
                                 <span>Devoluciones</span>
                             </button>
-                            <button class="sales-button" id="sales-charge-button">
+                            <button class="sales-button" id="sales-charge-button" onclick="gui.mostrarOpcionesDeCobro()">
                                 <span class="las la-credit-card icon"></span>
                                 <span>Cobrar</span>
                             </button>
@@ -105,17 +105,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    
-
-    // function updateDeleteButtons() {
-    //     const deleteButtons = document.getElementsByClassName("delete-tab");
-    //     for (let deleteButton of deleteButtons) {
-    //         deleteButton.style.display = deleteButtons.length > 1 ? "inline" : "none";
-    //     }
-    // }
-
-    // document.getElementById("add-tab").addEventListener("click", addTab);
-    // updateDeleteButtons();
-</script>

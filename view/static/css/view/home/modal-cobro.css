@@ -1,0 +1,137 @@
+@import url(../../gui/modal.css);
+
+.modal-container {
+    width: 38%;
+    max-height: calc(95vh);
+    overflow-y: auto;
+}
+
+.modal-body {
+    flex: 1 1 calc(50% - 1rem);
+    min-height: calc(100vh - 360px);
+    max-height: calc(60vh);
+    overflow-y: auto;
+}
+
+.modal-cobro {
+    width: 70%;
+    overflow-y: auto;
+}
+
+.modal-cobro .modal-confirm,
+.modal-cobro .modal-close {
+    width: 270px;
+}
+
+.modal-cobro .modal-confirm i {
+    font-size: 1.2rem;
+}
+
+.modal-form-container h2 {
+    text-align: left;
+    color: var(--main);
+    padding-top: 10px;
+    margin: 5px 20px;
+}
+
+.cliente-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.cliente-info.info {
+    flex-direction: row;
+    align-items: flex-start;
+    background: var(--bg-body);
+    border-radius: var(--card-radius);
+    box-shadow: var(--product-shadow);
+    padding: 1rem;
+    width: 100%;
+    gap: 20px;
+}
+
+.cliente-info.input-select {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.cliente-info input, select {
+    width: 100%;
+}
+
+.cliente-info.info {
+    flex-direction: row;
+    align-items: flex-start;
+    background: var(--bg-body);
+    border-radius: var(--card-radius);
+    box-shadow: var(--product-shadow);
+    padding: 1rem;
+    width: 100%;
+    gap: 20px;
+}
+
+.cliente-info.input-select.basic {
+    background: var(--bg);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    padding: 1rem;
+    gap: 10px;
+}
+
+.select {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+    width: 100%;
+}
+
+.select select {
+    width: 84%;
+}
+
+.select button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0;
+    width: 16%;
+    gap: 12px;
+}
+
+.cliente-form {
+    border: 2px solid var(--main);
+    border-radius: var(--card-radius);
+    margin-top: 10px;
+    padding: 1rem;
+    width: 100%;
+    transition: all ease-in-out 0.3s;
+}
+
+.cliente-form-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.cliente-info.input-select.form {
+    padding: 1rem;
+    gap: 10px;
+}
+
+.form-buttons {
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0 0 0;
+    gap: 10px;
+}
+
+.form-buttons button {
+    width: 120px;
+}

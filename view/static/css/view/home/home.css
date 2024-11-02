@@ -1,4 +1,4 @@
-@import url(../gui/modal.css);
+@import url(./modal-cobro.css);
 
 :root {
     --table-height: 250px; /* Altura de la tabla */
@@ -160,19 +160,6 @@
 
 .last-sale span:first-child {
     color: #fff; /* Color del texto */
-}
-
-.modal-container {
-    width: 38%;
-    max-height: calc(95vh);
-    overflow-y: auto;
-}
-
-.modal-body {
-    flex: 1 1 calc(50% - 1rem);
-    min-height: calc(100vh - 360px);
-    max-height: calc(60vh);
-    overflow-y: auto;
 }
 
 .product-card {

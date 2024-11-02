@@ -18,7 +18,7 @@ import { resetSearch, verificarRespuestaJSON } from "../../utils.js";
  * @returns {Promise<Object>} Los datos del cliente si la solicitud es exitosa.
  * @throws {Error} Si la solicitud falla o el cliente no se encuentra.
  */
-async function obtenerClientePorID(id, filter = true, deleted = false) {
+export async function obtenerClientePorID(id, filter = true, deleted = false) {
     const filterNum = filter ? 1 : 0, deletedNum = deleted ? 1 : 0;
     const response = await fetch(
         `${window.baseURL}/controller/clienteAction.php?accion=id&id=${id}&filter=${filterNum}&deleted=${deletedNum}`
@@ -31,6 +31,34 @@ async function obtenerClientePorID(id, filter = true, deleted = false) {
         return data.cliente;
     } else {
         throw new Error(data.message);
+    }
+}
+
+/**
+ * Obtiene una lista de clientes desde la BD.
+ *
+ * @async
+ * @function obtenerListaClientes
+ * @param {boolean} [filter=true] - Si se deben aplicar filtros a la obtención de la lista.
+ * @param {boolean} [deleted=false] - Si se deben incluir clientes eliminados en la obtención.
+ * @returns {Promise<Object>} Los datos de la lista si la solicitud es exitosa.
+ * @throws {Error} Si la solicitud falla o la lista no se encuentra.
+ */
+export function obtenerListaClientes(filter = true, deleted = false) {
+    const filterNum = filter ? 1 : 0, deletedNum = deleted ? 1 : 0;
+    const request = new XMLHttpRequest();
+    request.open('GET', `${window.baseURL}/controller/clienteAction.php?accion=all&filter=${filterNum}&deleted=${deletedNum}`, false);
+    request.send(null);
+
+    if (request.status === 200) {
+        const data = JSON.parse(request.responseText);
+        if (data.success) {
+            return data.clientes;
+        } else {
+            throw new Error(data.message);
+        }
+    } else {
+        throw new Error('Error en la solicitud');
     }
 }
 

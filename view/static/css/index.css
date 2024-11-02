@@ -1,7 +1,7 @@
 @import './gui/sidebar.css';
 @import './gui/header.css';
 @import './gui/table.css';
-@import './view/home.css';
+@import './view/home/home.css';
 
 .main-content {
     margin-left: var(--sidebar-width);

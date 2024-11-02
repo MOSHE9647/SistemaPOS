@@ -2,15 +2,17 @@
 // ************* Métodos para el manejo de la GUI ************* //
 // ************************************************************ //
 
+import { checkEmptyTable, manejarInputNumeroTelefono } from "../../utils.js";
 import { hideLoader, showLoader } from "../../gui/loader.js";
 import { obtenerListaImpuestos } from "../impuesto/crud.js";
 import { obtenerListaProductos } from "../producto/crud.js";
 import { mostrarMensaje } from "../../gui/notification.js";
-import { checkEmptyTable } from "../../utils.js";
+import { initializeSelects } from "../telefono/selects.js";
+import { obtenerListaClientes } from "../cliente/crud.js";
 import * as crud from "./crud.js";
 
 // Variables globales
-let productos = {};
+let productos = { [tab1]: [] };
 
 function getActiveTable() {
     // Obtener la tabla activa
@@ -183,10 +185,7 @@ export async function mostrarListaSeleccionableDeProductos() {
             throw new Error('La lista de productos no es un arreglo.');
         }
 
-        let html = `
-            <div class="sales-product-select">
-        `;
-
+        let html = `<div class="sales-product-select">`;
         products.forEach(producto => {
             const imagenURL = window.baseURL + producto.Imagen;
             html += `
@@ -207,10 +206,7 @@ export async function mostrarListaSeleccionableDeProductos() {
                 </div>
             `;
         });
-
-        html += `
-            </div>
-        `;
+        html += `</div>`;
 
         Swal.fire({
             title: "Seleccione un producto",
@@ -227,7 +223,7 @@ export async function mostrarListaSeleccionableDeProductos() {
                 confirmButton: 'modal-confirm',
                 actions: 'modal-actions',
             },
-            preConfirm: () => {
+            preConfirm: async () => {
                 const product = getSelectedProduct(products);
                 if (!product) {
                     mostrarMensaje('Seleccione un producto para agregar a la lista.', 'error', 'Error de selección');
@@ -257,6 +253,125 @@ export async function mostrarListaSeleccionableDeProductos() {
         addSelectFunctionToProduct();
     } catch (error) {
         mostrarMensaje(error.message, 'error', 'Error al listar productos');
+    }
+}
+
+export function mostrarOpcionesDeCobro() {
+    // Obtenemos la tabla activa
+    const activeTable = getActiveTable();
+    if (!activeTable) {
+        mostrarMensaje('No se encontró la tabla activa.', 'error', 'Error de tabla');
+        return;
+    }
+
+    if (!productos[activeTable.id]) {
+        mostrarMensaje('Debe seleccionar, al menos, un producto para cobrar.', 'warning');
+        return;
+    }
+
+    // Obtenemos el ID de la tabla y los datos de la venta
+    // const activeTableID = activeTable.id;
+    // const listaProductos = productos[activeTableID];
+    // const total = getTotal(activeTableID);
+    // const usuario = usuarioActual;
+    // console.log(listaProductos, total, usuario);
+
+    let html = `
+        <div class="modal-form-container">
+            <h2>Informaci&oacute;n del Cliente</h2>
+            <div class="cliente-info">
+                <div class="cliente-info info">
+                    <div class="cliente-info input-select basic">
+                        <label>Cliente atendido (*):</label>
+                        <div class="select">
+                            <select id="cliente-select">
+                                <option value="">-- Seleccionar --</option>
+                            </select>
+                            <button type="button" id="cliente-add-button">
+                                <span class="las la-plus"></span>
+                                <span>Crear Nuevo</span>
+                            </button>
+                        </div>
+                        <form id="cliente-form" class="cliente-form" style="display: none;">
+                            <div class="cliente-form-group">
+                                <div class="cliente-info input-select form">
+                                    <label for="cliente-nombre">Nombre:</label>
+                                    <input type="text" id="cliente-nombre" name="nombre">
+                                </div>
+                                <div class="cliente-info input-select form">
+                                    <label for="cliente-alias">Alias:</label>
+                                    <input type="text" id="cliente-alias" name="alias">
+                                </div>
+                            </div>
+                            <div class="cliente-form-group">
+                                <div class="cliente-info input-select form">
+                                    <label>Tipo de Tel&eacute;fono (*):</label>
+                                    <select id="tipo-select" required>
+                                        <option value="">--Seleccionar--</option>
+                                    </select>
+                                </div>
+                                <div class="cliente-info input-select form">
+                                    <label>Código de Pa&iacute;s (*):</label>
+                                    <select id="codigo-select" required>
+                                        <option value="">--Seleccionar--</option>
+                                    </select>
+                                </div>
+                                <div class="cliente-info input-select form">
+                                    <label for="numero">Número de Tel&eacute;fono (*):</label>
+                                    <input type="text" id="numero" name="numero" required>
+                                </div>
+                            </div>
+                            <div class="cliente-form-group form-buttons">
+                                <button type="submit" class="modal-confirm" id="cliente-save-button">Guardar</button>
+                                <button type="button" class="modal-close" id="cliente-cancel-button">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    Swal.fire({
+        title: "Venta de Productos: Cobrar",
+        html: html,
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: '<i class="las la-print"></i> <span>Cobrar e imprimir ticket</span>',
+        denyButtonText: '<i class="las la-check"></i> <span>Cobrar sin imprimir ticket</span>',
+        cancelButtonText: 'Cancelar',
+        customClass: {
+            popup: 'modal-container modal-cobro',
+            header: 'modal-header',
+            title: 'modal-title',
+            htmlContainer: 'modal-body',
+            denyButton: 'modal-confirm',
+            cancelButton: 'modal-close',
+            confirmButton: 'modal-confirm',
+            actions: 'modal-actions',
+        },
+        preConfirm: () => {
+            mostrarMensaje('Venta realizada e impresa.', 'success', 'Venta realizada');
+        },
+        preDeny: () => {
+            mostrarMensaje('Venta realizada sin imprimir ticket.', 'success', 'Venta realizada');
+        }
+    });
+
+    // Inicializar el select de clientes
+    initializeSelectCliente();
+
+    // Agregar evento al botón de agregar cliente
+    const addClienteButton = document.getElementById('cliente-add-button');
+    if (addClienteButton) {
+        addClienteButton.addEventListener('click', () => {
+            const clienteForm = document.getElementById('cliente-form');
+            if (clienteForm) clienteForm.style.display = 'block';
+
+            const clienteSelect = document.getElementById('cliente-select');
+            if (clienteSelect) clienteSelect.disabled = true;
+            
+            initializeClienteForm();
+        });
     }
 }
 
@@ -354,4 +469,120 @@ function obtenerUltimoInputCantidad() {
 
     const cantidadInputs = tableBody.querySelectorAll('.cantidad');
     return cantidadInputs[cantidadInputs.length - 1];
+}
+
+function initializeSelectCliente(selectedID = -1) {
+    try {
+        // Obtener la lista de clientes
+        const clientes = obtenerListaClientes();
+        const clienteSelect = document.getElementById('cliente-select');
+        if (!clienteSelect) throw new Error('No se encontró el select de clientes.');
+
+        // Limpiar el select de clientes
+        clienteSelect.innerHTML = '';
+        const option = document.createElement('option');
+        option.value = '';
+        option.text = '-- Seleccionar --';
+        clienteSelect.add(option);
+
+        // Llenar el select de clientes
+        clientes.forEach(cliente => {
+            // Crear el texto del Select
+            const clienteTelefono = cliente.Telefono ? ` (${cliente.Telefono.CodigoPais} ${cliente.Telefono.Numero})` : '';
+            const selectText = cliente.Nombre + ' - ' + cliente.Alias + clienteTelefono;
+
+            // Crear una opción para el select
+            const option = document.createElement('option');
+            option.value = cliente.ID;
+            option.text = selectText;
+            option.selected = cliente.ID === selectedID;
+            clienteSelect.add(option);
+        });
+    } catch (error) {
+        console.error(error);
+        mostrarMensaje(`Error al cargar la lista de clientes: ${error.message}`, 'error');
+    }
+}
+
+function initializeClienteForm() {
+    // Obtener el formulario de cliente
+    const clienteForm = document.getElementById('cliente-form');
+    if (!clienteForm) throw new Error('No se encontró el formulario de cliente.');
+
+    if (clienteForm.style.display !== 'none') {
+        initializeSelects(); // Inicializar los selects de tipo y código de país
+
+        // Evitar que el formulario se envíe al presionar Enter
+        if (clienteForm) {
+            clienteForm.addEventListener('submit', event => {
+                event.preventDefault();
+            });
+        }
+
+        // Agregar evento al botón de cancelar cliente
+        const cancelClienteButton = document.getElementById('cliente-cancel-button');
+        if (cancelClienteButton) {
+            cancelClienteButton.addEventListener('click', () => {
+                const clienteForm = document.getElementById('cliente-form');
+                if (clienteForm) clienteForm.style.display = 'none';
+                
+                const clienteSelect = document.getElementById('cliente-select');
+                if (clienteSelect) clienteSelect.disabled = false;
+            });
+        }
+
+        // Formatear el número de teléfono ingresado
+        const numeroInput = document.getElementById('numero');
+        if (numeroInput) numeroInput.addEventListener('input', manejarInputNumeroTelefono);
+
+        // Dar formato al número al cambiar el país
+        const codigoSelect = document.getElementById('codigo-select');
+        if (codigoSelect) codigoSelect.addEventListener('change', manejarInputNumeroTelefono);
+
+        // Agregar evento al botón de guardar cliente
+        const saveClienteButton = document.getElementById('cliente-save-button');
+        if (saveClienteButton) {
+            saveClienteButton.addEventListener('click', () => {
+                try {
+                    const clienteForm = document.getElementById('cliente-form');
+                    if (!clienteForm) return;
+
+                    if (!clienteForm.checkValidity()) {
+                        clienteForm.reportValidity();
+                        return;
+                    }
+
+                    // Obtener datos del formulario si es válido
+                    const nombre = document.getElementById('cliente-nombre').value || 'No Definido';
+                    const alias = document.getElementById('cliente-alias').value || 'No Definido';
+                    const tipo = document.getElementById('tipo-select').value;
+
+                    // Crear el objeto FormData
+                    const formData = new FormData();
+                    formData.append('accion', 'insertar');
+                    formData.append('nombre', nombre);
+                    formData.append('alias', alias);
+                    formData.append('tipo', tipo);
+                    formData.append('codigo', codigoSelect.value);
+                    formData.append('numero', numeroInput.value);
+
+                    // Crear el cliente
+                    crud.insertCliente(formData).then((clienteID) => {
+                        initializeSelectCliente(clienteID);
+
+                        // Limpiar los campos del formulario y ocultarlo
+                        clienteForm.reset();
+                        clienteForm.style.display = 'none';
+
+                        // Habilitar el select de clientes
+                        const clienteSelect = document.getElementById('cliente-select');
+                        if (clienteSelect) clienteSelect.disabled = false;
+                    }).catch(error => { throw error; });
+                } catch (error) {
+                    console.error(error);
+                    mostrarMensaje(`Error al guardar el cliente: ${error.message}`, 'error');
+                }
+            });
+        }
+    }
 }

@@ -190,8 +190,6 @@ export function resetSearch(searchInputID) {
     const searchInput = document.getElementById(searchInputID);
     if (searchInput) {
         searchInput.value = ''; // Limpiar el campo de búsqueda
-        // const event = new KeyboardEvent('keypress', { key: 'Enter' });
-        // searchInput.dispatchEvent(event); // Disparar el evento de tecla Enter
     }
 }
 

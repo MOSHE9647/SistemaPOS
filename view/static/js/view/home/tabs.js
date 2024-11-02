@@ -110,7 +110,7 @@ export function addTab() {
                     <span class="las la-undo icon"></span>
                     <span>Devoluciones</span>
                 </button>
-                <button class="sales-button" id="sales-charge-button">
+                <button class="sales-button" id="sales-charge-button" onclick="gui.mostrarOpcionesDeCobro()">
                     <span class="las la-credit-card icon"></span>
                     <span>Cobrar</span>
                 </button>
