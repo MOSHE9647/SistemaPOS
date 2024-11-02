@@ -69,9 +69,9 @@ class CompraPorPagarData extends Data{
             }
             
             $tablaVerificacion = ($verificarEnCompraPorPagar) ? TB_COMPRA_POR_PAGAR : TB_COMPRA;
-            $columVerificar = ($verificarEnCompraPorPagar) ? COMPRA_ID: COMPRA_ID;
+            $columEstado = ($verificarEnCompraPorPagar)? COMPRA_POR_PAGAR_ESTADO : COMPRA_ESTADO;
 
-            $query="SELECT " . COMPRA_ID. " FROM " . $tablaVerificacion ." WHERE " . COMPRA_ID. " = ? ";
+            $query="SELECT " . COMPRA_ID. " FROM " . $tablaVerificacion ." WHERE " . COMPRA_ID. " = ? AND ".$columEstado. " != FALSE ";
 
             $params=[$compraid];
             $types="i";
@@ -127,7 +127,7 @@ class CompraPorPagarData extends Data{
 
 
             if(!Utils::fechaMayorOIgualAHoy($fechaVence)){ 
-                $message = "Verificacion fecha vencimiento no valida . fecha vencimiento [$fechaVence]";
+                $mensaje = "Verificacion fecha vencimiento no valida . fecha vencimiento [$fechaVence]";
                 Utils::writeLog($mensaje,DATA_LOG_FILE,ERROR_MESSAGE,$this->className,__LINE__);
                 throw new  Exception("La fecha de vencimiento no es valida"); 
             }
@@ -135,9 +135,9 @@ class CompraPorPagarData extends Data{
             $result = $this->verificarComprar($compraId,false,false);
             if(!$result["success"]){ return $result; }
             if(!$result["exists"]){ 
-                $message = "Verificacion de la compra por pagar compra id no existe. compraID [$compraId]";
+                $mensaje = "Verificacion de la compra por pagar compra id no existe o esta inactiva. compraID [$compraId]";
                 Utils::writeLog($mensaje,DATA_LOG_FILE,ERROR_MESSAGE,$this->className,__LINE__);
-                throw new Exception("La compra no se ha creado."); 
+                throw new Exception("La compra no se ha creado o no es valida."); 
             }
 
             //verifica compra detalle en la tabla TB_COMPRA_POR_PAGAR
