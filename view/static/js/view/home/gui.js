@@ -357,22 +357,22 @@ export function mostrarOpcionesDeCobro() {
         }
     });
 
+    // Evitar que el formulario se envíe al presionar Enter
+    addEventListenerToElement('cliente-form', 'submit', event => event.preventDefault());
+
     // Inicializar el select de clientes
     initializeSelectCliente();
 
     // Agregar evento al botón de agregar cliente
-    const addClienteButton = document.getElementById('cliente-add-button');
-    if (addClienteButton) {
-        addClienteButton.addEventListener('click', () => {
-            const clienteForm = document.getElementById('cliente-form');
-            if (clienteForm) clienteForm.style.display = 'block';
+    addEventListenerToElement('cliente-add-button', 'click', () => {
+        const clienteForm = document.getElementById('cliente-form');
+        if (clienteForm) clienteForm.style.display = 'block';
 
-            const clienteSelect = document.getElementById('cliente-select');
-            if (clienteSelect) clienteSelect.disabled = true;
-            
-            initializeClienteForm();
-        });
-    }
+        const clienteSelect = document.getElementById('cliente-select');
+        if (clienteSelect) clienteSelect.disabled = true;
+        
+        initializeClienteForm();
+    });
 }
 
 export function obtenerValorImpuesto() {
@@ -505,84 +505,72 @@ function initializeSelectCliente(selectedID = -1) {
 }
 
 function initializeClienteForm() {
-    // Obtener el formulario de cliente
     const clienteForm = document.getElementById('cliente-form');
     if (!clienteForm) throw new Error('No se encontró el formulario de cliente.');
 
     if (clienteForm.style.display !== 'none') {
-        initializeSelects(); // Inicializar los selects de tipo y código de país
+        initializeSelects();
 
-        // Evitar que el formulario se envíe al presionar Enter
-        if (clienteForm) {
-            clienteForm.addEventListener('submit', event => {
-                event.preventDefault();
-            });
-        }
+        addEventListenerToElement('numero', 'input', manejarInputNumeroTelefono);
+        addEventListenerToElement('codigo-select', 'change', manejarInputNumeroTelefono);
+        addEventListenerToElement('cliente-cancel-button', 'click', handleClienteCancelClick);
+        addEventListenerToElement('cliente-save-button', 'click', handleClienteSaveClick);
+    }
+}
 
-        // Agregar evento al botón de cancelar cliente
-        const cancelClienteButton = document.getElementById('cliente-cancel-button');
-        if (cancelClienteButton) {
-            cancelClienteButton.addEventListener('click', () => {
-                const clienteForm = document.getElementById('cliente-form');
-                if (clienteForm) clienteForm.style.display = 'none';
-                
-                const clienteSelect = document.getElementById('cliente-select');
-                if (clienteSelect) clienteSelect.disabled = false;
-            });
-        }
+function addEventListenerToElement(elementId, event, handler) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.removeEventListener(event, handler);
+        element.addEventListener(event, handler);
+    }
+}
 
-        // Formatear el número de teléfono ingresado
-        const numeroInput = document.getElementById('numero');
-        if (numeroInput) numeroInput.addEventListener('input', manejarInputNumeroTelefono);
+function handleClienteCancelClick() {
+    const clienteForm = document.getElementById('cliente-form');
+    if (clienteForm) clienteForm.style.display = 'none';
+    
+    const clienteSelect = document.getElementById('cliente-select');
+    if (clienteSelect) clienteSelect.disabled = false;
+}
 
-        // Dar formato al número al cambiar el país
+async function handleClienteSaveClick() {
+    try {
+        const clienteForm = document.getElementById('cliente-form');
+        if (!clienteForm) throw new Error('No se encontró el formulario de cliente.');
+
         const codigoSelect = document.getElementById('codigo-select');
-        if (codigoSelect) codigoSelect.addEventListener('change', manejarInputNumeroTelefono);
+        if (!codigoSelect) throw new Error('No se encontró el select de código de país.');
 
-        // Agregar evento al botón de guardar cliente
-        const saveClienteButton = document.getElementById('cliente-save-button');
-        if (saveClienteButton) {
-            saveClienteButton.addEventListener('click', () => {
-                try {
-                    const clienteForm = document.getElementById('cliente-form');
-                    if (!clienteForm) return;
-
-                    if (!clienteForm.checkValidity()) {
-                        clienteForm.reportValidity();
-                        return;
-                    }
-
-                    // Obtener datos del formulario si es válido
-                    const nombre = document.getElementById('cliente-nombre').value || 'No Definido';
-                    const alias = document.getElementById('cliente-alias').value || 'No Definido';
-                    const tipo = document.getElementById('tipo-select').value;
-
-                    // Crear el objeto FormData
-                    const formData = new FormData();
-                    formData.append('accion', 'insertar');
-                    formData.append('nombre', nombre);
-                    formData.append('alias', alias);
-                    formData.append('tipo', tipo);
-                    formData.append('codigo', codigoSelect.value);
-                    formData.append('numero', numeroInput.value);
-
-                    // Crear el cliente
-                    crud.insertCliente(formData).then((clienteID) => {
-                        initializeSelectCliente(clienteID);
-
-                        // Limpiar los campos del formulario y ocultarlo
-                        clienteForm.reset();
-                        clienteForm.style.display = 'none';
-
-                        // Habilitar el select de clientes
-                        const clienteSelect = document.getElementById('cliente-select');
-                        if (clienteSelect) clienteSelect.disabled = false;
-                    }).catch(error => { throw error; });
-                } catch (error) {
-                    console.error(error);
-                    mostrarMensaje(`Error al guardar el cliente: ${error.message}`, 'error');
-                }
-            });
+        if (!clienteForm.checkValidity()) {
+            clienteForm.reportValidity();
+            return;
         }
+
+        const nombre = document.getElementById('cliente-nombre').value || 'No Definido';
+        const alias = document.getElementById('cliente-alias').value || 'No Definido';
+        const tipo = document.getElementById('tipo-select').value;
+        const numeroInput = document.getElementById('numero').value;
+
+        const formData = new FormData();
+        formData.append('accion', 'insertar');
+        formData.append('nombre', nombre);
+        formData.append('alias', alias);
+        formData.append('tipo', tipo);
+        formData.append('codigo', codigoSelect.value);
+        formData.append('numero', numeroInput);
+
+        const clienteID = await Promise.resolve(crud.insertCliente(formData));
+        if (clienteID !== -1) {
+            initializeSelectCliente(clienteID);
+            clienteForm.reset();
+            clienteForm.style.display = 'none';
+
+            const clienteSelect = document.getElementById('cliente-select');
+            if (clienteSelect) clienteSelect.disabled = false;
+        }
+    } catch (error) {
+        console.error(error);
+        mostrarMensaje(`Error al guardar el cliente: ${error.message}`, 'error');
     }
 }
