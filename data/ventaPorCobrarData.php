@@ -69,12 +69,25 @@ class VentaPorCobrarData extends Data {
                 $resultado = $this->ventadata->getVentaByID($row[VENTA_ID]);
                 if ($resultado["success"]){
                     $venta = $resultado["venta"];
-                    if ($venta->getVentaCliente()->getClienteID() ===intval($idCliente)){
-                        return["success"=>true, "exists"=>true];
+                    $mensaje = $row[VENTA_POR_COBRAR_CANCELADO];
+                    if ($venta->getVentaCliente()->getClienteID() ===intval($idCliente) && boolval($row[VENTA_POR_COBRAR_CANCELADO]) === false){
+                        $ventaCobrarObj = new VentaPorCobrar(
+                            $row[VENTA_POR_COBRAR_ID],
+                            $venta,
+                            $row[VENTA_POR_COBRAR_VENCIMIENTO],
+                            $row[VENTA_POR_COBRAR_CANCELADO],
+                            $row[VENTA_POR_COBRAR_NOTAS],
+                            $row[VENTA_POR_COBRAR_ESTADO]
+                        );
+                        $listaVentasCobrar[] = $ventaCobrarObj;
                     }
                 }
             }
-            return["success"=>true, "exists"=>false];
+            if (!empty($listaVentasCobrar)){
+                return["success"=>true, "exists"=>true,"listaVentasPorCobrar"=>$listaVentasCobrar];
+            }else{
+                return["success"=>true, "exists"=>false];
+            }
         }catch(Exception $e){
             $message = $this->handleMysqlError(
                 $e->getCode(),$e->getMessage(),
