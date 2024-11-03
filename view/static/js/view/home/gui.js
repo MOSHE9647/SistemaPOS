@@ -418,6 +418,28 @@ export function mostrarOpcionesDeCobro() {
                                 <button type="button" class="modal-close" id="cliente-cancel-button">Cancelar</button>
                             </div>
                         </form>
+                        <form id="cliente-deuda-form" class="cliente-form" style="display: none;">
+                            <div class="cliente-form-group">
+                                <div class="cliente-info input-select form">
+                                    <label for="cliente-deuda">Deuda:</label>
+                                    <input type="text" id="cliente-deuda" name="deuda" disabled>
+                                </div>
+                                <div class="cliente-info input-select form">
+                                    <label for="cliente-fecha-limite">Fecha Limite:</label>
+                                    <input type="date" id="cliente-fecha-limite" name="fecha-limite" disabled>
+                                </div>
+                            </div>
+                            <div class="cliente-form-group">
+                                <div class="cliente-info input-select form">
+                                    <label for="cliente-monto-abono">Monto a abonar:</label>
+                                    <input type="number" id="cliente-abono" name="abono" value="0.00" min="0" step="0.01">
+                                </div>
+                            </div>
+                            <div class="cliente-form-group form-buttons">
+                                <button type="submit" id="deuda-abonar-button" class="modal-confirm">Abonar</button>
+                                <button type="button" id="deuda-cancel-button" class="modal-close">Cancelar</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -442,17 +464,31 @@ export function mostrarOpcionesDeCobro() {
             actions: 'modal-actions',
         },
         preConfirm: () => {
-            mostrarMensaje('Venta realizada e impresa. (Sin Implementar)', 'success', 'Venta realizada');
-            return false;
+            return true;
         },
         preDeny: () => {
-            mostrarMensaje('Venta realizada sin imprimir ticket. (Sin Implementar)', 'success', 'Venta realizada');
-            return false;
+            return true;
         }
+    })
+    .then(result => {
+        if (result.isConfirmed) {
+            // Imprimir ticket
+            mostrarMensaje('Venta realizada e impresa. (Sin Implementar)', 'success', 'Venta realizada');
+            clearProductList(activeTableID);
+        } else if (result.isDenied) {
+            // No imprimir ticket
+            mostrarMensaje('Venta realizada sin imprimir ticket. (Sin Implementar)', 'success', 'Venta realizada');
+            clearProductList(activeTableID);
+        }
+        renderTable(productos[activeTableID]);
+    })
+    .catch(error => {
+            
     });
 
     // Evitar que el formulario se envíe al presionar Enter
     addEventListenerToElement('cliente-form', 'submit', event => event.preventDefault());
+    addEventListenerToElement('cliente-deuda-form', 'submit', event => event.preventDefault());
 
     // Inicializar el select de clientes
     initializeSelectCliente();
@@ -464,6 +500,9 @@ export function mostrarOpcionesDeCobro() {
 
         const clienteSelect = document.getElementById('cliente-select');
         if (clienteSelect) clienteSelect.disabled = true;
+
+        const clienteDeudaForm = document.getElementById('cliente-deuda-form');
+        if (clienteDeudaForm) clienteDeudaForm.style.display = 'none';
         
         initializeClienteForm();
     });
@@ -482,6 +521,9 @@ export function mostrarOpcionesDeCobro() {
             button.addEventListener('click', handlePaymentMethodChange);
         });
     }
+
+    // Agregar evento al select de clientes
+    addEventListenerToElement('cliente-select', 'change', handleClienteSelectChange);
 }
 
 export function obtenerValorImpuesto() {
@@ -714,5 +756,40 @@ function handlePaymentMethodChange(event) {
     // Scroll to the selected method container
     if (paymentMethods) {
         paymentMethods.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+}
+
+function handleClienteSelectChange(event) {
+    const clienteSelect = event.target.closest('#cliente-select');
+    if (!clienteSelect) return;
+
+    const clienteID = clienteSelect.value;
+    if (!clienteID) return;
+
+    // Obtenemos un número aleatorio entre el 0 (false) y el 1 (true)
+    const random = Math.round(Math.random());
+
+    // Simulamos una deuda aleatoria
+    const clienteDeudaForm = document.getElementById('cliente-deuda-form');
+    if (random) {
+        const deuda = Math.random() * 10000;
+        const vencimiento = getCurrentDate(10);
+        mostrarMensaje(`El cliente seleccionado tiene una deuda de &#162;${deuda.toFixed(2)} que vence el ${vencimiento}.`, 'info', 'Deuda del Cliente');
+
+        if (clienteDeudaForm) {
+            clienteDeudaForm.style.display = 'block';
+            clienteDeudaForm.querySelector('#cliente-deuda').value = `¢${deuda.toFixed(2)}`;
+            clienteDeudaForm.querySelector('#cliente-fecha-limite').value = vencimiento;
+            clienteDeudaForm.querySelector('#cliente-abono').value = deuda.toFixed(2);
+            clienteDeudaForm.querySelector('#cliente-abono').focus();
+            clienteDeudaForm.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            addEventListenerToElement('deuda-cancel-button', 'click', () => {
+                clienteDeudaForm.style.display = 'none';
+                clienteDeudaForm.reset();
+            });
+        }
+    } else {
+        // Si el cliente no tiene deuda, ocultar el formulario de deuda
+        if (clienteDeudaForm) clienteDeudaForm.style.display !== 'none' && (clienteDeudaForm.style.display = 'none');
     }
 }
