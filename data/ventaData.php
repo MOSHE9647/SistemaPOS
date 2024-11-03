@@ -5,7 +5,7 @@
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
     require_once dirname(__DIR__, 1) . '/utils/Variables.php';
 
-    Class VentaData extends Data{
+    class VentaData extends Data{
 
         // Nombre de la clase
         private $className;
@@ -282,17 +282,17 @@
                     throw new Exception("Error en la preparación de la consulta: " . mysqli_error($conn));
                 }
         
-     // Obtener los valores del objeto $venta  
-     $clienteID = $venta->getClienteID();
-     $ventaNumeroFactura = $venta->getVentaNumeroFactura(); 
-     $ventaMoneda = $venta->getVentaMoneda();
-     $ventaMontoBruto = $venta->getVentaMontoBruto();
-     $ventaMontoNeto = $venta->getVentaMontoNeto();
-     $ventaMontoImpuesto = $venta->getVentaMontoImpuesto();
-     $ventaCondicionVenta = $venta->getVentaCondicionVenta();
-     $ventaTipoPago = $venta->getVentaTipoPago();
-     $ventaFechaCreacion = $venta->getVentaFechaCreacion();
-     $ventaFechaModificacion = $venta->getVentaFechaModificacion();
+                // Obtener los valores del objeto $venta  
+                $clienteID = $venta->getClienteID();
+                $ventaNumeroFactura = $venta->getVentaNumeroFactura(); 
+                $ventaMoneda = $venta->getVentaMoneda();
+                $ventaMontoBruto = $venta->getVentaMontoBruto();
+                $ventaMontoNeto = $venta->getVentaMontoNeto();
+                $ventaMontoImpuesto = $venta->getVentaMontoImpuesto();
+                $ventaCondicionVenta = $venta->getVentaCondicionVenta();
+                $ventaTipoPago = $venta->getVentaTipoPago();
+                $ventaFechaCreacion = $venta->getVentaFechaCreacion();
+                $ventaFechaModificacion = $venta->getVentaFechaModificacion();
         
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
@@ -562,30 +562,30 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
                 $totalPages = ceil($totalRecords / $size);
 
                 // Construir la consulta SQL con joins para obtener nombres en lugar de IDs
-        $querySelect = "
-        SELECT 
-            v." . VENTA_ID . ", 
-            v." . VENTA_NUMERO_FACTURA . ",
-            cl.clientenombre AS clienteNombre,
-            v." . VENTA_MONTO_BRUTO . ", 
-            v." . VENTA_MONTO_NETO . ", 
-            v." . VENTA_TIPO_PAGO . ", 
-            v." . VENTA_CREACION . ", 
-            v." . VENTA_MODIFICACION . ", 
-            v." . VENTA_ESTADO . "
-        FROM " . TB_VENTA . " v
-        JOIN tbcliente cl ON v." . CLIENTE_ID . " = cl.clienteid
-        WHERE v." . VENTA_ESTADO . " != false
-    ";
-                    // Filtro de búsqueda
-        $params = [];
-        $types = "";
-        if ($search) {
-            $querySelect .= " AND (v." . VENTA_NUMERO_FACTURA . " LIKE ? OR cl.clientenombre LIKE ?)";
-            $searchParam = "%" . $search . "%";
-            $params = [$searchParam, $searchParam];
-            $types .= "ss";
-        }
+                $querySelect = "
+                SELECT 
+                    v." . VENTA_ID . ", 
+                    v." . VENTA_NUMERO_FACTURA . ",
+                    cl.clientenombre AS clienteNombre,
+                    v." . VENTA_MONTO_BRUTO . ", 
+                    v." . VENTA_MONTO_NETO . ", 
+                    v." . VENTA_TIPO_PAGO . ", 
+                    v." . VENTA_CREACION . ", 
+                    v." . VENTA_MODIFICACION . ", 
+                    v." . VENTA_ESTADO . "
+                FROM " . TB_VENTA . " v
+                JOIN tbcliente cl ON v." . CLIENTE_ID . " = cl.clienteid
+                WHERE v." . VENTA_ESTADO . " != false
+                ";
+                            // Filtro de búsqueda
+                $params = [];
+                $types = "";
+                if ($search) {
+                    $querySelect .= " AND (v." . VENTA_NUMERO_FACTURA . " LIKE ? OR cl.clientenombre LIKE ?)";
+                    $searchParam = "%" . $search . "%";
+                    $params = [$searchParam, $searchParam];
+                    $types .= "ss";
+                }
 
                     // Ordenamiento
                 if ($sort) {
@@ -609,19 +609,19 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
 
                 // Crear la lista de lotes
                 $listaVentas = [];
-        while ($row = mysqli_fetch_assoc($result)) {
-            $listaVentas[] = [
-                'ID' => $row[VENTA_ID],
-                'NumeroFactura' => $row[VENTA_NUMERO_FACTURA],
-                'Cliente' => $row['clienteNombre'],
-                'MontoBruto' => $row[VENTA_MONTO_BRUTO],
-                'MontoNeto' => $row[VENTA_MONTO_NETO],
-                'TipoPago' => $row[VENTA_TIPO_PAGO],
-                'FechaCreacion' => $row[VENTA_CREACION],
-                'FechaModificacion' => $row[VENTA_MODIFICACION],
-                'Estado' => $row[VENTA_ESTADO]
-            ];
-        }
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $listaVentas[] = [
+                        'ID' => $row[VENTA_ID],
+                        'NumeroFactura' => $row[VENTA_NUMERO_FACTURA],
+                        'Cliente' => $row['clienteNombre'],
+                        'MontoBruto' => $row[VENTA_MONTO_BRUTO],
+                        'MontoNeto' => $row[VENTA_MONTO_NETO],
+                        'TipoPago' => $row[VENTA_TIPO_PAGO],
+                        'FechaCreacion' => $row[VENTA_CREACION],
+                        'FechaModificacion' => $row[VENTA_MODIFICACION],
+                        'Estado' => $row[VENTA_ESTADO]
+                    ];
+                }
 
                 // Devolver el resultado con la lista de direcciones y metadatos de paginación
                 return [
@@ -692,10 +692,10 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
 
                  // Verifica si existe algún registro con los criterios dados
                  $venta = null;
-                 if ($row = mysqli_fetch_assoc($result)) {
+            if ($row = mysqli_fetch_assoc($result)) {
                     $venta = new Venta(
                     $row[VENTA_ID],
-                    $row[CLIENTE_ID],
+                    new Cliente($row[CLIENTE_ID]),
                     $row[VENTA_NUMERO_FACTURA],  
                     $row[VENTA_MONEDA],
                     $row[VENTA_MONTO_BRUTO],
@@ -706,9 +706,9 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
                     $row[VENTA_CREACION],
                     $row[VENTA_MODIFICACION],  
                     $row[VENTA_ESTADO]
-            );
+                    );
             return ["success" => true, "venta" => $venta];
-        }
+            }
         
                 // En caso de que no se haya encontrado el producto
                 $message = "No se encontró la venta con 'ID [$ventaID]' en la base de datos.";
