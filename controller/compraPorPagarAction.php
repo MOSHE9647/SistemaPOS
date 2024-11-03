@@ -30,8 +30,6 @@ if ($method == "POST") {
                 );
     
     $result = $compraPagarBusiness->validarCamposFecha($ObjetoCompra,($accion === 'actualizar')? true:false, true);
-    Utils::writeLog("Mensaje ".$result["message"]);
-
     if($result["is_valid"]){
             switch($accion){
                 case 'insertar':
