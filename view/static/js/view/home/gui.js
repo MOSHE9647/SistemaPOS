@@ -2,7 +2,7 @@
 // ************* Métodos para el manejo de la GUI ************* //
 // ************************************************************ //
 
-import { checkEmptyTable, manejarInputNumeroTelefono } from "../../utils.js";
+import { checkEmptyTable, getCurrentDate, manejarInputNumeroTelefono } from "../../utils.js";
 import { hideLoader, showLoader } from "../../gui/loader.js";
 import { obtenerListaImpuestos } from "../impuesto/crud.js";
 import { obtenerListaProductos } from "../producto/crud.js";
@@ -264,20 +264,112 @@ export function mostrarOpcionesDeCobro() {
         return;
     }
 
-    if (!productos[activeTable.id]) {
+    // Verificar si la lista de productos está vacía
+    if (!productos[activeTable.id] || productos[activeTable.id].length < 1) {
         mostrarMensaje('Debe seleccionar, al menos, un producto para cobrar.', 'warning');
         return;
     }
 
-    // Obtenemos el ID de la tabla y los datos de la venta
-    // const activeTableID = activeTable.id;
-    // const listaProductos = productos[activeTableID];
-    // const total = getTotal(activeTableID);
+    // Obtenemos el ID de la tabla activa
+    const activeTableID = activeTable.id;
     // const usuario = usuarioActual;
-    // console.log(listaProductos, total, usuario);
 
     let html = `
         <div class="modal-form-container">
+            <h2>Informaci&oacute;n de la Venta</h2>
+            <div class="sale-info">
+                <div class="sale-info container">
+                    <div class="sale-info info subtotal">
+                        <span>Subtotal:</span>
+                        <span id="sales-subtotal">&#162;${getSubtotal(activeTableID)}</span>
+                    </div>
+                    <div class="sale-info info impuesto">
+                        <span>Impuesto:</span>
+                        <span id="sales-impuesto">&#162;${getImpuesto(activeTableID)}</span>
+                    </div>
+                    <div class="sale-info info total">
+                        <span>Total:</span>
+                        <span id="sales-total">&#162;${getTotal(activeTableID)}</span>
+                    </div>
+                </div>
+            </div>
+
+            <h2>M&eacute;todo de Pago</h2>
+            <div class="payment-info">
+                <div class="payment-info methods" id="payment-methods">
+                    <div class="payment-info methods buttons">
+                        <button class="payment-method active" data-method="efectivo">
+                            <span class="las la-money-bill"></span>
+                            <span>Efectivo</span>
+                        </button>
+                        <button class="payment-method" data-method="tarjeta">
+                            <span class="las la-credit-card"></span>
+                            <span>Tarjeta</span>
+                        </button>
+                        <button class="payment-method" data-method="sinpe">
+                            <span class="las la-phone"></span>
+                            <span>SINPE Móvil</span>
+                        </button>
+                        <button class="payment-method" data-method="credito">
+                            <span class="las la-handshake"></span>
+                            <span>Cr&eacute;dito</span>
+                        </button>
+                        <button class="payment-method" data-method="multiple">
+                            <span class="las la-wallet"></span>
+                            <span>Combinado</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Efectivo -->
+                    <div class="payment-info methods container active" id="payment-method-efectivo">
+                        <div class="payment-info input-select container">
+                            <div class="payment-info methods input-select item">
+                                <label for="pago-efectivo">Pag&oacute; con:</label>
+                                <input type="number" id="pago-efectivo" name="pago" value="0.00" min="0" step="0.01">
+                            </div>
+                            <div class="payment-info methods input-select item">
+                                <label for="vuelto-efectivo">Su cambio:</label>
+                                <input type="number" id="vuelto-efectivo" name="vuelto-efectivo" value="0.00" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta -->
+                    <div class="payment-info methods container" id="payment-method-tarjeta">
+                        <div class="payment-info input-select container">
+                            <div class="payment-info methods input-select item">
+                                <label for="referencia-tarjeta">N&deg; de Referencia:</label>
+                                <input type="text" id="referencia-tarjeta" name="referencia">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SINPE Movil -->
+                    <div class="payment-info methods container" id="payment-method-sinpe">
+                        <div class="payment-info input-select container">
+                            <div class="payment-info methods input-select item">
+                                <label for="comprobante-sinpe">N&deg; de Comprobante:</label>
+                                <input type="number" id="comprobante-sinpe" name="comprobante" min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Credito -->
+                    <div class="payment-info methods container" id="payment-method-credito">
+                        <div class="payment-info input-select container">
+                            <div class="payment-info methods input-select item">
+                                <label for="vencimiento-credito">Plazo hasta:</label>
+                                <input type="date" id="vencimiento-credito" name="vencimiento" min="${getCurrentDate(1)}">
+                            </div>
+                            <div class="payment-info methods input-select item">
+                                <label for="notas">Notas Adicionales:</label>
+                                <input type="text" id="notas" name="notas">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <h2>Informaci&oacute;n del Cliente</h2>
             <div class="cliente-info">
                 <div class="cliente-info info">
@@ -326,6 +418,28 @@ export function mostrarOpcionesDeCobro() {
                                 <button type="button" class="modal-close" id="cliente-cancel-button">Cancelar</button>
                             </div>
                         </form>
+                        <form id="cliente-deuda-form" class="cliente-form" style="display: none;">
+                            <div class="cliente-form-group">
+                                <div class="cliente-info input-select form">
+                                    <label for="cliente-deuda">Deuda:</label>
+                                    <input type="text" id="cliente-deuda" name="deuda" disabled>
+                                </div>
+                                <div class="cliente-info input-select form">
+                                    <label for="cliente-fecha-limite">Fecha Limite:</label>
+                                    <input type="date" id="cliente-fecha-limite" name="fecha-limite" disabled>
+                                </div>
+                            </div>
+                            <div class="cliente-form-group">
+                                <div class="cliente-info input-select form">
+                                    <label for="cliente-monto-abono">Monto a abonar:</label>
+                                    <input type="number" id="cliente-abono" name="abono" value="0.00" min="0" step="0.01">
+                                </div>
+                            </div>
+                            <div class="cliente-form-group form-buttons">
+                                <button type="submit" id="deuda-abonar-button" class="modal-confirm">Abonar</button>
+                                <button type="button" id="deuda-cancel-button" class="modal-close">Cancelar</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -350,15 +464,31 @@ export function mostrarOpcionesDeCobro() {
             actions: 'modal-actions',
         },
         preConfirm: () => {
-            mostrarMensaje('Venta realizada e impresa.', 'success', 'Venta realizada');
+            return true;
         },
         preDeny: () => {
-            mostrarMensaje('Venta realizada sin imprimir ticket.', 'success', 'Venta realizada');
+            return true;
         }
+    })
+    .then(result => {
+        if (result.isConfirmed) {
+            // Imprimir ticket
+            mostrarMensaje('Venta realizada e impresa. (Sin Implementar)', 'success', 'Venta realizada');
+            clearProductList(activeTableID);
+        } else if (result.isDenied) {
+            // No imprimir ticket
+            mostrarMensaje('Venta realizada sin imprimir ticket. (Sin Implementar)', 'success', 'Venta realizada');
+            clearProductList(activeTableID);
+        }
+        renderTable(productos[activeTableID]);
+    })
+    .catch(error => {
+            
     });
 
     // Evitar que el formulario se envíe al presionar Enter
     addEventListenerToElement('cliente-form', 'submit', event => event.preventDefault());
+    addEventListenerToElement('cliente-deuda-form', 'submit', event => event.preventDefault());
 
     // Inicializar el select de clientes
     initializeSelectCliente();
@@ -370,9 +500,30 @@ export function mostrarOpcionesDeCobro() {
 
         const clienteSelect = document.getElementById('cliente-select');
         if (clienteSelect) clienteSelect.disabled = true;
+
+        const clienteDeudaForm = document.getElementById('cliente-deuda-form');
+        if (clienteDeudaForm) clienteDeudaForm.style.display = 'none';
         
         initializeClienteForm();
     });
+
+    // Agregar evento al input de cambio (efectivo)
+    addEventListenerToElement('pago-efectivo', 'input', () => {
+        const vuelto = document.getElementById('vuelto-efectivo');
+        if (vuelto) vuelto.value = getCambio('pago-efectivo');
+    });
+
+    // Agregar evento a los botones de métodos de pago
+    const paymentMethods = document.getElementById('payment-methods');
+    if (paymentMethods) {
+        const methodButtons = paymentMethods.querySelectorAll('.payment-method');
+        methodButtons.forEach(button => {
+            button.addEventListener('click', handlePaymentMethodChange);
+        });
+    }
+
+    // Agregar evento al select de clientes
+    addEventListenerToElement('cliente-select', 'change', handleClienteSelectChange);
 }
 
 export function obtenerValorImpuesto() {
@@ -402,13 +553,17 @@ export function getTotal(tabId) {
     return (parseFloat(getSubtotal(tabId)) + parseFloat(getImpuesto(tabId))).toFixed(2);
 }
 
-export function clearTable() {
-    const activeTable = getActiveTable();
-    if (!activeTable) return;
+export function getCambio(pagoInputID) {
+    const pago = parseFloat(document.getElementById(pagoInputID).value);
+    const total = parseFloat(getTotal(getActiveTable().id));
+    const cambio = pago - total;
+    return cambio > 0 ? cambio.toFixed(2) : 0.00;
+}
 
-    const activeTableID = activeTable.id;
+export function clearProductList(tabID = null) {
+    const activeTableID = tabID || (getActiveTable() && getActiveTable().id);
+    if (!activeTableID) return;
     productos[activeTableID] = [];
-    renderTable(productos[activeTableID]);
 }
 
 // Darle funcionalidad de click al producto seleccionado
@@ -572,5 +727,69 @@ async function handleClienteSaveClick() {
     } catch (error) {
         console.error(error);
         mostrarMensaje(`Error al guardar el cliente: ${error.message}`, 'error');
+    }
+}
+
+function handlePaymentMethodChange(event) {
+    const button = event.target.closest('.payment-method');
+    if (!button) return;
+
+    if (button.textContent.includes('Combinado')) {
+        mostrarMensaje('El método de pago combinado aún no está disponible.', 'info', 'Método de pago');
+        return;
+    }
+
+    const method = button.dataset.method;
+    const paymentMethods = document.getElementById('payment-methods');
+    if (!paymentMethods) return;
+
+    // Toggle active class on method containers
+    paymentMethods.querySelectorAll('.payment-info.methods.container').forEach(container => {
+        container.classList.toggle('active', container.id === `payment-method-${method}`);
+    });
+
+    // Toggle active class on method buttons
+    paymentMethods.querySelectorAll('.payment-method').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.method === method);
+    });
+
+    // Scroll to the selected method container
+    if (paymentMethods) {
+        paymentMethods.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+}
+
+function handleClienteSelectChange(event) {
+    const clienteSelect = event.target.closest('#cliente-select');
+    if (!clienteSelect) return;
+
+    const clienteID = clienteSelect.value;
+    if (!clienteID) return;
+
+    // Obtenemos un número aleatorio entre el 0 (false) y el 1 (true)
+    const random = Math.round(Math.random());
+
+    // Simulamos una deuda aleatoria
+    const clienteDeudaForm = document.getElementById('cliente-deuda-form');
+    if (random) {
+        const deuda = Math.random() * 10000;
+        const vencimiento = getCurrentDate(10);
+        mostrarMensaje(`El cliente seleccionado tiene una deuda de &#162;${deuda.toFixed(2)} que vence el ${vencimiento}.`, 'info', 'Deuda del Cliente');
+
+        if (clienteDeudaForm) {
+            clienteDeudaForm.style.display = 'block';
+            clienteDeudaForm.querySelector('#cliente-deuda').value = `¢${deuda.toFixed(2)}`;
+            clienteDeudaForm.querySelector('#cliente-fecha-limite').value = vencimiento;
+            clienteDeudaForm.querySelector('#cliente-abono').value = deuda.toFixed(2);
+            clienteDeudaForm.querySelector('#cliente-abono').focus();
+            clienteDeudaForm.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            addEventListenerToElement('deuda-cancel-button', 'click', () => {
+                clienteDeudaForm.style.display = 'none';
+                clienteDeudaForm.reset();
+            });
+        }
+    } else {
+        // Si el cliente no tiene deuda, ocultar el formulario de deuda
+        if (clienteDeudaForm) clienteDeudaForm.style.display !== 'none' && (clienteDeudaForm.style.display = 'none');
     }
 }

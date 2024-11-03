@@ -1,4 +1,5 @@
 import { mostrarMensaje } from "../../gui/notification.js";
+import { clearProductList } from "./gui.js";
 
 let tabCount = 1;
 
@@ -164,7 +165,8 @@ export function deleteTab(tabButton, tabContent) {
         return; //<- Salimos de la función
     }
     tabContainer.removeChild(tabContent);
-
+    clearProductList(tabContent.id); //<- Limpiamos la lista de productos que se encontraba en la pestaña
+    
     // Obtenemos el primer botón de las pestañas
     const firstTabButton = document.querySelector(".tab-button");
     if (firstTabButton) { //<- Si se encontró un botón
