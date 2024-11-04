@@ -72,6 +72,11 @@ async function cargarVista(url, contID) {
         const vista = url.split('=')[1];
         const text = await response.text();
 
+        if (text.includes('<title>Inicio de Sesi&oacute;n | POSFusion</title>')) {
+            window.location.href = `${window.baseURL}/index.php`;
+            return;
+        }
+
         if (text) {
             contenedor.innerHTML = text;
             cargarScripts(vista);

@@ -204,6 +204,11 @@
 	define('VENTA_MONTO_IMPUESTO'	, 'ventamontoimpuesto'); 		//<- Monto de Impuesto de la Venta
 	define('VENTA_CONDICION_VENTA'	, 'ventacondicionventa'); 		//<- Condición de la Venta
 	define('VENTA_TIPO_PAGO'		, 'ventatipopago'); 			//<- Tipo de Pago de la Venta
+	define('VENTA_TIPO_CAMBIO'		, 'ventatipocambio'); 			//<- Tipo de Cambio de la Venta
+	define('VENTA_MONTO_PAGO'		, 'ventamontopago'); 			//<- Monto Pagado por el Cliente
+	define('VENTA_MONTO_VUELTO'		, 'ventamontovuelto'); 			//<- Monto de VUELTO de la Venta
+	define('VENTA_REFERENCIA'		, 'ventareferenciatarjeta');	//<- Referencia de la Tarjeta de Crédito
+	define('VENTA_COMPROBANTE'		, 'ventacomprobantesinpe'); 	//<- Comprobante SINPE de la Venta
 	define('VENTA_CREACION'			, 'ventafechacreacion'); 		//<- Fecha de Creación de la Venta
 	define('VENTA_MODIFICACION'		, 'ventafechamodificacion'); 	//<- Fecha de Modificación de la Venta
 	define('VENTA_ESTADO'			, 'ventaestado'); 				//<- Estado de la Venta
@@ -239,10 +244,5 @@
     define('TB_PROVEEDOR_TELEFONO'		, 'tbproveedortelefono'); 			//<- Nombre de la Tabla
     define('PROVEEDOR_TELEFONO_ID'		, 'proveedortelefonoid'); 			//<- ID de la tabla proveedor-telefono
 	define('PROVEEDOR_TELEFONO_ESTADO'	, 'proveedortelefonoestado'); 		//<- Estado de la tabla proveedor-telefono
-
-	// TABLA INTERMEDIA PARA VentaDetalle Y Producto 'tbVentaDetalleProducto':
-	define('TB_VENTA_DETALLE_PRODUCTO'	, 'tbventadetalleproducto'); 		//<- Nombre de la Tabla
-	define('VENTA_DETALLE_PRODUCTO_ID'	, 'ventadetalleproductoid'); 		//<- ID de la tabla ventadetalle-producto
-	define('VENTA_DETALLE_PRODUCTO_ESTADO', 'ventadetalleproductoestado'); 	//<- Estado de la tabla ventadetalle-producto
 
 ?>

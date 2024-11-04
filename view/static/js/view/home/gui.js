@@ -15,6 +15,8 @@ import * as crud from "./crud.js";
 var productos = { [tab1]: [] };
 var totales = { 
     [tab1]: { 
+        moneda: 'CRC',
+        tipoCambio: 0.00,
         subtotal: 0.00, 
         impuesto: 0.00, 
         total: 0.00 
@@ -495,23 +497,37 @@ export function mostrarOpcionesDeCobro() {
             actions: 'modal-actions',
         },
         preConfirm: () => {
-            return true;
+            const venta = obtenerDatosDeVenta();
+            if (!venta) {
+                mostrarMensaje('Error al obtener los datos de la venta.', 'error', 'Error de venta');
+                return false;
+            }
+            return venta;
         },
         preDeny: () => {
-            return true;
+            const venta = obtenerDatosDeVenta();
+            if (!venta) {
+                mostrarMensaje('Error al obtener los datos de la venta.', 'error', 'Error de venta');
+                return false;
+            }
+            return venta;
         }
     })
     .then(result => {
-        if (result.isConfirmed) {
-            // Imprimir ticket
-            mostrarMensaje('Venta realizada e impresa. (Sin Implementar)', 'success', 'Venta realizada');
-            clearProductList(activeTableID);
-        } else if (result.isDenied) {
-            // No imprimir ticket
-            mostrarMensaje('Venta realizada sin imprimir ticket. (Sin Implementar)', 'success', 'Venta realizada');
-            clearProductList(activeTableID);
+        if (result.isConfirmed || result.isDenied) {
+            const venta = result.value;
+            if (result.isConfirmed) {
+                // Imprimir ticket
+                console.debug("Con Ticket: ", venta);
+                mostrarMensaje('Venta realizada e impresa. (Sin Implementar)', 'success', 'Venta realizada');
+            } else {
+                // No imprimir ticket
+                console.debug("Sin Ticket", venta);
+                mostrarMensaje('Venta realizada sin imprimir ticket. (Sin Implementar)', 'success', 'Venta realizada');
+            }
+            // clearProductList(activeTableID);
+            // renderTable(productos[activeTableID]);
         }
-        renderTable(productos[activeTableID]);
     })
     .catch(() => {
         mostrarMensaje('Error al realizar la operación.', 'error');
@@ -594,10 +610,68 @@ export function getTotal(tabId) {
 }
 
 export function getCambio(pagoInputID) {
-    const pago = parseFloat(document.getElementById(pagoInputID).value);
-    const total = parseFloat(getTotal(getActiveTable().id));
-    const cambio = pago - total;
-    return cambio > 0 ? cambio.toFixed(2) : 0.00;
+    const pago = parseFloat(document.getElementById(pagoInputID).value) || 0;
+    const activeTableID = getActiveTable().id;
+    const { moneda, tipoCambio } = totales[activeTableID];
+    const totalCRC = parseFloat(getTotal(activeTableID));
+    
+    // Convertir el pago a colones si la moneda no es CRC
+    const pagoEnColones = moneda === 'CRC' ? pago : pago * tipoCambio;
+    const cambio = pagoEnColones - totalCRC;
+    return cambio > 0 ? cambio.toFixed(2) : '0.00';
+}
+
+function obtenerDatosDeVenta() {
+    const activeTable = getActiveTable();
+    if (!activeTable) return null;
+
+    const activeTableID = activeTable.id;
+    const listaProductos = productos[activeTableID];
+
+    const clienteSelect = document.getElementById('cliente-select');
+    const clienteID = clienteSelect.value;
+    if (!clienteID) {
+        mostrarMensaje('No se seleccionó ningún cliente.', 'error', 'Error de cliente');
+        return null;
+    }
+
+    const paymentMethod = document.querySelector('.payment-method.active').dataset.method;
+    const paymentInfo = document.getElementById(`payment-method-${paymentMethod}`);
+    const paymentData = {};
+
+    switch (paymentMethod) {
+        case 'efectivo':
+            paymentData['pago'] = parseFloat(paymentInfo.querySelector('#pago-efectivo').value);
+            paymentData['vuelto'] = parseFloat(paymentInfo.querySelector('#vuelto-efectivo').value);
+            break;
+        case 'tarjeta':
+            paymentData['referencia'] = paymentInfo.querySelector('#referencia-tarjeta').value;
+            break;
+        case 'sinpe':
+            paymentData['comprobante'] = paymentInfo.querySelector('#comprobante-sinpe').value;
+            break;
+        case 'credito':
+            paymentData['vencimiento'] = paymentInfo.querySelector('#vencimiento-credito').value;
+            paymentData['notas'] = paymentInfo.querySelector('#notas').value;
+            break;
+        case 'multiple':
+            break;
+        default:
+            break;
+    }
+
+    return {
+        clienteID: clienteID, // ID del cliente
+        moneda: totales[activeTableID].moneda, // CRC, USD, EUR
+        montoNeto: parseFloat(totales[activeTableID].total),
+        montoBruto: parseFloat(totales[activeTableID].subtotal),
+        montoImpuesto: parseFloat(totales[activeTableID].impuesto),
+        tipoCambio: parseFloat(totales[activeTableID].tipoCambio),
+        condicion: paymentMethod === 'credito' ? 'CREDITO' : 'CONTADO',
+        tipoPago: paymentMethod.toUpperCase(),  // Efectivo, Tarjeta, SINPE, Credito, Combinado
+        paymentData: paymentData, // { pago, vuelto, referencia, comprobante, vencimiento, notas }
+        productos: listaProductos, // [{ producto: { ID, Nombre, PrecioCompra }, cantidad }]
+    };
 }
 
 export function clearProductList(tabID = null) {
@@ -894,16 +968,16 @@ function handleCurrencySelect(event) {
     if (!currencyInfo) return;
     
     const currency = currencySelect.value;
+    totales[getActiveTable().id].moneda = currency;
+
     fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`)
         .then(response => response.json())
         .then(data => {
             const rate = data.rates['CRC'];
+            totales[getActiveTable().id].tipoCambio = rate || 0.00;
             currencyInfo.innerHTML = `¢${rate ? rate.toFixed(2) : '0.00'}`;
-            // currencyInput.required = currency !== 'CRC';
-            // currencyInput.disabled = currency === 'CRC';
-            // currencyInput.focus();
-
             const currencySymbols = { 'USD': '$', 'EUR': '€', 'CRC': '¢' };
+
             if (currency !== 'CRC') {
                 mostrarMensaje(`El tipo de cambio actual es de ¢${rate.toFixed(2)} por ${currency}.`, 'info', 'Tipo de Cambio');
             }
