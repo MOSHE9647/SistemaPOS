@@ -144,3 +144,57 @@ export async function updateCliente(formData) {
         hideLoader(); // Ocultar el loader
     }
 }
+
+// /**
+//  * Obtiene las deudas de un cliente según su ID.
+//  *
+//  * @async
+//  * @function obtenerDeudasPorClienteID
+//  * @param {string} id - El ID del cliente a obtener.
+//  * @returns {Promise<Object>} Los datos del cliente si la solicitud es exitosa.
+//  * @throws {Error} Si la solicitud falla o el cliente no se encuentra.
+//  */
+// export async function obtenerDeudasPorClienteID(id) {
+//     const response = await fetch(`${window.baseURL}/controller/ventaPorCobrarAction.php?accion=cliente&clienteid=${id}`);
+
+//     if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener las deudas del cliente');
+//     const data = await verificarRespuestaJSON(response);
+    
+//     if (data.success) {
+//         return data.cliente;
+//     } else {
+//         throw new Error(data.message);
+//     }
+// }
+
+/**
+ * Obtiene las deudas de un cliente según su ID.
+ *
+ * @async
+ * @function obtenerDeudasPorClienteID
+ * @param {string} id - El ID del cliente a obtener.
+ * @returns {Promise<Object>} Un objeto con las propiedades success y deudas.
+ * @throws {Error} Si la solicitud falla.
+ */
+export async function obtenerDeudasPorClienteID(id) {
+    try {
+        const response = await fetch(`${window.baseURL}/controller/ventaPorCobrarAction.php?accion=cliente&clienteid=${id}`);
+        
+        if (!response.ok) {
+            mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener las deudas del cliente');
+            return { success: false, deudas: [] };
+        }
+
+        const data = await verificarRespuestaJSON(response);
+        if (!data.success || !data.exists) {
+            if (data.message) mostrarMensaje(data.message, 'error', 'Error al obtener las deudas del cliente');
+            return { success: false, deudas: [] };
+        }
+
+        mostrarMensaje(`El cliente seleccionado tiene deudas pendientes de pago.`, 'info', 'Deuda del Cliente');
+        return { success: true, deudas: data.listaVentasPorCobrar };
+    } catch (error) {
+        mostrarMensaje(error.message, 'error', 'Error al obtener las deudas del cliente');
+        return { success: false, deudas: [] };
+    }
+}

@@ -4,6 +4,13 @@
 	require_once './utils/Variables.php';
 	require_once './auth/auth.php'; // Incluye el archivo de autenticación
 
+	// Verifica si la sesión ha caducado
+	if (verificarSesionCaducada()) {
+		$LOGIN_URL = './view/auth/login.php';
+		header("Location: $LOGIN_URL");
+		exit();
+	}
+
 	// Verifica si el usuario está autenticado
 	$usuario = $_SESSION[SESSION_AUTHENTICATED_USER];
 
@@ -27,12 +34,6 @@
 
 	// Si la petición es vía AJAX, solo devuelve la vista sin toda la estructura    
 	if ($_SERVER['REQUEST_METHOD'] === 'GET' && $ajax) {
-		if (verificarSesionCaducada()) {
-			$LOGIN_URL = './view/auth/login.php';
-			header("Location: $LOGIN_URL");
-			exit();
-		}
-
 		$url = "./view/html";
 		$views = [
 			'ventas' => "${url}/links/ventas.php",

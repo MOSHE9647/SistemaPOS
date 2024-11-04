@@ -26,8 +26,8 @@
             float $ventaMontoBruto = 0.0,
             float $ventaMontoNeto = 0.0,
             float $ventaMontoImpuesto = 0.0,
-            string $ventaCondicionVenta = "Contado",
-            string $ventaTipoPago = "Efectivo",
+            string $ventaCondicionVenta = "CONTADO",
+            string $ventaTipoPago = "EFECTIVO",
             $ventaFechaCreacion = "",
             $ventaFechaModificacion = "",
             bool $ventaEstado = true
@@ -46,7 +46,6 @@
             $this->ventaEstado = $ventaEstado;
         }
         
-
         public function getVentaID(): int { return $this->ventaID; }
         public function getVentaCliente(): ?Cliente { return $this->ventaCliente; }
         public function getVentaNumeroFactura(): string { return $this->ventaNumeroFactura; }
@@ -72,7 +71,6 @@
         public function setVentaFechaCreacion($ventaFechaCreacion) { $this->ventaFechaCreacion = $ventaFechaCreacion; }
         public function setVentaFechaModificacion($ventaFechaModificacion) { $this->ventaFechaModificacion = $ventaFechaModificacion; }
         public function setVentaEstado(bool $ventaEstado) { $this->ventaEstado = $ventaEstado; }
-
 
         public function getClienteID(): ?int {
             return $this->ventaCliente ? $this->ventaCliente->getClienteID() : null;

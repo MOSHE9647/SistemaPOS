@@ -12,7 +12,14 @@ import { obtenerListaClientes } from "../cliente/crud.js";
 import * as crud from "./crud.js";
 
 // Variables globales
-let productos = { [tab1]: [] };
+var productos = { [tab1]: [] };
+var totales = { 
+    [tab1]: { 
+        subtotal: 0.00, 
+        impuesto: 0.00, 
+        total: 0.00 
+    } 
+};
 
 function getActiveTable() {
     // Obtener la tabla activa
@@ -45,6 +52,7 @@ export function renderTable(listaProductos) {
     // Obtener el ID de la tabla activa y guardar sus respectivos productos
     const activeTableID = activeTable.id;
     productos[activeTableID] = listaProductos;
+    totales[activeTableID] = { subtotal: 0.00, impuesto: 0.00, total: 0.00 };
 
     // Obtener el cuerpo de la tabla
     const tableBodyID = 'table-sales-body';
@@ -114,17 +122,15 @@ export function renderTable(listaProductos) {
     // Verificar si la tabla está vacía
     checkEmptyTable(tableBody, 'las la-box', true);
 
-    // Actualizar el subtotal
-    const subtotal = activeTable.querySelector('#sales-subtotal');
-    if (subtotal) subtotal.innerHTML = `&#162;${getSubtotal(activeTableID)}`;
+    // Actualizar el subtotal, impuesto y total
+    totales[activeTableID]['subtotal'] = getSubtotal(activeTableID);
+    totales[activeTableID]['impuesto'] = getImpuesto(activeTableID);
+    totales[activeTableID]['total'] = getTotal(activeTableID);
 
-    // Actualizar el impuesto
-    const impuesto = activeTable.querySelector('#sales-impuesto');
-    if (impuesto) impuesto.innerHTML = `&#162;${getImpuesto(activeTableID)}`;
-
-    // Actualizar el total
-    const total = activeTable.querySelector('#sales-total');
-    if (total) total.innerHTML = `&#162;${getTotal(activeTableID)}`;
+    ['subtotal', 'impuesto', 'total'].forEach(field => {
+        const span = activeTable.querySelector(`#sales-${field}`);
+        if (span) span.innerHTML = `&#162;${totales[activeTableID][field]}`;
+    });
 
     // const barcodeInput = document.getElementById('sales-search-input');
     // if (barcodeInput) barcodeInput.focus();
@@ -134,6 +140,12 @@ export function renderTable(listaProductos) {
     if (lastInput) lastInput.focus();
 }
 
+/**
+ * Agrega un producto a la tabla activa utilizando su código de barras.
+ * Si el código de barras contiene un signo de multiplicación, se interpreta como cantidad * código.
+ *
+ * @param {string} codigoBarras - El código de barras del producto, puede incluir una cantidad (ej. "3*x12345").
+ */
 export function agregarProducto(codigoBarras) {
     showLoader();
 
@@ -279,17 +291,34 @@ export function mostrarOpcionesDeCobro() {
             <h2>Informaci&oacute;n de la Venta</h2>
             <div class="sale-info">
                 <div class="sale-info container">
-                    <div class="sale-info info subtotal">
-                        <span>Subtotal:</span>
-                        <span id="sales-subtotal">&#162;${getSubtotal(activeTableID)}</span>
+                    <div class="sale-info details">
+                        <div class="sale-info info subtotal">
+                            <span>Subtotal:</span>
+                            <span id="sales-subtotal-info">¢${totales[activeTableID]['subtotal']}</span>
+                        </div>
+                        <div class="sale-info info impuesto">
+                            <span>Impuesto:</span>
+                            <span id="sales-impuesto-info">¢${totales[activeTableID]['impuesto']}</span>
+                        </div>
+                        <div class="sale-info info total">
+                            <span>Total:</span>
+                            <span id="sales-total-info">¢${totales[activeTableID]['total']}</span>
+                        </div>
                     </div>
-                    <div class="sale-info info impuesto">
-                        <span>Impuesto:</span>
-                        <span id="sales-impuesto">&#162;${getImpuesto(activeTableID)}</span>
-                    </div>
-                    <div class="sale-info info total">
-                        <span>Total:</span>
-                        <span id="sales-total">&#162;${getTotal(activeTableID)}</span>
+                    <div class="sale-info details">
+                        <div class="sale-info info currency">
+                            <span>Moneda:</span>
+                            <select id="currency-select" required>
+                                <option value="CRC">Colones</option>
+                                <option value="USD">Dólares</option>
+                                <option value="EUR">Euros</option>
+                            </select>
+                        </div>
+                        <div id="currency-input-container" class="sale-info info currency change">
+                            <span>Tipo de Cambio:</span>
+                            <span id="currency-change-info">¢0.00</span>
+                            <!-- <input type="number" id="currency-input" value="0.00" min="0" disabled> -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -298,23 +327,23 @@ export function mostrarOpcionesDeCobro() {
             <div class="payment-info">
                 <div class="payment-info methods" id="payment-methods">
                     <div class="payment-info methods buttons">
-                        <button class="payment-method active" data-method="efectivo">
+                        <button id="btn-method-efectivo" class="payment-method active" data-method="efectivo">
                             <span class="las la-money-bill"></span>
                             <span>Efectivo</span>
                         </button>
-                        <button class="payment-method" data-method="tarjeta">
+                        <button id="btn-method-tarjeta" class="payment-method" data-method="tarjeta">
                             <span class="las la-credit-card"></span>
                             <span>Tarjeta</span>
                         </button>
-                        <button class="payment-method" data-method="sinpe">
+                        <button id="btn-method-sinpe" class="payment-method" data-method="sinpe">
                             <span class="las la-phone"></span>
                             <span>SINPE Móvil</span>
                         </button>
-                        <button class="payment-method" data-method="credito">
+                        <button id="btn-method-credito" class="payment-method" data-method="credito">
                             <span class="las la-handshake"></span>
                             <span>Cr&eacute;dito</span>
                         </button>
-                        <button class="payment-method" data-method="multiple">
+                        <button id="btn-method-multiple" class="payment-method" data-method="multiple">
                             <span class="las la-wallet"></span>
                             <span>Combinado</span>
                         </button>
@@ -422,7 +451,9 @@ export function mostrarOpcionesDeCobro() {
                             <div class="cliente-form-group">
                                 <div class="cliente-info input-select form">
                                     <label for="cliente-deuda">Deuda:</label>
-                                    <input type="text" id="cliente-deuda" name="deuda" disabled>
+                                    <select id="cliente-deuda" name="deuda">
+                                        <option value="">-- Seleccionar --</option>
+                                    </select>
                                 </div>
                                 <div class="cliente-info input-select form">
                                     <label for="cliente-fecha-limite">Fecha Limite:</label>
@@ -482,8 +513,8 @@ export function mostrarOpcionesDeCobro() {
         }
         renderTable(productos[activeTableID]);
     })
-    .catch(error => {
-            
+    .catch(() => {
+        mostrarMensaje('Error al realizar la operación.', 'error');
     });
 
     // Evitar que el formulario se envíe al presionar Enter
@@ -496,13 +527,19 @@ export function mostrarOpcionesDeCobro() {
     // Agregar evento al botón de agregar cliente
     addEventListenerToElement('cliente-add-button', 'click', () => {
         const clienteForm = document.getElementById('cliente-form');
-        if (clienteForm) clienteForm.style.display = 'block';
+        if (clienteForm) {
+            clienteForm.style.display = 'block'
+            clienteForm.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        };
 
         const clienteSelect = document.getElementById('cliente-select');
         if (clienteSelect) clienteSelect.disabled = true;
 
         const clienteDeudaForm = document.getElementById('cliente-deuda-form');
-        if (clienteDeudaForm) clienteDeudaForm.style.display = 'none';
+        if (clienteDeudaForm) {
+            clienteDeudaForm.style.display = 'none';
+            clienteDeudaForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
         
         initializeClienteForm();
     });
@@ -518,12 +555,15 @@ export function mostrarOpcionesDeCobro() {
     if (paymentMethods) {
         const methodButtons = paymentMethods.querySelectorAll('.payment-method');
         methodButtons.forEach(button => {
-            button.addEventListener('click', handlePaymentMethodChange);
+            addEventListenerToElement(button.id, 'click', event => handlePaymentMethodChange(event));
         });
     }
 
     // Agregar evento al select de clientes
     addEventListenerToElement('cliente-select', 'change', handleClienteSelectChange);
+
+    // Agregar evento al select de tipo de moneda
+    addEventListenerToElement('currency-select', 'change', event => handleCurrencySelect(event));
 }
 
 export function obtenerValorImpuesto() {
@@ -564,6 +604,7 @@ export function clearProductList(tabID = null) {
     const activeTableID = tabID || (getActiveTable() && getActiveTable().id);
     if (!activeTableID) return;
     productos[activeTableID] = [];
+    totales[activeTableID] = { subtotal: 0.00, impuesto: 0.00, total: 0.00 };
 }
 
 // Darle funcionalidad de click al producto seleccionado
@@ -683,7 +724,10 @@ function addEventListenerToElement(elementId, event, handler) {
 
 function handleClienteCancelClick() {
     const clienteForm = document.getElementById('cliente-form');
-    if (clienteForm) clienteForm.style.display = 'none';
+    if (clienteForm) {
+        clienteForm.style.display = 'none';
+        clienteForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
     
     const clienteSelect = document.getElementById('cliente-select');
     if (clienteSelect) clienteSelect.disabled = false;
@@ -766,30 +810,119 @@ function handleClienteSelectChange(event) {
     const clienteID = clienteSelect.value;
     if (!clienteID) return;
 
-    // Obtenemos un número aleatorio entre el 0 (false) y el 1 (true)
-    const random = Math.round(Math.random());
-
-    // Simulamos una deuda aleatoria
+    // Obtener el formulario de deuda
     const clienteDeudaForm = document.getElementById('cliente-deuda-form');
-    if (random) {
-        const deuda = Math.random() * 10000;
-        const vencimiento = getCurrentDate(10);
-        mostrarMensaje(`El cliente seleccionado tiene una deuda de &#162;${deuda.toFixed(2)} que vence el ${vencimiento}.`, 'info', 'Deuda del Cliente');
+    if (!clienteDeudaForm) {
+        mostrarMensaje('No se encontró el formulario de deudas.', 'error');
+        return;
+    };
 
-        if (clienteDeudaForm) {
-            clienteDeudaForm.style.display = 'block';
-            clienteDeudaForm.querySelector('#cliente-deuda').value = `¢${deuda.toFixed(2)}`;
-            clienteDeudaForm.querySelector('#cliente-fecha-limite').value = vencimiento;
-            clienteDeudaForm.querySelector('#cliente-abono').value = deuda.toFixed(2);
-            clienteDeudaForm.querySelector('#cliente-abono').focus();
-            clienteDeudaForm.scrollIntoView({ behavior: 'smooth', block: 'end' });
-            addEventListenerToElement('deuda-cancel-button', 'click', () => {
-                clienteDeudaForm.style.display = 'none';
-                clienteDeudaForm.reset();
-            });
+    // Obtener las deudas del cliente seleccionado
+    crud.obtenerDeudasPorClienteID(clienteID).then(result => {
+        // Verificar si el cliente tiene deudas
+        const deudas = result.deudas;
+        if (!deudas || deudas.length < 1) {
+            // Si el cliente no tiene deudas, ocultar el formulario de deuda
+            clienteDeudaForm.style.display !== 'none' && (clienteDeudaForm.style.display = 'none');
+            console.log('El cliente no tiene deudas: ', deudas);
+            return;
         }
-    } else {
-        // Si el cliente no tiene deuda, ocultar el formulario de deuda
-        if (clienteDeudaForm) clienteDeudaForm.style.display !== 'none' && (clienteDeudaForm.style.display = 'none');
-    }
+
+        // Obtenemos el select de deudas del cliente y lo llenamos con las deudas obtenidas
+        const deudaSelect = clienteDeudaForm.querySelector('#cliente-deuda');
+        if (!deudaSelect) throw new Error('No se encontró el select de deudas.');
+
+        // Limpiar el select de deudas
+        deudaSelect.innerHTML = '';
+        deudas.forEach(deuda => {
+            const option = document.createElement('option');
+            option.value = deuda.ID;
+            option.text = `¢${deuda.Venta.MontoNeto.toFixed(2)} - Factura N° ${deuda.Venta.NumeroFactura}`;
+            deudaSelect.add(option);
+        });
+        deudaSelect.selectedIndex = 0;
+
+        // Manejar el cambio de selección de deuda
+        addEventListenerToElement(deudaSelect.id, 'change', () => {
+            if (deudas.length < 1) {
+                clienteDeudaForm.style.display !== 'none' && (clienteDeudaForm.style.display = 'none');
+                mostrarMensaje('El cliente seleccionado ya no tiene deudas pendientes.', 'info', 'Deuda del Cliente');
+                clienteDeudaForm.reset();
+                return;
+            }
+
+            const deuda = deudas.find(d => d.ID === parseInt(deudaSelect.value, 10));
+            if (!deuda) return;
+
+            // Obtener los datos de la deuda seleccionada
+            const vencimiento = deuda.VencimientoISO;
+            const monto = deuda.Venta.MontoNeto.toFixed(2);
+
+            // Actualizar los campos del formulario de deuda
+            clienteDeudaForm.querySelector('#cliente-fecha-limite').value = vencimiento;
+            clienteDeudaForm.querySelector('#cliente-abono').value = monto;
+            clienteDeudaForm.querySelector('#cliente-abono').max = monto;
+            clienteDeudaForm.querySelector('#cliente-abono').focus();
+        });
+
+        // Disparar el evento de cambio para inicializar los campos
+        deudaSelect.dispatchEvent(new Event('change'));
+
+        // Agregar evento al botón de cancelar
+        addEventListenerToElement('deuda-cancel-button', 'click', () => {
+            clienteDeudaForm.style.display !== 'none' && (clienteDeudaForm.style.display = 'none');
+            clienteDeudaForm.reset();
+        });
+        
+        // Mostrar el formulario de deuda
+        clienteDeudaForm.style.display = 'block';
+        if (clienteDeudaForm) clienteDeudaForm.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }).catch(error => {
+        console.error(error);
+        mostrarMensaje(`Error al obtener las deudas del cliente: ${error.message}`, 'error', 'Error de deuda');
+    });
+}
+
+function handleCurrencySelect(event) {
+    const currencySelect = event.target.closest('#currency-select');
+    if (!currencySelect) return;
+
+    const currencyContainer = document.getElementById('currency-input-container');
+    if (!currencyContainer) return;
+
+    const currencyInfo = currencyContainer.querySelector('#currency-change-info');
+    if (!currencyInfo) return;
+    
+    const currency = currencySelect.value;
+    fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`)
+        .then(response => response.json())
+        .then(data => {
+            const rate = data.rates['CRC'];
+            currencyInfo.innerHTML = `¢${rate ? rate.toFixed(2) : '0.00'}`;
+            // currencyInput.required = currency !== 'CRC';
+            // currencyInput.disabled = currency === 'CRC';
+            // currencyInput.focus();
+
+            const currencySymbols = { 'USD': '$', 'EUR': '€', 'CRC': '¢' };
+            if (currency !== 'CRC') {
+                mostrarMensaje(`El tipo de cambio actual es de ¢${rate.toFixed(2)} por ${currency}.`, 'info', 'Tipo de Cambio');
+            }
+
+            const updateCurrencyValues = (field, rate, currencySymbol) => {
+                const element = document.getElementById(`sales-${field}-info`);
+                const activeTableID = getActiveTable().id;
+                if (element) {
+                    const value = parseFloat(totales[activeTableID][field]);
+                    const newValue = currency === 'CRC' ? value * rate : value / rate;
+                    element.innerHTML = `${currencySymbol}${newValue.toFixed(2)}`;
+                }
+            };
+
+            ['subtotal', 'impuesto', 'total'].forEach(field => {
+                updateCurrencyValues(field, rate, currencySymbols[currency]);
+            });
+        })
+        .catch(error => {
+            mostrarMensaje(`Error al obtener el tipo de cambio: ${error.message}`, 'error', 'Error de cambio');
+        });
 }
