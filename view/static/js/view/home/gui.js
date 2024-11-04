@@ -519,6 +519,7 @@ export function mostrarOpcionesDeCobro() {
             if (result.isConfirmed) {
                 // Imprimir ticket
                 console.debug("Con Ticket: ", venta);
+                crud.insertVentaDetalle(venta);
                 mostrarMensaje('Venta realizada e impresa. (Sin Implementar)', 'success', 'Venta realizada');
             } else {
                 // No imprimir ticket

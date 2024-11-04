@@ -1,6 +1,14 @@
 <?php
 
     require_once dirname(__DIR__, 1) . '/service/ventaDetalleBusiness.php';
+    require_once dirname(__DIR__, 1) . '/domain/VentaDetalle.php';
+    require_once dirname(__DIR__, 1) . '/domain/CodigoBarras.php';
+    require_once dirname(__DIR__, 1) . '/domain/Subcategoria.php';
+    require_once dirname(__DIR__, 1) . '/domain/Presentacion.php';
+    require_once dirname(__DIR__, 1) . '/domain/Categoria.php';
+    require_once dirname(__DIR__, 1) . '/domain/Producto.php';
+    require_once dirname(__DIR__, 1) . '/domain/Marca.php';
+    require_once dirname(__DIR__, 1) . '/domain/Venta.php';
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
     $response = [];                                         // Respuesta a enviar al cliente
@@ -15,33 +23,35 @@
         }
 
         // Datos de VentaDetalle recibidos en la solicitud
-        $ventaDetalleID   = isset($_POST['id'])              ? intval($_POST['id'])              : -1;
-        $ventaID          = isset($_POST['venta_id'])        ? intval($_POST['venta_id'])        : -1;
-        $precio           = isset($_POST['precio'])          ? floatval($_POST['precio'])        : 0.0;
-        $cantidad         = isset($_POST['cantidad'])        ? intval($_POST['cantidad'])        : 0;
-        $estado           = isset($_POST['estado'])          ? boolval($_POST['estado'])         : true;
+        $listaDetalles = isset($_POST['detalles']) ? json_decode($_POST['detalles']) : null;
+        if (empty($listaDetalles)) {
+            Utils::enviarRespuesta(400, false, "No se han recibido los datos de la venta.");
+        }
 
-        // Crear un objeto VentaDetalle con los datos recibidos
-        $ventaDetalle = new VentaDetalle($ventaDetalleID, $precio, $cantidad, new Venta($ventaID), $estado);
+        // Crear un arreglo de detalles de venta
+        $detalles = [];
+        foreach ($listaDetalles as $detalle) {
+            // Crear un objeto VentaDetalle con los datos recibidos
+            $ventaDetalle = VentaDetalle::fromArray(get_object_vars($detalle));
 
-        // Validación y acciones
-        $check = $ventaDetalleBusiness->validarVentaDetalle($ventaDetalle, $accion != 'eliminar', $accion == 'insertar');
-        if ($check['is_valid']) {
-            switch ($accion) {
-                case 'insertar':
-                    $response = $ventaDetalleBusiness->insertVentaDetalle($ventaDetalle);
-                    break;
-                case 'actualizar':
-                    $response = $ventaDetalleBusiness->updateVentaDetalle($ventaDetalle);
-                    break;
-                case 'eliminar':
-                    $response = $ventaDetalleBusiness->deleteVentaDetalle($ventaDetalleID);
-                    break;
-                default:
-                    Utils::enviarRespuesta(400, false, "Acción no válida.");
-            }
-        } else {
-            Utils::enviarRespuesta(400, false, $check['message']);
+            // $check = $ventaDetalleBusiness->validarVentaDetalle($ventaDetalle, $accion != 'eliminar', $accion == 'insertar');
+            // if (!$check['is_valid']) Utils::enviarRespuesta(400, false, $check['message']);
+
+            array_push($detalles, $ventaDetalle);
+        }
+
+        switch ($accion) {
+            case 'insertar':
+                $response = $ventaDetalleBusiness->insertVentaDetalle($ventaDetalle);
+                break;
+            case 'actualizar':
+                $response = $ventaDetalleBusiness->updateVentaDetalle($ventaDetalle);
+                break;
+            case 'eliminar':
+                $response = $ventaDetalleBusiness->deleteVentaDetalle($ventaDetalleID);
+                break;
+            default:
+                Utils::enviarRespuesta(400, false, "Acción no válida.");
         }
 
         // Enviar respuesta al cliente

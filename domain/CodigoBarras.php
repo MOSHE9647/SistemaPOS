@@ -23,6 +23,14 @@
         function setCodigoBarrasNumero(string $codigoBarrasNumero) { $this->codigoBarrasNumero = $codigoBarrasNumero; }
         function setCodigoBarrasEstado(bool $codigoBarrasEstado) { $this->codigoBarrasEstado = $codigoBarrasEstado; }
 
+        public static function fromArray(array $codigoBarras): CodigoBarras {
+            return new CodigoBarras(
+                $codigoBarras['ID'] ?? -1,
+                $codigoBarras['Numero'] ?? "",
+                $codigoBarras['Estado'] ?? true
+            );
+        }
+
         function jsonSerialize() {
             return [
                 'ID' => $this->codigoBarrasID,

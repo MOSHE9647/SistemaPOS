@@ -101,6 +101,25 @@
             return $this->ventaCliente ? $this->ventaCliente->getClienteID() : null;
         }
 
+        public static function fromArray(array $venta): Venta {
+            return new Venta(
+                intval($venta['ID']) ?? -1,
+                isset($venta['Cliente']) ? new Cliente( intval($venta['Cliente']) ) : null,
+                Utils::generateCodeFromUUID(15), // Número de factura generado automáticamente (15 caracteres)
+                $venta['Moneda'] ?? "CRC",
+                floatval($venta['MontoBruto']) ?? 0.0,
+                floatval($venta['MontoNeto']) ?? 0.0,
+                floatval($venta['MontoImpuesto']) ?? 0.0,
+                $venta['Condicion'] ?? "CONTADO",
+                $venta['TipoPago'] ?? "EFECTIVO",
+                floatval($venta['TipoCambio']) ?? 0.0,
+                floatval($venta['MontoPago']) ?? 0.0,
+                floatval($venta['MontoVuelto']) ?? 0.0,
+                $venta['ReferenciaTarjeta'] ?? "",
+                $venta['ComprobanteSINPE'] ?? ""
+            );
+        }
+
         public function jsonSerialize() {
             return [
                 'ID' => $this->ventaID,

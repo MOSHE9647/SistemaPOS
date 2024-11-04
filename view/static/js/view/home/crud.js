@@ -145,28 +145,6 @@ export async function updateCliente(formData) {
     }
 }
 
-// /**
-//  * Obtiene las deudas de un cliente según su ID.
-//  *
-//  * @async
-//  * @function obtenerDeudasPorClienteID
-//  * @param {string} id - El ID del cliente a obtener.
-//  * @returns {Promise<Object>} Los datos del cliente si la solicitud es exitosa.
-//  * @throws {Error} Si la solicitud falla o el cliente no se encuentra.
-//  */
-// export async function obtenerDeudasPorClienteID(id) {
-//     const response = await fetch(`${window.baseURL}/controller/ventaPorCobrarAction.php?accion=cliente&clienteid=${id}`);
-
-//     if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener las deudas del cliente');
-//     const data = await verificarRespuestaJSON(response);
-    
-//     if (data.success) {
-//         return data.cliente;
-//     } else {
-//         throw new Error(data.message);
-//     }
-// }
-
 /**
  * Obtiene las deudas de un cliente según su ID.
  *
@@ -196,5 +174,93 @@ export async function obtenerDeudasPorClienteID(id) {
     } catch (error) {
         mostrarMensaje(error.message, 'error', 'Error al obtener las deudas del cliente');
         return { success: false, deudas: [] };
+    }
+}
+
+/**
+ * Crea un nuevo detalle de venta enviando una solicitud POST al servidor.
+ * 
+ * @description Esta función envía los datos del formulario del detalle de venta al servidor para crear un nuevo detalle de venta.
+ *              Si la solicitud es exitosa, muestra un mensaje de éxito y recarga los datos de los detalles de venta.
+ *              Si la solicitud falla, muestra un mensaje de error. Si el detalle de venta ya existe pero está inactivo,
+ *              pregunta al usuario si desea actualizarlo.
+ * 
+ * @example
+ * insertVentaDetalle(datosVenta);
+ * 
+ * @param {Object} datosVenta - Los datos del detalle de venta.
+ * @returns {void}
+ */
+export async function insertVentaDetalle(datosVenta) {
+    showLoader(); // Mostrar el loader
+
+    const venta = {
+        Cliente: datosVenta.clienteID,
+        Moneda: datosVenta.moneda,
+        MontoBruto: datosVenta.montoBruto,
+        MontoNeto: datosVenta.montoNeto,
+        MontoImpuesto: datosVenta.montoImpuesto,
+        Condicion: datosVenta.condicion,
+        TipoPago: datosVenta.tipoPago,
+        TipoCambio: datosVenta.tipoCambio,
+        MontoPago: datosVenta.paymentData.pago || 0.00,
+        MontoVuelto: datosVenta.paymentData.vuelto || 0.00,
+        ReferenciaTarjeta: datosVenta.paymentData.referencia || '',
+        ComprobanteSINPE: datosVenta.paymentData.comprobante || '',
+    };
+
+    const listaVentaDetalle = datosVenta.productos.map(data => {
+        return {
+            Precio: data.producto.PrecioCompra,
+            Cantidad: data.cantidad,
+            Venta: venta,
+            Producto: data.producto,
+        }
+    });
+
+    try {
+        // Enviar la solicitud POST al servidor con los datos del detalle de venta
+        const response = await fetch(`${window.baseURL}/controller/ventaDetalleAction.php`, {
+            method: 'POST',
+            body: new URLSearchParams({
+                accion: 'insertar',
+                detalles: JSON.stringify(listaVentaDetalle)
+            })
+        });
+        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el detalle de venta');
+        const data = await verificarRespuestaJSON(response);
+        
+        // Verificar si hubo un error en la solicitud
+        if (!data.success) {
+            mostrarMensaje(data.message, 'error', 'Error al crear el detalle de venta');
+            return; // Salir de la función si hay error
+        }
+
+        // // Si el detalle de venta está inactivo, preguntar al usuario si desea actualizarlo
+        // if (data.inactive) {
+        //     const confirmacion = confirm(data.message);
+        //     if (!confirmacion) {
+        //         mostrarMensaje("Se canceló la creación del detalle de venta", 'info', 'Creación cancelada');
+        //         return -1; // Salir de la función si se cancela la actualización
+        //     }
+
+        //     // Intentar actualizar el detalle de venta existente
+        //     const ventaDetalle = await obtenerVentaDetallePorID(parseInt(data.id), true, true);
+        //     formData.set('accion', 'actualizar');
+        //     formData.append('id', ventaDetalle.ID);
+        //     formData.append('producto', ventaDetalle.Producto.ID);
+        //     updateVentaDetalle(formData); // Actualizar el detalle de venta
+        //     return parseInt(data.id); // Salir de la función
+        // }
+
+        // Mostrar mensaje de éxito y recargar los detalles de venta
+        mostrarMensaje(data.message, 'success');
+        return;
+    } catch (error) {
+        // Mostrar mensaje de error detallado
+        mostrarMensaje(`Ocurrió un error al crear el detalle de venta.<br>${error}`, 'error', 'Error al crear el detalle de venta');
+        return;
+    } finally {
+        hideLoader(); // Ocultar el loader
     }
 }

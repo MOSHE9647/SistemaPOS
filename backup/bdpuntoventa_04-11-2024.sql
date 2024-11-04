@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 04-11-2024 a las 22:47:26
+-- Tiempo de generación: 04-11-2024 a las 18:54:24
 -- Versión del servidor: 8.0.39-0ubuntu0.24.04.2
 -- Versión de PHP: 8.3.6
 
@@ -497,11 +497,6 @@ CREATE TABLE `tbventa` (
   `ventamontoimpuesto` decimal(10,2) NOT NULL,
   `ventacondicionventa` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Crédito o Contado',
   `ventatipopago` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Efectivo, Tarjeta, Sinpe',
-  `ventatipocambio` decimal(10,2) NOT NULL,
-  `ventamontopago` decimal(10,2) DEFAULT NULL,
-  `ventamontovuelto` decimal(10,2) DEFAULT NULL,
-  `ventareferenciatarjeta` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `ventacomprobantesinpe` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ventafechacreacion` datetime NOT NULL DEFAULT (now()),
   `ventafechamodificacion` datetime NOT NULL DEFAULT (now()),
   `ventaestado` tinyint NOT NULL DEFAULT (_utf8mb4'1')
@@ -511,9 +506,9 @@ CREATE TABLE `tbventa` (
 -- Volcado de datos para la tabla `tbventa`
 --
 
-INSERT INTO `tbventa` (`ventaid`, `clienteid`, `ventanumerofactura`, `ventamoneda`, `ventamontobruto`, `ventamontoneto`, `ventamontoimpuesto`, `ventacondicionventa`, `ventatipopago`, `ventatipocambio`, `ventamontopago`, `ventamontovuelto`, `ventareferenciatarjeta`, `ventacomprobantesinpe`, `ventafechacreacion`, `ventafechamodificacion`, `ventaestado`) VALUES
-(1, 1, '921547364850236', 'CRC', 1500.00, 1695.00, 195.00, 'CREDITO', 'EFECTIVO', 0.00, 0.00, 0.00, '', '', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 1),
-(2, 1, '921547364850237', 'CRC', 3100.00, 3503.00, 403.00, 'CREDITO', 'EFECTIVO', 0.00, 0.00, 0.00, '', '', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 1);
+INSERT INTO `tbventa` (`ventaid`, `clienteid`, `ventanumerofactura`, `ventamoneda`, `ventamontobruto`, `ventamontoneto`, `ventamontoimpuesto`, `ventacondicionventa`, `ventatipopago`, `ventafechacreacion`, `ventafechamodificacion`, `ventaestado`) VALUES
+(1, 1, '921547364850236', 'CRC', 1500.00, 1695.00, 195.00, 'CREDITO', 'EFECTIVO', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 1),
+(2, 1, '921547364850237', 'CRC', 3100.00, 3503.00, 403.00, 'CREDITO', 'EFECTIVO', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 1);
 
 -- --------------------------------------------------------
 
@@ -524,11 +519,24 @@ INSERT INTO `tbventa` (`ventaid`, `clienteid`, `ventanumerofactura`, `ventamoned
 CREATE TABLE `tbventadetalle` (
   `ventadetalleid` int NOT NULL,
   `ventaid` int NOT NULL,
-  `productoid` int NOT NULL,
   `ventadetalleprecio` decimal(10,2) NOT NULL,
   `ventadetallecantidad` int NOT NULL,
   `ventadetalleestado` tinyint NOT NULL DEFAULT (_utf8mb4'1')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbventadetalleproducto`
+--
+
+CREATE TABLE `tbventadetalleproducto` (
+  `ventadetalleproductoid` int NOT NULL,
+  `ventadetalleid` int NOT NULL,
+  `productoid` int NOT NULL,
+  `ventadetalleproductoestado` tinyint NOT NULL DEFAULT '1',
+  `ventadetalleproductocantidad` int(10) UNSIGNED ZEROFILL NOT NULL DEFAULT '0000000001'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tabla intermedia para los porductos de cada venta';
 
 -- --------------------------------------------------------
 
@@ -682,6 +690,12 @@ ALTER TABLE `tbventa`
 --
 ALTER TABLE `tbventadetalle`
   ADD PRIMARY KEY (`ventadetalleid`);
+
+--
+-- Indices de la tabla `tbventadetalleproducto`
+--
+ALTER TABLE `tbventadetalleproducto`
+  ADD PRIMARY KEY (`ventadetalleproductoid`);
 
 --
 -- Indices de la tabla `tbventaporcobrar`

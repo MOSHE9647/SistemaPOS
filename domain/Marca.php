@@ -27,6 +27,15 @@
         public function setMarcaDescripcion(string $marcaDescripcion) { $this->marcaDescripcion = ucfirst($marcaDescripcion); }
         public function setMarcaEstado(bool $marcaEstado) { $this->marcaEstado = $marcaEstado; }
 
+        public static function fromArray(array $array): Marca {
+            return new Marca(
+                $array['ID'] ?? -1,
+                $array['Nombre'] ?? "",
+                $array['Descripcion'] ?? "",
+                $array['Estado'] ?? true
+            );
+        }
+
         // JsonSerializable
         public function jsonSerialize() {
             return [

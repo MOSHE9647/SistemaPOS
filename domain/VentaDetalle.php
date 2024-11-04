@@ -38,6 +38,17 @@
 		public function setVentaDetalleCantidad(int $ventaDetalleCantidad) { $this->ventaDetalleCantidad = $ventaDetalleCantidad; }
 		public function setVentaDetalleEstado(bool $ventaDetalleEstado) { $this->ventaDetalleEstado = $ventaDetalleEstado; }
 
+		public static function fromArray(array $ventaDetalle): VentaDetalle {
+			return new VentaDetalle(
+				$ventaDetalle['ID'] ?? -1,
+				$ventaDetalle['Precio'] ?? 0.0,
+				$ventaDetalle['Cantidad'] ?? 0,
+				$ventaDetalle['Venta'] ? Venta::fromArray(get_object_vars($ventaDetalle['Venta'])) : null,
+				$ventaDetalle['Producto'] ? Producto::fromArray(get_object_vars($ventaDetalle['Producto'])) : null,
+				$ventaDetalle['Estado'] ?? true
+			);
+		}
+
 		public function jsonSerialize() {
 			return [
 				'ID' => $this->ventaDetalleID,

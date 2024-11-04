@@ -27,6 +27,15 @@
         public function setPresentacionDescripcion(string $presentacionDescripcion) { $this->presentacionDescripcion = ucfirst($presentacionDescripcion); }
         public function setPresentacionEstado(bool $presentacionEstado) { $this->presentacionEstado = $presentacionEstado; }
 
+        public static function fromArray(array $presentacion): Presentacion {
+            return new Presentacion(
+                $presentacion['ID'] ?? -1,
+                $presentacion['Nombre'] ?? "",
+                $presentacion['Descripcion'] ?? "",
+                $presentacion['Estado'] ?? true
+            );
+        }
+
         // JsonSerializable
         public function jsonSerialize() {
             return [
