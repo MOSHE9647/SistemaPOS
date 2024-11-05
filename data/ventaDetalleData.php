@@ -144,7 +144,6 @@
             }
         }
 
-
         public function insertVentaDetalle($ventaDetalle, $conn = null) {
             $createdConnection = false;
             $stmt = null;
@@ -235,7 +234,7 @@
                 if (isset($conn) && $createdConnection) { mysqli_close($conn); }
             }
         }
-        
+
         public function updateVentaDetalle($ventaDetalle, $conn = null) {
             $createdConnection = false;
             $stmt = null;
@@ -465,16 +464,7 @@
                 $totalPages = ceil($totalRecords / $size);
         
                 // Construir la consulta SQL para paginación
-                $querySelect = "
-                    SELECT 
-                        VD.*, P." . PRODUCTO_NOMBRE . ", C." . CODIGO_BARRAS_NUMERO . "
-                    FROM " . 
-                        TB_VENTA_DETALLE . " VD 
-                    INNER JOIN " . 
-                        TB_PRODUCTO . " P ON VD." . VENTA_DETALLE_PRODUCTO_ID . " = P." . PRODUCTO_ID . "
-                    INNER JOIN " . 
-                        TB_CODIGO_BARRAS . " C ON P." . CODIGO_BARRAS_ID . " = C." . CODIGO_BARRAS_ID
-                ;
+                $querySelect = "SELECT * FROM " . TB_VENTA_DETALLE. " ";
         
                 // Agregar filtro de búsqueda a la consulta
                 $params = [];
@@ -514,21 +504,26 @@
         
                 $ventaDetalles = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    // Crear objeto VentaDetalle con los datos obtenidos
+                    // Obtiene la información de la venta asociada
+                    $ventaData = new VentaData();
+                    $venta = $ventaData->getVentaByID($row[VENTA_ID], false);
+                    if (!$venta["success"]) { throw new Exception($venta["message"]); }
+        
+                    // Obtiene el producto asociado al detalle de venta
+                    $productoData = new ProductoData();
+                    $producto = $productoData->getProductoByID($row[PRODUCTO_ID], false);
+                    if (!$producto["success"]) { throw new Exception($producto["message"]); }
+        
                     $ventaDetalle = new VentaDetalle(
                         $row[VENTA_DETALLE_ID],
-                        $row[VENTA_DETALLE_PRODUCTO_ID],
+                        $venta["venta"],  
+                        $producto["producto"],
                         $row[VENTA_DETALLE_CANTIDAD],
                         $row[VENTA_DETALLE_PRECIO],
-                        $row[VENTA_DETALLE_TOTAL],
-                        $row[VENTA_DETALLE_FECHA],
-                        $row[VENTA_DETALLE_ESTADO],
-                        $row[PRODUCTO_NOMBRE],
-                        $row[CODIGO_BARRAS_NUMERO]
+                        $row[VENTA_DETALLE_ESTADO]
                     );
                     $ventaDetalles[] = $ventaDetalle;
                 }
-        
                 return [
                     "success" => true,
                     "page" => $page,
