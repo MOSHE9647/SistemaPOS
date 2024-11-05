@@ -244,9 +244,4 @@
     define('PROVEEDOR_TELEFONO_ID'		, 'proveedortelefonoid'); 			//<- ID de la tabla proveedor-telefono
 	define('PROVEEDOR_TELEFONO_ESTADO'	, 'proveedortelefonoestado'); 		//<- Estado de la tabla proveedor-telefono
 
-	// TABLA INTERMEDIA PARA VentaDetalle Y Producto 'tbVentaDetalleProducto':
-	define('TB_VENTA_DETALLE_PRODUCTO'	, 'tbventadetalleproducto'); 		//<- Nombre de la Tabla
-	define('VENTA_DETALLE_PRODUCTO_ID'	, 'ventadetalleproductoid'); 		//<- ID de la tabla ventadetalle-producto
-	define('VENTA_DETALLE_PRODUCTO_ESTADO', 'ventadetalleproductoestado'); 	//<- Estado de la tabla ventadetalle-producto
-
 ?>

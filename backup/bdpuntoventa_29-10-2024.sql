@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 04-11-2024 a las 22:47:26
+-- Tiempo de generación: 29-10-2024 a las 16:19:04
 -- Versión del servidor: 8.0.39-0ubuntu0.24.04.2
 -- Versión de PHP: 8.3.6
 
@@ -71,10 +71,7 @@ CREATE TABLE `tbcliente` (
 --
 
 INSERT INTO `tbcliente` (`clienteid`, `telefonoid`, `clientenombre`, `clientealias`, `clientefechacreacion`, `clientefechamodificacion`, `clienteestado`) VALUES
-(1, 7, 'Isaac', 'No Definido', '2024-10-14 19:35:30', '2024-10-14 19:39:36', 1),
-(2, 9, 'Jason', 'Json', '2024-10-31 14:01:22', '2024-10-31 14:01:22', 1),
-(3, 10, 'Maikel', 'No Definido', '2024-10-31 14:01:47', '2024-10-31 14:01:47', 1),
-(4, 11, 'Ninguno', 'No Definido', '2024-11-01 19:20:14', '2024-11-01 19:20:14', 1);
+(1, 7, 'Isaac', 'No Definido', '2024-10-14 19:35:30', '2024-10-14 19:39:36', 1);
 
 -- --------------------------------------------------------
 
@@ -183,9 +180,7 @@ INSERT INTO `tbdireccion` (`direccionid`, `direccionprovincia`, `direccioncanton
 (9, 'ALAJUELA', 'ALAJUELA', 'SAN JOSE', 'RESIDENCIAL MONTECARLO', '100 METROS NORTE DEL PARQUE', 2.50, 1),
 (10, 'ALAJUELA', 'ALAJUELA', 'SAN JOSE', 'RESID. MONTECARLO', 'FRENTE A LA ESCUELA', 2.45, 1),
 (11, 'CARTAGO', 'CARTAGO', 'OROSI', 'CENTRO', 'DE LA IGLESIA 300 METROS OESTE', 5.00, 1),
-(12, 'SAN JOSÉ', 'CENTRAL', 'CARMEN', '', '', 10.00, 1),
-(13, 'CARTAGO', 'JIMÉNEZ', 'PEJIBAYE', 'NINGUNO', 'NINGUNA', 20.00, 1),
-(14, 'PUNTARENAS', 'QUEPOS', 'NARANJITO', 'NINGUNO', 'NINGUNA', 10.00, 1);
+(12, 'SAN JOSÉ', 'CENTRAL', 'CARMEN', '', '', 10.00, 1);
 
 -- --------------------------------------------------------
 
@@ -309,8 +304,7 @@ CREATE TABLE `tbproveedor` (
 INSERT INTO `tbproveedor` (`proveedorid`, `categoriaid`, `proveedornombre`, `proveedoremail`, `proveedorfechacreacion`, `proveedorfechamodificacion`, `proveedorestado`) VALUES
 (1, 5, 'Proveedor 1', 'proveedor1@ejemplo.com', '2024-09-15 18:07:39', '2024-09-17 09:12:53', 1),
 (2, 4, 'Proveedor 2', 'proveedor2@gmail.com', '2024-09-17 09:10:20', '2024-09-17 09:18:21', 1),
-(3, 4, 'PROVEEDOR DE PRUEBA', 'proveedorprueba@ejemplo.com', '2024-10-20 16:39:03', '2024-10-20 17:48:46', 1),
-(4, 1, 'PROVEEDOR 3', 'proveedor3@ejemplo.com', '2024-11-03 19:18:28', '2024-11-03 19:18:28', 1);
+(3, 4, 'PROVEEDOR DE PRUEBA', 'proveedorprueba@ejemplo.com', '2024-10-20 16:39:03', '2024-10-20 17:48:46', 1);
 
 -- --------------------------------------------------------
 
@@ -331,9 +325,7 @@ CREATE TABLE `tbproveedordireccion` (
 
 INSERT INTO `tbproveedordireccion` (`proveedordireccionid`, `proveedorid`, `direccionid`, `proveedordireccionestado`) VALUES
 (1, 1, 7, 1),
-(2, 3, 12, 1),
-(3, 4, 2, 1),
-(4, 4, 1, 1);
+(2, 3, 12, 1);
 
 -- --------------------------------------------------------
 
@@ -445,10 +437,7 @@ INSERT INTO `tbtelefono` (`telefonoid`, `telefonotipo`, `telefonocodigopais`, `t
 (5, 'Móvil', '+502', '5972 3158', '', 1),
 (6, 'Móvil', '+51', '5679 8524', '', 1),
 (7, 'Móvil', '+506', '6421 2950', '', 1),
-(8, 'Móvil', '+58', '3970 4685', '', 1),
-(9, 'Móvil', '+506', '4731 8950', '', 1),
-(10, 'Móvil', '+54', '1234 5678', '', 1),
-(11, 'Móvil', '+53', '349 7028 4680', '', 1);
+(8, 'Móvil', '+58', '3970 4685', '', 1);
 
 -- --------------------------------------------------------
 
@@ -479,7 +468,7 @@ INSERT INTO `tbusuario` (`usuarioid`, `rolusuarioid`, `usuarionombre`, `usuarioa
 (3, 3, 'Prueba', 'Primero', 'Segundo', 'cajero@gmail.com', '$2y$10$jXNkOrLG49.wJdSf3DDrWuOfden5BzWj8NkU9I15OxoYYNUbwGa1.', '2024-10-03 20:23:56', '2024-10-03 20:47:29', 0),
 (4, 2, 'Dependiente', 'Dependant', 'Dependansen', 'dependiente@dependiente.com', '$2y$10$.Zv7MIUusPu0or0vhVOTEOLGzDO3YB05z/HezBf1HVMY32pl9lGei', '2024-10-09 20:09:02', '2024-10-09 20:09:02', 1),
 (5, 4, 'Cajero', 'Cajerson', 'Cajersen', 'cajero@cajero.com', '$2y$10$bbRGwU2vAzUg.Qmeex1b..7ppgkAWI.qOqUKwPfj4iES7G2pwRbsu', '2024-10-09 20:09:46', '2024-10-09 20:09:46', 1),
-(6, 1, 'Natalia', 'Ortiz', 'Martinez', 'natortiz@ejemplo.com', '$2y$10$FNEa.x2Nm82JBI3TzHp6rO9wLCeGU9yYmKpxjT.LjdjJ/F9kU49k6', '2024-10-26 19:12:11', '2024-10-31 13:59:46', 0);
+(6, 1, 'Natalia', 'Ortiz', 'Martinez', 'natortiz@ejemplo.com', '$2y$10$FNEa.x2Nm82JBI3TzHp6rO9wLCeGU9yYmKpxjT.LjdjJ/F9kU49k6', '2024-10-26 19:12:11', '2024-10-26 19:12:11', 1);
 
 -- --------------------------------------------------------
 
@@ -497,23 +486,10 @@ CREATE TABLE `tbventa` (
   `ventamontoimpuesto` decimal(10,2) NOT NULL,
   `ventacondicionventa` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Crédito o Contado',
   `ventatipopago` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Efectivo, Tarjeta, Sinpe',
-  `ventatipocambio` decimal(10,2) NOT NULL,
-  `ventamontopago` decimal(10,2) DEFAULT NULL,
-  `ventamontovuelto` decimal(10,2) DEFAULT NULL,
-  `ventareferenciatarjeta` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `ventacomprobantesinpe` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ventafechacreacion` datetime NOT NULL DEFAULT (now()),
   `ventafechamodificacion` datetime NOT NULL DEFAULT (now()),
   `ventaestado` tinyint NOT NULL DEFAULT (_utf8mb4'1')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `tbventa`
---
-
-INSERT INTO `tbventa` (`ventaid`, `clienteid`, `ventanumerofactura`, `ventamoneda`, `ventamontobruto`, `ventamontoneto`, `ventamontoimpuesto`, `ventacondicionventa`, `ventatipopago`, `ventatipocambio`, `ventamontopago`, `ventamontovuelto`, `ventareferenciatarjeta`, `ventacomprobantesinpe`, `ventafechacreacion`, `ventafechamodificacion`, `ventaestado`) VALUES
-(1, 1, '921547364850236', 'CRC', 1500.00, 1695.00, 195.00, 'CREDITO', 'EFECTIVO', 0.00, 0.00, 0.00, '', '', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 1),
-(2, 1, '921547364850237', 'CRC', 3100.00, 3503.00, 403.00, 'CREDITO', 'EFECTIVO', 0.00, 0.00, 0.00, '', '', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 1);
 
 -- --------------------------------------------------------
 
@@ -524,11 +500,23 @@ INSERT INTO `tbventa` (`ventaid`, `clienteid`, `ventanumerofactura`, `ventamoned
 CREATE TABLE `tbventadetalle` (
   `ventadetalleid` int NOT NULL,
   `ventaid` int NOT NULL,
-  `productoid` int NOT NULL,
   `ventadetalleprecio` decimal(10,2) NOT NULL,
   `ventadetallecantidad` int NOT NULL,
   `ventadetalleestado` tinyint NOT NULL DEFAULT (_utf8mb4'1')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tbventadetalleproducto`
+--
+
+CREATE TABLE `tbventadetalleproducto` (
+  `ventaproductoid` int NOT NULL,
+  `ventadetalleid` int NOT NULL,
+  `productoid` int NOT NULL,
+  `ventaproductoestado` tinyint NOT NULL DEFAULT (1)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tabla intermedia para los porductos de cada venta';
 
 -- --------------------------------------------------------
 
@@ -544,14 +532,6 @@ CREATE TABLE `tbventaporcobrar` (
   `ventaporcobrarnotas` text COLLATE utf8mb4_unicode_ci,
   `ventaporcobrarestado` tinyint NOT NULL DEFAULT (_utf8mb4'1')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `tbventaporcobrar`
---
-
-INSERT INTO `tbventaporcobrar` (`ventaporcobrarid`, `ventaid`, `ventaporcobrarfechavencimiento`, `ventaporcobrarcancelado`, `ventaporcobrarnotas`, `ventaporcobrarestado`) VALUES
-(1, 1, '2024-11-20', 0, '', 1),
-(2, 2, '2024-11-25', 0, ' ', 1);
 
 --
 -- Índices para tablas volcadas
@@ -682,6 +662,12 @@ ALTER TABLE `tbventa`
 --
 ALTER TABLE `tbventadetalle`
   ADD PRIMARY KEY (`ventadetalleid`);
+
+--
+-- Indices de la tabla `tbventadetalleproducto`
+--
+ALTER TABLE `tbventadetalleproducto`
+  ADD PRIMARY KEY (`ventaproductoid`);
 
 --
 -- Indices de la tabla `tbventaporcobrar`

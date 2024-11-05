@@ -24,6 +24,15 @@
         function setCategoriaDescripcion(string $categoriaDescripcion) { $this->categoriaDescripcion = ucfirst($categoriaDescripcion); }
         function setCategoriaEstado(bool $categoriaEstado) { $this->categoriaEstado = $categoriaEstado; }
         
+        public static function fromArray(array $categoria): Categoria {
+            return new Categoria(
+                $categoria['ID'] ?? -1,
+                $categoria['Nombre'] ?? "",
+                $categoria['Descripcion'] ?? "",
+                $categoria['Estado'] ?? true
+            );
+        }
+
         function jsonSerialize() {
             return [
                 'ID' => $this->categoriaID,

@@ -4,14 +4,17 @@
     require_once dirname(__DIR__, 1) . '/domain/VentaDetalle.php';
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
     require_once dirname(__DIR__, 1) . '/utils/Variables.php';
+    require_once dirname(__DIR__, 1) . '/data/ventaData.php';
 
     class VentaDetalleData extends Data {
         
         private $className;
+        private $ventadata;
 
         public function __construct() {
             parent::__construct();
             $this->className = get_class($this);
+            $this->ventadata = VentaData();
         }
 
         /**
@@ -98,6 +101,49 @@
             }
         }
 
+        public function insertarListaVentaDetalle($listaVenta){
+            try{
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+                mysqli_begin_transaction($conn);
+
+                $resultV = $this->ventadata->insertVenta($listaVenta[0]->getVentaDetalleVenta(), $conn);
+                if (!$resultV["success"]){
+                    throw new Exception($resultV["message"]);
+                }
+
+                foreach ($listaVenta as $ventaDetalle) {
+                    $ventaDetalle->getVentaDetalleVenta()->setVentaID($resultV["id"]);
+
+                    $insertResult = $this->insertVentaDetalle($ventaDetalle, $conn);
+                    
+                    if (!$insertResult["success"]) {
+                        throw new Exception($insertResult["message"]);
+                    }
+                }
+
+                // Confirmar la transacción si todo fue exitoso
+                mysqli_commit($conn);
+
+                return ["success" => true, "message" => "Todos los detalles de venta fueron insertados exitosamente"];
+            }catch (Exception $e) {
+                if (isset($conn)) { 
+                    mysqli_rollback($conn); 
+                }
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Ocurrió un error al insertar el detalle de venta en la base de datos',
+                    $this->className
+                );
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                if (isset($conn) && $createdConnection) { 
+                    mysqli_close($conn);
+                }
+            }
+        }
+
         public function insertVentaDetalle($ventaDetalle, $conn = null) {
             $createdConnection = false;
             $stmt = null;
@@ -115,20 +161,23 @@
                 }
         
                 // Obtener los valores de las propiedades del objeto VentaDetalle
-                $ventaDetalleVenta = $ventaDetalle->getVentaDetalleVenta();
-                $ventaDetallePrecio = $ventaDetalle->getVentaDetallePrecio();
-                $ventaDetalleCantidad = $ventaDetalle->getVentaDetalleCantidad();
-                $ventaDetalleEstado = $ventaDetalle->getVentaDetalleEstado();
-        
+                $id = $ventaDetalle->getVentaDetalleID();
+                $ventaid = $ventaDetallen->getVentaDetalleVenta()-getVentaID();
+                $productoid = $ventaDetalle->getVentaDetalleProducto()->getProductoID();
+                $precio = $ventaDetalle->getVentaDetallePrecio();
+                $cantidad = $ventaDetalle->getVentaDetalleCantidad();
+
+
+
                 // Verifica si el detalle de venta ya existe
-                $check = $this->ventaDetalleExiste($ventaDetalleVenta, $ventaDetallePrecio);
-                if (!$check["success"]) { throw new Exception($check["message"]); }
+                // $check = $this->ventaDetalleExiste($ventaid, $precio);
+                // if (!$check["success"]) { throw new Exception($check["message"]); }
         
-                if ($check["exists"]) {
-                    $message = "El detalle de venta para 'Venta ID [$ventaDetalleVenta]' y 'Precio [$ventaDetallePrecio]' ya existe.";
-                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
-                    return ["success" => false, "message" => $message];
-                }
+                // if ($check["exists"]) {
+                //     $message = "El detalle de venta para 'Venta ID [$ventaDetalleVenta]' y 'Precio [$ventaDetallePrecio]' ya existe.";
+                //     Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
+                //     return ["success" => false, "message" => $message];
+                // }
         
                 // Obtenemos el último ID de la tabla tbventadetalle
                 $queryGetLastId = "SELECT MAX(" . VENTA_DETALLE_ID . ") FROM " . TB_VENTA_DETALLE;
@@ -144,22 +193,22 @@
                 $queryInsert = 
                     "INSERT INTO " . TB_VENTA_DETALLE . " ("
                         . VENTA_DETALLE_ID . ", "
-                        . VENTA_DETALLE_VENTA . ", "
-                        . VENTA_DETALLE_PRECIO . ", "
-                        . VENTA_DETALLE_CANTIDAD . ", "
-                        . VENTA_DETALLE_ESTADO 
+                        . VENTA_ID. ", "
+                        . VENTA_DETALLE_PRODUCTO_ID . ", "
+                        . VENTA_DETALLE_PRECIO. ", "
+                        . VENTA_DETALLE_CANTIDAD
                     . ") VALUES (?, ?, ?, ?, ?)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
         
                 // Asigna los valores a cada '?' y ejecuta la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'iiddi', // i: entero, d: decimal
+                    'iiidi', // i: entero, d: decimal
                     $nextId,
-                    $ventaDetalleVenta,
-                    $ventaDetallePrecio,
-                    $ventaDetalleCantidad,
-                    $ventaDetalleEstado
+                    $ventaid,
+                    $productoid,
+                    $precio,
+                    $cantidad
                 );
                 $result = mysqli_stmt_execute($stmt);
         
@@ -185,17 +234,18 @@
                 if (isset($conn) && $createdConnection) { mysqli_close($conn); }
             }
         }
+
         public function updateVentaDetalle($ventaDetalle, $conn = null) {
             $createdConnection = false;
             $stmt = null;
         
             try {
                 // Obtener los valores de las propiedades del objeto
-                $ventaDetalleID = $ventaDetalle->getVentaDetalleID();
-                $ventaDetalleVenta = $ventaDetalle->getVentaDetalleVenta();
-                $ventaDetallePrecio = $ventaDetalle->getVentaDetallePrecio();
-                $ventaDetalleCantidad = $ventaDetalle->getVentaDetalleCantidad();
-                $ventaDetalleEstado = $ventaDetalle->getVentaDetalleEstado();
+                $id = $ventaDetalle->getVentaDetalleID();
+                $ventaid = $ventaDetallen->getVentaDetalleVenta()-getVentaID();
+                $productoid = $ventaDetalle->getVentaDetalleProducto()->getProductoID();
+                $precio = $ventaDetalle->getVentaDetallePrecio();
+                $cantidad = $ventaDetalle->getVentaDetalleCantidad();
         
                 // Verifica si el detalle de venta ya existe en la base de datos
                 $check = $this->ventaDetalleExiste($ventaDetalleID);
@@ -223,22 +273,23 @@
                 $queryUpdate = 
                     "UPDATE " . TB_VENTA_DETALLE . 
                     " SET " . 
-                        VENTA_DETALLE_VENTA . " = ?, " .
-                        VENTA_DETALLE_PRECIO . " = ?, " .
+                        VENTA_ID . " = ?, " .
+                        VENTA_DETALLE_PRODUCTO_ID . " = ?, " .
+                        VENTA_DETALLE_PRECIO. " = ?, " .
                         VENTA_DETALLE_CANTIDAD . " = ?, " .
-                        VENTA_DETALLE_ESTADO . " = ? " .
+                        VENTA_DETALLE_ESTADO . " = TRUE " .
                     "WHERE " . VENTA_DETALLE_ID . " = ?";
                 $stmt = mysqli_prepare($conn, $queryUpdate);
         
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'idiii', // i: entero, d: decimal
-                    $ventaDetalleVenta,
-                    $ventaDetallePrecio,
-                    $ventaDetalleCantidad,
-                    $ventaDetalleEstado,
-                    $ventaDetalleID
+                    'iidis', // i: entero, d: decimal
+                    $ventaid,
+                    $productoid,
+                    $precio,
+                    $cantidad,
+                    $id
                 );
         
                 // Ejecuta la consulta de actualización
@@ -413,16 +464,7 @@
                 $totalPages = ceil($totalRecords / $size);
         
                 // Construir la consulta SQL para paginación
-                $querySelect = "
-                    SELECT 
-                        VD.*, P." . PRODUCTO_NOMBRE . ", C." . CODIGO_BARRAS_NUMERO . "
-                    FROM " . 
-                        TB_VENTA_DETALLE . " VD 
-                    INNER JOIN " . 
-                        TB_PRODUCTO . " P ON VD." . VENTA_DETALLE_PRODUCTO_ID . " = P." . PRODUCTO_ID . "
-                    INNER JOIN " . 
-                        TB_CODIGO_BARRAS . " C ON P." . CODIGO_BARRAS_ID . " = C." . CODIGO_BARRAS_ID
-                ;
+                $querySelect = "SELECT * FROM " . TB_VENTA_DETALLE. " ";
         
                 // Agregar filtro de búsqueda a la consulta
                 $params = [];
@@ -462,21 +504,26 @@
         
                 $ventaDetalles = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    // Crear objeto VentaDetalle con los datos obtenidos
+                    // Obtiene la información de la venta asociada
+                    $ventaData = new VentaData();
+                    $venta = $ventaData->getVentaByID($row[VENTA_ID], false);
+                    if (!$venta["success"]) { throw new Exception($venta["message"]); }
+        
+                    // Obtiene el producto asociado al detalle de venta
+                    $productoData = new ProductoData();
+                    $producto = $productoData->getProductoByID($row[PRODUCTO_ID], false);
+                    if (!$producto["success"]) { throw new Exception($producto["message"]); }
+        
                     $ventaDetalle = new VentaDetalle(
                         $row[VENTA_DETALLE_ID],
-                        $row[VENTA_DETALLE_PRODUCTO_ID],
+                        $venta["venta"],  
+                        $producto["producto"],
                         $row[VENTA_DETALLE_CANTIDAD],
                         $row[VENTA_DETALLE_PRECIO],
-                        $row[VENTA_DETALLE_TOTAL],
-                        $row[VENTA_DETALLE_FECHA],
-                        $row[VENTA_DETALLE_ESTADO],
-                        $row[PRODUCTO_NOMBRE],
-                        $row[CODIGO_BARRAS_NUMERO]
+                        $row[VENTA_DETALLE_ESTADO]
                     );
                     $ventaDetalles[] = $ventaDetalle;
                 }
-        
                 return [
                     "success" => true,
                     "page" => $page,

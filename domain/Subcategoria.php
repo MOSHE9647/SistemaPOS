@@ -35,6 +35,16 @@
         public function setSubcategoriaCategoriaId(Categoria $subcategoriaCategoria){$this->subcategoriaCategoria = $subcategoriaCategoria;}
         public function setSubcategoriaEstado(bool $subcategoriaEstado) { $this->subcategoriaEstado = $subcategoriaEstado; }
 
+        public static function fromArray(array $subcategoria): Subcategoria {
+            return new Subcategoria(
+                $subcategoria['ID'] ?? -1,
+                $subcategoria['Nombre'] ?? "",
+                $subcategoria['Descripcion'] ?? "",
+                $subcategoria['Categoria'] ? Categoria::fromArray(get_object_vars($subcategoria['Categoria'])) : null,
+                $subcategoria['Estado'] ?? true
+            );
+        }
+
         // JsonSerializable
         public function jsonSerialize() {
             return [
