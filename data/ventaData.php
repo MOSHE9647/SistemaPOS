@@ -204,7 +204,7 @@
                     // Confirmar la transacción
             if ($createdConnection) { mysqli_commit($conn); }
         
-                return ["success" => true, "message" => "Venta insertada exitosamente"];
+                return ["success" => true, "message" => "Venta insertada exitosamente","id"=>$nextId];
             } catch (Exception $e) {
                 if (isset($conn) && $createdConnection) { mysqli_rollback($conn); }
 
