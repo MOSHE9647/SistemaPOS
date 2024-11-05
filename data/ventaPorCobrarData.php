@@ -310,7 +310,7 @@ class VentaPorCobrarData extends Data {
 
             mysqli_stmt_bind_param(
                 $stmt,
-                "isssi",
+                "isisi",
                 $ventaid,
                 $fechaVence,
                 $estadoCancelado,

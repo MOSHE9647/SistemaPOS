@@ -575,14 +575,14 @@ export function mostrarOpcionesDeCobro() {
                         const span = document.getElementById(`last-sale-${field}`);
                         if (span) span.innerHTML = `&#162;${value.toFixed(2)}`;
                     });
+
+                    // Limpiar la lista de productos y renderizar la tabla
+                    // clearProductList(getActiveTable().id);
+                    // renderTable(productos[getActiveTable().id]);
                 } else {
                     mostrarMensaje('Error al realizar la venta.', 'error', 'Error de venta');
                 }
             });
-
-            // Limpiar la lista de productos y renderizar la tabla
-            // clearProductList(getActiveTable().id);
-            // renderTable(productos[getActiveTable().id]);
         }
     })
     .catch(() => {
@@ -861,8 +861,8 @@ function initializeClienteForm() {
 
 function addEventListenerToElement(elementId, event, handler) {
     const element = document.getElementById(elementId);
-    if (element) {
-        element.removeEventListener(event, handler);
+    if (element && !element.dataset.listenerAdded) {
+        element.dataset.listenerAdded = 'true';
         element.addEventListener(event, handler);
     }
 }
@@ -994,30 +994,17 @@ function handleClienteSelectChange(event) {
         deudaSelect.selectedIndex = 0;
 
         // Manejar el cambio de selección de deuda
-        addEventListenerToElement(deudaSelect.id, 'change', () => {
-            if (deudas.length < 1) {
-                clienteDeudaForm.style.display !== 'none' && (clienteDeudaForm.style.display = 'none');
-                mostrarMensaje('El cliente seleccionado ya no tiene deudas pendientes.', 'info', 'Deuda del Cliente');
-                clienteDeudaForm.reset();
-                return;
-            }
-
-            const deuda = deudas.find(d => d.ID === parseInt(deudaSelect.value, 10));
-            if (!deuda) return;
-
-            // Obtener los datos de la deuda seleccionada
-            const vencimiento = deuda.VencimientoISO;
-            const monto = deuda.Venta.MontoNeto.toFixed(2);
-
-            // Actualizar los campos del formulario de deuda
-            clienteDeudaForm.querySelector('#cliente-fecha-limite').value = vencimiento;
-            clienteDeudaForm.querySelector('#cliente-abono').value = monto;
-            clienteDeudaForm.querySelector('#cliente-abono').max = monto;
-            clienteDeudaForm.querySelector('#cliente-abono').focus();
-        });
+        addEventListenerToElement(deudaSelect.id, 'change', () => 
+            handleDeudaSelectChange(deudaSelect, deudas, clienteDeudaForm)
+        );
 
         // Disparar el evento de cambio para inicializar los campos
-        deudaSelect.dispatchEvent(new Event('change'));
+        handleDeudaSelectChange(deudaSelect, deudas, clienteDeudaForm);
+
+        // Agregar evento al botón de abonar
+        addEventListenerToElement('deuda-abonar-button', 'click', () => 
+            handleClienteAbonarButton(deudas, deudaSelect, clienteDeudaForm, clienteSelect)
+        );
 
         // Agregar evento al botón de cancelar
         addEventListenerToElement('deuda-cancel-button', 'click', () => {
@@ -1031,6 +1018,52 @@ function handleClienteSelectChange(event) {
     }).catch(error => {
         console.error(error);
         mostrarMensaje(`Error al obtener las deudas del cliente: ${error.message}`, 'error', 'Error de deuda');
+    });
+}
+
+function handleDeudaSelectChange(deudaSelect, deudas, clienteDeudaForm) {
+    if (deudas.length < 1) {
+        clienteDeudaForm.style.display !== 'none' && (clienteDeudaForm.style.display = 'none');
+        mostrarMensaje('El cliente seleccionado ya no tiene deudas pendientes.', 'info', 'Deuda del Cliente');
+        clienteDeudaForm.reset();
+        return;
+    }
+
+    const deuda = deudas.find(d => d.ID === parseInt(deudaSelect.value, 10));
+    if (!deuda) return;
+
+    // Obtener los datos de la deuda seleccionada
+    const vencimiento = deuda.VencimientoISO;
+    const monto = deuda.Venta.MontoNeto.toFixed(2);
+
+    // Actualizar los campos del formulario de deuda
+    clienteDeudaForm.querySelector('#cliente-fecha-limite').value = vencimiento;
+    clienteDeudaForm.querySelector('#cliente-abono').value = monto;
+    clienteDeudaForm.querySelector('#cliente-abono').max = monto;
+    clienteDeudaForm.querySelector('#cliente-abono').focus();
+}
+
+function handleClienteAbonarButton(deudas, deudaSelect, clienteDeudaForm, clienteSelect) {
+    const deuda = deudas.find(d => d.ID === parseInt(deudaSelect.value, 10));
+    if (!deuda) {
+        mostrarMensaje('No se encontró la deuda seleccionada.', 'error', 'Error de deuda');
+        return;
+    };
+
+    const abono = parseFloat(document.getElementById('cliente-abono').value) || 0.00;
+    if (abono <= 0) {
+        mostrarMensaje('El monto a abonar debe ser mayor a cero.', 'error', 'Error de abono');
+        return;
+    }
+
+    crud.abonarCuentaCliente({ deuda: deuda, abono: abono }).then(success => {
+        if (success) {
+            mostrarMensaje('Abono realizado con éxito.', 'success', 'Abono Realizado');
+            clienteDeudaForm.reset();
+            clienteSelect.dispatchEvent(new Event('change'));
+        } else {
+            mostrarMensaje('Error al realizar el abono.', 'error', 'Error de abono');
+        }
     });
 }
 

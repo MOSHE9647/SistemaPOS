@@ -99,15 +99,15 @@ Class VentaBusiness {
                   // }
 
 
-                  if (empty($ventaReferenciaTarjeta)) {
-                    $errors[] = "El campo 'Referencia tarjeta' está vacío.";
-                    Utils::writeLog("El campo 'referencia tarjeta [$ventaReferenciaTarjeta]' está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
-                }
+                //   if (empty($ventaReferenciaTarjeta)) {
+                //     $errors[] = "El campo 'Referencia tarjeta' está vacío.";
+                //     Utils::writeLog("El campo 'referencia tarjeta [$ventaReferenciaTarjeta]' está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
+                // }
 
-                if (empty($ventaComprobanteSinpe )) {
-                    $errors[] = "El campo 'Comprobante' está vacío.";
-                    Utils::writeLog("El campo 'Comprobante [$ventaComprobanteSinpe]' está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
-                }
+                // if (empty($ventaComprobanteSinpe )) {
+                //     $errors[] = "El campo 'Comprobante' está vacío.";
+                //     Utils::writeLog("El campo 'Comprobante [$ventaComprobanteSinpe]' está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
+                // }
 
 
                     if (empty($ventaNumeroFactura)) {

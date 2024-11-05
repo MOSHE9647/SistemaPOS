@@ -1,9 +1,10 @@
 <?php
 
 require_once dirname(__DIR__, 1 ). '/service/ventaPorCobrarBusiness.php';
-require_once dirname(__DIR__, 1) . '/utils/Utils.php';
+require_once dirname(__DIR__, 1) . '/service/ventaBusiness.php';
 require_once dirname(__DIR__, 1) . '/domain/VentaPorCobrar.php';
 require_once dirname(__DIR__, 1) . '/domain/Venta.php';
+require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
 $response = [];
 $method = $_SERVER["REQUEST_METHOD"];                   //<- Método de la solicitud
@@ -15,14 +16,42 @@ if ($method == "POST") {
         Utils::enviarRespuesta(400, false, "No se ha especificado una acción.");
     }
 
-    $id                 = isset($_POST['id'])               ?intval($_POST['id'])               :-1;
-    $ventaid            = isset($_POST['ventaid'])          ?intval($_POST['ventaid'])          : 0;
-    $fechaVence         = isset($_POST['fechaVence'])       ?$_POST['fechaVence']               :"";
-    $estadoCancelado    = isset($_POST['estadoCancelado'])  ?$_POST['estadoCancelado']          :false;
-    $notas              = isset($_POST['notas'])            ?$_POST['notas']                    :"";
+    $id                 = isset($_POST['id'])           ?   intval($_POST['id'])         : -1;
+    $ventaid            = isset($_POST['venta'])        ?   intval($_POST['venta'])      :  0;
+    $estadoCancelado    = isset($_POST['cancelado'])    ?   boolval($_POST['cancelado']) : false;
+    $abono              = isset($_POST['abono'])        ?   floatval($_POST['abono'])    : null;
+    $fechaVence         = isset($_POST['vencimiento'])  ?   $_POST['vencimiento']        : "";
+    $notas              = isset($_POST['notas'])        ?   $_POST['notas']              : "";
+
+    $venta = null;
+    if (!empty($abono)) {
+        $ventaBusiness = new VentaBusiness();
+        $ventaResult = $ventaBusiness->getVentaByID($ventaid);
+        if (!$ventaResult['success']) {
+            Utils::enviarRespuesta(400, false, $ventaResult['message']);
+        }
+
+        $venta = $ventaResult['venta'];
+        $venta->setVentaMontoNeto($venta->getVentaMontoNeto() - $abono);
+        $montoNetoVenta = $venta->getVentaMontoNeto();
+
+        if ($montoNetoVenta <= 0) {
+            $delete = $ventaBusiness->deleteTBVenta($ventaid);
+            if (!$delete['success']) {
+                Utils::enviarRespuesta(400, false, $delete['message']);
+            } else {
+                Utils::enviarRespuesta(200, true, "La deuda ha sido cancelada.");
+            }
+        }
+
+        $update = $ventaBusiness->updateTBVenta($venta);
+        if (!$update['success']) {
+            Utils::enviarRespuesta(400, false, $update['message']);
+        }
+    }
 
     $ventaobj = new VentaPorCobrar($id,
-                    new Venta($ventaid),
+                    $venta ?? new Venta($ventaid),
                     $fechaVence,
                     $estadoCancelado,
                     $notas

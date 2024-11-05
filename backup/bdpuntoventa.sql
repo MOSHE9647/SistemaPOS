@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 04-11-2024 a las 22:47:26
+-- Tiempo de generación: 05-11-2024 a las 16:32:50
 -- Versión del servidor: 8.0.39-0ubuntu0.24.04.2
 -- Versión de PHP: 8.3.6
 
@@ -512,8 +512,8 @@ CREATE TABLE `tbventa` (
 --
 
 INSERT INTO `tbventa` (`ventaid`, `clienteid`, `ventanumerofactura`, `ventamoneda`, `ventamontobruto`, `ventamontoneto`, `ventamontoimpuesto`, `ventacondicionventa`, `ventatipopago`, `ventatipocambio`, `ventamontopago`, `ventamontovuelto`, `ventareferenciatarjeta`, `ventacomprobantesinpe`, `ventafechacreacion`, `ventafechamodificacion`, `ventaestado`) VALUES
-(1, 1, '921547364850236', 'CRC', 1500.00, 1695.00, 195.00, 'CREDITO', 'EFECTIVO', 0.00, 0.00, 0.00, '', '', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 1),
-(2, 1, '921547364850237', 'CRC', 3100.00, 3503.00, 403.00, 'CREDITO', 'EFECTIVO', 0.00, 0.00, 0.00, '', '', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 1);
+(1, 1, '921547364850236', 'CRC', 1500.00, 480.00, 195.00, 'CREDITO', 'EFECTIVO', 0.00, 0.00, 0.00, '', '', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 0),
+(2, 1, '921547364850237', 'CRC', 3100.00, 1353.00, 403.00, 'CREDITO', 'EFECTIVO', 0.00, 0.00, 0.00, '', '', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 1);
 
 -- --------------------------------------------------------
 
@@ -529,6 +529,15 @@ CREATE TABLE `tbventadetalle` (
   `ventadetallecantidad` int NOT NULL,
   `ventadetalleestado` tinyint NOT NULL DEFAULT (_utf8mb4'1')
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Volcado de datos para la tabla `tbventadetalle`
+--
+
+INSERT INTO `tbventadetalle` (`ventadetalleid`, `ventaid`, `productoid`, `ventadetalleprecio`, `ventadetallecantidad`, `ventadetalleestado`) VALUES
+(1, 1, 1, 1600.00, 2, 1),
+(2, 2, 2, 1500.00, 1, 1),
+(3, 2, 3, 1600.00, 1, 1);
 
 -- --------------------------------------------------------
 

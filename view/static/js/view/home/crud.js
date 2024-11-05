@@ -227,21 +227,77 @@ export async function insertVentaDetalle(datosVenta) {
     }
 }
 
-export async function generarFactura(datosVenta, data) {
+export function generarFactura(datosVenta, data) {
+    const queryParams = new URLSearchParams({
+        detalles: JSON.stringify(datosVenta),
+        extra: JSON.stringify(data)
+    });
+
+    const url = `${window.baseURL}/pdf/factura.php?${queryParams}`;
+    window.open(url, '_blank', 'width=800,height=600');
+}
+
+export async function abonarCuentaCliente(deudaData) {
+    const abono = parseFloat(deudaData.abono).toFixed(2);
+    const deuda = deudaData.deuda;
+    const totalDeuda = parseFloat(deuda.Venta.MontoNeto).toFixed(2);
+
+    if (abono <= 0) {
+        mostrarMensaje('El abono debe ser mayor a cero', 'error', 'Error al abonar la cuenta del cliente');
+        return false;
+    }
+
+    if (abono < totalDeuda) {
+        const confirmacion = confirm(`El monto abonado (¢${abono}) es menor al total de la deuda (¢${totalDeuda}). ¿Desea continuar?`);
+        if (!confirmacion) {
+            mostrarMensaje('Se canceló el abono de la cuenta del cliente', 'info', 'Abono cancelado');
+            return false;
+        }
+    }
+
+    const formData = new FormData();
+    if (abono === totalDeuda) {
+        formData.append('accion', 'eliminar');
+        formData.append('id', deuda.ID);
+    } else {
+        formData.append('accion', 'actualizar');
+        formData.append('id', deuda.ID);
+        formData.append('venta', deuda.Venta.ID);
+        formData.append('vencimiento', deuda.VencimientoISO);
+        formData.append('cancelado', deuda.Cancelado ? 1 : 0);
+        formData.append('notas', deuda.Notas);
+        formData.append('abono', abono);
+    }
+
+    return await updateVentaPorCobrar(formData);
+}
+
+async function updateVentaPorCobrar(formData) {
     showLoader(); // Mostrar el loader
 
     try {
-        const queryParams = new URLSearchParams({
-            detalles: JSON.stringify(datosVenta),
-            extra: JSON.stringify(data)
+        // Enviar la solicitud POST al servidor con los datos del abono
+        const response = await fetch(`${window.baseURL}/controller/ventaPorCobrarAction.php`, {
+            method: 'POST',
+            body: formData
         });
+        if (!response.ok) {
+            mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al abonar la cuenta del cliente');
+            return false;
+        }
+        const data = await verificarRespuestaJSON(response);
+        
+        // Verificar si hubo un error en la solicitud
+        if (!data.success) {
+            mostrarMensaje(data.message, 'error', 'Error al abonar la cuenta del cliente');
+            return false; // Salir de la función si hay error
+        }
 
-        const url = `${window.baseURL}/pdf/factura.php?${queryParams}`;
-        window.open(url, '_blank', 'width=800,height=600');
+        return true;
     } catch (error) {
         // Mostrar mensaje de error detallado
-        mostrarMensaje(`Ocurrió un error al crear el detalle de venta.<br>${error}`, 'error', 'Error al crear el detalle de venta');
-        return;
+        mostrarMensaje(`Ocurrió un error al abonar la cuenta del cliente.<br>${error}`, 'error', 'Error al abonar la cuenta del cliente');
+        return false;
     } finally {
         hideLoader(); // Ocultar el loader
     }

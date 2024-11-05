@@ -23,7 +23,7 @@ class VentaPorCobrarBusiness{
                 if(!Utils::fechaMayorOIgualAHoy($fechaVence) && $update){
                     $errors[] = "La fecha de vencimiento debe ser mayor o igual a la actual";
                 }
-                if(empty($estadoCompra)){
+                if($estadoCompra === null){
                     $errors[] = "El estado de la venta no puede estar vacia";
                 }
             }
