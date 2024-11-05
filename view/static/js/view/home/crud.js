@@ -194,37 +194,13 @@ export async function obtenerDeudasPorClienteID(id) {
 export async function insertVentaDetalle(datosVenta) {
     showLoader(); // Mostrar el loader
 
-    const venta = {
-        Cliente: datosVenta.clienteID,
-        Moneda: datosVenta.moneda,
-        MontoBruto: datosVenta.montoBruto,
-        MontoNeto: datosVenta.montoNeto,
-        MontoImpuesto: datosVenta.montoImpuesto,
-        Condicion: datosVenta.condicion,
-        TipoPago: datosVenta.tipoPago,
-        TipoCambio: datosVenta.tipoCambio,
-        MontoPago: datosVenta.paymentData.pago || 0.00,
-        MontoVuelto: datosVenta.paymentData.vuelto || 0.00,
-        ReferenciaTarjeta: datosVenta.paymentData.referencia || '',
-        ComprobanteSINPE: datosVenta.paymentData.comprobante || '',
-    };
-
-    const listaVentaDetalle = datosVenta.productos.map(data => {
-        return {
-            Precio: data.producto.PrecioCompra,
-            Cantidad: data.cantidad,
-            Venta: venta,
-            Producto: data.producto,
-        }
-    });
-
     try {
         // Enviar la solicitud POST al servidor con los datos del detalle de venta
         const response = await fetch(`${window.baseURL}/controller/ventaDetalleAction.php`, {
             method: 'POST',
             body: new URLSearchParams({
                 accion: 'insertar',
-                detalles: JSON.stringify(listaVentaDetalle)
+                detalles: JSON.stringify(datosVenta)
             })
         });
         if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el detalle de venta');
@@ -256,6 +232,26 @@ export async function insertVentaDetalle(datosVenta) {
         // Mostrar mensaje de éxito y recargar los detalles de venta
         mostrarMensaje(data.message, 'success');
         return;
+    } catch (error) {
+        // Mostrar mensaje de error detallado
+        mostrarMensaje(`Ocurrió un error al crear el detalle de venta.<br>${error}`, 'error', 'Error al crear el detalle de venta');
+        return;
+    } finally {
+        hideLoader(); // Ocultar el loader
+    }
+}
+
+export async function generarFactura(datosVenta, data) {
+    showLoader(); // Mostrar el loader
+
+    try {
+        const queryParams = new URLSearchParams({
+            detalles: JSON.stringify(datosVenta),
+            extra: JSON.stringify(data)
+        });
+
+        const url = `${window.baseURL}/pdf/factura.php?${queryParams}`;
+        window.open(url, '_blank', 'width=800,height=600');
     } catch (error) {
         // Mostrar mensaje de error detallado
         mostrarMensaje(`Ocurrió un error al crear el detalle de venta.<br>${error}`, 'error', 'Error al crear el detalle de venta');

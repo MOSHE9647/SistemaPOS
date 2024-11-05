@@ -76,22 +76,22 @@
         public function setProductoFechaVencimiento($productoFechaVencimiento) { $this->productoFechaVencimiento = $productoFechaVencimiento; }
         public function setProductoEstado(bool $productoEstado) { $this->productoEstado = $productoEstado; }
 
-        public static function fromArray(array $array): Producto {
-            return new Producto (
-                $array['ID'] ?? -1,
-                $array['CodigoBarras'] ? CodigoBarras::fromArray(get_object_vars($array['CodigoBarras'])) : null,
-                $array['Nombre'] ?? '',
-                $array['Cantidad'] ?? 0,
-                $array['PrecioCompra'] ?? 0.0,
-                $array['PorcentajeGanancia'] ?? 0.0,
-                $array['Descripcion'] ?? '',
-                $array['Categoria'] ? Categoria::fromArray(get_object_vars($array['Categoria'])) : null,
-                $array['Subcategoria'] ? Subcategoria::fromArray(get_object_vars($array['Subcategoria'])) : null,
-                $array['Marca'] ? Marca::fromArray(get_object_vars($array['Marca'])) : null,
-                $array['Presentacion'] ? Presentacion::fromArray(get_object_vars($array['Presentacion'])) : null,
-                $array['Imagen'] ?? '',
-                $array['Vencimiento'] ?? '',
-                $array['Estado'] ?? true
+        public static function fromArray(array $producto): Producto {
+            return new Producto(
+                $producto['ID'] ?? -1,
+                Utils::convertToObject($producto['CodigoBarras'] ?? null, CodigoBarras::class),
+                $producto['Nombre'] ?? '',
+                $producto['Cantidad'] ?? 0,
+                $producto['PrecioCompra'] ?? 0.0,
+                $producto['PorcentajeGanancia'] ?? 0.0,
+                $producto['Descripcion'] ?? '',
+                Utils::convertToObject($producto['Categoria'] ?? null, Categoria::class),
+                Utils::convertToObject($producto['Subcategoria'] ?? null, Subcategoria::class),
+                Utils::convertToObject($producto['Marca'] ?? null, Marca::class),
+                Utils::convertToObject($producto['Presentacion'] ?? null, Presentacion::class),
+                $producto['Imagen'] ?? '',
+                $producto['Vencimiento'] ?? '',
+                $producto['Estado'] ?? true
             );
         }
 

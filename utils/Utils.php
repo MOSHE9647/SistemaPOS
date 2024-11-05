@@ -254,6 +254,22 @@
             return $similitud >= $porcentajeSimilitud;
         }
 
+        /**
+         * Convierte un valor a un objeto de una clase específica.
+         *
+         * @param mixed $value El valor a convertir.
+         * @param string $class La clase a la que se desea convertir.
+         * @return mixed El objeto convertido.
+         */
+        public static function convertToObject($value, $class) {
+            if (is_array($value)) {
+                return call_user_func([$class, 'fromArray'], $value);
+            } elseif (is_object($value)) {
+                return call_user_func([$class, 'fromArray'], get_object_vars($value));
+            }
+            return null;
+        }
+
     }
 
 ?>

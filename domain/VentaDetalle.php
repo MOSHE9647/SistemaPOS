@@ -43,8 +43,8 @@
 				$ventaDetalle['ID'] ?? -1,
 				$ventaDetalle['Precio'] ?? 0.0,
 				$ventaDetalle['Cantidad'] ?? 0,
-				$ventaDetalle['Venta'] ? Venta::fromArray(get_object_vars($ventaDetalle['Venta'])) : null,
-				$ventaDetalle['Producto'] ? Producto::fromArray(get_object_vars($ventaDetalle['Producto'])) : null,
+				Utils::convertToObject($ventaDetalle['Venta'] ?? null, Venta::class),
+				Utils::convertToObject($ventaDetalle['Producto'] ?? null, Producto::class),
 				$ventaDetalle['Estado'] ?? true
 			);
 		}

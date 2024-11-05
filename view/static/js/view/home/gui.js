@@ -13,6 +13,7 @@ import * as crud from "./crud.js";
 
 // Variables globales
 var productos = { [tab1]: [] };
+var listaClientes = [];
 var totales = { 
     [tab1]: { 
         moneda: 'CRC',
@@ -128,6 +129,8 @@ export function renderTable(listaProductos) {
     totales[activeTableID]['subtotal'] = getSubtotal(activeTableID);
     totales[activeTableID]['impuesto'] = getImpuesto(activeTableID);
     totales[activeTableID]['total'] = getTotal(activeTableID);
+    totales[activeTableID]['tipoCambio'] = 0.00;
+    totales[activeTableID]['moneda'] = 'CRC';
 
     ['subtotal', 'impuesto', 'total'].forEach(field => {
         const span = activeTable.querySelector(`#sales-${field}`);
@@ -515,15 +518,20 @@ export function mostrarOpcionesDeCobro() {
     })
     .then(result => {
         if (result.isConfirmed || result.isDenied) {
-            const venta = result.value;
+            const ventaDetalle = result.value;
             if (result.isConfirmed) {
                 // Imprimir ticket
-                console.debug("Con Ticket: ", venta);
-                crud.insertVentaDetalle(venta);
+                const data = {
+                    impuesto: obtenerValorImpuesto(),
+                    cliente: listaClientes.find(c => c.ID === parseInt(ventaDetalle[0].Venta.Cliente, 10)),
+                    usuario: usuarioActual
+                }
+
+                crud.generarFactura(ventaDetalle, data);
                 mostrarMensaje('Venta realizada e impresa. (Sin Implementar)', 'success', 'Venta realizada');
             } else {
                 // No imprimir ticket
-                console.debug("Sin Ticket", venta);
+                console.debug("Sin Ticket", ventaDetalle);
                 mostrarMensaje('Venta realizada sin imprimir ticket. (Sin Implementar)', 'success', 'Venta realizada');
             }
             // clearProductList(activeTableID);
@@ -661,18 +669,31 @@ function obtenerDatosDeVenta() {
             break;
     }
 
-    return {
-        clienteID: clienteID, // ID del cliente
-        moneda: totales[activeTableID].moneda, // CRC, USD, EUR
-        montoNeto: parseFloat(totales[activeTableID].total),
-        montoBruto: parseFloat(totales[activeTableID].subtotal),
-        montoImpuesto: parseFloat(totales[activeTableID].impuesto),
-        tipoCambio: parseFloat(totales[activeTableID].tipoCambio),
-        condicion: paymentMethod === 'credito' ? 'CREDITO' : 'CONTADO',
-        tipoPago: paymentMethod.toUpperCase(),  // Efectivo, Tarjeta, SINPE, Credito, Combinado
-        paymentData: paymentData, // { pago, vuelto, referencia, comprobante, vencimiento, notas }
-        productos: listaProductos, // [{ producto: { ID, Nombre, PrecioCompra }, cantidad }]
+    const venta = {
+        Cliente: clienteID,
+        Moneda: totales[activeTableID].moneda,
+        MontoBruto: parseFloat(totales[activeTableID].subtotal),
+        MontoNeto: parseFloat(totales[activeTableID].total),
+        MontoImpuesto: parseFloat(totales[activeTableID].impuesto),
+        Condicion: paymentMethod === 'credito' ? 'CREDITO' : 'CONTADO',
+        TipoPago: paymentMethod.toUpperCase(),
+        TipoCambio: parseFloat(totales[activeTableID].tipoCambio),
+        MontoPago: paymentData.pago || 0.00,
+        MontoVuelto: paymentData.vuelto || 0.00,
+        ReferenciaTarjeta: paymentData.referencia || '',
+        ComprobanteSINPE: paymentData.comprobante || '',
     };
+
+    const listaVentaDetalle = listaProductos.map(data => {
+        return {
+            Precio: data.producto.PrecioCompra,
+            Cantidad: data.cantidad,
+            Venta: venta,
+            Producto: data.producto,
+        }
+    });
+
+    return listaVentaDetalle;
 }
 
 export function clearProductList(tabID = null) {
@@ -757,6 +778,7 @@ function initializeSelectCliente(selectedID = -1) {
         clienteSelect.add(option);
 
         // Llenar el select de clientes
+        listaClientes = clientes;
         clientes.forEach(cliente => {
             // Crear el texto del Select
             const clienteTelefono = cliente.Telefono ? ` (${cliente.Telefono.CodigoPais} ${cliente.Telefono.Numero})` : '';
@@ -899,7 +921,6 @@ function handleClienteSelectChange(event) {
         if (!deudas || deudas.length < 1) {
             // Si el cliente no tiene deudas, ocultar el formulario de deuda
             clienteDeudaForm.style.display !== 'none' && (clienteDeudaForm.style.display = 'none');
-            console.log('El cliente no tiene deudas: ', deudas);
             return;
         }
 
@@ -976,6 +997,7 @@ function handleCurrencySelect(event) {
         .then(data => {
             const rate = data.rates['CRC'];
             totales[getActiveTable().id].tipoCambio = rate || 0.00;
+
             currencyInfo.innerHTML = `¢${rate ? rate.toFixed(2) : '0.00'}`;
             const currencySymbols = { 'USD': '$', 'EUR': '€', 'CRC': '¢' };
 

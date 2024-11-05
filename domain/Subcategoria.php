@@ -1,6 +1,7 @@
 <?php
 
     require_once dirname(__DIR__, 1) . '/domain/Categoria.php';
+    require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
     class Subcategoria implements JsonSerializable {
 
@@ -40,7 +41,7 @@
                 $subcategoria['ID'] ?? -1,
                 $subcategoria['Nombre'] ?? "",
                 $subcategoria['Descripcion'] ?? "",
-                $subcategoria['Categoria'] ? Categoria::fromArray(get_object_vars($subcategoria['Categoria'])) : null,
+                Utils::convertToObject($subcategoria['Categoria'] ?? null, Categoria::class),
                 $subcategoria['Estado'] ?? true
             );
         }
