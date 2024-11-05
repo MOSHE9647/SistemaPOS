@@ -74,6 +74,53 @@ class VentaDetalleBusiness {
     }
 
     /**
+     * Inserta una venta con sus detalles en la base de datos.
+     *
+     * @param array $ventaDetalles Lista de detalles de venta a insertar.
+     * @return array Resultado de la operación de inserción.
+     */
+    public function insertVentaConDetalles($ventaDetalles) {
+        if (empty($ventaDetalles)) {
+            return ["success" => false, "message" => "La lista de detalles de venta está vacía."];
+        }
+
+        // Validar cada detalle de venta
+        foreach ($ventaDetalles as $ventaDetalle) {
+            $check = $this->validarVentaDetalle($ventaDetalle);
+            if (!$check["is_valid"]) {
+                return ["success" => false, "message" => $check["message"]];
+            }
+        }
+
+        // Obtener la venta del primer detalle de venta
+        $venta = $ventaDetalles[0]->getVenta();
+
+        // Iniciar transacción
+        $this->ventaDetalleData->beginTransaction();
+
+        // Insertar la venta
+        $insertVentaResult = $this->ventaDetalleData->insertVenta($venta);
+        if (!$insertVentaResult["success"]) {
+            $this->ventaDetalleData->rollback();
+            return ["success" => false, "message" => "Error al insertar la venta."];
+        }
+
+        // Insertar cada detalle de venta
+        foreach ($ventaDetalles as $ventaDetalle) {
+            $ventaDetalle->setVentaID($insertVentaResult["venta_id"]);
+            $insertDetalleResult = $this->ventaDetalleData->insertVentaDetalle($ventaDetalle);
+            if (!$insertDetalleResult["success"]) {
+                $this->ventaDetalleData->rollback();
+                return ["success" => false, "message" => "Error al insertar un detalle de venta."];
+            }
+        }
+
+        // Confirmar transacción
+        $this->ventaDetalleData->commit();
+        return ["success" => true, "message" => "Venta y detalles insertados correctamente."];
+    }
+
+    /**
      * Actualiza la información de un detalle de venta.
      *
      * @param VentaDetalle $ventaDetalle Los datos del detalle de venta a actualizar.
