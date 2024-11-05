@@ -77,8 +77,11 @@ Class VentaBusiness {
                 $ventaMontoImpuesto = $venta->getVentaMontoImpuesto();
                 $ventaCondicionVenta =  $venta->getVentaCondicionVenta();
                 $ventaTipoPago =  $venta->getVentaTipoPago();
-                $errors = [];
-                
+                $ventaMontoPago =  $venta->getVentaMontoPago();
+                $ventaMontoVuelto =  $venta->getVentaMontoVuelto();
+                $ventaReferenciaTarjeta =  $venta->getVentaReferenciaTarjeta();
+                $ventaComprobanteSinpe =  $venta->getVentaComprobanteSinpe();                
+                $errors = [];           
     
                  // Verifica que el ID del producto sea válido
                  if (!$insert) {
@@ -94,6 +97,18 @@ Class VentaBusiness {
                      //   $errors[] = "El campo 'Cliente' está vacío.";
                        // Utils::writeLog("El campo 'Cliente ID [$ventaCliente]' no es válido.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
                   // }
+
+
+                  if (empty($ventaReferenciaTarjeta)) {
+                    $errors[] = "El campo 'Referencia tarjeta' está vacío.";
+                    Utils::writeLog("El campo 'referencia tarjeta [$ventaReferenciaTarjeta]' está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
+                }
+
+                if (empty($ventaComprobanteSinpe )) {
+                    $errors[] = "El campo 'Comprobante' está vacío.";
+                    Utils::writeLog("El campo 'Comprobante [$ventaComprobanteSinpe]' está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
+                }
+
 
                     if (empty($ventaNumeroFactura)) {
                         $errors[] = "El campo 'Número de factura' está vacío.";
@@ -138,6 +153,30 @@ Class VentaBusiness {
                         $errors[] = "El campo 'Tipo de pago' está vacío.";
                         Utils::writeLog("El campo 'Tipo de pago [$ventaTipoPago]' está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE,  $this->className, __LINE__);
                     }
+
+                    if ($ventaMontoPago === null || $ventaMontoPago < 0) {
+                        if ($ventaMontoPago === null) {
+                            $errors[] = "El campo 'Monto pago' está vacío.";
+                            Utils::writeLog("El campo 'Monto pago [$ventaMontoPago]' no es válido: está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
+                        } else {
+                            $errors[] = "El campo 'Monto pago' tiene que ser positivo.";
+                            Utils::writeLog("El campo 'Monto pago [$ventaMontoPago]' no es válido: es negativo.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
+                        }
+                    }
+
+                    
+                    if ($ventaMontoVuelto === null || $ventaMontoVuelto < 0) {
+                        if ($ventaMontoVuelto === null) {
+                            $errors[] = "El campo 'Monto vuelto' está vacío.";
+                            Utils::writeLog("El campo 'Monto pago [$ventaMontoVuelto]' no es válido: está vacío.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
+                        } else {
+                            $errors[] = "El campo 'Monto vuelto' tiene que ser positivo.";
+                            Utils::writeLog("El campo 'Monto pago [$ventaMontoVuelto]' no es válido: es negativo.", BUSINESS_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
+                        }
+                    }
+
+                 
+                    
 
                 }
     

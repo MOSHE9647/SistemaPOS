@@ -45,6 +45,10 @@ if ($method == "POST") {
     $ventamontoimpuesto     = isset($_POST['montoimpuesto'])         ? floatval($_POST['montoimpuesto']) : 0.0; // Monto impuesto
     $ventacondicionventa    = isset($_POST['condicionventa'])        ? $_POST['condicionventa']   : ""; // Condición de venta
     $ventatipopago          = isset($_POST['tipopago'])              ? $_POST['tipopago']         : ""; // Tipo de pago
+    $ventamontopago        = isset($_POST['montopago'])             ? floatval($_POST['montopago']) : 0.0; // Monto neto
+    $ventamontovuelto     = isset($_POST['montovuelto'])         ? floatval($_POST['montovuelto']) : 0.0; // Monto impuesto
+    $ventareferenciatarjeta     = isset($_POST['referenciatarjeta'])         ? $_POST['referenciatarjeta']    : ''; // Fecha de creación
+    $ventacomprobantesinpe = isset($_POST['comprobantesinpe'])     ? $_POST['comprobantesinpe'] : ''; // Fecha de modificación
     $ventafechacreacion     = isset($_POST['fechacreacion'])         ? $_POST['fechacreacion']    : ''; // Fecha de creación
     $ventafechamodificacion = isset($_POST['fechamodificacion'])     ? $_POST['fechamodificacion'] : ''; // Fecha de modificación
 
@@ -60,7 +64,8 @@ if ($method == "POST") {
 
         // Crea la instancia de Venta solo si no es una acción de eliminación
         $venta = new Venta($id, $cliente, $ventanumerofactura, $ventamoneda, $ventamontobruto, $ventamontoneto, $ventamontoimpuesto, 
-        $ventacondicionventa, $ventatipopago, $ventafechacreacion, $ventafechamodificacion);
+        $ventacondicionventa, $ventatipopago, $ventamontopago, $ventamontovuelto, $ventareferenciatarjeta,
+        $ventacomprobantesinpe, $ventafechacreacion, $ventafechamodificacion);
         
         
         // Verifica que los datos de la compra sean válidos

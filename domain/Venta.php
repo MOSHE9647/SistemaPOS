@@ -14,6 +14,10 @@
         private $ventaMontoImpuesto;
         private $ventaCondicionVenta;
         private $ventaTipoPago;
+        private $ventaMontoPago;
+        private $ventaMontoVuelto;
+        private $ventaReferenciaTarjeta;
+        private $ventaComprobanteSinpe;
         private $ventaFechaCreacion;
         private $ventaFechaModificacion;
         private $ventaEstado;
@@ -28,6 +32,10 @@
             float $ventaMontoImpuesto = 0.0,
             string $ventaCondicionVenta = "CONTADO",
             string $ventaTipoPago = "EFECTIVO",
+            float $ventaMontoPago = 0.0,
+            float $ventaMontoVuelto = 0.0,
+            $ventaReferenciaTarjeta = "",
+            $ventaComprobanteSinpe = "",
             $ventaFechaCreacion = "",
             $ventaFechaModificacion = "",
             bool $ventaEstado = true
@@ -41,6 +49,10 @@
             $this->ventaMontoImpuesto = Utils::formatearDecimal($ventaMontoImpuesto);
             $this->ventaCondicionVenta = strtoupper($ventaCondicionVenta);
             $this->ventaTipoPago = strtoupper($ventaTipoPago);
+            $this->ventaMontoPago = Utils::formatearDecimal($ventaMontoPago);
+            $this->ventaMontoVuelto = Utils::formatearDecimal($ventaMontoVuelto);
+            $this->ventaReferenciaTarjeta = strtoupper($ventaReferenciaTarjeta);
+            $this->ventaComprobanteSinpe = strtoupper($ventaComprobanteSinpe);
             $this->ventaFechaCreacion = $ventaFechaCreacion;
             $this->ventaFechaModificacion = $ventaFechaModificacion;
             $this->ventaEstado = $ventaEstado;
@@ -55,6 +67,10 @@
         public function getVentaMontoImpuesto(): float { return $this->ventaMontoImpuesto; }
         public function getVentaCondicionVenta(): string { return $this->ventaCondicionVenta; }
         public function getVentaTipoPago(): string { return $this->ventaTipoPago; }
+        public function getVentaMontoPago(): float { return $this->ventaMontoPago; }
+        public function getVentaMontoVuelto(): float { return $this->ventaMontoVuelto; }
+        public function getVentaReferenciaTarjeta() { return $this->ventaReferenciaTarjeta; }
+        public function getVentaComprobanteSinpe() { return $this->ventaComprobanteSinpe; }
         public function getVentaFechaCreacion() { return $this->ventaFechaCreacion; }
         public function getVentaFechaModificacion() { return $this->ventaFechaModificacion; }
         public function getVentaEstado(): bool { return $this->ventaEstado; }
@@ -68,6 +84,10 @@
         public function setVentaMontoImpuesto(float $ventaMontoImpuesto) { $this->ventaMontoImpuesto = Utils::formatearDecimal($ventaMontoImpuesto); }
         public function setVentaCondicionVenta(string $ventaCondicionVenta) { $this->ventaCondicionVenta = strtoupper($ventaCondicionVenta); }
         public function setVentaTipoPago(string $ventaTipoPago) { $this->ventaTipoPago = strtoupper($ventaTipoPago); }
+        public function setVentaMontoPago(float $ventaMontoPago) { $this->ventaMontoPago = Utils::formatearDecimal($ventaMontoPago); }
+        public function setVentaMontoVuelto(float $ventaMontoVuelto) {  $this->ventaMontoVuelto = Utils::formatearDecimal($ventaMontoVuelto); }
+        public function setVentaReferenciaTarjeta($ventaReferenciaTarjeta) {  $this->ventaReferenciaTarjeta = strtoupper($ventaReferenciaTarjeta); }
+        public function setVentaComprobanteSinpe($ventaComprobanteSinpe) {  $this->ventaComprobanteSinpe = strtoupper($ventaComprobanteSinpe); }
         public function setVentaFechaCreacion($ventaFechaCreacion) { $this->ventaFechaCreacion = $ventaFechaCreacion; }
         public function setVentaFechaModificacion($ventaFechaModificacion) { $this->ventaFechaModificacion = $ventaFechaModificacion; }
         public function setVentaEstado(bool $ventaEstado) { $this->ventaEstado = $ventaEstado; }
@@ -86,6 +106,10 @@
                 'MontoImpuesto' => $this->ventaMontoImpuesto,
                 'CondicionVenta' => $this->ventaCondicionVenta,
                 'TipoPago' => $this->ventaTipoPago,
+                'MontoPago' => $this->ventaMontoPago,
+                'MontoVuelto' => $this->ventaMontoVuelto,
+                'ReferenciaTarjeta' => $this->ventaReferenciaTarjeta,
+                'ComprobanteSinpe' => $this->ventaComprobanteSinpe,
                 'Cliente' => [
                     'ID' => $this->ventaCliente ? $this->ventaCliente->getClienteID() : null,
                     'Nombre' => $this->ventaCliente ? $this->ventaCliente->getClienteNombre() : null,

@@ -167,10 +167,14 @@
                     . VENTA_MONTO_IMPUESTO . ", "
                     . VENTA_CONDICION_VENTA . ", "
                     . VENTA_TIPO_PAGO . ", "
+                    . VENTA_MONTO_PAGO . ", "
+                    . VENTA_MONTO_VUELTO . ", "
+                    . VENTA_REFERENCIA_TARJETA . ", "
+                    . VENTA_COMPROBANTE_SINPE . ", "
                     . VENTA_CREACION . ", "
                     . VENTA_MODIFICACION . ", "
                     . VENTA_ESTADO
-                    . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true)";
+                    . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
         
                      // Obtener los valores de las propiedades del objeto $venta
@@ -182,11 +186,15 @@
         $ventaMontoImpuesto = $venta->getVentaMontoImpuesto();
         $ventaCondicionVenta = $venta->getVentaCondicionVenta();
         $ventaTipoPago = $venta->getVentaTipoPago();
+        $ventaMontoPago = $venta->getVentaMontoPago();
+        $ventaMontoVuelto = $venta->getVentaMontoVuelto();
+        $ventaReferenciaTarjeta = $venta->getVentaReferenciaTarjeta();
+        $ventaComprobanteSinpe = $venta->getVentaComprobanteSinpe();
 
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                   'iissdddssss', // Define los tipos: i = entero, s = cadena, d = decimal
+                   'iissdddssddssss', // Define los tipos: i = entero, s = cadena, d = decimal
                      $nextId,
                      $ventaCliente,
                      $ventaNumeroFactura,
@@ -196,6 +204,10 @@
                      $ventaMontoImpuesto,
                      $ventaCondicionVenta,
                      $ventaTipoPago,
+                     $ventaMontoPago,
+                     $ventaMontoVuelto,
+                     $ventaReferenciaTarjeta,
+                     $ventaComprobanteSinpe,
                      $ventaFechaCreacion,
                      $ventaFechaModificacion
                 );
@@ -272,6 +284,10 @@
                     VENTA_MONTO_IMPUESTO . " = ?, " .
                     VENTA_CONDICION_VENTA . " = ?, " .  
                     VENTA_TIPO_PAGO . " = ?, " .
+                    VENTA_MONTO_PAGO . " = ?, " .  
+                    VENTA_MONTO_VUELTO . " = ?, " .
+                    VENTA_REFERENCIA_TARJETA . " = ?, " .
+                    VENTA_COMPROBANTE_SINPE . " = ?, " .
                     VENTA_CREACION . " = ?, " .
                     VENTA_MODIFICACION . " = ?, " .
                     VENTA_ESTADO . " = true " .
@@ -293,11 +309,15 @@
                 $ventaTipoPago = $venta->getVentaTipoPago();
                 $ventaFechaCreacion = $venta->getVentaFechaCreacion();
                 $ventaFechaModificacion = $venta->getVentaFechaModificacion();
+                $ventaMontoPago = $venta->getVentaMontoPago();
+                $ventaMontoVuelto = $venta->getVentaMontoVuelto();
+                $ventaReferenciaTarjeta = $venta->getVentaReferenciaTarjeta();
+                $ventaComprobanteSinpe = $venta->getVentaComprobanteSinpe();
         
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'issdddssssi', // Ajusta los tipos según el tipo de dato de cada columna en la base de datos
+                    'issdddssddssssi', // Ajusta los tipos según el tipo de dato de cada columna en la base de datos
                     $clienteID,
                     $ventaNumeroFactura, 
                     $ventaMoneda,
@@ -306,6 +326,10 @@
                     $ventaMontoImpuesto,
                     $ventaCondicionVenta,
                     $ventaTipoPago,
+                    $ventaMontoPago,
+                    $ventaMontoVuelto,
+                    $ventaReferenciaTarjeta,
+                    $ventaComprobanteSinpe,
                     $ventaFechaCreacion,
                     $ventaFechaModificacion,
                     $ventaID
@@ -492,6 +516,10 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
                 $row[VENTA_MONTO_IMPUESTO],
                 $row[VENTA_CONDICION_VENTA],
                 $row[VENTA_TIPO_PAGO],
+                $row[VENTA_MONTO_PAGO],
+                $row[VENTA_MONTO_VUELTO],
+                $row[VENTA_REFERENCIA_TARJETA],
+                $row[VENTA_COMPROBANTE_SINPE],
                 $row[VENTA_CREACION],
                 $row[VENTA_MODIFICACION],
                 $row[VENTA_ESTADO]
@@ -570,6 +598,10 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
                     v." . VENTA_MONTO_BRUTO . ", 
                     v." . VENTA_MONTO_NETO . ", 
                     v." . VENTA_TIPO_PAGO . ", 
+                    v." . VENTA_MONTO_PAGO . ", 
+                    v." . VENTA_MONTO_VUELTO . ", 
+                    v." . VENTA_REFERENCIA_TARJETA . ", 
+                    v." . VENTA_COMPROBANTE_SINPE . ", 
                     v." . VENTA_CREACION . ", 
                     v." . VENTA_MODIFICACION . ", 
                     v." . VENTA_ESTADO . "
@@ -617,6 +649,10 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
                         'MontoBruto' => $row[VENTA_MONTO_BRUTO],
                         'MontoNeto' => $row[VENTA_MONTO_NETO],
                         'TipoPago' => $row[VENTA_TIPO_PAGO],
+                        'MontoPago' => $row[VENTA_MONTO_PAGO],
+                        'MontoVuelto' => $row[VENTA_MONTO_VUELTO],
+                        'ReferenciaTarjeta' => $row[VENTA_REFERENCIA_TARJETA],
+                        'ComprobanteSinpe' => $row[VENTA_COMPROBANTE_SINPE],
                         'FechaCreacion' => $row[VENTA_CREACION],
                         'FechaModificacion' => $row[VENTA_MODIFICACION],
                         'Estado' => $row[VENTA_ESTADO]
@@ -703,6 +739,10 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
                     $row[VENTA_MONTO_IMPUESTO],
                     $row[VENTA_CONDICION_VENTA],
                     $row[VENTA_TIPO_PAGO],  
+                    $row[VENTA_MONTO_PAGO],
+                    $row[VENTA_MONTO_VUELTO],
+                    $row[VENTA_REFERENCIA_TARJETA],
+                    $row[VENTA_COMPROBANTE_SINPE], 
                     $row[VENTA_CREACION],
                     $row[VENTA_MODIFICACION],  
                     $row[VENTA_ESTADO]
