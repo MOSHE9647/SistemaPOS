@@ -330,7 +330,7 @@ export function mostrarOpcionesDeCobro() {
 
             <h2>M&eacute;todo de Pago</h2>
             <div class="payment-info">
-                <div class="payment-info methods" id="payment-methods">
+                <form class="payment-info methods" id="payment-methods">
                     <div class="payment-info methods buttons">
                         <button id="btn-method-efectivo" class="payment-method active" data-method="efectivo">
                             <span class="las la-money-bill"></span>
@@ -359,7 +359,11 @@ export function mostrarOpcionesDeCobro() {
                         <div class="payment-info input-select container">
                             <div class="payment-info methods input-select item">
                                 <label for="pago-efectivo">Pag&oacute; con:</label>
-                                <input type="number" id="pago-efectivo" name="pago" value="0.00" min="0" step="0.01">
+                                <input 
+                                    type="number" id="pago-efectivo" name="pago" 
+                                    value="${totales[activeTableID]['total']}" min="${totales[activeTableID]['total']}" 
+                                    step="0.10" required
+                                >
                             </div>
                             <div class="payment-info methods input-select item">
                                 <label for="vuelto-efectivo">Su cambio:</label>
@@ -401,14 +405,14 @@ export function mostrarOpcionesDeCobro() {
                             </div>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
 
             <h2>Informaci&oacute;n del Cliente</h2>
             <div class="cliente-info">
                 <div class="cliente-info info">
                     <div class="cliente-info input-select basic">
-                        <label>Cliente atendido (*):</label>
+                        <label>Cliente atendido:</label>
                         <div class="select">
                             <select id="cliente-select">
                                 <option value="">-- Seleccionar --</option>
@@ -431,19 +435,19 @@ export function mostrarOpcionesDeCobro() {
                             </div>
                             <div class="cliente-form-group">
                                 <div class="cliente-info input-select form">
-                                    <label>Tipo de Tel&eacute;fono (*):</label>
+                                    <label>Tipo de Tel&eacute;fono:</label>
                                     <select id="tipo-select" required>
                                         <option value="">--Seleccionar--</option>
                                     </select>
                                 </div>
                                 <div class="cliente-info input-select form">
-                                    <label>Código de Pa&iacute;s (*):</label>
+                                    <label>Código de Pa&iacute;s:</label>
                                     <select id="codigo-select" required>
                                         <option value="">--Seleccionar--</option>
                                     </select>
                                 </div>
                                 <div class="cliente-info input-select form">
-                                    <label for="numero">Número de Tel&eacute;fono (*):</label>
+                                    <label for="numero">Número de Tel&eacute;fono:</label>
                                     <input type="text" id="numero" name="numero" required>
                                 </div>
                             </div>
@@ -505,7 +509,24 @@ export function mostrarOpcionesDeCobro() {
                 mostrarMensaje('Error al obtener los datos de la venta.', 'error', 'Error de venta');
                 return false;
             }
-            return venta;
+
+            const cobroForm = document.getElementById('payment-methods');
+            if (!cobroForm) {
+                mostrarMensaje('No se encontró el formulario de cobro.', 'error', 'Error de formulario');
+                return false;
+            }
+
+            if (!cobroForm.checkValidity()) {
+                cobroForm.reportValidity();
+                return false;
+            }
+
+            const data = {
+                impuesto: obtenerValorImpuesto(),
+                cliente: listaClientes.find(c => c.ID === parseInt(venta[0].Venta.Cliente, 10)),
+                usuario: usuarioActual
+            };
+            return { venta, data };
         },
         preDeny: () => {
             const venta = obtenerDatosDeVenta();
@@ -513,29 +534,52 @@ export function mostrarOpcionesDeCobro() {
                 mostrarMensaje('Error al obtener los datos de la venta.', 'error', 'Error de venta');
                 return false;
             }
-            return venta;
+            
+            const cobroForm = document.getElementById('payment-methods');
+            if (!cobroForm) {
+                mostrarMensaje('No se encontró el formulario de cobro.', 'error', 'Error de formulario');
+                return false;
+            }
+            
+            if (!cobroForm.checkValidity()) {
+                cobroForm.reportValidity();
+                return false;
+            }
+
+            return { venta };
         }
     })
     .then(result => {
         if (result.isConfirmed || result.isDenied) {
-            const ventaDetalle = result.value;
+            const { venta, data } = result.value;
             if (result.isConfirmed) {
                 // Imprimir ticket
-                const data = {
-                    impuesto: obtenerValorImpuesto(),
-                    cliente: listaClientes.find(c => c.ID === parseInt(ventaDetalle[0].Venta.Cliente, 10)),
-                    usuario: usuarioActual
-                }
-
-                crud.generarFactura(ventaDetalle, data);
-                mostrarMensaje('Venta realizada e impresa. (Sin Implementar)', 'success', 'Venta realizada');
-            } else {
-                // No imprimir ticket
-                console.debug("Sin Ticket", ventaDetalle);
-                mostrarMensaje('Venta realizada sin imprimir ticket. (Sin Implementar)', 'success', 'Venta realizada');
+                crud.generarFactura(venta, data);
             }
-            // clearProductList(activeTableID);
-            // renderTable(productos[activeTableID]);
+
+            // Intenta guardar la venta en la BD
+            crud.insertVentaDetalle(venta).then((success) => {
+                if (!success) {
+                    mostrarMensaje('Venta realizada con éxito.', 'success', 'Venta realizada');
+
+                    const lastSaleInfo = {
+                        total: parseFloat(totales[activeTableID].total ?? 0.00),
+                        pay: venta[0].Venta.MontoPago,
+                        change: venta[0].Venta.MontoVuelto
+                    };
+
+                    Object.entries(lastSaleInfo).forEach(([field, value]) => {
+                        const span = document.getElementById(`last-sale-${field}`);
+                        if (span) span.innerHTML = `&#162;${value.toFixed(2)}`;
+                    });
+                } else {
+                    mostrarMensaje('Error al realizar la venta.', 'error', 'Error de venta');
+                }
+            });
+
+            // Limpiar la lista de productos y renderizar la tabla
+            // clearProductList(getActiveTable().id);
+            // renderTable(productos[getActiveTable().id]);
         }
     })
     .catch(() => {
@@ -543,6 +587,7 @@ export function mostrarOpcionesDeCobro() {
     });
 
     // Evitar que el formulario se envíe al presionar Enter
+    addEventListenerToElement('payment-methods', 'submit', event => event.preventDefault());
     addEventListenerToElement('cliente-form', 'submit', event => event.preventDefault());
     addEventListenerToElement('cliente-deuda-form', 'submit', event => event.preventDefault());
 
@@ -886,7 +931,14 @@ function handlePaymentMethodChange(event) {
 
     // Toggle active class on method containers
     paymentMethods.querySelectorAll('.payment-info.methods.container').forEach(container => {
-        container.classList.toggle('active', container.id === `payment-method-${method}`);
+        const isActive = container.id === `payment-method-${method}`;
+        container.classList.toggle('active', isActive);
+
+        // Set required attribute for inputs in the active container if they are not disabled
+        container.querySelectorAll('input, select').forEach(input => {
+            if (input.id === 'notas') return;
+            input.required = isActive && !input.disabled;
+        });
     });
 
     // Toggle active class on method buttons
@@ -1014,6 +1066,15 @@ function handleCurrencySelect(event) {
                     element.innerHTML = `${currencySymbol}${newValue.toFixed(2)}`;
                 }
             };
+
+            const pagoEfectivo = document.getElementById('pago-efectivo');
+            const pagoEfectivoContainer = document.getElementById('payment-method-efectivo');
+            if (pagoEfectivo && pagoEfectivoContainer.classList.contains('active')) {
+                const value = parseFloat(totales[getActiveTable().id]['total']);
+                const newValue = currency === 'CRC' ? value * rate : value / rate;
+                pagoEfectivo.min = newValue.toFixed(2);
+                pagoEfectivo.value = newValue.toFixed(2);
+            }
 
             ['subtotal', 'impuesto', 'total'].forEach(field => {
                 updateCurrencyValues(field, rate, currencySymbols[currency]);

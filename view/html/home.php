@@ -94,7 +94,7 @@
                     </div>
                     <div class="last-sale paid-with">
                         <span>Pag&oacute; con:</span>
-                        <span id="last-sale-date">&#162;0.00</span>
+                        <span id="last-sale-pay">&#162;0.00</span>
                     </div>
                     <div class="last-sale change">
                         <span>Cambio:</span>

@@ -189,7 +189,7 @@ export async function obtenerDeudasPorClienteID(id) {
  * insertVentaDetalle(datosVenta);
  * 
  * @param {Object} datosVenta - Los datos del detalle de venta.
- * @returns {void}
+ * @returns {boolean} true si la operación fue exitosa, false en caso contrario.
  */
 export async function insertVentaDetalle(datosVenta) {
     showLoader(); // Mostrar el loader
@@ -203,39 +203,25 @@ export async function insertVentaDetalle(datosVenta) {
                 detalles: JSON.stringify(datosVenta)
             })
         });
-        if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el detalle de venta');
+        if (!response.ok) {
+            mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el detalle de venta');
+            return false;
+        }
         const data = await verificarRespuestaJSON(response);
         
         // Verificar si hubo un error en la solicitud
         if (!data.success) {
             mostrarMensaje(data.message, 'error', 'Error al crear el detalle de venta');
-            return; // Salir de la función si hay error
+            return false; // Salir de la función si hay error
         }
-
-        // // Si el detalle de venta está inactivo, preguntar al usuario si desea actualizarlo
-        // if (data.inactive) {
-        //     const confirmacion = confirm(data.message);
-        //     if (!confirmacion) {
-        //         mostrarMensaje("Se canceló la creación del detalle de venta", 'info', 'Creación cancelada');
-        //         return -1; // Salir de la función si se cancela la actualización
-        //     }
-
-        //     // Intentar actualizar el detalle de venta existente
-        //     const ventaDetalle = await obtenerVentaDetallePorID(parseInt(data.id), true, true);
-        //     formData.set('accion', 'actualizar');
-        //     formData.append('id', ventaDetalle.ID);
-        //     formData.append('producto', ventaDetalle.Producto.ID);
-        //     updateVentaDetalle(formData); // Actualizar el detalle de venta
-        //     return parseInt(data.id); // Salir de la función
-        // }
 
         // Mostrar mensaje de éxito y recargar los detalles de venta
         mostrarMensaje(data.message, 'success');
-        return;
+        return true;
     } catch (error) {
         // Mostrar mensaje de error detallado
         mostrarMensaje(`Ocurrió un error al crear el detalle de venta.<br>${error}`, 'error', 'Error al crear el detalle de venta');
-        return;
+        return false;
     } finally {
         hideLoader(); // Ocultar el loader
     }

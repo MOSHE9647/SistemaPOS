@@ -107,9 +107,9 @@
                 floatval($venta['MontoImpuesto']) ?? 0.0,
                 $venta['Condicion'] ?? "CONTADO",
                 $venta['TipoPago'] ?? "EFECTIVO",
-                floatval($venta['TipoCambio']) ?? 0.0,
                 floatval($venta['MontoPago']) ?? 0.0,
                 floatval($venta['MontoVuelto']) ?? 0.0,
+                floatval($venta['TipoCambio']) ?? 0.0,
                 $venta['ReferenciaTarjeta'] ?? "",
                 $venta['ComprobanteSINPE'] ?? ""
             );

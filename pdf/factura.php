@@ -190,6 +190,10 @@
                 <span>Moneda:</span>
                 <span id="moneda"></span>
             </div>
+            <div class="detalle-extra">
+                <span>Tipo de Pago:</span>
+                <span id="tipoPago"></span>
+            </div>
             <div class="detalle-extra" style="display: none;">
                 <span>Tipo de Cambio:</span>
                 <span id="tipoCambio"></span>
@@ -226,14 +230,15 @@
             cliente: datosExtra.cliente?.Nombre + ' - ' + datosExtra.cliente?.Alias,
             cajero: datosExtra.usuario,
             moneda: venta.Moneda,
-            tipoCambio: venta.TipoCambio.toFixed(2),
+            tipoCambio: venta.TipoCambio ? parseFloat(venta.TipoCambio).toFixed(2) : null,
             tipoVenta: venta.CondicionVenta,
+            tipoPago: venta.TipoPago,
             productos: productos,
-            subtotal: venta.MontoBruto.toFixed(2),
-            impuesto: venta.MontoImpuesto.toFixed(2),
-            total: venta.MontoNeto.toFixed(2),
-            pago: venta.MontoPago.toFixed(2),
-            vuelto: venta.MontoVuelto.toFixed(2)
+            subtotal: parseFloat(venta.MontoBruto).toFixed(2),
+            impuesto: parseFloat(venta.MontoImpuesto).toFixed(2),
+            total: parseFloat(venta.MontoNeto).toFixed(2),
+            pago: parseFloat(venta.MontoPago).toFixed(2),
+            vuelto: parseFloat(venta.MontoVuelto).toFixed(2)
         };
 
         // Función para llenar la factura
@@ -243,8 +248,13 @@
             document.getElementById('nombreCliente').textContent = factura.cliente;
             document.getElementById('nombreCajero').textContent = factura.cajero;
             document.getElementById('moneda').textContent = factura.moneda;
-            document.getElementById('tipoCambio').textContent = `¢${factura.tipoCambio}`;
             document.getElementById('tipoVenta').textContent = factura.tipoVenta;
+            document.getElementById('tipoPago').textContent = factura.tipoPago;
+
+            if (factura.tipoCambio) {
+                document.getElementById('tipoCambio').parentElement.style.display = 'flex';
+                document.getElementById('tipoCambio').textContent = `¢${factura.tipoCambio}`;
+            }
 
             const listaProductos = document.getElementById('listaProductos');
             factura.productos.forEach(data => {
@@ -263,10 +273,11 @@
                 listaProductos.innerHTML += fila;
             });
 
+            const currencySymbols = { USD: '$', EUR: '€', CRC: '¢' };
             document.getElementById('subtotal').textContent = `¢${factura.subtotal}`;
             document.getElementById('ivaTotal').textContent = `¢${factura.impuesto}`;
             document.getElementById('total').textContent = `¢${factura.total}`;
-            document.getElementById('pago').textContent = `¢${factura.pago}`;
+            document.getElementById('pago').textContent = `${currencySymbols[factura.moneda]}${factura.pago}`;
             document.getElementById('vuelto').textContent = `¢${factura.vuelto}`;
         }
 
