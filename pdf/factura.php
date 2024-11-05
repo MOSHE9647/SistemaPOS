@@ -190,13 +190,13 @@
                 <span>Moneda:</span>
                 <span id="moneda"></span>
             </div>
-            <div class="detalle-extra">
-                <span>Tipo de Pago:</span>
-                <span id="tipoPago"></span>
-            </div>
             <div class="detalle-extra" style="display: none;">
                 <span>Tipo de Cambio:</span>
                 <span id="tipoCambio"></span>
+            </div>
+            <div class="detalle-extra">
+                <span>Tipo de Pago:</span>
+                <span id="tipoPago"></span>
             </div>
         </div>
     </div>
@@ -230,7 +230,7 @@
             cliente: datosExtra.cliente?.Nombre + ' - ' + datosExtra.cliente?.Alias,
             cajero: datosExtra.usuario,
             moneda: venta.Moneda,
-            tipoCambio: venta.TipoCambio ? parseFloat(venta.TipoCambio).toFixed(2) : null,
+            tipoCambio: parseFloat(venta.TipoCambio ?? 0.00).toFixed(2),
             tipoVenta: venta.CondicionVenta,
             tipoPago: venta.TipoPago,
             productos: productos,
@@ -251,7 +251,7 @@
             document.getElementById('tipoVenta').textContent = factura.tipoVenta;
             document.getElementById('tipoPago').textContent = factura.tipoPago;
 
-            if (factura.tipoCambio) {
+            if (factura.tipoCambio && factura.tipoCambio > 0) {
                 document.getElementById('tipoCambio').parentElement.style.display = 'flex';
                 document.getElementById('tipoCambio').textContent = `¢${factura.tipoCambio}`;
             }

@@ -289,7 +289,10 @@ export function mostrarOpcionesDeCobro() {
 
     // Obtenemos el ID de la tabla activa
     const activeTableID = activeTable.id;
-    // const usuario = usuarioActual;
+
+    // Resetear el tipo de cambio y la moneda
+    totales[activeTableID]['tipoCambio'] = 0.00;
+    totales[activeTableID]['moneda'] = 'CRC';
 
     let html = `
         <div class="modal-form-container">
@@ -722,7 +725,7 @@ function obtenerDatosDeVenta() {
         MontoImpuesto: parseFloat(totales[activeTableID].impuesto),
         Condicion: paymentMethod === 'credito' ? 'CREDITO' : 'CONTADO',
         TipoPago: paymentMethod.toUpperCase(),
-        TipoCambio: parseFloat(totales[activeTableID].tipoCambio),
+        TipoCambio: parseFloat(totales[activeTableID].tipoCambio || 0.00),
         MontoPago: paymentData.pago || 0.00,
         MontoVuelto: paymentData.vuelto || 0.00,
         ReferenciaTarjeta: paymentData.referencia || '',

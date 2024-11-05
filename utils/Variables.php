@@ -195,22 +195,23 @@
 	define('USUARIO_ESTADO'			, 'usuarioestado'); 			//<- Estado del Usuario
 
 	// TABLA 'tbVenta':
-	define('TB_VENTA'				, 'tbventa'); 					//<- Nombre de la Tabla
-	define('VENTA_ID'				, 'ventaid'); 					//<- ID de la Venta
-	define('VENTA_NUMERO_FACTURA'	, 'ventanumerofactura'); 		//<- Número de Factura de la Venta
-	define('VENTA_MONEDA'			, 'ventamoneda'); 				//<- Moneda de la Venta
-	define('VENTA_MONTO_BRUTO'		, 'ventamontobruto'); 			//<- Monto Bruto de la Venta
-	define('VENTA_MONTO_NETO'		, 'ventamontoneto'); 			//<- Monto Neto de la Venta
-	define('VENTA_MONTO_IMPUESTO'	, 'ventamontoimpuesto'); 		//<- Monto de Impuesto de la Venta
-	define('VENTA_CONDICION_VENTA'	, 'ventacondicionventa'); 		//<- Condición de la Venta
-	define('VENTA_TIPO_PAGO'		, 'ventatipopago'); 			//<- Tipo de Pago de la Venta
-	define('VENTA_MONTO_PAGO'		, 'ventamontopago'); 			//<- Monto Neto de la Venta
-	define('VENTA_MONTO_VUELTO'		, 'ventamontovuelto'); 		//<- Monto de Impuesto de la Venta
+	define('TB_VENTA'					, 'tbventa'); 					//<- Nombre de la Tabla
+	define('VENTA_ID'					, 'ventaid'); 					//<- ID de la Venta
+	define('VENTA_NUMERO_FACTURA'		, 'ventanumerofactura'); 		//<- Número de Factura de la Venta
+	define('VENTA_MONEDA'				, 'ventamoneda'); 				//<- Moneda de la Venta
+	define('VENTA_MONTO_BRUTO'			, 'ventamontobruto'); 			//<- Monto Bruto de la Venta
+	define('VENTA_MONTO_NETO'			, 'ventamontoneto'); 			//<- Monto Neto de la Venta
+	define('VENTA_MONTO_IMPUESTO'		, 'ventamontoimpuesto'); 		//<- Monto de Impuesto de la Venta
+	define('VENTA_CONDICION_VENTA'		, 'ventacondicionventa'); 		//<- Condición de la Venta
+	define('VENTA_TIPO_PAGO'			, 'ventatipopago'); 			//<- Tipo de Pago de la Venta
+	define('VENTA_TIPO_CAMBIO'			, 'ventatipocambio'); 			//<- Tipo de Cambio de la Venta
+	define('VENTA_MONTO_PAGO'			, 'ventamontopago'); 			//<- Monto Neto de la Venta
+	define('VENTA_MONTO_VUELTO'			, 'ventamontovuelto'); 		//<- Monto de Impuesto de la Venta
 	define('VENTA_REFERENCIA_TARJETA'	, 'ventareferenciatarjeta'); 		//<- Condición de la Venta
-	define('VENTA_COMPROBANTE_SINPE'		, 'ventacomprobantesinpe'); 			//<- Tipo de Pago de la Venta
-	define('VENTA_CREACION'			, 'ventafechacreacion'); 		//<- Fecha de Creación de la Venta
-	define('VENTA_MODIFICACION'		, 'ventafechamodificacion'); 	//<- Fecha de Modificación de la Venta
-	define('VENTA_ESTADO'			, 'ventaestado'); 				//<- Estado de la Venta
+	define('VENTA_COMPROBANTE_SINPE'	, 'ventacomprobantesinpe'); 			//<- Tipo de Pago de la Venta
+	define('VENTA_CREACION'				, 'ventafechacreacion'); 		//<- Fecha de Creación de la Venta
+	define('VENTA_MODIFICACION'			, 'ventafechamodificacion'); 	//<- Fecha de Modificación de la Venta
+	define('VENTA_ESTADO'				, 'ventaestado'); 				//<- Estado de la Venta
 
 	// TABLA 'tbVentaDetalle':
 	define('TB_VENTA_DETALLE'		, 'tbventadetalle'); 		//<- Nombre de la Tabla

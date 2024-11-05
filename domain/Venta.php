@@ -14,6 +14,7 @@
         private $ventaMontoImpuesto;
         private $ventaCondicionVenta;
         private $ventaTipoPago;
+        private $ventaTipoCambio;
         private $ventaMontoPago;
         private $ventaMontoVuelto;
         private $ventaReferenciaTarjeta;
@@ -32,6 +33,7 @@
             float $ventaMontoImpuesto = 0.0,
             string $ventaCondicionVenta = "CONTADO",
             string $ventaTipoPago = "EFECTIVO",
+            float $ventaTipoCambio = 0.0,
             float $ventaMontoPago = 0.0,
             float $ventaMontoVuelto = 0.0,
             $ventaReferenciaTarjeta = "",
@@ -49,6 +51,7 @@
             $this->ventaMontoImpuesto = Utils::formatearDecimal($ventaMontoImpuesto);
             $this->ventaCondicionVenta = strtoupper($ventaCondicionVenta);
             $this->ventaTipoPago = strtoupper($ventaTipoPago);
+            $this->ventaTipoCambio = Utils::formatearDecimal($ventaTipoCambio);
             $this->ventaMontoPago = Utils::formatearDecimal($ventaMontoPago);
             $this->ventaMontoVuelto = Utils::formatearDecimal($ventaMontoVuelto);
             $this->ventaReferenciaTarjeta = strtoupper($ventaReferenciaTarjeta);
@@ -67,6 +70,7 @@
         public function getVentaMontoImpuesto(): float { return $this->ventaMontoImpuesto; }
         public function getVentaCondicionVenta(): string { return $this->ventaCondicionVenta; }
         public function getVentaTipoPago(): string { return $this->ventaTipoPago; }
+        public function getVentaTipoCambio(): float { return $this->ventaTipoCambio; }
         public function getVentaMontoPago(): float { return $this->ventaMontoPago; }
         public function getVentaMontoVuelto(): float { return $this->ventaMontoVuelto; }
         public function getVentaReferenciaTarjeta() { return $this->ventaReferenciaTarjeta; }
@@ -84,6 +88,7 @@
         public function setVentaMontoImpuesto(float $ventaMontoImpuesto) { $this->ventaMontoImpuesto = Utils::formatearDecimal($ventaMontoImpuesto); }
         public function setVentaCondicionVenta(string $ventaCondicionVenta) { $this->ventaCondicionVenta = strtoupper($ventaCondicionVenta); }
         public function setVentaTipoPago(string $ventaTipoPago) { $this->ventaTipoPago = strtoupper($ventaTipoPago); }
+        public function setVentaTipoCambio(float $ventaTipoCambio) { $this->ventaTipoCambio = Utils::formatearDecimal($ventaTipoCambio); }
         public function setVentaMontoPago(float $ventaMontoPago) { $this->ventaMontoPago = Utils::formatearDecimal($ventaMontoPago); }
         public function setVentaMontoVuelto(float $ventaMontoVuelto) {  $this->ventaMontoVuelto = Utils::formatearDecimal($ventaMontoVuelto); }
         public function setVentaReferenciaTarjeta($ventaReferenciaTarjeta) {  $this->ventaReferenciaTarjeta = strtoupper($ventaReferenciaTarjeta); }
@@ -107,9 +112,9 @@
                 floatval($venta['MontoImpuesto']) ?? 0.0,
                 $venta['Condicion'] ?? "CONTADO",
                 $venta['TipoPago'] ?? "EFECTIVO",
+                floatval($venta['TipoCambio']) ?? 0.0,
                 floatval($venta['MontoPago']) ?? 0.0,
                 floatval($venta['MontoVuelto']) ?? 0.0,
-                floatval($venta['TipoCambio']) ?? 0.0,
                 $venta['ReferenciaTarjeta'] ?? "",
                 $venta['ComprobanteSINPE'] ?? ""
             );
@@ -125,6 +130,7 @@
                 'MontoImpuesto' => $this->ventaMontoImpuesto,
                 'CondicionVenta' => $this->ventaCondicionVenta,
                 'TipoPago' => $this->ventaTipoPago,
+                'TipoCambio' => $this->ventaTipoCambio,
                 'MontoPago' => $this->ventaMontoPago,
                 'MontoVuelto' => $this->ventaMontoVuelto,
                 'ReferenciaTarjeta' => $this->ventaReferenciaTarjeta,
@@ -134,7 +140,6 @@
                     'Nombre' => $this->ventaCliente ? $this->ventaCliente->getClienteNombre() : null,
                     'Alias' => $this->ventaCliente ? $this->ventaCliente->getClienteAlias() : null
                 ],
-           
                 'Creacion' => $this->ventaFechaCreacion ? Utils::formatearFecha($this->ventaFechaCreacion) : '',
                 'Modificacion' => $this->ventaFechaModificacion ? Utils::formatearFecha($this->ventaFechaModificacion) : '',
                 'CreacionISO' => $this->ventaFechaCreacion ? Utils::formatearFecha($this->ventaFechaCreacion, 'Y-MM-dd') : '',
