@@ -40,7 +40,7 @@ class VentaPorCobrarBusiness{
         return $this->ventaCobrarData->InsertaVentaPorCobrar($ventaCobrar);
     }
     function updateVentaCobrar($ventaCobrar){
-        return  $this->ventaCobrarData->ActualizarCompraPorPagar($ventaCobrar);
+        return  $this->ventaCobrarData->UpdateVentaPorCobrar($ventaCobrar);
     }
     function deleteVentaCobrar($id){
         return $this->ventaCobrarData->deleteVentaPorCobrar($id);

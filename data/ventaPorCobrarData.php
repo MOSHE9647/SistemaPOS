@@ -253,7 +253,7 @@ class VentaPorCobrarData extends Data {
 
     }
 
-    function ActualizarCompraPorPagar($ventaCobrar, $conn = null){
+    function UpdateVentaPorCobrar($ventaCobrar, $conn = null){
         $nuevaConexion = false;
         $stmt = null;
         try{
