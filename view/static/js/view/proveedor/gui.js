@@ -447,6 +447,10 @@ export function editProveedor(proveedorID) {
     initializeDireccionTable(direcciones, 'table-direcciones-body');
     initializeTelefonoTable(telefonos, 'table-telefonos-body');
 
+    // Hacer que el input de nombre se enfoque automáticamente
+    const proveedorNombre = document.getElementById('nombre');
+    if (proveedorNombre) proveedorNombre.focus();
+
     // Cargar las listas de categorías
     initializeSelects();
 }
@@ -655,6 +659,10 @@ export function createProveedor() {
     initializeDireccionTable(direcciones, 'table-direcciones-body');
     initializeTelefonoTable(telefonos, 'table-telefonos-body');
 
+    // Hacer que el input de nombre se enfoque automáticamente
+    const proveedorNombre = document.getElementById('nombre');
+    if (proveedorNombre) proveedorNombre.focus();
+
     // Cargar las listas de categorías
     initializeSelects();
 }
@@ -680,7 +688,7 @@ function initializeDireccionTable(direcciones, tableBodyID, isInfo = false) {
     };
 
     assignEvent('direccion-search-button', 'click', () => dir.searchDirecciones('direccion-search-input', tableBodyID, isInfo));
-    manejarInputConEnter('direccion-search-input', 'direccion-search-button');
+    manejarInputConEnter('direccion-search-input', 'direccion-search-button', false);
     assignEvent('direccion-sort-selector', 'change', () => dir.sortDirecciones(document.getElementById('direccion-sort-selector').value, tableBodyID, isInfo));
 }
 
@@ -705,6 +713,6 @@ function initializeTelefonoTable(telefonos, tableBodyID, isInfo = false) {
     };
 
     assignEvent('telefono-search-button', 'click', () => tel.searchTelefonos('telefono-search-input', tableBodyID, isInfo));
-    manejarInputConEnter('telefono-search-input', 'telefono-search-button');
+    manejarInputConEnter('telefono-search-input', 'telefono-search-button', false);
     assignEvent('telefono-sort-selector', 'change', () => tel.sortTelefonos(document.getElementById('telefono-sort-selector').value, tableBodyID, isInfo));
 }

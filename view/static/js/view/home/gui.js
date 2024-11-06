@@ -2,7 +2,7 @@
 // ************* Métodos para el manejo de la GUI ************* //
 // ************************************************************ //
 
-import { checkEmptyTable, getCurrentDate, manejarInputNumeroTelefono } from "../../utils.js";
+import { checkEmptyTable, getCurrentDate, manejarInputConEnter, manejarInputNumeroTelefono } from "../../utils.js";
 import { hideLoader, showLoader } from "../../gui/loader.js";
 import { obtenerListaImpuestos } from "../impuesto/crud.js";
 import { obtenerListaProductos } from "../producto/crud.js";
@@ -202,7 +202,12 @@ export async function mostrarListaSeleccionableDeProductos() {
             throw new Error('La lista de productos no es un arreglo.');
         }
 
-        let html = `<div class="sales-product-select">`;
+        let html = `
+            <div class="search-input-container">
+                <input type="text" id="sales-product-search-input" placeholder="Buscar por nombre o código de barras">
+            </div>
+            <div class="sales-product-select" id="sales-select-product-container">
+        `;
         products.forEach(producto => {
             const imagenURL = window.baseURL + producto.Imagen;
             html += `
@@ -235,12 +240,12 @@ export async function mostrarListaSeleccionableDeProductos() {
                 popup: 'modal-container',
                 header: 'modal-header',
                 title: 'modal-title',
-                htmlContainer: 'modal-body',
+                htmlContainer: 'modal-body modal-product-select',
                 cancelButton: 'modal-close',
                 confirmButton: 'modal-confirm',
                 actions: 'modal-actions',
             },
-            preConfirm: async () => {
+            preConfirm: () => {
                 const product = getSelectedProduct(products);
                 if (!product) {
                     mostrarMensaje('Seleccione un producto para agregar a la lista.', 'error', 'Error de selección');
@@ -268,6 +273,7 @@ export async function mostrarListaSeleccionableDeProductos() {
         });
 
         addSelectFunctionToProduct();
+        addEventListenerToElement('sales-product-search-input', 'input', () => { handleProductSelectSearchInput(products); });
     } catch (error) {
         mostrarMensaje(error.message, 'error', 'Error al listar productos');
     }
@@ -859,7 +865,7 @@ function initializeClienteForm() {
     }
 }
 
-function addEventListenerToElement(elementId, event, handler) {
+export function addEventListenerToElement(elementId, event, handler) {
     const element = document.getElementById(elementId);
     if (element && !element.dataset.listenerAdded) {
         element.dataset.listenerAdded = 'true';
@@ -1119,4 +1125,53 @@ function handleCurrencySelect(event) {
         .catch(error => {
             mostrarMensaje(`Error al obtener el tipo de cambio: ${error.message}`, 'error', 'Error de cambio');
         });
+}
+
+export function handleProductSelectSearchInput(productos) {
+    const searchInput = document.getElementById('sales-product-search-input');
+    if (!searchInput) {
+        mostrarMensaje('No se encontró el campo de búsqueda.', 'error', 'Error de búsqueda');
+        return;
+    }
+    
+    const searchValue = searchInput.value.trim().toLowerCase();
+    const searchResults = productos.filter(producto => {
+        const nombre = producto.Nombre.toLowerCase();
+        const codigo = producto.CodigoBarras.Numero.toLowerCase();
+        return nombre.includes(searchValue) || codigo.includes(searchValue);
+    });
+
+    // if (searchResults.length < 1) return;
+    renderProductList(searchResults);
+}
+
+function renderProductList(productos) {
+    const productListContainer = document.getElementById('sales-select-product-container');
+    if (!productListContainer) return;
+
+    productListContainer.innerHTML = '';
+
+    let html = '';
+    productos.forEach(producto => {
+        const imagenURL = window.baseURL + producto.Imagen;
+        html += `
+            <div class="product-card">
+                <input type="radio" name="product-radio" class="product-radio" data-id="${producto.ID}">
+                <div class="card-header">
+                    <div class="product-img" style="background-image: url(${imagenURL});"></div>
+                </div>
+                <div class="card-body">
+                    <div class="card-title">
+                        <h2>${producto.Nombre}</h2>
+                        <small>Código: <span>${producto.CodigoBarras.Numero}</span>, </small>
+                        <small>Marca: <span>${producto.Marca?.Nombre}</span></small>
+                    </div>
+                    <p>${producto.Descripcion || 'El producto no tiene descripci&oacute;n'}</p>
+                    <h3>Precio: <span>&#162;${producto.PrecioCompra.toFixed(2)}</span></h3>
+                </div>
+            </div>
+        `;
+    });
+
+    productListContainer.innerHTML = html;
 }

@@ -165,14 +165,14 @@ export function manejarInputNumeroTelefono() {
     document.getElementById('numero').value = numeroTelefono;
 }
 
-export function manejarInputConEnter(inputID, buttonID) {
+export function manejarInputConEnter(inputID, buttonID, focus = true) {
     const input = document.getElementById(inputID);
     if (!input) {
         mostrarMensaje('No se encontró el campo de entrada.', 'error', 'Error de campo'); 
         return;
     }
 
-    input.focus();
+    if (focus) input.focus();
     input.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();

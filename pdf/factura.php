@@ -60,7 +60,7 @@
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-            width: 100%;
+            width: 98%;
         }
         .bottom {
             margin-top: 50px;

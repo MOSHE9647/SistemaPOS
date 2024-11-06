@@ -4,6 +4,10 @@
     --table-height: 250px; /* Altura de la tabla */
 }
 
+.modal-product-select {
+    overflow-y: hidden; /* Oculta el scroll vertical */
+}
+
 .table-card {
     margin: 0;
 }
@@ -160,6 +164,34 @@
 
 .last-sale span:first-child {
     color: #fff; /* Color del texto */
+}
+
+.sales-product-select {
+    flex: 1 1 calc(50% - 1rem);
+    min-height: calc(100% - 360px);
+    max-height: calc(100% - 90px);
+    border-radius: var(--card-radius);
+    overflow-y: auto;
+}
+
+.search-input-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-body); /* Variable CSS para el fondo */
+    border-radius: var(--card-radius); /* Variable CSS para el radio del borde */
+    box-shadow: var(--card-shadow); /* Variable CSS para la sombra */
+    margin-bottom: 20px; /* Margen inferior */
+    padding: 0.7rem; /* Espaciado interno */
+    color: #fff; /* Color del texto */
+    height: 60px; /* Altura fija */
+    gap: 5px; /* Espacio entre elementos */
+}
+
+.search-input-container input {
+    height: 40px; /* Altura fija */
+    width: 100%; /* Ancho completo */
 }
 
 .product-card {
