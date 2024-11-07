@@ -77,6 +77,10 @@
                 $id = intval($_GET['id'] ?? -1);
                 $response = $usuarioBusiness->getUsuarioByID($id, $onlyActive, $deleted);
                 break;
+            case 'email':
+                $email = $_GET['email'] ?? "";
+                $response = $usuarioBusiness->getUsuarioByEmail($email);
+                break;
             default:
                 // Obtener parámetros de la solicitud GET
                 $search = isset($_GET['search']) ? $_GET['search']       : null;

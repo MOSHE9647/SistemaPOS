@@ -40,6 +40,17 @@
             return $this->telefonoCodigoPais . " " . $this->telefonoNumero;
         }
 
+        public static function fromArray(array $telefono): Telefono {
+            return new Telefono(
+                $telefono['ID'] ?? -1,
+                $telefono['Tipo'] ?? "",
+                $telefono['CodigoPais'] ?? "",
+                $telefono['Numero'] ?? "",
+                $telefono['Extension'] ?? "",
+                $telefono['Estado'] ?? true
+            );
+        }
+
         public function jsonSerialize() {
             return [
                 'ID' => $this->telefonoID,

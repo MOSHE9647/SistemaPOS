@@ -40,7 +40,7 @@ export function importarCSS(filePath) {
 export function eliminarCSS() {
     const links = document.querySelectorAll('link[rel="stylesheet"]');
     links.forEach(link => {
-        if (!link.href.includes('index.css') && !link.href.includes('index-old.css')) {
+        if (!link.href.includes('index.css') && !link.href.includes('config.css')) {
             link.remove();
         }
     });
@@ -216,4 +216,15 @@ export async function verificarRespuestaJSON(response) {
     
     // Si es JSON, devolvemos el JSON parseado
     return response.json();
+}
+
+/**
+ * Calcula el valor del IVA de una venta.
+ *
+ * @param {number} montoImpuesto - El monto del impuesto.
+ * @param {number} montoBruto - El monto bruto de la venta.
+ * @returns {number} El valor del IVA calculado.
+ */
+export function calcularValorIVAVenta(montoBruto, montoImpuesto) {
+    return montoImpuesto / montoBruto;
 }

@@ -157,29 +157,33 @@
                 }
 
                 // Crea una consulta SQL para insertar el registro
-                $queryInsert = "INSERT INTO " . TB_VENTA . " ("
-                    . VENTA_ID . ", "
-                    . CLIENTE_ID . ", "
-                    . VENTA_NUMERO_FACTURA . ", "
-                    . VENTA_MONEDA . ", "
-                    . VENTA_MONTO_BRUTO . ", "
-                    . VENTA_MONTO_NETO . ", "
-                    . VENTA_MONTO_IMPUESTO . ", "
-                    . VENTA_CONDICION_VENTA . ", "
-                    . VENTA_TIPO_PAGO . ", "
-                    . VENTA_TIPO_CAMBIO . ", "
-                    . VENTA_MONTO_PAGO . ", "
-                    . VENTA_MONTO_VUELTO . ", "
-                    . VENTA_REFERENCIA_TARJETA . ", "
-                    . VENTA_COMPROBANTE_SINPE . ", "
-                    . VENTA_CREACION . ", "
-                    . VENTA_MODIFICACION . ", "
-                    . VENTA_ESTADO
-                    . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true)";
+                $queryInsert = 
+                    "INSERT INTO " . TB_VENTA . " ("
+                        . VENTA_ID . ", "
+                        . CLIENTE_ID . ", "
+                        . USUARIO_ID . ", "
+                        . VENTA_NUMERO_FACTURA . ", "
+                        . VENTA_MONEDA . ", "
+                        . VENTA_MONTO_BRUTO . ", "
+                        . VENTA_MONTO_NETO . ", "
+                        . VENTA_MONTO_IMPUESTO . ", "
+                        . VENTA_CONDICION_VENTA . ", "
+                        . VENTA_TIPO_PAGO . ", "
+                        . VENTA_TIPO_CAMBIO . ", "
+                        . VENTA_MONTO_PAGO . ", "
+                        . VENTA_MONTO_VUELTO . ", "
+                        . VENTA_REFERENCIA_TARJETA . ", "
+                        . VENTA_COMPROBANTE_SINPE . ", "
+                        . VENTA_CREACION . ", "
+                        . VENTA_MODIFICACION . ", "
+                        . VENTA_ESTADO
+                    . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true)"
+                ;
                 $stmt = mysqli_prepare($conn, $queryInsert);
         
                 // Obtener los valores de las propiedades del objeto $venta
-                $ventaCliente = $venta->getVentaCliente();
+                $ventaCliente = $venta->getClienteID();
+                $ventaUsuario = $venta->getUsuarioID();
                 $ventaNumeroFactura = $venta->getVentaNumeroFactura();
                 $ventaMoneda = $venta->getVentaMoneda();
                 $ventaMontoBruto = $venta->getVentaMontoBruto();
@@ -196,9 +200,10 @@
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'iissdddssdddssss', // Define los tipos: i = entero, s = cadena, d = decimal
+                    'iiissdddssdddssss', // Define los tipos: i = entero, s = cadena, d = decimal
                     $nextId,
                     $ventaCliente,
+                    $ventaUsuario,
                     $ventaNumeroFactura,
                     $ventaMoneda,
                     $ventaMontoBruto,
@@ -279,22 +284,23 @@
                 $queryUpdate = 
                     "UPDATE " . TB_VENTA . 
                     " SET " . 
-                    CLIENTE_ID . " = ?, " .
-                    VENTA_NUMERO_FACTURA . " = ?, " . 
-                    VENTA_MONEDA . " = ?, " . 
-                    VENTA_MONTO_BRUTO . " = ?, " .
-                    VENTA_MONTO_NETO . " = ?, " .
-                    VENTA_MONTO_IMPUESTO . " = ?, " .
-                    VENTA_CONDICION_VENTA . " = ?, " .  
-                    VENTA_TIPO_PAGO . " = ?, " .
-                    VENTA_TIPO_CAMBIO . " = ?, " .
-                    VENTA_MONTO_PAGO . " = ?, " .  
-                    VENTA_MONTO_VUELTO . " = ?, " .
-                    VENTA_REFERENCIA_TARJETA . " = ?, " .
-                    VENTA_COMPROBANTE_SINPE . " = ?, " .
-                    VENTA_CREACION . " = ?, " .
-                    VENTA_MODIFICACION . " = ?, " .
-                    VENTA_ESTADO . " = true " .
+                        CLIENTE_ID . " = ?, " .
+                        USUARIO_ID . " = ?, " .
+                        VENTA_NUMERO_FACTURA . " = ?, " . 
+                        VENTA_MONEDA . " = ?, " . 
+                        VENTA_MONTO_BRUTO . " = ?, " .
+                        VENTA_MONTO_NETO . " = ?, " .
+                        VENTA_MONTO_IMPUESTO . " = ?, " .
+                        VENTA_CONDICION_VENTA . " = ?, " .  
+                        VENTA_TIPO_PAGO . " = ?, " .
+                        VENTA_TIPO_CAMBIO . " = ?, " .
+                        VENTA_MONTO_PAGO . " = ?, " .  
+                        VENTA_MONTO_VUELTO . " = ?, " .
+                        VENTA_REFERENCIA_TARJETA . " = ?, " .
+                        VENTA_COMPROBANTE_SINPE . " = ?, " .
+                        VENTA_CREACION . " = ?, " .
+                        VENTA_MODIFICACION . " = ?, " .
+                        VENTA_ESTADO . " = true " .
                     "WHERE " . VENTA_ID . " = ?";
                 
                 $stmt = mysqli_prepare($conn, $queryUpdate);
@@ -304,6 +310,7 @@
         
                 // Obtener los valores del objeto $venta  
                 $clienteID = $venta->getClienteID();
+                $usuarioID = $venta->getUsuarioID();
                 $ventaNumeroFactura = $venta->getVentaNumeroFactura(); 
                 $ventaMoneda = $venta->getVentaMoneda();
                 $ventaMontoBruto = $venta->getVentaMontoBruto();
@@ -322,8 +329,9 @@
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'issdddssdddssssi', // Ajusta los tipos según el tipo de dato de cada columna en la base de datos
+                    'iissdddssdddssssi', // Ajusta los tipos según el tipo de dato de cada columna en la base de datos
                     $clienteID,
+                    $usuarioID,
                     $ventaNumeroFactura, 
                     $ventaMoneda,
                     $ventaMontoBruto,
@@ -378,181 +386,213 @@
 
 
         /**
- * Elimina una venta de la base de datos.
- *
- * Este método realiza un borrado lógico de la venta en la base de datos, 
- * actualizando su estado a FALSE.
- *
- * @param int $ventaID El ID de la venta a eliminar.
- * @param mysqli|null $conn (Opcional) Conexión a la base de datos. Si no se proporciona, 
- *                          se creará una nueva conexión.
- * @return array Un array asociativo con las claves 'success' y 'message'. 
- *               'success' indica si la operación fue exitosa, y 'message' 
- *               proporciona información adicional.
- * @throws Exception Si ocurre un error durante la operación.
- */
-public function deleteVenta($ventaID, $conn = null) {
-    $createdConnection = false;
-    $stmt = null;
-   
-    try {
-        // Verifica que el ID no esté vacío y sea numérico
-        if (empty($ventaID) || !is_numeric($ventaID) || $ventaID <= 0) {
-            throw new Exception("El ID no puede estar vacío o ser menor a 0.");
-        }
+         * Elimina una venta de la base de datos.
+         *
+         * Este método realiza un borrado lógico de la venta en la base de datos, 
+         * actualizando su estado a FALSE.
+         *
+         * @param int $ventaID El ID de la venta a eliminar.
+         * @param mysqli|null $conn (Opcional) Conexión a la base de datos. Si no se proporciona, 
+         *                          se creará una nueva conexión.
+         * @return array Un array asociativo con las claves 'success' y 'message'. 
+         *               'success' indica si la operación fue exitosa, y 'message' 
+         *               proporciona información adicional.
+         * @throws Exception Si ocurre un error durante la operación.
+         */
+        public function deleteVenta($ventaID, $conn = null) {
+            $createdConnection = false;
+            $stmt = null;
+        
+            try {
+                // Verifica que el ID no esté vacío y sea numérico
+                if (empty($ventaID) || !is_numeric($ventaID) || $ventaID <= 0) {
+                    throw new Exception("El ID no puede estar vacío o ser menor a 0.");
+                }
 
-        // Verificar si existe el ID y que el Estado no sea false
-        $check = $this->ventaExiste($ventaID);
-        if (!$check["success"]) {
-            return $check; // Error al verificar la existencia
-        }
-        if (!$check["exists"]) {
-            throw new Exception("No se encontró una venta con el ID [" . $ventaID . "]");
-        }
+                // Verificar si existe el ID y que el Estado no sea false
+                $check = $this->ventaExiste($ventaID);
+                if (!$check["success"]) {
+                    return $check; // Error al verificar la existencia
+                }
+                if (!$check["exists"]) {
+                    throw new Exception("No se encontró una venta con el ID [" . $ventaID . "]");
+                }
 
-        // Establece una conexión con la base de datos
-        if ($conn === null) {
-            $result = $this->getConnection();
-            if (!$result["success"]) {
-                throw new Exception($result["message"]);
+                // Establece una conexión con la base de datos
+                if ($conn === null) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) {
+                        throw new Exception($result["message"]);
+                    }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+
+                    // Inicia una transacción
+                    mysqli_begin_transaction($conn);
+                }
+
+                // Crea una consulta y un statement SQL para eliminar lógicamente el registro
+                $queryDelete = "UPDATE " . TB_VENTA . " SET " . VENTA_ESTADO . " = false WHERE " . VENTA_ID . " = ?";
+                $stmt = mysqli_prepare($conn, $queryDelete);
+                mysqli_stmt_bind_param($stmt, 'i', $ventaID);
+
+                // Ejecuta la consulta de eliminación lógica
+                if (!mysqli_stmt_execute($stmt)) {
+                    throw new Exception("Error al ejecutar la consulta de eliminación: " . mysqli_error($conn));
+                }
+
+                // Si todo sale bien, devuelve éxito
+                mysqli_commit($conn);
+                return ["success" => true, "message" => "Venta eliminada exitosamente"];
+                
+            } catch (Exception $e) {
+                // Revertir la transacción en caso de error
+                if (isset($conn) && $createdConnection) {
+                    mysqli_rollback($conn);
+                }
+
+                // Manejo del error
+                error_log($e->getMessage()); // Agrega log de error para depuración
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al eliminar la venta de la base de datos',
+                    $this->className
+                );
+                return ["success" => false, "message" => $userMessage];
+                
+            } finally {
+                // Cierra el statement y la conexión si fueron creados
+                if (isset($stmt)) {
+                    mysqli_stmt_close($stmt);
+                }
+                if (isset($conn) && $createdConnection) {
+                    mysqli_close($conn);
+                }
             }
-            $conn = $result["connection"];
-            $createdConnection = true;
-
-            // Inicia una transacción
-            mysqli_begin_transaction($conn);
         }
-
-        // Crea una consulta y un statement SQL para eliminar lógicamente el registro
-        $queryDelete = "UPDATE " . TB_VENTA . " SET " . VENTA_ESTADO . " = false WHERE " . VENTA_ID . " = ?";
-        $stmt = mysqli_prepare($conn, $queryDelete);
-        mysqli_stmt_bind_param($stmt, 'i', $ventaID);
-
-        // Ejecuta la consulta de eliminación lógica
-        if (!mysqli_stmt_execute($stmt)) {
-            throw new Exception("Error al ejecutar la consulta de eliminación: " . mysqli_error($conn));
-        }
-
-        // Si todo sale bien, devuelve éxito
-        mysqli_commit($conn);
-        return ["success" => true, "message" => "Venta eliminada exitosamente"];
-        
-    } catch (Exception $e) {
-        // Revertir la transacción en caso de error
-        if (isset($conn) && $createdConnection) {
-            mysqli_rollback($conn);
-        }
-
-        // Manejo del error
-        error_log($e->getMessage()); // Agrega log de error para depuración
-        $userMessage = $this->handleMysqlError(
-            $e->getCode(), $e->getMessage(),
-            'Error al eliminar la venta de la base de datos',
-            $this->className
-        );
-        return ["success" => false, "message" => $userMessage];
-        
-    } finally {
-        // Cierra el statement y la conexión si fueron creados
-        if (isset($stmt)) {
-            mysqli_stmt_close($stmt);
-        }
-        if (isset($conn) && $createdConnection) {
-            mysqli_close($conn);
-        }
-    }
-}
 
         /**
- * Obtiene todas las ventas de la tabla TB_VENTA.
- *
- * @param bool $onlyActive Indica si solo se deben obtener las ventas activas.
- * @param bool $deleted Indica si se deben incluir las ventas eliminadas.
- * @return array Un array asociativo que contiene:
- *               - "success" (bool): Indica si la operación fue exitosa.
- *               - "ventas" (array): Una lista de objetos Venta si la operación fue exitosa.
- *               - "message" (string): Un mensaje de error en caso de que la operación falle.
- *
- * @throws Exception Si ocurre un error al establecer la conexión con la base de datos.
-    * @throws Exception Si ocurre un error al obtener el código de barras del producto.
-         * @throws Exception Si ocurre un error al obtener la categoría del producto.
-         * @throws Exception Si ocurre un error al obtener la subcategoría del producto.
-         * @throws Exception Si ocurre un error al obtener la marca del producto.
-         * @throws Exception Si ocurre un error al obtener la presentación del producto.
- */
-public function getAllTBVenta($onlyActive = false, $deleted = false) {
-    $conn = null;
-    try {
-        // Establecer una conexión con la base de datos
-        $result = $this->getConnection();
-        if (!$result["success"]) { throw new Exception($result["message"]); }
-        $conn = $result["connection"];
+         * Obtiene todas las ventas de la tabla TB_VENTA.
+         *
+         * @param bool $onlyActive Indica si solo se deben obtener las ventas activas.
+         * @param bool $deleted Indica si se deben incluir las ventas eliminadas.
+         * @return array Un array asociativo que contiene:
+         *               - "success" (bool): Indica si la operación fue exitosa.
+         *               - "ventas" (array): Una lista de objetos Venta si la operación fue exitosa.
+         *               - "message" (string): Un mensaje de error en caso de que la operación falle.
+         *
+         * @throws Exception Si ocurre un error al establecer la conexión con la base de datos.
+            * @throws Exception Si ocurre un error al obtener el código de barras del producto.
+                * @throws Exception Si ocurre un error al obtener la categoría del producto.
+                * @throws Exception Si ocurre un error al obtener la subcategoría del producto.
+                * @throws Exception Si ocurre un error al obtener la marca del producto.
+                * @throws Exception Si ocurre un error al obtener la presentación del producto.
+        */
+        public function getAllTBVenta($onlyActive = false, $deleted = false) {
+            $conn = null;
+            try {
+                // Establecer una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
 
-       
-        // Construir la consulta SQL
-        $querySelect = "SELECT v.*, c.clientenombre FROM " . TB_VENTA . " v
-                        INNER JOIN " . TB_CLIENTE . " c ON v." . CLIENTE_ID . " = c.clienteid";
-        if ($onlyActive) {  
-            $querySelect .= " WHERE v." . VENTA_ESTADO . " = 1"; // Asegúrate de que 1 represente estado activo
+            
+                // Construir la consulta SQL
+                $querySelect = "
+                    SELECT 
+                        v.*, c.*, t.*, u.*, r.*
+                    FROM " . TB_VENTA . " v
+                    INNER JOIN " . TB_CLIENTE . " c 
+                        ON v." . CLIENTE_ID . " = c." . CLIENTE_ID . "
+                    INNER JOIN " . TB_USUARIO . " u
+                        ON v." . USUARIO_ID . " = u." . USUARIO_ID . "
+                    INNER JOIN " . TB_TELEFONO . " t
+                        ON c." . TELEFONO_ID . " = t." . TELEFONO_ID . "
+                    INNER JOIN " . TB_ROL . " r
+                        ON u." . ROL_ID . " = r." . ROL_ID . "
+                ";
+                if ($onlyActive) {  
+                    $querySelect .= " WHERE v." . VENTA_ESTADO . " = TRUE"; // Asegúrate de que 1 represente estado activo
+                }
+
+                // Ejecutar la consulta
+                $result = mysqli_query($conn, $querySelect);
+                if (!$result) {
+                    throw new Exception("Error en la consulta: " . mysqli_error($conn));
+                }
+
+                $ventas = [];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    // Crear objeto Venta
+                    $venta = new Venta(
+                        $row[VENTA_ID],
+                        new Cliente ( // Esto debe ser un objeto de tipo Cliente
+                            $row[CLIENTE_ID], // ID del cliente
+                            $row[CLIENTE_NOMBRE], // Nombre del cliente
+                            $row[CLIENTE_ALIAS], // Alias del cliente
+                            new Telefono (
+                                $row[TELEFONO_ID], // ID del teléfono
+                                $row[TELEFONO_TIPO], // Tipo de teléfono
+                                $row[TELEFONO_CODIGO_PAIS], // Código de país
+                                $row[TELEFONO_NUMERO], // Número de teléfono
+                                $row[TELEFONO_EXTENSION], // Extensión del teléfono
+                            ),
+                            $row[CLIENTE_CREACION], // Fecha de creación del cliente
+                            $row[CLIENTE_MODIFICACION], // Fecha de modificación del cliente
+                        ), 
+                        new Usuario ( // Esto debe ser un objeto de tipo Usuario
+                            $row[USUARIO_ID], // ID del usuario
+                            $row[USUARIO_NOMBRE], // Nombre del usuario
+                            $row[USUARIO_APELLIDO_1], // Primer apellido del usuario
+                            $row[USUARIO_APELLIDO_2], // Segundo apellido del usuario
+                            $row[USUARIO_EMAIL], // Correo electrónico del usuario
+                            $row[USUARIO_PASSWORD], // Contraseña del usuario
+                            new RolUsuario (
+                                $row[ROL_ID], // ID del rol
+                                $row[ROL_NOMBRE], // Nombre del rol
+                                $row[ROL_DESCRIPCION], // Descripción del rol
+                            ),
+                            $row[USUARIO_CREACION], // Fecha de creación del usuario
+                            $row[USUARIO_MODIFICACION], // Fecha de modificación del usuario
+                        ),
+                        $row[VENTA_NUMERO_FACTURA],
+                        $row[VENTA_MONEDA],
+                        $row[VENTA_MONTO_BRUTO],
+                        $row[VENTA_MONTO_NETO],
+                        $row[VENTA_MONTO_IMPUESTO],
+                        $row[VENTA_CONDICION_VENTA],
+                        $row[VENTA_TIPO_PAGO],
+                        $row[VENTA_TIPO_CAMBIO],
+                        $row[VENTA_MONTO_PAGO],
+                        $row[VENTA_MONTO_VUELTO],
+                        $row[VENTA_REFERENCIA_TARJETA],
+                        $row[VENTA_COMPROBANTE_SINPE],
+                        $row[VENTA_CREACION],
+                        $row[VENTA_MODIFICACION],
+                        $row[VENTA_ESTADO]
+                    );
+                    $ventas[] = $venta;
+                }
+
+                // Devolver la lista de ventas
+                return ["success" => true, "ventas" => $ventas];
+            } catch (Exception $e) {
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(), $e->getMessage(),
+                    'Error al obtener la lista de ventas desde la base de datos',
+                    $this->className
+                );
+
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cerramos la conexión
+                if (isset($conn)) { mysqli_close($conn); }
+            }
         }
 
-        // Ejecutar la consulta
-        $result = mysqli_query($conn, $querySelect);
-        if (!$result) {
-            throw new Exception("Error en la consulta: " . mysqli_error($conn));
-        }
-
-        $ventas = [];
-        while ($row = mysqli_fetch_assoc($result)) {
-            // Crear objeto Proveedor
-            $cliente = new Cliente(
-                $row[CLIENTE_ID], // ID del cliente
-                $row['clientenombre'] // Nombre del cliente
-                // Otros parámetros si son necesarios
-            );
-
-            // Crear objeto Venta
-            $venta = new Venta(
-                $row[VENTA_ID],
-                $cliente, // Esto debe ser un objeto de tipo Cliente
-                $row[VENTA_NUMERO_FACTURA],
-                $row[VENTA_MONEDA],
-                $row[VENTA_MONTO_BRUTO],
-                $row[VENTA_MONTO_NETO],
-                $row[VENTA_MONTO_IMPUESTO],
-                $row[VENTA_CONDICION_VENTA],
-                $row[VENTA_TIPO_PAGO],
-                $row[VENTA_TIPO_CAMBIO],
-                $row[VENTA_MONTO_PAGO],
-                $row[VENTA_MONTO_VUELTO],
-                $row[VENTA_REFERENCIA_TARJETA],
-                $row[VENTA_COMPROBANTE_SINPE],
-                $row[VENTA_CREACION],
-                $row[VENTA_MODIFICACION],
-                $row[VENTA_ESTADO]
-            );
-            $ventas[] = $venta;
-        }
-
-        // Devolver la lista de ventas
-        return ["success" => true, "ventas" => $ventas];
-    } catch (Exception $e) {
-        // Manejo del error dentro del bloque catch
-        $userMessage = $this->handleMysqlError(
-            $e->getCode(), $e->getMessage(),
-            'Error al obtener la lista de ventas desde la base de datos',
-            $this->className
-        );
-
-        // Devolver mensaje amigable para el usuario
-        return ["success" => false, "message" => $userMessage];
-    } finally {
-        // Cerramos la conexión
-        if (isset($conn)) { mysqli_close($conn); }
-    }
-}
-
-             /**
+        /**
          * Obtiene una lista paginada de productos desde la base de datos.
          *
          * @param string $search Término de búsqueda para filtrar productos por nombre o código de barras.
@@ -576,16 +616,16 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
 
         public function getPaginatedVentas($search, $page, $size, $sort = null, $onlyActive = false, $deleted = false) {
             $conn = null; $stmt = null;
+
             try {
+                // Calcular el offset para la paginación
+                $offset = ($page - 1) * $size;
 
-                    // Calcular el offset para la paginación
-                    $offset = ($page - 1) * $size;
-
-                    // Establece una conexión con la base de datos
-                    $result = $this->getConnection();
-                    if (!$result["success"]) {
-                        throw new Exception($result["message"]); }
-                    $conn = $result["connection"];
+                // Establece una conexión con la base de datos
+                $result = $this->getConnection();
+                if (!$result["success"]) {
+                    throw new Exception($result["message"]); }
+                $conn = $result["connection"];
                         
                 // Consultar el total de registros en la tabla
                 $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_VENTA;
@@ -598,30 +638,23 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
 
                 // Construir la consulta SQL con joins para obtener nombres en lugar de IDs
                 $querySelect = "
-                SELECT 
-                    v." . VENTA_ID . ", 
-                    v." . VENTA_NUMERO_FACTURA . ",
-                    cl.clientenombre AS clienteNombre,
-                    v." . VENTA_MONTO_BRUTO . ", 
-                    v." . VENTA_MONTO_NETO . ", 
-                    v." . VENTA_TIPO_PAGO . ", 
-                    v." . VENTA_TIPO_CAMBIO . ",
-                    v." . VENTA_MONTO_PAGO . ", 
-                    v." . VENTA_MONTO_VUELTO . ", 
-                    v." . VENTA_REFERENCIA_TARJETA . ", 
-                    v." . VENTA_COMPROBANTE_SINPE . ", 
-                    v." . VENTA_CREACION . ", 
-                    v." . VENTA_MODIFICACION . ", 
-                    v." . VENTA_ESTADO . "
-                FROM " . TB_VENTA . " v
-                JOIN tbcliente cl ON v." . CLIENTE_ID . " = cl.clienteid
-                WHERE v." . VENTA_ESTADO . " != false
+                    SELECT 
+                        v.*, c.*, t.*, u.*, r.*
+                    FROM " . TB_VENTA . " v
+                    INNER JOIN " . TB_CLIENTE . " c 
+                        ON v." . CLIENTE_ID . " = c." . CLIENTE_ID . "
+                    INNER JOIN " . TB_USUARIO . " u
+                        ON v." . USUARIO_ID . " = u." . USUARIO_ID . "
+                    INNER JOIN " . TB_TELEFONO . " t
+                        ON c." . TELEFONO_ID . " = t." . TELEFONO_ID . "
+                    INNER JOIN " . TB_ROL . " r
+                        ON u." . ROL_ID . " = r." . ROL_ID . "
+                    WHERE v." . VENTA_ESTADO . " != false
                 ";
-                            // Filtro de búsqueda
                 $params = [];
                 $types = "";
                 if ($search) {
-                    $querySelect .= " AND (v." . VENTA_NUMERO_FACTURA . " LIKE ? OR cl.clientenombre LIKE ?)";
+                    $querySelect .= " AND (v." . VENTA_NUMERO_FACTURA . " LIKE ? OR c.clientenombre LIKE ?)";
                     $searchParam = "%" . $search . "%";
                     $params = [$searchParam, $searchParam];
                     $types .= "ss";
@@ -650,22 +683,55 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
                 // Crear la lista de lotes
                 $listaVentas = [];
                 while ($row = mysqli_fetch_assoc($result)) {
-                    $listaVentas[] = [
-                        'ID' => $row[VENTA_ID],
-                        'NumeroFactura' => $row[VENTA_NUMERO_FACTURA],
-                        'Cliente' => $row['clienteNombre'],
-                        'MontoBruto' => $row[VENTA_MONTO_BRUTO],
-                        'MontoNeto' => $row[VENTA_MONTO_NETO],
-                        'TipoPago' => $row[VENTA_TIPO_PAGO],
-                        'TipoCambio' => $row[VENTA_TIPO_CAMBIO],
-                        'MontoPago' => $row[VENTA_MONTO_PAGO],
-                        'MontoVuelto' => $row[VENTA_MONTO_VUELTO],
-                        'ReferenciaTarjeta' => $row[VENTA_REFERENCIA_TARJETA],
-                        'ComprobanteSinpe' => $row[VENTA_COMPROBANTE_SINPE],
-                        'FechaCreacion' => $row[VENTA_CREACION],
-                        'FechaModificacion' => $row[VENTA_MODIFICACION],
-                        'Estado' => $row[VENTA_ESTADO]
-                    ];
+                    // Crear objeto Venta
+                    $venta = new Venta(
+                        $row[VENTA_ID],
+                        new Cliente ( // Esto debe ser un objeto de tipo Cliente
+                            $row[CLIENTE_ID], // ID del cliente
+                            $row[CLIENTE_NOMBRE], // Nombre del cliente
+                            $row[CLIENTE_ALIAS], // Alias del cliente
+                            new Telefono (
+                                $row[TELEFONO_ID], // ID del teléfono
+                                $row[TELEFONO_TIPO], // Tipo de teléfono
+                                $row[TELEFONO_CODIGO_PAIS], // Código de país
+                                $row[TELEFONO_NUMERO], // Número de teléfono
+                                $row[TELEFONO_EXTENSION], // Extensión del teléfono
+                            ),
+                            $row[CLIENTE_CREACION], // Fecha de creación del cliente
+                            $row[CLIENTE_MODIFICACION], // Fecha de modificación del cliente
+                        ), 
+                        new Usuario ( // Esto debe ser un objeto de tipo Usuario
+                            $row[USUARIO_ID], // ID del usuario
+                            $row[USUARIO_NOMBRE], // Nombre del usuario
+                            $row[USUARIO_APELLIDO_1], // Primer apellido del usuario
+                            $row[USUARIO_APELLIDO_2], // Segundo apellido del usuario
+                            $row[USUARIO_EMAIL], // Correo electrónico del usuario
+                            $row[USUARIO_PASSWORD], // Contraseña del usuario
+                            new RolUsuario (
+                                $row[ROL_ID], // ID del rol
+                                $row[ROL_NOMBRE], // Nombre del rol
+                                $row[ROL_DESCRIPCION], // Descripción del rol
+                            ),
+                            $row[USUARIO_CREACION], // Fecha de creación del usuario
+                            $row[USUARIO_MODIFICACION], // Fecha de modificación del usuario
+                        ),
+                        $row[VENTA_NUMERO_FACTURA],
+                        $row[VENTA_MONEDA],
+                        $row[VENTA_MONTO_BRUTO],
+                        $row[VENTA_MONTO_NETO],
+                        $row[VENTA_MONTO_IMPUESTO],
+                        $row[VENTA_CONDICION_VENTA],
+                        $row[VENTA_TIPO_PAGO],
+                        $row[VENTA_TIPO_CAMBIO],
+                        $row[VENTA_MONTO_PAGO],
+                        $row[VENTA_MONTO_VUELTO],
+                        $row[VENTA_REFERENCIA_TARJETA],
+                        $row[VENTA_COMPROBANTE_SINPE],
+                        $row[VENTA_CREACION],
+                        $row[VENTA_MODIFICACION],
+                        $row[VENTA_ESTADO]
+                    );
+                    $listaVentas[] = $venta;
                 }
 
                 // Devolver el resultado con la lista de direcciones y metadatos de paginación
@@ -694,7 +760,7 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
             }
         }
 
-            /**
+        /**
          * Obtiene la información de un producto por su ID.
          *
          * @param int $productoID El ID del producto a buscar.
@@ -727,7 +793,19 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
 
                 // Obtenemos la información de la compra
                 $querySelect = "
-                SELECT * FROM " . TB_VENTA . " WHERE " . VENTA_ID . " = ? AND " . VENTA_ESTADO . " != false";
+                    SELECT 
+                        v.*, c.*, t.*, u.*, r.*
+                    FROM " . TB_VENTA . " v 
+                    INNER JOIN " . TB_CLIENTE . " c 
+                        ON v." . CLIENTE_ID . " = c." . CLIENTE_ID . "
+                    INNER JOIN " . TB_USUARIO . " u
+                        ON v." . USUARIO_ID . " = u." . USUARIO_ID . "
+                    INNER JOIN " . TB_TELEFONO . " t
+                        ON c." . TELEFONO_ID . " = t." . TELEFONO_ID . "
+                    INNER JOIN " . TB_ROL . " r
+                        ON u." . ROL_ID . " = r." . ROL_ID . "
+                    WHERE v." . VENTA_ID . " = ? AND v." . VENTA_ESTADO . " != false
+                ";
                 $stmt = mysqli_prepare($conn, $querySelect);
 
                 // Asignar los parámetros y ejecutar la consulta
@@ -735,38 +813,67 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
                 mysqli_stmt_execute($stmt);
                 $result = mysqli_stmt_get_result($stmt);
 
-                 // Verifica si existe algún registro con los criterios dados
-                 $venta = null;
-            if ($row = mysqli_fetch_assoc($result)) {
+                // Verifica si existe algún registro con los criterios dados
+                $venta = null;
+                if ($row = mysqli_fetch_assoc($result)) {
+                    // Crear objeto Venta
                     $venta = new Venta(
-                    $row[VENTA_ID],
-                    new Cliente($row[CLIENTE_ID]),
-                    $row[VENTA_NUMERO_FACTURA],  
-                    $row[VENTA_MONEDA],
-                    $row[VENTA_MONTO_BRUTO],
-                    $row[VENTA_MONTO_NETO],
-                    $row[VENTA_MONTO_IMPUESTO],
-                    $row[VENTA_CONDICION_VENTA],
-                    $row[VENTA_TIPO_PAGO],
-                    $row[VENTA_TIPO_CAMBIO],
-                    $row[VENTA_MONTO_PAGO],
-                    $row[VENTA_MONTO_VUELTO],
-                    $row[VENTA_REFERENCIA_TARJETA],
-                    $row[VENTA_COMPROBANTE_SINPE], 
-                    $row[VENTA_CREACION],
-                    $row[VENTA_MODIFICACION],  
-                    $row[VENTA_ESTADO]
+                        $row[VENTA_ID],
+                        new Cliente ( // Esto debe ser un objeto de tipo Cliente
+                            $row[CLIENTE_ID], // ID del cliente
+                            $row[CLIENTE_NOMBRE], // Nombre del cliente
+                            $row[CLIENTE_ALIAS], // Alias del cliente
+                            new Telefono (
+                                $row[TELEFONO_ID], // ID del teléfono
+                                $row[TELEFONO_TIPO], // Tipo de teléfono
+                                $row[TELEFONO_CODIGO_PAIS], // Código de país
+                                $row[TELEFONO_NUMERO], // Número de teléfono
+                                $row[TELEFONO_EXTENSION], // Extensión del teléfono
+                            ),
+                            $row[CLIENTE_CREACION], // Fecha de creación del cliente
+                            $row[CLIENTE_MODIFICACION], // Fecha de modificación del cliente
+                        ), 
+                        new Usuario ( // Esto debe ser un objeto de tipo Usuario
+                            $row[USUARIO_ID], // ID del usuario
+                            $row[USUARIO_NOMBRE], // Nombre del usuario
+                            $row[USUARIO_APELLIDO_1], // Primer apellido del usuario
+                            $row[USUARIO_APELLIDO_2], // Segundo apellido del usuario
+                            $row[USUARIO_EMAIL], // Correo electrónico del usuario
+                            $row[USUARIO_PASSWORD], // Contraseña del usuario
+                            new RolUsuario (
+                                $row[ROL_ID], // ID del rol
+                                $row[ROL_NOMBRE], // Nombre del rol
+                                $row[ROL_DESCRIPCION], // Descripción del rol
+                            ),
+                            $row[USUARIO_CREACION], // Fecha de creación del usuario
+                            $row[USUARIO_MODIFICACION], // Fecha de modificación del usuario
+                        ),
+                        $row[VENTA_NUMERO_FACTURA],
+                        $row[VENTA_MONEDA],
+                        $row[VENTA_MONTO_BRUTO],
+                        $row[VENTA_MONTO_NETO],
+                        $row[VENTA_MONTO_IMPUESTO],
+                        $row[VENTA_CONDICION_VENTA],
+                        $row[VENTA_TIPO_PAGO],
+                        $row[VENTA_TIPO_CAMBIO],
+                        $row[VENTA_MONTO_PAGO],
+                        $row[VENTA_MONTO_VUELTO],
+                        $row[VENTA_REFERENCIA_TARJETA],
+                        $row[VENTA_COMPROBANTE_SINPE],
+                        $row[VENTA_CREACION],
+                        $row[VENTA_MODIFICACION],
+                        $row[VENTA_ESTADO]
                     );
-            return ["success" => true, "venta" => $venta];
-            }
+                    return ["success" => true, "venta" => $venta];
+                }
         
                 // En caso de que no se haya encontrado el producto
                 $message = "No se encontró la venta con 'ID [$ventaID]' en la base de datos.";
                 Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                 return ["success" => false, "message" => "No se encontró la venta seleccionado en la base de datos."];
             } catch (Exception $e) {
-                    // Manejo del error dentro del bloque catch
-                    $userMessage = $this->handleMysqlError(
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
                     'Error al obtener la venta de la base de datos',
                     $this->className
@@ -801,4 +908,4 @@ public function getAllTBVenta($onlyActive = false, $deleted = false) {
         }
         
     }
-    ?>
+?>

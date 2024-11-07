@@ -67,6 +67,21 @@
             return $nombreCompleto;
         }
 
+        public static function fromArray(array $usuario): Usuario {
+            return new Usuario(
+                $usuario['ID'] ?? -1,
+                $usuario['Nombre'] ?? '',
+                $usuario['Apellido1'] ?? '',
+                $usuario['Apellido2'] ?? '',
+                $usuario['Email'] ?? '',
+                $usuario['Password'] ?? '',
+                Utils::convertToObject($usuario['RolUsuario'] ?? null, RolUsuario::class),
+                $usuario['Creacion'] ?? null,
+                $usuario['Modificacion'] ?? null,
+                $usuario['Estado'] ?? true
+            );
+        }
+
         public function jsonSerialize() {
             return [
                 'ID' => $this->usuarioID,

@@ -227,10 +227,9 @@ export async function insertVentaDetalle(datosVenta) {
     }
 }
 
-export function generarFactura(datosVenta, data) {
+export function generarFactura(datosVenta) {
     const queryParams = new URLSearchParams({
-        detalles: JSON.stringify(datosVenta),
-        extra: JSON.stringify(data)
+        detalles: JSON.stringify(datosVenta)
     });
 
     const url = `${window.baseURL}/pdf/factura.php?${queryParams}`;

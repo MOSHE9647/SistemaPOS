@@ -14,7 +14,7 @@
         public function __construct() {
             parent::__construct();
             $this->className = get_class($this);
-            $this->ventadata = VentaData();
+            $this->ventadata = new VentaData();
         }
 
         /**

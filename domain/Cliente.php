@@ -49,6 +49,17 @@
             return $this->clienteNombre; // O cualquier otro formato que desees
         }
         
+        public static function fromArray(array $cliente): Cliente {
+            return new Cliente(
+                $cliente['ID'] ?? -1,
+                $cliente['Nombre'] ?? "No Definido",
+                $cliente['Alias'] ?? "No Definido",
+                Utils::convertToObject($cliente['Telefono'] ?? null, Telefono::class),
+                $cliente['Creacion'] ?? "",
+                $cliente['Modificacion'] ?? "",
+                $cliente['Estado'] ?? true
+            );
+        }
 
         public function jsonSerialize() {
             return [

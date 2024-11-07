@@ -23,13 +23,6 @@
         'compradetalle.php' => 'Detalle de Compras',
     ];
 
-    // Array de enlaces intermedios
-    $intermediateTables = [
-        'productoSubcategoria.php' => 'Producto-Subcategorías',
-        'proveedorProducto.php' => 'Proveedor-Productos',
-        'proveedorCategoria.php' => 'Proveedor-Categoría',
-    ];
-
     // Función para generar la lista de enlaces
     function generateLinks($links) {
         echo "<div class=\"links-container\">";
@@ -50,14 +43,5 @@
         </div>
     ";
     generateLinks($mainTables);
-
-    echo "
-        <div class=\"title-container\">
-            <div class=\"title\">
-                <h2>Tablas Intermedias</h2>
-            </div>
-        </div>
-    ";
-    generateLinks($intermediateTables);
 ?>
 </div>

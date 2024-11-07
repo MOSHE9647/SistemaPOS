@@ -26,6 +26,15 @@
         public function setRolDescripcion(string $rolDescripcion) { $this->rolDescripcion = ucfirst($rolDescripcion); }
         public function setRolEstado(bool $rolEstado) { $this->rolEstado = $rolEstado; }
 
+        public static function fromArray(array $array): RolUsuario {
+            return new RolUsuario(
+                $array['ID'] ?? -1, 
+                $array['Nombre'] ?? "", 
+                $array['Descripcion'] ?? "", 
+                $array['Estado'] ?? true
+            );
+        }
+
         public function jsonSerialize() {
             return [
                 'ID' => $this->rolID,

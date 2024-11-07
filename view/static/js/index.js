@@ -6,7 +6,7 @@ import { cargarUsuarios } from './view/usuario/main.js';
 import { cargarProductos } from './view/producto/main.js';
 import { cargarProveedores } from './view/proveedor/main.js';
 import { cargarHome } from './view/home/main.js';
-import { cargarCRUD } from './view/index-old.js';
+import { cargarConfig } from './view/config.js';
 
 // Ruta base para las peticiones fetch y otros recursos
 window.baseURL = window.location.pathname.split('/').slice(0, -1).join('/');
@@ -33,9 +33,9 @@ const vistas = {
         css: './view/static/css/view/usuario.css', 
         script: cargarUsuarios 
     },
-    cruds: { 
-        css: './view/static/css/index-old.css', 
-        script: cargarCRUD 
+    config: { 
+        css: './view/static/css/config.css', 
+        script: cargarConfig
     }
 };
 
@@ -48,7 +48,7 @@ function cargarEstilos(vista) {
         importarCSS(configVista.css);
         document.title = vista === 'home' ? 'Inicio | POSFusion' : `${vista.charAt(0).toUpperCase() + vista.slice(1)} | POSFusion`;
     } else {
-        mostrarMensaje(`No se encontró la vista solicitada: ${vista}`, 'error', 'Error interno');
+        mostrarMensaje(`La vista "${vista}" aún no está implementada.`, 'warning', 'Vista no encontrada');
     }
 }
 

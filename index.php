@@ -42,8 +42,7 @@
 			'proveedores' => "${url}/links/proveedores.php",
 			'reportes' => "${url}/links/reportes.php",
 			'usuarios' => "${url}/links/usuarios.php",
-			'config' => "${url}/links/config.php",
-			'cruds' => "${url}/index-old.php",
+			'config' => "${url}/config.php",
 			'home' => "${url}/home.php"
 		];
 
@@ -148,12 +147,12 @@
 						</li>
 
 						<!-- CRUD's -->
-						<li>
+						<!-- <li>
 							<a href="<?= $urlBase ?>cruds">
 								<span class="las la-database"></span>
 								<span>CRUD&apos;s</span>
 							</a>
-						</li>
+						</li> -->
 					<?php endif; ?>
 				</ul>
 			</div>

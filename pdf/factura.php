@@ -6,8 +6,7 @@
 
     // Datos de VentaDetalle recibidos en la solicitud
     $listaDetalles  = isset($_GET['detalles'])  ? json_decode($_GET['detalles'], true)  : null;
-    $datosExtra     = isset($_GET['extra'])     ? json_decode($_GET['extra'])     : null;
-    if (empty($listaDetalles) || empty($datosExtra)) {
+    if (empty($listaDetalles)) {
         Utils::enviarRespuesta(400, false, "No se han recibido los datos de la venta.");
     }
 
@@ -15,7 +14,7 @@
     $detalles = [];
     foreach ($listaDetalles as $detalle) {
         // Crear un objeto VentaDetalle con los datos recibidos
-        $ventaDetalle = VentaDetalle::fromArray($detalle);
+        $ventaDetalle = Utils::convertToObject($detalle, VentaDetalle::class);
         array_push($detalles, $ventaDetalle);
     }
 
@@ -201,14 +200,16 @@
         </div>
     </div>
 
-    <script>
+    <!-- <script type="module" src="../view/static/js/utils.js"></script> -->
+    <script type="module">
+        import { calcularValorIVAVenta } from '../view/static/js/utils.js';
+
         const detalles = <?php echo json_encode($detalles); ?>;
-        const datosExtra = <?php echo json_encode($datosExtra); ?>;
         const venta = detalles[0].Venta;
 
         const productos = [];
         detalles.forEach(detalle => {
-            producto = {
+            const producto = {
                 cantidad: detalle.Cantidad,
                 producto: detalle.Producto,
                 precio: detalle.Precio.toFixed(2),
@@ -227,8 +228,8 @@
                 minute: 'numeric',
                 hour12: true
             }),
-            cliente: datosExtra.cliente?.Nombre + ' - ' + datosExtra.cliente?.Alias,
-            cajero: datosExtra.usuario,
+            cliente: venta?.Cliente?.Nombre + ' - ' + venta?.Cliente?.Alias,
+            cajero: venta?.Usuario?.Nombre + ' ' + venta?.Usuario?.Apellido1,
             moneda: venta.Moneda,
             tipoCambio: parseFloat(venta.TipoCambio ?? 0.00).toFixed(2),
             tipoVenta: venta.CondicionVenta,
@@ -259,8 +260,9 @@
             const listaProductos = document.getElementById('listaProductos');
             factura.productos.forEach(data => {
                 const producto = data.producto;
-                const nombreProducto = `${producto.Nombre || ''} ${producto.Presentacion?.Nombre + ', ' || ''} ${producto.Marca?.Nombre || ''}`;
-                const impuesto = (data.precio * datosExtra.impuesto).toFixed(2);
+                const nombreProducto = `${producto?.Nombre || ''} ${producto?.Presentacion?.Nombre + ', ' || ''} ${producto?.Marca?.Nombre || ''}`;
+                const porcentajeIVA = calcularValorIVAVenta(factura.subtotal, factura.impuesto);
+                const impuesto = (data.precio * porcentajeIVA).toFixed(2);
                 const fila = `
                     <tr>
                         <td>${nombreProducto}</td>

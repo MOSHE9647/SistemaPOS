@@ -38,16 +38,19 @@ class VentaDetalleBusiness {
      * @return array Un arreglo asociativo indicando si los datos son válidos y un mensaje en caso de error.
      */
     public function validarVentaDetalle($ventaDetalle) {
+        $productoID = $ventaDetalle->getVentaDetalleProducto()->getProductoID();
+        $cantidad = $ventaDetalle->getVentaDetalleCantidad();
+        $precio = $ventaDetalle->getVentaDetallePrecio();
         $errors = [];
 
         // Verificación de campos (ajustar según los campos de VentaDetalle)
-        if ($ventaDetalle->getProductoID() === null || !is_numeric($ventaDetalle->getProductoID()) || $ventaDetalle->getProductoID() <= 0) {
+        if ($productoID === null || !is_numeric($productoID) || $productoID <= 0) {
             $errors[] = "El ID del producto no es válido.";
         }
-        if ($ventaDetalle->getCantidad() === null || !is_numeric($ventaDetalle->getCantidad()) || $ventaDetalle->getCantidad() <= 0) {
+        if ($cantidad === null || !is_numeric($cantidad) || $cantidad <= 0) {
             $errors[] = "La cantidad debe ser un número mayor a 0.";
         }
-        if ($ventaDetalle->getPrecioUnitario() === null || !is_numeric($ventaDetalle->getPrecioUnitario()) || $ventaDetalle->getPrecioUnitario() <= 0) {
+        if ($precio === null || !is_numeric($precio) || $precio <= 0) {
             $errors[] = "El precio unitario no es válido.";
         }
 

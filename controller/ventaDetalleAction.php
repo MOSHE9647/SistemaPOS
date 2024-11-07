@@ -32,7 +32,7 @@
         $detalles = [];
         foreach ($listaDetalles as $detalle) {
             // Crear un objeto VentaDetalle con los datos recibidos
-            $ventaDetalle = VentaDetalle::fromArray(get_object_vars($detalle));
+            $ventaDetalle = Utils::convertToObject($detalle, VentaDetalle::class);
 
             // $check = $ventaDetalleBusiness->validarVentaDetalle($ventaDetalle, $accion != 'eliminar', $accion == 'insertar');
             // if (!$check['is_valid']) Utils::enviarRespuesta(400, false, $check['message']);

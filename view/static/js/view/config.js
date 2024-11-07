@@ -15,7 +15,7 @@ const vistas = {
 };
 
 // Función para cargar la vista de CRUD
-export function cargarCRUD() {
+export function cargarConfig() {
     // Selecciona todos los enlaces con la clase 'link'
     const links = document.querySelectorAll('.link');
 

@@ -35,6 +35,33 @@ async function obtenerUsuarioPorID(id, filter = true, deleted = false) {
 }
 
 /**
+ * Obtiene un usuario por su correo.
+ *
+ * @async
+ * @function obtenerUsuarioPorCorreo
+ * @param {string} correo - El correo del usuario a obtener.
+ * @param {boolean} [filter=true] - Si se deben aplicar filtros a la obtención del usuario.
+ * @param {boolean} [deleted=false] - Si se deben incluir usuarios eliminados en la obtención.
+ * @returns {Promise<Object>} Los datos del usuario si la solicitud es exitosa.
+ * @throws {Error} Si la solicitud falla o el usuario no se encuentra.
+ */
+export async function obtenerUsuarioPorCorreo(correo, filter = true, deleted = false) {
+    const filterNum = filter ? 1 : 0, deletedNum = deleted ? 1 : 0;
+    const response = await fetch(
+        `${window.baseURL}/controller/usuarioAction.php?accion=email&email=${encodeURIComponent(correo)}&filter=${filterNum}&deleted=${deletedNum}`
+    );
+
+    if (!response.ok) mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al obtener el usuario');
+    const data = await verificarRespuestaJSON(response);
+    
+    if (data.success) {
+        return data.usuario;
+    } else {
+        throw new Error(data.message);
+    }
+}
+
+/**
  * Inserta un nuevo usuario enviando una solicitud POST al servidor.
  * 
  * @description Esta función envía los datos del formulario del usuario al servidor para crear un nuevo registro.

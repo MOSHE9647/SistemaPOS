@@ -2,7 +2,8 @@
 // ************* Métodos para el manejo de la GUI ************* //
 // ************************************************************ //
 
-import { checkEmptyTable, getCurrentDate, manejarInputConEnter, manejarInputNumeroTelefono } from "../../utils.js";
+import { checkEmptyTable, getCurrentDate, manejarInputNumeroTelefono } from "../../utils.js";
+import { obtenerUsuarioPorCorreo } from "../usuario/crud.js";
 import { hideLoader, showLoader } from "../../gui/loader.js";
 import { obtenerListaImpuestos } from "../impuesto/crud.js";
 import { obtenerListaProductos } from "../producto/crud.js";
@@ -512,84 +513,61 @@ export function mostrarOpcionesDeCobro() {
             confirmButton: 'modal-confirm',
             actions: 'modal-actions',
         },
-        preConfirm: () => {
-            const venta = obtenerDatosDeVenta();
+        preConfirm: async () => {
+            // Obtener los datos de la venta
+            const venta = await obtenerDatosDeVenta();
             if (!venta) {
                 mostrarMensaje('Error al obtener los datos de la venta.', 'error', 'Error de venta');
                 return false;
             }
 
-            const cobroForm = document.getElementById('payment-methods');
-            if (!cobroForm) {
-                mostrarMensaje('No se encontró el formulario de cobro.', 'error', 'Error de formulario');
-                return false;
-            }
-
-            if (!cobroForm.checkValidity()) {
-                cobroForm.reportValidity();
-                return false;
-            }
-
-            const data = {
-                impuesto: obtenerValorImpuesto(),
-                cliente: listaClientes.find(c => c.ID === parseInt(venta[0].Venta.Cliente, 10)),
-                usuario: usuarioActual
-            };
-            return { venta, data };
+            // Retornar los datos de la venta
+            return venta;
         },
-        preDeny: () => {
-            const venta = obtenerDatosDeVenta();
+        preDeny: async () => {
+            // Obtener los datos de la venta
+            const venta = await obtenerDatosDeVenta();
             if (!venta) {
                 mostrarMensaje('Error al obtener los datos de la venta.', 'error', 'Error de venta');
                 return false;
             }
             
-            const cobroForm = document.getElementById('payment-methods');
-            if (!cobroForm) {
-                mostrarMensaje('No se encontró el formulario de cobro.', 'error', 'Error de formulario');
-                return false;
-            }
-            
-            if (!cobroForm.checkValidity()) {
-                cobroForm.reportValidity();
-                return false;
-            }
-
-            return { venta };
+            // Retornar los datos de la venta
+            return venta;
         }
     })
     .then(result => {
-        if (result.isConfirmed || result.isDenied) {
-            const { venta, data } = result.value;
-            if (result.isConfirmed) {
-                // Imprimir ticket
-                crud.generarFactura(venta, data);
-            }
+        if (!(result.isConfirmed || result.isDenied)) return;
 
-            // Intenta guardar la venta en la BD
-            crud.insertVentaDetalle(venta).then((success) => {
-                if (!success) {
-                    mostrarMensaje('Venta realizada con éxito.', 'success', 'Venta realizada');
-
-                    const lastSaleInfo = {
-                        total: parseFloat(totales[activeTableID].total ?? 0.00),
-                        pay: venta[0].Venta.MontoPago,
-                        change: venta[0].Venta.MontoVuelto
-                    };
-
-                    Object.entries(lastSaleInfo).forEach(([field, value]) => {
-                        const span = document.getElementById(`last-sale-${field}`);
-                        if (span) span.innerHTML = `&#162;${value.toFixed(2)}`;
-                    });
-
-                    // Limpiar la lista de productos y renderizar la tabla
-                    // clearProductList(getActiveTable().id);
-                    // renderTable(productos[getActiveTable().id]);
-                } else {
-                    mostrarMensaje('Error al realizar la venta.', 'error', 'Error de venta');
-                }
-            });
+        const venta = result.value;
+        if (result.isConfirmed) {
+            // Imprimir ticket
+            crud.generarFactura(venta);
         }
+
+        // Intenta guardar la venta en la BD
+        crud.insertVentaDetalle(venta).then((success) => {
+            if (!success) {
+                mostrarMensaje('Venta realizada con éxito.', 'success', 'Venta realizada');
+
+                const lastSaleInfo = {
+                    total: parseFloat(totales[activeTableID].total ?? 0.00),
+                    pay: venta[0].Venta.MontoPago,
+                    change: venta[0].Venta.MontoVuelto
+                };
+
+                Object.entries(lastSaleInfo).forEach(([field, value]) => {
+                    const span = document.getElementById(`last-sale-${field}`);
+                    if (span) span.innerHTML = `&#162;${value.toFixed(2)}`;
+                });
+
+                // Limpiar la lista de productos y renderizar la tabla
+                // clearProductList(getActiveTable().id);
+                // renderTable(productos[getActiveTable().id]);
+                } else {
+                mostrarMensaje('Error al realizar la venta.', 'error', 'Error de venta');
+            }
+        });
     })
     .catch(() => {
         mostrarMensaje('Error al realizar la operación.', 'error');
@@ -645,6 +623,23 @@ export function mostrarOpcionesDeCobro() {
     addEventListenerToElement('currency-select', 'change', event => handleCurrencySelect(event));
 }
 
+function esValidoFormularioCobro() {
+    // Obtener el formulario de cobro
+    const cobroForm = document.getElementById('payment-methods');
+    if (!cobroForm) {
+        mostrarMensaje('No se encontró el formulario de cobro.', 'error', 'Error de formulario');
+        return false;
+    }
+    
+    // Verificar si el formulario de cobro es válido
+    if (!cobroForm.checkValidity()) {
+        cobroForm.reportValidity();
+        return false;
+    }
+
+    return true;
+}
+
 export function obtenerValorImpuesto() {
     try {
         const impuestos = obtenerListaImpuestos();
@@ -684,7 +679,9 @@ export function getCambio(pagoInputID) {
     return cambio > 0 ? cambio.toFixed(2) : '0.00';
 }
 
-function obtenerDatosDeVenta() {
+async function obtenerDatosDeVenta() {
+    if (!esValidoFormularioCobro()) return false;
+
     const activeTable = getActiveTable();
     if (!activeTable) return null;
 
@@ -724,7 +721,8 @@ function obtenerDatosDeVenta() {
     }
 
     const venta = {
-        Cliente: clienteID,
+        Cliente: listaClientes.find(c => c.ID === parseInt(clienteID, 10)),
+        Usuario: await obtenerUsuarioPorCorreo(correoUsuario) ?? null,
         Moneda: totales[activeTableID].moneda,
         MontoBruto: parseFloat(totales[activeTableID].subtotal),
         MontoNeto: parseFloat(totales[activeTableID].total),

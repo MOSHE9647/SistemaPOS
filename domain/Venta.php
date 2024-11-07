@@ -1,12 +1,14 @@
 <?php
 
     require_once dirname(__DIR__, 1) . '/domain/Cliente.php';
+    require_once dirname(__DIR__, 1) . '/domain/Usuario.php';
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
     class Venta implements JsonSerializable {
 
         private $ventaID;
         private $ventaCliente;
+        private $ventaUsuario;
         private $ventaNumeroFactura;
         private $ventaMoneda;
         private $ventaMontoBruto;
@@ -26,6 +28,7 @@
         public function __construct(
             int $ventaID = -1,
             Cliente $ventaCliente = null,
+            Usuario $ventaUsuario = null,
             string $ventaNumeroFactura = "",
             string $ventaMoneda = "CRC",
             float $ventaMontoBruto = 0.0,
@@ -44,6 +47,7 @@
         ) {
             $this->ventaID = $ventaID;
             $this->ventaCliente = $ventaCliente;
+            $this->ventaUsuario = $ventaUsuario;
             $this->ventaNumeroFactura = strtoupper($ventaNumeroFactura);
             $this->ventaMoneda = strtoupper($ventaMoneda);
             $this->ventaMontoBruto = Utils::formatearDecimal($ventaMontoBruto);
@@ -63,6 +67,7 @@
         
         public function getVentaID(): int { return $this->ventaID; }
         public function getVentaCliente(): ?Cliente { return $this->ventaCliente; }
+        public function getVentaUsuario(): ?Usuario { return $this->ventaUsuario; }
         public function getVentaNumeroFactura(): string { return $this->ventaNumeroFactura; }
         public function getVentaMoneda(): string { return $this->ventaMoneda; }
         public function getVentaMontoBruto(): float { return $this->ventaMontoBruto; }
@@ -81,6 +86,7 @@
 
         public function setVentaID(int $ventaID) { $this->ventaID = $ventaID; }
         public function setVentaCliente(Cliente $ventaCliente) { $this->ventaCliente = $ventaCliente; }
+        public function setVentaUsuario(Usuario $ventaUsuario) { $this->ventaUsuario = $ventaUsuario; }
         public function setVentaNumeroFactura(string $ventaNumeroFactura) { $this->ventaNumeroFactura = strtoupper($ventaNumeroFactura); }
         public function setVentaMoneda(string $ventaMoneda) { $this->ventaMoneda = strtoupper($ventaMoneda); }
         public function setVentaMontoBruto(float $ventaMontoBruto) { $this->ventaMontoBruto = Utils::formatearDecimal($ventaMontoBruto); }
@@ -101,10 +107,15 @@
             return $this->ventaCliente ? $this->ventaCliente->getClienteID() : null;
         }
 
+        public function getUsuarioID(): ?int {
+            return $this->ventaUsuario ? $this->ventaUsuario->getUsuarioID() : null;
+        }
+
         public static function fromArray(array $venta): Venta {
             return new Venta(
                 intval($venta['ID']) ?? -1,
-                isset($venta['Cliente']) ? new Cliente( intval($venta['Cliente']) ) : null,
+                Utils::convertToObject($venta['Cliente'] ?? null, Cliente::class),
+                Utils::convertToObject($venta['Usuario'] ?? null, Usuario::class),
                 Utils::generateCodeFromUUID(15), // Número de factura generado automáticamente (15 caracteres)
                 $venta['Moneda'] ?? "CRC",
                 floatval($venta['MontoBruto']) ?? 0.0,
