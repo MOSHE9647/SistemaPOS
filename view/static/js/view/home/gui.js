@@ -537,15 +537,15 @@ export function mostrarOpcionesDeCobro() {
         if (!(result.isConfirmed || result.isDenied)) return;
 
         // Intenta guardar la venta en la BD
-        const venta = result.value;
-        crud.insertVentaDetalle(venta).then((success) => {
-            if (!success) mostrarMensaje('Ocurrió un error al realizar la venta', 'error');
+        const detallesVenta = result.value;
+        crud.insertVentaDetalle(detallesVenta).then((resultado) => {
+            if (resultado.success) mostrarMensaje('Ocurrió un error al realizar la venta', 'error');
 
             // Actualizar la información de la última venta
             const lastSaleInfo = {
                 total: parseFloat(totales[activeTableID].total ?? 0.00),
-                pay: venta[0].Venta.MontoPago,
-                change: venta[0].Venta.MontoVuelto
+                pay: detallesVenta[0].Venta.MontoPago,
+                change: detallesVenta[0].Venta.MontoVuelto
             };
             
             Object.entries(lastSaleInfo).forEach(([field, value]) => {
@@ -557,9 +557,13 @@ export function mostrarOpcionesDeCobro() {
             clearProductList(getActiveTable().id);
             renderTable(productos[getActiveTable().id]);
 
-            // Mostrar mensaje de éxito y generar la factura si fue solicitada
-            mostrarMensaje('Venta realizada con éxito.', 'success', 'Venta realizada');            
-            if (result.isConfirmed) crud.generarFactura(venta);
+            // Mostrar mensaje de éxito
+            mostrarMensaje('Venta realizada con éxito.', 'success', 'Venta realizada');
+            
+            // Imprimimos la factura si el usuario lo desea
+            //<!-- Hay que cambiar esto para que no agarre el string vacío -->
+            detallesVenta[0].Venta.NumeroFactura = resultado.consecutivo ?? '241106225358000001';
+            if (result.isConfirmed) crud.generarFactura(detallesVenta);
         });
     })
     .catch(() => {
@@ -715,6 +719,7 @@ async function obtenerDatosDeVenta() {
         }
     
         const venta = {
+            NumeroFactura: "",
             Cliente: listaClientes.find(c => c.ID === parseInt(clienteID, 10)),
             Usuario: await obtenerUsuarioPorCorreo(correoUsuario) ?? null,
             Moneda: totales[activeTableID].moneda,

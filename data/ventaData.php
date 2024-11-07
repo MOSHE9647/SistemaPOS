@@ -221,10 +221,10 @@
                 );
                 $result = mysqli_stmt_execute($stmt);
 
-                    // Confirmar la transacción
-            if ($createdConnection) { mysqli_commit($conn); }
+                // Confirmar la transacción
+                if ($createdConnection) { mysqli_commit($conn); }
         
-                return ["success" => true, "message" => "Venta insertada exitosamente","id"=>$nextId];
+                return ["success" => true, "message" => "Venta insertada exitosamente", "id"=>$nextId, 'consecutivo'=>$ventaNumeroFactura];
             } catch (Exception $e) {
                 if (isset($conn) && $createdConnection) { mysqli_rollback($conn); }
 

@@ -270,6 +270,46 @@
             return null;
         }
 
+        /**
+         * Genera un consecutivo que empieza con la fecha y hora actual y termina con un número secuencial.
+         *
+         * @return string El consecutivo generado.
+         */
+        public static function generarConsecutivo() {
+            $fecha = date('ymd'); // Formato '061124'
+
+            // Establece la zona horaria a la deseada
+            date_default_timezone_set('America/Costa_Rica');
+            $hora = date('His');  // Formato '215800'
+            
+            // Ruta del archivo que almacenará el último número secuencial
+            $secuencialFile = dirname(__DIR__) . '/view/static/json/secuencial.json';
+            
+            // Leer el último número secuencial del archivo
+            if (file_exists($secuencialFile)) {
+                $data = file_get_contents($secuencialFile);
+                $data = json_decode($data, true);
+                
+                // Verificar si la fecha almacenada es la misma que la fecha actual
+                if ($data['fecha'] === $fecha) {
+                    $secuencial = $data['secuencial'] + 1;
+                } else {
+                    $secuencial = 1; // Reiniciar el secuencial si es un nuevo día
+                }
+            } else {
+                $secuencial = 1; // Iniciar el secuencial si el archivo no existe
+            }
+            
+            // Guardar el nuevo número secuencial en el archivo
+            $data = ['fecha' => $fecha, 'secuencial' => $secuencial];
+            file_put_contents($secuencialFile, json_encode($data));
+            
+            // Formatear el secuencial a 6 dígitos con ceros a la izquierda
+            $secuencial = str_pad($secuencial, 6, '0', STR_PAD_LEFT);
+            
+            return $fecha . $hora . $secuencial;
+        }
+
     }
 
 ?>

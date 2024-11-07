@@ -48,7 +48,8 @@
             $this->ventaID = $ventaID;
             $this->ventaCliente = $ventaCliente;
             $this->ventaUsuario = $ventaUsuario;
-            $this->ventaNumeroFactura = strtoupper($ventaNumeroFactura);
+            //<!-- Esto debe generarse en el Data -->
+            $this->ventaNumeroFactura = empty($ventaNumeroFactura) ? Utils::generarConsecutivo() : $ventaNumeroFactura;
             $this->ventaMoneda = strtoupper($ventaMoneda);
             $this->ventaMontoBruto = Utils::formatearDecimal($ventaMontoBruto);
             $this->ventaMontoNeto = Utils::formatearDecimal($ventaMontoNeto);
@@ -87,7 +88,7 @@
         public function setVentaID(int $ventaID) { $this->ventaID = $ventaID; }
         public function setVentaCliente(Cliente $ventaCliente) { $this->ventaCliente = $ventaCliente; }
         public function setVentaUsuario(Usuario $ventaUsuario) { $this->ventaUsuario = $ventaUsuario; }
-        public function setVentaNumeroFactura(string $ventaNumeroFactura) { $this->ventaNumeroFactura = strtoupper($ventaNumeroFactura); }
+        public function setVentaNumeroFactura(string $ventaNumeroFactura) { $this->ventaNumeroFactura = empty($ventaNumeroFactura) ? Utils::generarConsecutivo() : $ventaNumeroFactura; }
         public function setVentaMoneda(string $ventaMoneda) { $this->ventaMoneda = strtoupper($ventaMoneda); }
         public function setVentaMontoBruto(float $ventaMontoBruto) { $this->ventaMontoBruto = Utils::formatearDecimal($ventaMontoBruto); }
         public function setVentaMontoNeto(float $ventaMontoNeto) { $this->ventaMontoNeto = Utils::formatearDecimal($ventaMontoNeto); }
@@ -116,7 +117,7 @@
                 intval($venta['ID']) ?? -1,
                 Utils::convertToObject($venta['Cliente'] ?? null, Cliente::class),
                 Utils::convertToObject($venta['Usuario'] ?? null, Usuario::class),
-                Utils::generateCodeFromUUID(15), // Número de factura generado automáticamente (15 caracteres)
+                $venta['NumeroFactura'] ?? "",
                 $venta['Moneda'] ?? "CRC",
                 floatval($venta['MontoBruto']) ?? 0.0,
                 floatval($venta['MontoNeto']) ?? 0.0,

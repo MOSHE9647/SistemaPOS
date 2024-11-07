@@ -267,8 +267,8 @@
                         <td>${nombreProducto}</td>
                         <td>${data.cantidad}</td>
                         <td>${producto.CodigoBarras.Numero}</td>
-                        <td>¢${data.precio}</td>
-                        <td>¢${impuesto}</td>
+                        <td>¢${data.precio * data.cantidad}</td>
+                        <td>¢${impuesto * data.cantidad}</td>
                     </tr>
                 `;
                 listaProductos.innerHTML += fila;

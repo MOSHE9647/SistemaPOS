@@ -189,7 +189,7 @@ export async function obtenerDeudasPorClienteID(id) {
  * insertVentaDetalle(datosVenta);
  * 
  * @param {Object} datosVenta - Los datos del detalle de venta.
- * @returns {boolean} true si la operación fue exitosa, false en caso contrario.
+ * @returns {Object} Un objeto con las propiedades success y consecutivo si la operación fue exitosa, false en caso contrario.
  */
 export async function insertVentaDetalle(datosVenta) {
     showLoader(); // Mostrar el loader
@@ -205,23 +205,23 @@ export async function insertVentaDetalle(datosVenta) {
         });
         if (!response.ok) {
             mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el detalle de venta');
-            return false;
+            return { success: false };
         }
         const data = await verificarRespuestaJSON(response);
         
         // Verificar si hubo un error en la solicitud
         if (!data.success) {
             mostrarMensaje(data.message, 'error', 'Error al crear el detalle de venta');
-            return false; // Salir de la función si hay error
+            return { success: false }; // Salir de la función si hay error
         }
 
         // Mostrar mensaje de éxito y recargar los detalles de venta
         mostrarMensaje(data.message, 'success');
-        return true;
+        return { success: true, consecutivo: data.consecutivo };
     } catch (error) {
         // Mostrar mensaje de error detallado
         mostrarMensaje(`Ocurrió un error al crear el detalle de venta.<br>${error}`, 'error', 'Error al crear el detalle de venta');
-        return false;
+        return { success: false };
     } finally {
         hideLoader(); // Ocultar el loader
     }
