@@ -102,6 +102,8 @@
         }
 
         public function insertarListaVentaDetalle($listaVenta){
+            $consecutivo = null;
+            
             try{
                 $result = $this->getConnection();
                 if (!$result["success"]) { throw new Exception($result["message"]); }
@@ -112,6 +114,7 @@
                 if (!$resultV["success"]){
                     throw new Exception($resultV["message"]);
                 }
+                $consecutivo = $resultV["consecutivo"];
 
                 foreach ($listaVenta as $ventaDetalle) {
                     $ventaDetalle->getVentaDetalleVenta()->setVentaID($resultV["id"]);
@@ -126,11 +129,14 @@
                 // Confirmar la transacción si todo fue exitoso
                 mysqli_commit($conn);
 
-                return ["success" => true, "message" => "Todos los detalles de venta fueron insertados exitosamente"];
+                return ["success" => true, "consecutivo" => $consecutivo, "message" => "Todos los detalles de venta fueron insertados exitosamente"];
             }catch (Exception $e) {
                 if (isset($conn)) { 
                     mysqli_rollback($conn); 
                 }
+
+                if ($consecutivo) { Utils::deshacerConsecutivo($consecutivo); }
+
                 $userMessage = $this->handleMysqlError(
                     $e->getCode(), $e->getMessage(),
                     'Ocurrió un error al insertar el detalle de venta en la base de datos',
@@ -138,9 +144,98 @@
                 );
                 return ["success" => false, "message" => $userMessage];
             } finally {
-                if (isset($conn) && $createdConnection) { 
+                if (isset($conn)) { 
                     mysqli_close($conn);
                 }
+            }
+        }
+
+        public function insertVentaDetalle($ventaDetalle, $conn = null) {
+            $createdConnection = false;
+            $stmt = null;
+        
+            try {
+                // Obtener los valores de las propiedades del objeto
+                $ventaid = $ventaDetalle->getVentaDetalleVenta()->getVentaID();
+                $productoid = $ventaDetalle->getVentaDetalleProducto()->getProductoID();
+                $precio = $ventaDetalle->getVentaDetallePrecio();
+                $cantidad = $ventaDetalle->getVentaDetalleCantidad();
+        
+                // Verifica si el detalle de venta ya existe en la base de datos
+                $check = $this->ventaDetalleExiste(null, $ventaid, $productoid, false, true);
+                if (!$check["success"]) { throw new Exception($check["message"]); }
+        
+                // En caso de existir
+                if ($check["exists"]) {
+                    $message = "El detalle de venta ya existe en la base de datos.";
+                    Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
+                    return ["success" => false, "message" => "El detalle de venta ya existe en la base de datos."];
+                }
+        
+                // Establece una conexión con la base de datos
+                if ($conn === null) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true; // Indica que se creó una nueva conexión
+
+                    mysqli_begin_transaction($conn);
+                }
+
+                // Obtiene el último ID de la tabla tblote
+                $queryGetLastId = "SELECT MAX(" . VENTA_DETALLE_ID . ") FROM " . TB_VENTA_DETALLE;
+                $idCont = mysqli_query($conn, $queryGetLastId);
+                $nextId = 1;
+        
+                // Calcula el siguiente ID para la nueva entrada
+                if ($row = mysqli_fetch_row($idCont)) {
+                    $nextId = (int) trim($row[0]) + 1;
+                }
+                
+                // Crea una consulta y un statement SQL para insertar el registro
+                $queryInsert = 
+                    "INSERT INTO " . TB_VENTA_DETALLE . " (" . 
+                        VENTA_DETALLE_ID . ", " . 
+                        VENTA_ID . ", " . 
+                        PRODUCTO_ID . ", " . 
+                        VENTA_DETALLE_PRECIO . ", " . 
+                        VENTA_DETALLE_CANTIDAD . 
+                    ") " .
+                    "VALUES (?, ?, ?, ?, ?)";
+                $stmt = mysqli_prepare($conn, $queryInsert);
+
+                // Asigna los valores a cada '?' de la consulta
+                mysqli_stmt_bind_param(
+                    $stmt,
+                    'iiidi', // i: entero, d: decimal
+                    $nextId,
+                    $ventaid,
+                    $productoid,
+                    $precio,
+                    $cantidad
+                );
+
+                // Ejecuta la consulta de inserción
+                $result = mysqli_stmt_execute($stmt);
+
+                // Devuelve el resultado de la operación
+                return ["success" => true, "message" => "Detalle de venta insertado exitosamente"];
+            } catch (Exception $e) {
+                if (isset($conn) && $createdConnection) { mysqli_rollback($conn); }
+
+                // Manejo del error dentro del bloque catch
+                $userMessage = $this->handleMysqlError(
+                    $e->getCode(),
+                    $e->getMessage(),
+                    'Error al insertar el detalle de venta en la base de datos'
+                );
+        
+                // Devolver mensaje amigable para el usuario
+                return ["success" => false, "message" => $userMessage];
+            } finally {
+                // Cierra la conexión y el statement
+                if (isset($stmt)) { mysqli_stmt_close($stmt); }
+                if (isset($conn) && $createdConnection) { mysqli_close($conn); }
             }
         }
         

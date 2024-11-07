@@ -69,11 +69,11 @@ class VentaDetalleBusiness {
      * @return array Resultado de la operación de inserción.
      */
     public function insertVentaDetalle($ventaDetalle) {
-        $check = $this->validarVentaDetalle($ventaDetalle);
+        $check = $this->validarVentaDetalle($ventaDetalle[0]);
         if (!$check["is_valid"]) {
             return ["success" => false, "message" => $check["message"]];
         }
-        return $this->ventaDetalleData->insertVentaDetalle($ventaDetalle);
+        return $this->ventaDetalleData->insertarListaVentaDetalle($ventaDetalle);
     }
 
     /**

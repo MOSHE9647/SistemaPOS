@@ -539,7 +539,10 @@ export function mostrarOpcionesDeCobro() {
         // Intenta guardar la venta en la BD
         const detallesVenta = result.value;
         crud.insertVentaDetalle(detallesVenta).then((resultado) => {
-            if (resultado.success) mostrarMensaje('Ocurrió un error al realizar la venta', 'error');
+            if (!resultado.success) {
+                mostrarMensaje('Ocurrió un error al realizar la venta', 'error');
+                return;
+            }
 
             // Actualizar la información de la última venta
             const lastSaleInfo = {
@@ -561,8 +564,7 @@ export function mostrarOpcionesDeCobro() {
             mostrarMensaje('Venta realizada con éxito.', 'success', 'Venta realizada');
             
             // Imprimimos la factura si el usuario lo desea
-            //<!-- Hay que cambiar esto para que no agarre el string vacío -->
-            detallesVenta[0].Venta.NumeroFactura = resultado.consecutivo ?? '241106225358000001';
+            detallesVenta[0].Venta.NumeroFactura = resultado.consecutivo ?? 'N/A';
             if (result.isConfirmed) crud.generarFactura(detallesVenta);
         });
     })

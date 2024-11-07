@@ -42,7 +42,7 @@
 
         switch ($accion) {
             case 'insertar':
-                $response = $ventaDetalleBusiness->insertVentaDetalle($ventaDetalle);
+                $response = $ventaDetalleBusiness->insertVentaDetalle($detalles);
                 break;
             case 'actualizar':
                 $response = $ventaDetalleBusiness->updateVentaDetalle($ventaDetalle);

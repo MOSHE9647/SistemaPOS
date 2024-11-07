@@ -184,7 +184,7 @@
                 // Obtener los valores de las propiedades del objeto $venta
                 $ventaCliente = $venta->getClienteID();
                 $ventaUsuario = $venta->getUsuarioID();
-                $ventaNumeroFactura = $venta->getVentaNumeroFactura();
+                $ventaNumeroFactura = Utils::generarConsecutivo(); // Genera un consecutivo de factura
                 $ventaMoneda = $venta->getVentaMoneda();
                 $ventaMontoBruto = $venta->getVentaMontoBruto();
                 $ventaMontoNeto = $venta->getVentaMontoNeto();
@@ -224,9 +224,10 @@
                 // Confirmar la transacción
                 if ($createdConnection) { mysqli_commit($conn); }
         
-                return ["success" => true, "message" => "Venta insertada exitosamente", "id"=>$nextId, 'consecutivo'=>$ventaNumeroFactura];
+                return ["success" => true, "message" => "Venta insertada exitosamente", "id" => $nextId, 'consecutivo' => $ventaNumeroFactura];
             } catch (Exception $e) {
                 if (isset($conn) && $createdConnection) { mysqli_rollback($conn); }
+                Utils::deshacerConsecutivo(); // Deshacer el consecutivo generado
 
                 // Manejo del error dentro del bloque catch
                 $userMessage = $this->handleMysqlError(

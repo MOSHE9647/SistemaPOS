@@ -310,6 +310,42 @@
             return $fecha . $hora . $secuencial;
         }
 
+        /**
+         * Deshace el último consecutivo generado, decrementando el número secuencial.
+         *
+         * @param string $consecutivo El consecutivo a deshacer.
+         */
+        public static function deshacerConsecutivo($consecutivo) {
+            $fecha = date('ymd'); // Formato 'ymd'
+            $hora = date('His');  // Formato 'His'
+            
+            // Ruta del archivo que almacenará el último número secuencial
+            $secuencialFile = dirname(__DIR__) . '/view/static/json/secuencial.json';
+            
+            // Leer el último número secuencial del archivo
+            if (file_exists($secuencialFile)) {
+                $data = file_get_contents($secuencialFile);
+                $data = json_decode($data, true);
+                
+                // Extraer la fecha y el secuencial del consecutivo
+                $consecutivoFecha = substr($consecutivo, 0, 6);
+                $consecutivoSecuencial = (int)substr($consecutivo, 12, 6);
+                
+                // Verificar si la fecha almacenada es la misma que la fecha actual y si el secuencial es menor al del consecutivo
+                if ($data['fecha'] === $fecha && $data['secuencial'] < $consecutivoSecuencial) {
+                    $secuencial = max($data['secuencial'] - 1, 0); // Decrementar el secuencial pero no permitir que sea menor que 0
+                } else {
+                    return; // No hacer nada si la fecha no coincide o el secuencial no es menor
+                }
+            } else {
+                return; // No hacer nada si el archivo no existe
+            }
+            
+            // Guardar el nuevo número secuencial en el archivo
+            $data = ['fecha' => $fecha, 'secuencial' => $secuencial];
+            file_put_contents($secuencialFile, json_encode($data));
+        }
+
     }
 
 ?>
