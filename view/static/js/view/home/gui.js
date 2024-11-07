@@ -372,7 +372,7 @@ export function mostrarOpcionesDeCobro() {
                                 <input 
                                     type="number" id="pago-efectivo" name="pago" 
                                     value="${totales[activeTableID]['total']}" min="${totales[activeTableID]['total']}" 
-                                    step="0.10" required
+                                    step="0.01" required
                                 >
                             </div>
                             <div class="payment-info methods input-select item">
@@ -516,10 +516,7 @@ export function mostrarOpcionesDeCobro() {
         preConfirm: async () => {
             // Obtener los datos de la venta
             const venta = await obtenerDatosDeVenta();
-            if (!venta) {
-                mostrarMensaje('Error al obtener los datos de la venta.', 'error', 'Error de venta');
-                return false;
-            }
+            if (!venta) return false;
 
             // Retornar los datos de la venta
             return venta;
@@ -539,34 +536,30 @@ export function mostrarOpcionesDeCobro() {
     .then(result => {
         if (!(result.isConfirmed || result.isDenied)) return;
 
-        const venta = result.value;
-        if (result.isConfirmed) {
-            // Imprimir ticket
-            crud.generarFactura(venta);
-        }
-
         // Intenta guardar la venta en la BD
+        const venta = result.value;
         crud.insertVentaDetalle(venta).then((success) => {
-            if (!success) {
-                mostrarMensaje('Venta realizada con éxito.', 'success', 'Venta realizada');
+            if (!success) mostrarMensaje('Ocurrió un error al realizar la venta', 'error');
 
-                const lastSaleInfo = {
-                    total: parseFloat(totales[activeTableID].total ?? 0.00),
-                    pay: venta[0].Venta.MontoPago,
-                    change: venta[0].Venta.MontoVuelto
-                };
+            // Actualizar la información de la última venta
+            const lastSaleInfo = {
+                total: parseFloat(totales[activeTableID].total ?? 0.00),
+                pay: venta[0].Venta.MontoPago,
+                change: venta[0].Venta.MontoVuelto
+            };
+            
+            Object.entries(lastSaleInfo).forEach(([field, value]) => {
+                const span = document.getElementById(`last-sale-${field}`);
+                if (span) span.innerHTML = `&#162;${value.toFixed(2)}`;
+            });
+            
+            // Limpiar la lista de productos y renderizar la tabla
+            clearProductList(getActiveTable().id);
+            renderTable(productos[getActiveTable().id]);
 
-                Object.entries(lastSaleInfo).forEach(([field, value]) => {
-                    const span = document.getElementById(`last-sale-${field}`);
-                    if (span) span.innerHTML = `&#162;${value.toFixed(2)}`;
-                });
-
-                // Limpiar la lista de productos y renderizar la tabla
-                // clearProductList(getActiveTable().id);
-                // renderTable(productos[getActiveTable().id]);
-                } else {
-                mostrarMensaje('Error al realizar la venta.', 'error', 'Error de venta');
-            }
+            // Mostrar mensaje de éxito y generar la factura si fue solicitada
+            mostrarMensaje('Venta realizada con éxito.', 'success', 'Venta realizada');            
+            if (result.isConfirmed) crud.generarFactura(venta);
         });
     })
     .catch(() => {
@@ -680,72 +673,78 @@ export function getCambio(pagoInputID) {
 }
 
 async function obtenerDatosDeVenta() {
-    if (!esValidoFormularioCobro()) return false;
-
-    const activeTable = getActiveTable();
-    if (!activeTable) return null;
-
-    const activeTableID = activeTable.id;
-    const listaProductos = productos[activeTableID];
-
-    const clienteSelect = document.getElementById('cliente-select');
-    const clienteID = clienteSelect.value;
-    if (!clienteID) {
-        mostrarMensaje('No se seleccionó ningún cliente.', 'error', 'Error de cliente');
+    try {
+        if (!esValidoFormularioCobro()) return null;
+    
+        const activeTable = getActiveTable();
+        if (!activeTable) return null;
+    
+        const activeTableID = activeTable.id;
+        const listaProductos = productos[activeTableID];
+    
+        const clienteSelect = document.getElementById('cliente-select');
+        const clienteID = clienteSelect.value;
+        if (!clienteID) {
+            mostrarMensaje('Debe seleccionar un cliente', 'error', 'Error al realizar la venta');
+            return null;
+        }
+    
+        const paymentMethod = document.querySelector('.payment-method.active').dataset.method;
+        const paymentInfo = document.getElementById(`payment-method-${paymentMethod}`);
+        const paymentData = {};
+    
+        switch (paymentMethod) {
+            case 'efectivo':
+                paymentData['pago'] = parseFloat(paymentInfo.querySelector('#pago-efectivo').value);
+                paymentData['vuelto'] = parseFloat(paymentInfo.querySelector('#vuelto-efectivo').value);
+                break;
+            case 'tarjeta':
+                paymentData['referencia'] = paymentInfo.querySelector('#referencia-tarjeta').value;
+                break;
+            case 'sinpe':
+                paymentData['comprobante'] = paymentInfo.querySelector('#comprobante-sinpe').value;
+                break;
+            case 'credito':
+                paymentData['vencimiento'] = paymentInfo.querySelector('#vencimiento-credito').value;
+                paymentData['notas'] = paymentInfo.querySelector('#notas').value;
+                break;
+            case 'multiple':
+                break;
+            default:
+                break;
+        }
+    
+        const venta = {
+            Cliente: listaClientes.find(c => c.ID === parseInt(clienteID, 10)),
+            Usuario: await obtenerUsuarioPorCorreo(correoUsuario) ?? null,
+            Moneda: totales[activeTableID].moneda,
+            MontoBruto: parseFloat(totales[activeTableID].subtotal),
+            MontoNeto: parseFloat(totales[activeTableID].total),
+            MontoImpuesto: parseFloat(totales[activeTableID].impuesto),
+            Condicion: paymentMethod === 'credito' ? 'CREDITO' : 'CONTADO',
+            TipoPago: paymentMethod.toUpperCase(),
+            TipoCambio: parseFloat(totales[activeTableID].tipoCambio || 0.00),
+            MontoPago: paymentData.pago || 0.00,
+            MontoVuelto: paymentData.vuelto || 0.00,
+            ReferenciaTarjeta: paymentData.referencia || '',
+            ComprobanteSINPE: paymentData.comprobante || '',
+        };
+    
+        const listaVentaDetalle = listaProductos.map(data => {
+            return {
+                Precio: data.producto.PrecioCompra,
+                Cantidad: data.cantidad,
+                Venta: venta,
+                Producto: data.producto,
+            }
+        });
+    
+        return listaVentaDetalle;
+    } catch (error) {
+        console.error(error);
+        mostrarMensaje(error.message, 'error', 'Error al realizar la venta');
         return null;
     }
-
-    const paymentMethod = document.querySelector('.payment-method.active').dataset.method;
-    const paymentInfo = document.getElementById(`payment-method-${paymentMethod}`);
-    const paymentData = {};
-
-    switch (paymentMethod) {
-        case 'efectivo':
-            paymentData['pago'] = parseFloat(paymentInfo.querySelector('#pago-efectivo').value);
-            paymentData['vuelto'] = parseFloat(paymentInfo.querySelector('#vuelto-efectivo').value);
-            break;
-        case 'tarjeta':
-            paymentData['referencia'] = paymentInfo.querySelector('#referencia-tarjeta').value;
-            break;
-        case 'sinpe':
-            paymentData['comprobante'] = paymentInfo.querySelector('#comprobante-sinpe').value;
-            break;
-        case 'credito':
-            paymentData['vencimiento'] = paymentInfo.querySelector('#vencimiento-credito').value;
-            paymentData['notas'] = paymentInfo.querySelector('#notas').value;
-            break;
-        case 'multiple':
-            break;
-        default:
-            break;
-    }
-
-    const venta = {
-        Cliente: listaClientes.find(c => c.ID === parseInt(clienteID, 10)),
-        Usuario: await obtenerUsuarioPorCorreo(correoUsuario) ?? null,
-        Moneda: totales[activeTableID].moneda,
-        MontoBruto: parseFloat(totales[activeTableID].subtotal),
-        MontoNeto: parseFloat(totales[activeTableID].total),
-        MontoImpuesto: parseFloat(totales[activeTableID].impuesto),
-        Condicion: paymentMethod === 'credito' ? 'CREDITO' : 'CONTADO',
-        TipoPago: paymentMethod.toUpperCase(),
-        TipoCambio: parseFloat(totales[activeTableID].tipoCambio || 0.00),
-        MontoPago: paymentData.pago || 0.00,
-        MontoVuelto: paymentData.vuelto || 0.00,
-        ReferenciaTarjeta: paymentData.referencia || '',
-        ComprobanteSINPE: paymentData.comprobante || '',
-    };
-
-    const listaVentaDetalle = listaProductos.map(data => {
-        return {
-            Precio: data.producto.PrecioCompra,
-            Cantidad: data.cantidad,
-            Venta: venta,
-            Producto: data.producto,
-        }
-    });
-
-    return listaVentaDetalle;
 }
 
 export function clearProductList(tabID = null) {

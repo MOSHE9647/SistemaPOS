@@ -151,6 +151,12 @@
                     'Nombre' => $this->ventaCliente ? $this->ventaCliente->getClienteNombre() : null,
                     'Alias' => $this->ventaCliente ? $this->ventaCliente->getClienteAlias() : null
                 ],
+                'Usuario' => [
+                    'ID' => $this->ventaUsuario ? $this->ventaUsuario->getUsuarioID() : null,
+                    'Nombre' => $this->ventaUsuario ? $this->ventaUsuario->getUsuarioNombre() : null,
+                    'Apellido1' => $this->ventaUsuario ? $this->ventaUsuario->getUsuarioApellido1() : null,
+                    'Rol' => $this->ventaUsuario ? $this->ventaUsuario->getUsuarioRolUsuario()->getRolNombre() : null
+                ],
                 'Creacion' => $this->ventaFechaCreacion ? Utils::formatearFecha($this->ventaFechaCreacion) : '',
                 'Modificacion' => $this->ventaFechaModificacion ? Utils::formatearFecha($this->ventaFechaModificacion) : '',
                 'CreacionISO' => $this->ventaFechaCreacion ? Utils::formatearFecha($this->ventaFechaCreacion, 'Y-MM-dd') : '',

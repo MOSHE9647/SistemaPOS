@@ -200,9 +200,8 @@
         </div>
     </div>
 
-    <!-- <script type="module" src="../view/static/js/utils.js"></script> -->
     <script type="module">
-        import { calcularValorIVAVenta } from '../view/static/js/utils.js';
+        import { calcularValorIVAVenta } from "../view/static/js/utils.js";
 
         const detalles = <?php echo json_encode($detalles); ?>;
         const venta = detalles[0].Venta;
@@ -232,7 +231,7 @@
             cajero: venta?.Usuario?.Nombre + ' ' + venta?.Usuario?.Apellido1,
             moneda: venta.Moneda,
             tipoCambio: parseFloat(venta.TipoCambio ?? 0.00).toFixed(2),
-            tipoVenta: venta.CondicionVenta,
+            tipoVenta: venta.Condicion,
             tipoPago: venta.TipoPago,
             productos: productos,
             subtotal: parseFloat(venta.MontoBruto).toFixed(2),
