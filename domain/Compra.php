@@ -21,20 +21,20 @@
         private $compraEstado;
 
         public function __construct(
-        int $compraID = -1, 
-        Cliente $compraCliente = null, 
-        Proveedor $compraProveedor = null, 
-        string $compraNumeroFactura = "", 
-        string $compraMoneda = "CRC", 
-        float $compraMontoBruto = 0.0, 
-        float $compraMontoNeto = 0.0, 
-        float $compraMontoImpuesto = 0.0, 
-        string $compraCondicionCompra = "Contado", 
-        string $compraTipoPago = "Efectivo", 
-        $compraFechaCreacion = "", 
-        $compraFechaModificacion = "", 
-        bool $compraEstado = true)
-
+            int $compraID = -1, 
+            Cliente $compraCliente = null, 
+            Proveedor $compraProveedor = null, 
+            string $compraNumeroFactura = "", 
+            string $compraMoneda = "CRC", 
+            float $compraMontoBruto = 0.0, 
+            float $compraMontoNeto = 0.0, 
+            float $compraMontoImpuesto = 0.0, 
+            string $compraCondicionCompra = "CONTADO", 
+            string $compraTipoPago = "EFECTIVO",
+            $compraFechaCreacion = "", 
+            $compraFechaModificacion = "", 
+            bool $compraEstado = true
+        )
         {
             $this->compraID = $compraID;
             $this->compraCliente = $compraCliente;
@@ -85,6 +85,24 @@
 
         public function getClienteID(): ?int {
             return $this->compraCliente ? $this->compraCliente->getClienteID() : null;
+        }
+
+        public function fromArray(array $compra): Compra {
+            return new Compra(
+                intval($compra['ID']) ?? -1,
+                Utils::convertToObject($compra['Cliente'] ?? null, Cliente::class),
+                Utils::convertToObject($compra['Proveedor'] ?? null, Proveedor::class),
+                $compra['NumeroFactura'] ?? '',
+                $compra['Moneda'] ?? 'CRC',
+                floatval($compra['MontoBruto']) ?? 0.0,
+                floatval($compra['MontoNeto']) ?? 0.0,
+                floatval($compra['MontoImpuesto']) ?? 0.0,
+                $compra['Condicion'] ?? 'CONTADO',
+                $compra['TipoPago'] ?? 'EFECTIVO',
+                $compra['Creacion'] ?? '',
+                $compra['Modificacion'] ?? '',
+                $compra['Estado'] ?? true
+            );
         }
 
         public function jsonSerialize() {

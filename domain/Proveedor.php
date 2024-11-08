@@ -57,6 +57,33 @@
         public function setProveedorFechaModificacion($proveedorFechaModificacion) { $this->proveedorFechaModificacion = $proveedorFechaModificacion; }
         public function setProveedorEstado(bool $proveedorEstado) { $this->proveedorEstado = $proveedorEstado; }
 
+        public function fromArray(array $proveedor): Proveedor {
+            $listaDirecciones = array_map(function($direccion) {
+                return $direccion !== null ? Utils::convertToObject($direccion, Direccion::class) : null;
+            }, $proveedor['Direcciones'] ?? []);
+
+            $listaProductos = array_map(function($producto) {
+                return $producto !== null ? Utils::convertToObject($producto, Producto::class) : null;
+            }, $proveedor['Productos'] ?? []);
+
+            $listaTelefonos = array_map(function($telefono) {
+                return $telefono !== null ? Utils::convertToObject($telefono, Telefono::class) : null;
+            }, $proveedor['Telefonos'] ?? []);
+
+            return new Proveedor(
+                intval($proveedor['ID'] ?? -1),
+                $proveedor['Nombre'] ?? "",
+                $proveedor['Email'] ?? "",
+                $listaDirecciones = array_filter($listaDirecciones),
+                Utils::convertToObject($proveedor['Categoria'] ?? null, Categoria::class),
+                $listaProductos = array_filter($listaProductos),
+                $listaTelefonos = array_filter($listaTelefonos),
+                $proveedor['Creacion'] ?? "",
+                $proveedor['Modificacion'] ?? "",
+                $proveedor['Estado'] ?? true
+            );
+        }
+
         public function jsonSerialize() {
             return [
                 'ID' => $this->proveedorID,
