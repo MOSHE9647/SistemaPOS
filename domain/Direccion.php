@@ -51,6 +51,19 @@
             return $direccionCompleta;
         }
 
+        public static function fromArray(array $direccion): Direccion {
+            return new Direccion(
+                intval($direccion['ID']) ?? -1, 
+                $direccion['Provincia'] ?? "", 
+                $direccion['Canton'] ?? "", 
+                $direccion['Distrito'] ?? "", 
+                $direccion['Barrio'] ?? "", 
+                $direccion['Sennas'] ?? "", 
+                floatval($direccion['Distancia']) ?? 0.0, 
+                $direccion['Estado'] ?? true
+            );
+        }
+        
         public function jsonSerialize() {
             return [
                 'ID' => $this->direccionID,

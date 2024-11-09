@@ -256,18 +256,37 @@
 
         /**
          * Convierte un valor a un objeto de una clase específica.
+         * 
+         * Si el valor es un arreglo, se convierte a un objeto de la clase especificada,
+         * llamando al método estático 'fromArray' de la clase para convertir el arreglo a un objeto.
+         * 
+         * Si el valor es un objeto, se convierte a un arreglo y se llama al método 'fromArray'.
+         * 
+         * Si no se puede convertir, se retorna null capturando cualquier excepción que ocurra y 
+         * escribiéndolo en el archivo log correspondiente. 
          *
          * @param mixed $value El valor a convertir.
          * @param string $class La clase a la que se desea convertir.
          * @return mixed El objeto convertido.
          */
         public static function convertToObject($value, $class) {
-            if (is_array($value)) {
-                return call_user_func([$class, 'fromArray'], $value);
-            } elseif (is_object($value)) {
-                return call_user_func([$class, 'fromArray'], get_object_vars($value));
+            try {
+                if (is_array($value)) {
+                    return call_user_func([$class, 'fromArray'], $value);
+                } elseif (is_object($value)) {
+                    return call_user_func([$class, 'fromArray'], get_object_vars($value));
+                }
+                return null;
+            } catch (Exception $ex) {
+                Utils::writeLog(
+                    $ex->getMessage(),  //<- Mensaje de error
+                    UTILS_LOG_FILE,     //<- Archivo de log
+                    ERROR_MESSAGE,      //<- Tipo de mensaje
+                    self::$className,   //<- Nombre de la clase
+                    __LINE__            //<- Número de línea del error
+                );
+                return null;
             }
-            return null;
         }
 
         /**
@@ -276,37 +295,32 @@
          * @return string El consecutivo generado.
          */
         public static function generarConsecutivo() {
-            $fecha = date('ymd'); // Formato '061124'
-
             // Establece la zona horaria a la deseada
             date_default_timezone_set('America/Costa_Rica');
-            $hora = date('His');  // Formato '215800'
+            
+            $fecha = date('ymd'); // Formato 'ymd'
+            $hora = date('His');  // Formato 'His'
             
             // Ruta del archivo que almacenará el último número secuencial
             $secuencialFile = dirname(__DIR__) . '/view/static/json/secuencial.json';
             
             // Leer el último número secuencial del archivo
+            $secuencial = 1;
             if (file_exists($secuencialFile)) {
-                $data = file_get_contents($secuencialFile);
-                $data = json_decode($data, true);
+                $data = json_decode(file_get_contents($secuencialFile), true);
                 
                 // Verificar si la fecha almacenada es la misma que la fecha actual
                 if ($data['fecha'] === $fecha) {
                     $secuencial = $data['secuencial'] + 1;
-                } else {
-                    $secuencial = 1; // Reiniciar el secuencial si es un nuevo día
                 }
-            } else {
-                $secuencial = 1; // Iniciar el secuencial si el archivo no existe
             }
             
             // Guardar el nuevo número secuencial en el archivo
             $data = ['fecha' => $fecha, 'secuencial' => $secuencial];
-            file_put_contents($secuencialFile, json_encode($data));
+            file_put_contents($secuencialFile, json_encode($data, JSON_PRETTY_PRINT));
             
             // Formatear el secuencial a 6 dígitos con ceros a la izquierda
             $secuencial = str_pad($secuencial, 6, '0', STR_PAD_LEFT);
-            
             return $fecha . $hora . $secuencial;
         }
 
@@ -316,34 +330,24 @@
          * @param string $consecutivo El consecutivo a deshacer.
          */
         public static function deshacerConsecutivo($consecutivo) {
-            $fecha = date('ymd'); // Formato 'ymd'
-            $hora = date('His');  // Formato 'His'
-            
             // Ruta del archivo que almacenará el último número secuencial
             $secuencialFile = dirname(__DIR__) . '/view/static/json/secuencial.json';
             
             // Leer el último número secuencial del archivo
             if (file_exists($secuencialFile)) {
-                $data = file_get_contents($secuencialFile);
-                $data = json_decode($data, true);
+                $data = json_decode(file_get_contents($secuencialFile), true);
                 
-                // Extraer la fecha y el secuencial del consecutivo
+                // Extraer la fecha del consecutivo y el secuencial
                 $consecutivoFecha = substr($consecutivo, 0, 6);
                 $consecutivoSecuencial = (int)substr($consecutivo, 12, 6);
                 
-                // Verificar si la fecha almacenada es la misma que la fecha actual y si el secuencial es menor al del consecutivo
-                if ($data['fecha'] === $fecha && $data['secuencial'] < $consecutivoSecuencial) {
-                    $secuencial = max($data['secuencial'] - 1, 0); // Decrementar el secuencial pero no permitir que sea menor que 0
-                } else {
-                    return; // No hacer nada si la fecha no coincide o el secuencial no es menor
+                // Verificar si la fecha almacenada es la misma que la fecha del consecutivo y si el secuencial es igual al último generado
+                if ($data['fecha'] === $consecutivoFecha && $data['secuencial'] === $consecutivoSecuencial) {
+                    $data['secuencial'] = max($data['secuencial'] - 1, 0); // Decrementar el secuencial pero no permitir que sea menor que 0
+                    file_put_contents($secuencialFile, json_encode($data, JSON_PRETTY_PRINT)); // Guardar el nuevo número secuencial en el archivo
+                    Utils::writeLog("Consecutivo '$consecutivo' deshecho correctamente.", UTILS_LOG_FILE, INFO_MESSAGE, self::$className);
                 }
-            } else {
-                return; // No hacer nada si el archivo no existe
             }
-            
-            // Guardar el nuevo número secuencial en el archivo
-            $data = ['fecha' => $fecha, 'secuencial' => $secuencial];
-            file_put_contents($secuencialFile, json_encode($data));
         }
 
     }

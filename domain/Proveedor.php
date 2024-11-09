@@ -57,7 +57,7 @@
         public function setProveedorFechaModificacion($proveedorFechaModificacion) { $this->proveedorFechaModificacion = $proveedorFechaModificacion; }
         public function setProveedorEstado(bool $proveedorEstado) { $this->proveedorEstado = $proveedorEstado; }
 
-        public function fromArray(array $proveedor): Proveedor {
+        public static function fromArray(array $proveedor): Proveedor {
             $listaDirecciones = array_map(function($direccion) {
                 return $direccion !== null ? Utils::convertToObject($direccion, Direccion::class) : null;
             }, $proveedor['Direcciones'] ?? []);

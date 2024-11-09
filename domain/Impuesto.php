@@ -40,6 +40,18 @@
         function setImpuestoFechaFinVigencia($impuestoFechaFinVigencia) { $this->impuestoFechaFinVigencia = $impuestoFechaFinVigencia; }
         function setImpuestoEstado(bool $impuestoEstado) { $this->impuestoEstado = $impuestoEstado; }
         
+        public static function fromArray(array $impuesto): Impuesto {
+            return new Impuesto(
+                intval($impuesto['ID']) ?? -1, 
+                $impuesto['Nombre'] ?? "", 
+                floatval($impuesto['Valor']) ?? 0.0, 
+                $impuesto['Descripcion'] ?? "", 
+                Utils::formatearFecha($impuesto['InicioVigencia']), 
+                Utils::formatearFecha($impuesto['FinVigencia']), 
+                boolval($impuesto['Estado']) ?? true
+            );
+        }
+
         public function jsonSerialize() {
             return [
                 'ID' => $this->impuestoID,

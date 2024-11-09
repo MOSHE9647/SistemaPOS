@@ -37,7 +37,7 @@
         public function setVentaPorCobrarNotas(string $ventaPorCobrarNotas) { $this->ventaPorCobrarNotas = $ventaPorCobrarNotas; }
         public function setVentaPorCobrarEstado(bool $ventaPorCobrarEstado) { $this->ventaPorCobrarEstado = $ventaPorCobrarEstado; }
 
-        public function fromArray(array $ventaPorCobrar): VentaPorCobrar {
+        public static function fromArray(array $ventaPorCobrar): VentaPorCobrar {
             return new VentaPorCobrar(
                 intval($ventaPorCobrar['ID']) ?? -1,
                 Utils::convertToObject($ventaPorCobrar['Venta'] ?? null, Venta::class),
