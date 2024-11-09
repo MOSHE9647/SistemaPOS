@@ -2,12 +2,6 @@
 
     require_once dirname(__DIR__, 1) . '/service/ventaDetalleBusiness.php';
     require_once dirname(__DIR__, 1) . '/domain/VentaDetalle.php';
-    require_once dirname(__DIR__, 1) . '/domain/CodigoBarras.php';
-    require_once dirname(__DIR__, 1) . '/domain/Subcategoria.php';
-    require_once dirname(__DIR__, 1) . '/domain/Presentacion.php';
-    require_once dirname(__DIR__, 1) . '/domain/Categoria.php';
-    require_once dirname(__DIR__, 1) . '/domain/Producto.php';
-    require_once dirname(__DIR__, 1) . '/domain/Marca.php';
     require_once dirname(__DIR__, 1) . '/domain/Venta.php';
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 

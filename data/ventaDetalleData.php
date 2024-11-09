@@ -101,14 +101,18 @@
             }
         }
 
-        public function insertarListaVentaDetalle($listaVenta) {
-            $conn = null;
+        public function insertarListaVentaDetalle($listaVenta, $conn = null) {
+            $createdConnection = false;
 
             try{
-                $result = $this->getConnection();
-                if (!$result["success"]) { throw new Exception($result["message"]); }
-                $conn = $result["connection"];
-                mysqli_begin_transaction($conn);
+                if (is_null($conn)) {
+                    $result = $this->getConnection();
+                    if (!$result["success"]) { throw new Exception($result["message"]); }
+                    $conn = $result["connection"];
+                    $createdConnection = true;
+
+                    mysqli_begin_transaction($conn);
+                }
 
                 $venta = $listaVenta[0]->getVentaDetalleVenta();
                 if (!$venta) { throw new Exception("No se encontró la venta asociada al detalle de venta."); }
@@ -127,12 +131,12 @@
                 }
 
                 // Confirmar la transacción si todo fue exitoso
-                mysqli_commit($conn);
+                if ($createdConnection) { mysqli_commit($conn); }
 
                 $message = "Todos los detalles de venta fueron insertados exitosamente.";
                 return ["success" => true, "message" => $message, "consecutivo" => $$datosVenta['consecutivo']];
             }catch (Exception $e) {
-                if (isset($conn)) { mysqli_rollback($conn); }
+                if (isset($conn) && $createdConnection) { mysqli_rollback($conn); }
 
                 $logMessage = "Error al insertar los detalles de venta en la base de datos: " . $e->getMessage();
                 $userMessage = $this->handleMysqlError($e->getCode(), $e->getMessage(), $logMessage, $this->className, __LINE__);

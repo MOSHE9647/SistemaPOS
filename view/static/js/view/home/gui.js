@@ -537,8 +537,8 @@ export function mostrarOpcionesDeCobro() {
         if (!(result.isConfirmed || result.isDenied)) return;
 
         // Intenta guardar la venta en la BD
-        const detallesVenta = result.value;
-        crud.insertVentaDetalle(detallesVenta).then((resultado) => {
+        const detalleVenta = result.value;
+        crud.insertVenta(detalleVenta).then((resultado) => {
             if (!resultado.success) {
                 mostrarMensaje('Ocurrió un error al realizar la venta', 'error');
                 return;
@@ -547,8 +547,8 @@ export function mostrarOpcionesDeCobro() {
             // Actualizar la información de la última venta
             const lastSaleInfo = {
                 total: parseFloat(totales[activeTableID].total ?? 0.00),
-                pay: detallesVenta[0].Venta.MontoPago,
-                change: detallesVenta[0].Venta.MontoVuelto
+                pay: detalleVenta.MontoPago,
+                change: detalleVenta.MontoVuelto
             };
             
             Object.entries(lastSaleInfo).forEach(([field, value]) => {
@@ -564,12 +564,13 @@ export function mostrarOpcionesDeCobro() {
             mostrarMensaje('Venta realizada con éxito.', 'success', 'Venta realizada');
             
             // Imprimimos la factura si el usuario lo desea
-            detallesVenta[0].Venta.NumeroFactura = resultado.consecutivo ?? 'N/A';
-            if (result.isConfirmed) crud.generarFactura(detallesVenta);
+            detalleVenta.NumeroFactura = resultado.consecutivo ?? 'N/A';
+            if (result.isConfirmed) crud.generarFactura(detalleVenta);
         });
     })
-    .catch(() => {
-        mostrarMensaje('Error al realizar la operación.', 'error');
+    .catch((error) => {
+        console.error(error);
+        mostrarMensaje(`Error al realizar la operación: ${error.message}`, 'error');
     });
 
     // Evitar que el formulario se envíe al presionar Enter
@@ -720,6 +721,19 @@ async function obtenerDatosDeVenta() {
                 break;
         }
     
+        const listaVentaDetalle = listaProductos.map(data => {
+            return {
+                Precio: data.producto.PrecioCompra,
+                Cantidad: data.cantidad,
+                Producto: data.producto,
+            }
+        });
+
+        const ventaPorCobrar = paymentMethod !== 'credito' ? null : {
+            Vencimiento: paymentData['vencimiento'],
+            Notas: paymentData['notas'],
+        };
+    
         const venta = {
             NumeroFactura: "",
             Cliente: listaClientes.find(c => c.ID === parseInt(clienteID, 10)),
@@ -735,18 +749,11 @@ async function obtenerDatosDeVenta() {
             MontoVuelto: paymentData.vuelto || 0.00,
             ReferenciaTarjeta: paymentData.referencia || '',
             ComprobanteSINPE: paymentData.comprobante || '',
+            Detalles: listaVentaDetalle,
+            VentaPorCobrar: ventaPorCobrar,
         };
     
-        const listaVentaDetalle = listaProductos.map(data => {
-            return {
-                Precio: data.producto.PrecioCompra,
-                Cantidad: data.cantidad,
-                Venta: venta,
-                Producto: data.producto,
-            }
-        });
-    
-        return listaVentaDetalle;
+        return venta;
     } catch (error) {
         console.error(error);
         mostrarMensaje(error.message, 'error', 'Error al realizar la venta');

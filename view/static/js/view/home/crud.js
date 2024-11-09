@@ -191,40 +191,43 @@ export async function obtenerDeudasPorClienteID(id) {
  * @param {Object} datosVenta - Los datos del detalle de venta.
  * @returns {Object} Un objeto con las propiedades success y consecutivo si la operación fue exitosa, false en caso contrario.
  */
-export async function insertVentaDetalle(datosVenta) {
+export async function insertVenta(datosVenta) {
     showLoader(); // Mostrar el loader
+    console.log(datosVenta);
+    return { success: true, consecutivo: 1 };
 
-    try {
-        // Enviar la solicitud POST al servidor con los datos del detalle de venta
-        const response = await fetch(`${window.baseURL}/controller/ventaDetalleAction.php`, {
-            method: 'POST',
-            body: new URLSearchParams({
-                accion: 'insertar',
-                detalles: JSON.stringify(datosVenta)
-            })
-        });
-        if (!response.ok) {
-            mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el detalle de venta');
-            return { success: false };
-        }
-        const data = await verificarRespuestaJSON(response);
+    // try {
+    //     // Enviar la solicitud POST al servidor con los datos del detalle de venta
+    //     const phpScript = datosVenta.Condicion === 'CONTADO' ? 'ventaAction.php' : 'ventaPorCobrarAction.php';
+    //     const response = await fetch(`${window.baseURL}/controller/${phpScript}`, {
+    //         method: 'POST',
+    //         body: new URLSearchParams({
+    //             accion: 'insertar',
+    //             detalles: JSON.stringify(datosVenta)
+    //         })
+    //     });
+    //     if (!response.ok) {
+    //         mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el detalle de venta');
+    //         return { success: false };
+    //     }
+    //     const data = await verificarRespuestaJSON(response);
         
-        // Verificar si hubo un error en la solicitud
-        if (!data.success) {
-            mostrarMensaje(data.message, 'error', 'Error al crear el detalle de venta');
-            return { success: false }; // Salir de la función si hay error
-        }
+    //     // Verificar si hubo un error en la solicitud
+    //     if (!data.success) {
+    //         mostrarMensaje(data.message, 'error', 'Error al crear el detalle de venta');
+    //         return { success: false }; // Salir de la función si hay error
+    //     }
 
-        // Mostrar mensaje de éxito y recargar los detalles de venta
-        mostrarMensaje(data.message, 'success');
-        return { success: true, consecutivo: data.consecutivo };
-    } catch (error) {
-        // Mostrar mensaje de error detallado
-        mostrarMensaje(`Ocurrió un error al crear el detalle de venta.<br>${error}`, 'error', 'Error al crear el detalle de venta');
-        return { success: false };
-    } finally {
-        hideLoader(); // Ocultar el loader
-    }
+    //     // Mostrar mensaje de éxito y recargar los detalles de venta
+    //     mostrarMensaje(data.message, 'success');
+    //     return { success: true, consecutivo: data.consecutivo };
+    // } catch (error) {
+    //     // Mostrar mensaje de error detallado
+    //     mostrarMensaje(`Ocurrió un error al crear el detalle de venta.<br>${error}`, 'error', 'Error al crear el detalle de venta');
+    //     return { success: false };
+    // } finally {
+    //     hideLoader(); // Ocultar el loader
+    // }
 }
 
 export function generarFactura(datosVenta) {

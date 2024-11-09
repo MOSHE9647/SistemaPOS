@@ -1,17 +1,23 @@
 <?php
     
+    require_once dirname(__DIR__, 1) . '/domain/ventaPorCobrar.php';
     require_once dirname(__DIR__, 1) . '/domain/VentaDetalle.php';
     require_once dirname(__DIR__, 1) . '/domain/Venta.php';
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
     // Datos de VentaDetalle recibidos en la solicitud
-    $listaDetalles  = isset($_GET['detalles'])  ? json_decode($_GET['detalles'], true)  : null;
-    if (empty($listaDetalles)) {
+    $venta = isset($_GET['detalles']) ? json_decode($_GET['detalles'], true) : null;
+    if (empty($venta) || !isset($venta['Detalles'])) {
         Utils::enviarRespuesta(400, false, "No se han recibido los datos de la venta.");
     }
 
+    $ventaPorCobrar = null;
+    if (isset($venta['VentaPorCobrar']) && !empty($venta['VentaPorCobrar'])) {
+        $ventaPorCobrar = Utils::convertToObject($venta['VentaPorCobrar'], VentaPorCobrar::class);
+    }
+
     // Crear un arreglo de detalles de venta
-    $detalles = [];
+    $detalles = $venta['Detalles'];
     foreach ($listaDetalles as $detalle) {
         // Crear un objeto VentaDetalle con los datos recibidos
         $ventaDetalle = Utils::convertToObject($detalle, VentaDetalle::class);
@@ -104,6 +110,21 @@
             text-align: right;
             width: 140px;
         }
+        .hr-notas {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            align-self: center;
+            width: 100%;
+        }
+        .notas {
+            flex-direction: column;
+            justify-content: flex-start;
+            text-align: justify;
+        }
+        .notas span:last-child {
+            margin-top: 10px;
+            font-style: italic;
+        }
 
         @media print {
             body {
@@ -141,6 +162,10 @@
             <div class="detalle-cliente">
                 <span>Tipo de Venta:</span>
                 <span id="tipoVenta"></span>
+            </div>
+            <div class="detalle-cliente" style="display: none;">
+                <span>Fecha Límite:</span>
+                <span id="vencimiento"></span>
             </div>
         </div>
         <table>
@@ -197,14 +222,22 @@
                 <span>Tipo de Pago:</span>
                 <span id="tipoPago"></span>
             </div>
+            <div class="detalle-extra notas" style="display: none;">
+                <hr class="hr-notas">
+                <span>Notas:</span>
+                <span id="notas"></span>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { calcularValorIVAVenta } from "../view/static/js/utils.js";
 
-        const detalles = <?php echo json_encode($detalles); ?>;
-        const venta = detalles[0].Venta;
+        const deuda = <?php echo !is_null($ventaPorCobrar) ? json_encode($ventaPorCobrar, JSON_PRETTY_PRINT) : 'null'; ?>;
+        const detalles = <?php echo json_encode($detalles, JSON_PRETTY_PRINT); ?>;
+        const venta = <?php echo json_encode($venta, JSON_PRETTY_PRINT); ?>;
+
+        console.log(deuda);
 
         const productos = [];
         detalles.forEach(detalle => {
@@ -238,7 +271,13 @@
             impuesto: parseFloat(venta.MontoImpuesto).toFixed(2),
             total: parseFloat(venta.MontoNeto).toFixed(2),
             pago: parseFloat(venta.MontoPago).toFixed(2),
-            vuelto: parseFloat(venta.MontoVuelto).toFixed(2)
+            vuelto: parseFloat(venta.MontoVuelto).toFixed(2),
+            vencimiento: deuda ? new Date(deuda.Vencimiento).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            }) : null,
+            notas: deuda ? deuda.Notas : null
         };
 
         // Función para llenar la factura
@@ -250,6 +289,16 @@
             document.getElementById('moneda').textContent = factura.moneda;
             document.getElementById('tipoVenta').textContent = factura.tipoVenta;
             document.getElementById('tipoPago').textContent = factura.tipoPago;
+
+            if (factura.vencimiento) {
+                document.getElementById('vencimiento').parentElement.style.display = 'flex';
+                document.getElementById('vencimiento').textContent = factura.vencimiento;
+            }
+
+            if (factura.notas) {
+                document.getElementById('notas').parentElement.style.display = 'flex';
+                document.getElementById('notas').textContent = factura.notas;
+            }
 
             if (factura.tipoCambio && factura.tipoCambio > 0) {
                 document.getElementById('tipoCambio').parentElement.style.display = 'flex';
