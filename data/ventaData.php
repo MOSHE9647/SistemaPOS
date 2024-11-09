@@ -96,24 +96,24 @@
         }
 
         /**
-         * Inserta un nuevo producto en la base de datos.
+         * Inserta una nueva venta en la base de datos.
          *
-         * Este método permite insertar un nuevo producto en la base de datos. 
-         * Verifica si el producto ya existe y maneja la reactivación de productos inactivos.
-         * También procesa la imagen del producto y maneja la transacción de la inserción.
+         * Este método permite insertar una nueva venta en la base de datos. 
+         * Verifica si la venta ya existe y maneja la reactivación de ventas inactivas.
+         * También maneja la transacción de la inserción.
          *
-         * @param Venta $producto El objeto Producto a insertar.
+         * @param Venta $venta El objeto Venta a insertar.
          * @param mysqli|null $conn La conexión a la base de datos (opcional).
          * @return array Un arreglo asociativo con el resultado de la inserción:
          *               - "success" (bool): Indica si la operación fue exitosa.
          *               - "message" (string): Mensaje de error o información adicional.
-         *               - "id" (int, opcional): El ID del producto insertado (solo si la operación fue exitosa).
-         *               - "inactive" (bool, opcional): Indica si el producto estaba inactivo (solo si ya existía).
+         *               - "id" (int, opcional): El ID de la venta insertada (solo si la operación fue exitosa).
+         *               - "inactive" (bool, opcional): Indica si la venta estaba inactiva (solo si ya existía).
          * @throws Exception Si ocurre un error durante la inserción.
          */
-
          public function insertVenta($venta, $conn = null) {
             $createdConnection = false;
+            $ventaNumeroFactura = null;
             $stmt = null;
 
             try {
@@ -129,10 +129,9 @@
                 }
 
                 $checkFactura = $this->existeVentaNumeroFactura($venta->getVentaNumeroFactura());
-                if (!$checkFactura["success"]) {
-                    return $checkFactura;
-                }
+                if (!$checkFactura["success"]) { return $checkFactura; }
                 if ($checkFactura["exists"]) {
+                    Utils::writeLog("El número de factura ya existe: " . $venta->getVentaNumeroFactura(), DATA_LOG_FILE, ERROR_MESSAGE, $this->className, __LINE__);
                     return ["success" => false, "message" => "Error: El número de factura ya existe."];
                 }
         
@@ -144,16 +143,6 @@
                 // Calcula el siguiente ID para la nueva entrada
                 if ($row = mysqli_fetch_row($idCont)) {
                     $nextId = (int) trim($row[0]) + 1;
-                }
-                
-                // Si la fecha de creación está vacía, asignar la fecha actual
-                if (empty($ventaFechaCreacion)) {
-                    $ventaFechaCreacion = date('Y-m-d H:i:s'); // Formato de fecha y hora actual
-                }
-
-                    // Si la fecha de modificación está vacía, asignar la fecha actual
-                if (empty($ventaFechaModificacion)) {
-                    $ventaFechaModificacion = date('Y-m-d H:i:s'); // Formato de fecha y hora actual
                 }
 
                 // Crea una consulta SQL para insertar el registro
@@ -173,11 +162,8 @@
                         . VENTA_MONTO_PAGO . ", "
                         . VENTA_MONTO_VUELTO . ", "
                         . VENTA_REFERENCIA_TARJETA . ", "
-                        . VENTA_COMPROBANTE_SINPE . ", "
-                        . VENTA_CREACION . ", "
-                        . VENTA_MODIFICACION . ", "
-                        . VENTA_ESTADO
-                    . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, true)"
+                        . VENTA_COMPROBANTE_SINPE
+                    . ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 ;
                 $stmt = mysqli_prepare($conn, $queryInsert);
         
@@ -200,7 +186,7 @@
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'iiissdddssdddssss', // Define los tipos: i = entero, s = cadena, d = decimal
+                    'iiissdddssdddss', // Define los tipos: i = entero, s = cadena, d = decimal
                     $nextId,
                     $ventaCliente,
                     $ventaUsuario,
@@ -215,26 +201,27 @@
                     $ventaMontoPago,
                     $ventaMontoVuelto,
                     $ventaReferenciaTarjeta,
-                    $ventaComprobanteSinpe,
-                    $ventaFechaCreacion,
-                    $ventaFechaModificacion
+                    $ventaComprobanteSinpe
                 );
                 $result = mysqli_stmt_execute($stmt);
 
                 // Confirmar la transacción
                 if ($createdConnection) { mysqli_commit($conn); }
         
-                return ["success" => true, "message" => "Venta insertada exitosamente", "id" => $nextId, 'consecutivo' => $ventaNumeroFactura];
+                // Devolver el resultado de la inserción
+                $message = $result ? "Venta insertada exitosamente: $ventaNumeroFactura" : "Error al insertar la venta en la base de datos";
+                Utils::writeLog($message, DATA_LOG_FILE, $result ? INFO_MESSAGE : ERROR_MESSAGE, $this->className, !$result ? __LINE__ : null);
+                return ["success" => $result, "message" => $message, "id" => $nextId, 'consecutivo' => $ventaNumeroFactura];
             } catch (Exception $e) {
+                // Deshacer la transacción si falla la inserción
                 if (isset($conn) && $createdConnection) { mysqli_rollback($conn); }
-                Utils::deshacerConsecutivo(); // Deshacer el consecutivo generado
+
+                // Deshacer el consecutivo generado si falla la inserción
+                if ($ventaNumeroFactura) { Utils::deshacerConsecutivo($ventaNumeroFactura); }
 
                 // Manejo del error dentro del bloque catch
-                $userMessage = $this->handleMysqlError(
-                    $e->getCode(), $e->getMessage(),
-                    'Ocurrió un error al insertar la venta en la base de datos',
-                    $this->className
-                );
+                $logMessage = 'Ocurrió un error al insertar la venta en la base de datos';
+                $userMessage = $this->handleMysqlError($e->getCode(), $e->getMessage(), $logMessage, $this->className, __LINE__);
         
                 // Devolver mensaje amigable para el usuario
                 return ["success" => false, "message" => $userMessage];

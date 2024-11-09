@@ -101,52 +101,44 @@
             }
         }
 
-        public function insertarListaVentaDetalle($listaVenta){
-            $consecutivo = null;
-            
+        public function insertarListaVentaDetalle($listaVenta) {
+            $conn = null;
+
             try{
                 $result = $this->getConnection();
                 if (!$result["success"]) { throw new Exception($result["message"]); }
                 $conn = $result["connection"];
                 mysqli_begin_transaction($conn);
 
-                $resultV = $this->ventadata->insertVenta($listaVenta[0]->getVentaDetalleVenta(), $conn);
-                if (!$resultV["success"]){
-                    throw new Exception($resultV["message"]);
-                }
-                $consecutivo = $resultV["consecutivo"];
+                $venta = $listaVenta[0]->getVentaDetalleVenta();
+                if (!$venta) { throw new Exception("No se encontró la venta asociada al detalle de venta."); }
+
+                $insertVenta = $this->ventadata->insertVenta($listaVenta[0]->getVentaDetalleVenta(), $conn);
+                if (!$insertVenta["success"]) { throw new Exception($insertVenta["message"]); }
+                $datosVenta = ['id' => $insertVenta["id"], 'consecutivo' => $insertVenta["consecutivo"]];
 
                 foreach ($listaVenta as $ventaDetalle) {
-                    $ventaDetalle->getVentaDetalleVenta()->setVentaID($resultV["id"]);
+                    // Asignar el ID de la venta a cada detalle de venta
+                    $ventaDetalle->getVentaDetalleVenta()->setVentaID($datosVenta["id"]);
 
-                    $insertResult = $this->insertVentaDetalle($ventaDetalle, $conn);
-                    
-                    if (!$insertResult["success"]) {
-                        throw new Exception($insertResult["message"]);
-                    }
+                    // Insertar el detalle de venta en la base de datos
+                    $insertDetalle = $this->insertVentaDetalle($ventaDetalle, $conn);
+                    if (!$insertDetalle["success"]) { throw new Exception($insertDetalle["message"]); }
                 }
 
                 // Confirmar la transacción si todo fue exitoso
                 mysqli_commit($conn);
 
-                return ["success" => true, "consecutivo" => $consecutivo, "message" => "Todos los detalles de venta fueron insertados exitosamente"];
+                $message = "Todos los detalles de venta fueron insertados exitosamente.";
+                return ["success" => true, "message" => $message, "consecutivo" => $$datosVenta['consecutivo']];
             }catch (Exception $e) {
-                if (isset($conn)) { 
-                    mysqli_rollback($conn); 
-                }
+                if (isset($conn)) { mysqli_rollback($conn); }
 
-                if ($consecutivo) { Utils::deshacerConsecutivo($consecutivo); }
-
-                $userMessage = $this->handleMysqlError(
-                    $e->getCode(), $e->getMessage(),
-                    'Ocurrió un error al insertar el detalle de venta en la base de datos',
-                    $this->className
-                );
+                $logMessage = "Error al insertar los detalles de venta en la base de datos: " . $e->getMessage();
+                $userMessage = $this->handleMysqlError($e->getCode(), $e->getMessage(), $logMessage, $this->className, __LINE__);
                 return ["success" => false, "message" => $userMessage];
             } finally {
-                if (isset($conn)) { 
-                    mysqli_close($conn);
-                }
+                if (isset($conn)) { mysqli_close($conn); }
             }
         }
 
@@ -224,11 +216,8 @@
                 if (isset($conn) && $createdConnection) { mysqli_rollback($conn); }
 
                 // Manejo del error dentro del bloque catch
-                $userMessage = $this->handleMysqlError(
-                    $e->getCode(),
-                    $e->getMessage(),
-                    'Error al insertar el detalle de venta en la base de datos'
-                );
+                $logMessage = "Error al insertar el detalle de venta en la base de datos";
+                $userMessage = $this->handleMysqlError ($e->getCode(), $e->getMessage(), $logMessage, $this->className, __LINE__);
         
                 // Devolver mensaje amigable para el usuario
                 return ["success" => false, "message" => $userMessage];
