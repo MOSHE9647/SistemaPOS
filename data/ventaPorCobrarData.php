@@ -10,7 +10,7 @@ class VentaPorCobrarData extends Data {
 
     private $className;
     private $ventadata;
-    private $ventadetalledata;
+    private $ventaDetalleData;
 
     public function __construct(){
         parent::__construct();
@@ -115,7 +115,7 @@ class VentaPorCobrarData extends Data {
             
 
             if(empty($ventaid) || !is_numeric($ventaid) || $ventaid <= 0){
-                $mensaje = "En vetna por cobrar la venta id no es valida. ventaID [$compraid]";
+                $mensaje = "En vetna por cobrar la venta id no es valida. ventaID [$ventaid]";
                 Utils::writeLog($mensaje,DATA_LOG_FILE,ERROR_MESSAGE,$this->className,__LINE__);
                 throw new Exception("La venta no es valida");
             }
@@ -136,7 +136,7 @@ class VentaPorCobrarData extends Data {
 
             $stmt = mysqli_prepare($conn,$query);
             mysqli_stmt_bind_param($stmt,$types,...$params);
-            mysqli_execute($stmt);
+            mysqli_stmt_execute($stmt);
             $resultado = mysqli_stmt_get_result($stmt);
 
             if($row = mysqli_fetch_all($resultado)){
@@ -479,7 +479,7 @@ class VentaPorCobrarData extends Data {
                 );
                 $listaVentasCobrar[] = $ventaCobrarObj;
             }
-            return["success"=>true, "ListaVentaPorCobrar"=>$ComprasPorPagar];
+            return["success"=>true, "ListaVentaPorCobrar"=>$listaVentasCobrar];
         }catch(Exception $e){
             $message = $this->handleMysqlError(
                 $e->getCode(),$e->getMessage(),
@@ -647,4 +647,3 @@ class VentaPorCobrarData extends Data {
     }
     
 }
-?>

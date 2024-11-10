@@ -36,14 +36,14 @@
 	if ($_SERVER['REQUEST_METHOD'] === 'GET' && $ajax) {
 		$url = "./view/html";
 		$views = [
-			'ventas' => "${url}/links/ventas.php",
-			'productos' => "${url}/links/productos.php",
-			'clientes' => "${url}/links/clientes.php",
-			'proveedores' => "${url}/links/proveedores.php",
-			'reportes' => "${url}/links/reportes.php",
-			'usuarios' => "${url}/links/usuarios.php",
-			'config' => "${url}/config.php",
-			'home' => "${url}/home.php"
+			'ventas' => "{$url}/links/ventas.php",
+			'productos' => "{$url}/links/productos.php",
+			'clientes' => "{$url}/links/clientes.php",
+			'proveedores' => "{$url}/links/proveedores.php",
+			'reportes' => "{$url}/links/reportes.php",
+			'usuarios' => "{$url}/links/usuarios.php",
+			'config' => "{$url}/config.php",
+			'home' => "{$url}/home.php"
 		];
 
 		$file = $views[$view] ?? $views['home'];
@@ -145,14 +145,6 @@
 								<span>Usuarios</span>
 							</a>
 						</li>
-
-						<!-- CRUD's -->
-						<!-- <li>
-							<a href="<?= $urlBase ?>cruds">
-								<span class="las la-database"></span>
-								<span>CRUD&apos;s</span>
-							</a>
-						</li> -->
 					<?php endif; ?>
 				</ul>
 			</div>

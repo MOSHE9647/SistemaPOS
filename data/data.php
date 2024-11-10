@@ -136,7 +136,7 @@
          * echo $userMessage; // Output: "Error en la autenticación del usuario en la base de datos. Verifique su nombre de usuario y contraseña."
          * ```
          */
-        public function handleMysqlError($errorCode, $errorMessage, $logMessage, $className = null) {
+        public function handleMysqlError($errorCode, $errorMessage, $logMessage, $className = null, $line = null) {
             switch ($errorCode) {
                 case 1044:
                     $userMessage = "Acceso denegado para el usuario de la base de datos. Verifique sus credenciales.";
@@ -160,10 +160,9 @@
                     $userMessage = "Error al acceder a los datos. Por favor, inténtelo de nuevo más tarde. Si el problema persiste, póngase en contacto con nosotros.";
             }
             
-            Utils::writeLog("$logMessage (Código: $errorCode): $errorMessage", DATA_LOG_FILE, ERROR_MESSAGE, $className ? $className : get_class($this));
+            $message = "$logMessage (Código: $errorCode): $errorMessage";
+            Utils::writeLog($message, DATA_LOG_FILE, ERROR_MESSAGE, $className ?? self::class, $line);
             return $userMessage;
         }
 
     }
-
-?>
