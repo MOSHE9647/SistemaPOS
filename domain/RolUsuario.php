@@ -26,12 +26,12 @@
         public function setRolDescripcion(string $rolDescripcion) { $this->rolDescripcion = ucfirst($rolDescripcion); }
         public function setRolEstado(bool $rolEstado) { $this->rolEstado = $rolEstado; }
 
-        public static function fromArray(array $array): RolUsuario {
+        public static function fromArray(array $rolUsuario): RolUsuario {
             return new RolUsuario(
-                $array['ID'] ?? -1, 
-                $array['Nombre'] ?? "", 
-                $array['Descripcion'] ?? "", 
-                $array['Estado'] ?? true
+                intval($rolUsuario['ID'] ?? -1), 
+                $rolUsuario['Nombre'] ?? "", 
+                $rolUsuario['Descripcion'] ?? "", 
+                $rolUsuario['Estado'] ?? true
             );
         }
 

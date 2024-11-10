@@ -25,7 +25,7 @@
 
         public static function fromArray(array $codigoBarras): CodigoBarras {
             return new CodigoBarras(
-                $codigoBarras['ID'] ?? -1,
+                intval($codigoBarras['ID'] ?? -1),
                 $codigoBarras['Numero'] ?? "",
                 $codigoBarras['Estado'] ?? true
             );

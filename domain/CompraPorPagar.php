@@ -37,6 +37,17 @@
         public function setCompraPorPagarNotas(string $compraPorPagarNotas) { $this->compraPorPagarNotas = $compraPorPagarNotas; }
         public function setCompraPorPagarEstado(bool $compraPorPagarEstado) { $this->compraPorPagarEstado = $compraPorPagarEstado; }
 
+        public static function fromArray(array $compraPorPagar): CompraPorPagar {
+            return new CompraPorPagar(
+                intval($compraPorPagar['ID'] ?? -1), 
+                Utils::convertToObject($compraPorPagar['Compra'] ?? null, Compra::class),
+                $compraPorPagar['Vencimiento'] ?? '', 
+                $compraPorPagar['Cancelado'] ?? false, 
+                $compraPorPagar['Notas'] ?? '', 
+                $compraPorPagar['Estado'] ?? true
+            );
+        }
+
         public function jsonSerialize() {
             return [
                 'ID' => $this->compraPorPagarID,

@@ -78,12 +78,12 @@
 
         public static function fromArray(array $producto): Producto {
             return new Producto(
-                $producto['ID'] ?? -1,
+                intval($producto['ID'] ?? -1),
                 Utils::convertToObject($producto['CodigoBarras'] ?? null, CodigoBarras::class),
                 $producto['Nombre'] ?? '',
-                $producto['Cantidad'] ?? 0,
-                $producto['PrecioCompra'] ?? 0.0,
-                $producto['PorcentajeGanancia'] ?? 0.0,
+                intval($producto['Cantidad'] ?? 0),
+                floatval($producto['PrecioCompra'] ?? 0.0),
+                floatval($producto['PorcentajeGanancia'] ?? 0.0),
                 $producto['Descripcion'] ?? '',
                 Utils::convertToObject($producto['Categoria'] ?? null, Categoria::class),
                 Utils::convertToObject($producto['Subcategoria'] ?? null, Subcategoria::class),

@@ -42,7 +42,7 @@
 
         public static function fromArray(array $telefono): Telefono {
             return new Telefono(
-                $telefono['ID'] ?? -1,
+                intval($telefono['ID'] ?? -1),
                 $telefono['Tipo'] ?? "",
                 $telefono['CodigoPais'] ?? "",
                 $telefono['Numero'] ?? "",

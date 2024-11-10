@@ -27,12 +27,12 @@
         public function setMarcaDescripcion(string $marcaDescripcion) { $this->marcaDescripcion = ucfirst($marcaDescripcion); }
         public function setMarcaEstado(bool $marcaEstado) { $this->marcaEstado = $marcaEstado; }
 
-        public static function fromArray(array $array): Marca {
+        public static function fromArray(array $marca): Marca {
             return new Marca(
-                $array['ID'] ?? -1,
-                $array['Nombre'] ?? "",
-                $array['Descripcion'] ?? "",
-                $array['Estado'] ?? true
+                intval($marca['ID'] ?? -1),
+                $marca['Nombre'] ?? "",
+                $marca['Descripcion'] ?? "",
+                $marca['Estado'] ?? true
             );
         }
 

@@ -40,9 +40,9 @@
 
 		public static function fromArray(array $ventaDetalle): VentaDetalle {
 			return new VentaDetalle(
-				$ventaDetalle['ID'] ?? -1,
-				$ventaDetalle['Precio'] ?? 0.0,
-				$ventaDetalle['Cantidad'] ?? 0,
+				intval($ventaDetalle['ID'] ?? -1),
+				floatval($ventaDetalle['Precio'] ?? 0.0),
+				intval($ventaDetalle['Cantidad'] ?? 0),
 				Utils::convertToObject($ventaDetalle['Venta'] ?? null, Venta::class),
 				Utils::convertToObject($ventaDetalle['Producto'] ?? null, Producto::class),
 				$ventaDetalle['Estado'] ?? true

@@ -39,7 +39,7 @@
 
         public static function fromArray(array $ventaPorCobrar): VentaPorCobrar {
             return new VentaPorCobrar(
-                intval($ventaPorCobrar['ID']) ?? -1,
+                intval($ventaPorCobrar['ID'] ?? -1),
                 Utils::convertToObject($ventaPorCobrar['Venta'] ?? null, Venta::class),
                 $ventaPorCobrar['Vencimiento'] ?? "",
                 $ventaPorCobrar['Cancelado'] ?? false,

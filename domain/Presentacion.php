@@ -29,7 +29,7 @@
 
         public static function fromArray(array $presentacion): Presentacion {
             return new Presentacion(
-                $presentacion['ID'] ?? -1,
+                intval($presentacion['ID'] ?? -1),
                 $presentacion['Nombre'] ?? "",
                 $presentacion['Descripcion'] ?? "",
                 $presentacion['Estado'] ?? true

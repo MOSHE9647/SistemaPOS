@@ -40,9 +40,9 @@
 
 		public function fromArray(array $compraDetalle): CompraDetalle {
 			return new CompraDetalle(
-				intval($compraDetalle['ID']) ?? -1,
-				floatval($compraDetalle['Precio']) ?? 0.0,
-				intval($compraDetalle['Cantidad']) ?? 0,
+				intval($compraDetalle['ID'] ?? -1),
+				floatval($compraDetalle['Precio'] ?? 0.0),
+				intval($compraDetalle['Cantidad'] ?? 0),
 				Utils::convertToObject($compraDetalle['Compra'] ?? null, Compra::class),
 				Utils::convertToObject($compraDetalle['Producto'] ?? null, Producto::class),
 				$compraDetalle['Estado'] ?? true

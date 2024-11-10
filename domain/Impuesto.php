@@ -42,13 +42,13 @@
         
         public static function fromArray(array $impuesto): Impuesto {
             return new Impuesto(
-                intval($impuesto['ID']) ?? -1, 
+                intval($impuesto['ID'] ?? -1), 
                 $impuesto['Nombre'] ?? "", 
-                floatval($impuesto['Valor']) ?? 0.0, 
+                floatval($impuesto['Valor'] ?? 0.0), 
                 $impuesto['Descripcion'] ?? "", 
-                Utils::formatearFecha($impuesto['InicioVigencia']), 
-                Utils::formatearFecha($impuesto['FinVigencia']), 
-                boolval($impuesto['Estado']) ?? true
+                $impuesto['InicioVigencia'] ?? "", 
+                $impuesto['FinVigencia'] ?? "", 
+                $impuesto['Estado'] ?? true
             );
         }
 

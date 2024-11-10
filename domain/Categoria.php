@@ -26,7 +26,7 @@
         
         public static function fromArray(array $categoria): Categoria {
             return new Categoria(
-                $categoria['ID'] ?? -1,
+                intval($categoria['ID'] ?? -1),
                 $categoria['Nombre'] ?? "",
                 $categoria['Descripcion'] ?? "",
                 $categoria['Estado'] ?? true

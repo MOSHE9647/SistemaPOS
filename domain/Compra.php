@@ -89,14 +89,14 @@
 
         public function fromArray(array $compra): Compra {
             return new Compra(
-                intval($compra['ID']) ?? -1,
+                intval($compra['ID'] ?? -1),
                 Utils::convertToObject($compra['Cliente'] ?? null, Cliente::class),
                 Utils::convertToObject($compra['Proveedor'] ?? null, Proveedor::class),
                 $compra['NumeroFactura'] ?? '',
                 $compra['Moneda'] ?? 'CRC',
-                floatval($compra['MontoBruto']) ?? 0.0,
-                floatval($compra['MontoNeto']) ?? 0.0,
-                floatval($compra['MontoImpuesto']) ?? 0.0,
+                floatval($compra['MontoBruto'] ?? 0.0),
+                floatval($compra['MontoNeto'] ?? 0.0),
+                floatval($compra['MontoImpuesto'] ?? 0.0),
                 $compra['Condicion'] ?? 'CONTADO',
                 $compra['TipoPago'] ?? 'EFECTIVO',
                 $compra['Creacion'] ?? '',

@@ -51,7 +51,7 @@
         
         public static function fromArray(array $cliente): Cliente {
             return new Cliente(
-                $cliente['ID'] ?? -1,
+                intval($cliente['ID'] ?? -1),
                 $cliente['Nombre'] ?? "No Definido",
                 $cliente['Alias'] ?? "No Definido",
                 Utils::convertToObject($cliente['Telefono'] ?? null, Telefono::class),

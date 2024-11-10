@@ -38,7 +38,7 @@
 
         public static function fromArray(array $subcategoria): Subcategoria {
             return new Subcategoria(
-                $subcategoria['ID'] ?? -1,
+                intval($subcategoria['ID'] ?? -1),
                 $subcategoria['Nombre'] ?? "",
                 $subcategoria['Descripcion'] ?? "",
                 Utils::convertToObject($subcategoria['Categoria'] ?? null, Categoria::class),

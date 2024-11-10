@@ -4,23 +4,22 @@
     require_once dirname(__DIR__, 2) . '/utils/Variables.php';
 
     // Verifica si el usuario está autenticado
-    if (!isset($_SESSION[SESSION_ACCESS_DENIED]) && (isset($_SESSION[SESSION_AUTHENTICATED]) || $_SESSION[SESSION_AUTHENTICATED] === true)) {
+    if (!empty($_SESSION[SESSION_AUTHENTICATED]) && $_SESSION[SESSION_AUTHENTICATED] === true) {
         // Si el usuario está autenticado, redirige al index
-        $INDEX_PAGE = "../../index.php";
-        header("Location: $INDEX_PAGE");
+        header("Location: ../../index.php");
         exit();
     }
 
     // Función para generar un mensaje basado en los parámetros de sesión
     function getSessionMessage() {
-        if (isset($_SESSION[SESSION_ACCESS_DENIED])) {
+        if (!empty($_SESSION[SESSION_ACCESS_DENIED])) {
             unset($_SESSION[SESSION_ACCESS_DENIED]);
             return ['message' => 'No tiene permiso para acceder a esta página', 'type' => 'error', 'title' => 'Acceso denegado'];
         }
-        if (isset($_GET[SESSION_LOGGED_OUT])) {
+        if (!empty($_GET[SESSION_LOGGED_OUT])) {
             return ['message' => 'La sesión se ha cerrado correctamente', 'type' => 'info', 'title' => 'Sesión cerrada'];
         }
-        if ($_SESSION[SESSION_AUTHENTICATED] !== true) {
+        if (empty($_SESSION[SESSION_AUTHENTICATED])) {
             return ['message' => 'Por favor inicie sesión para continuar', 'type' => 'info', 'title' => 'Inicio de sesión'];
         }
         return null;
