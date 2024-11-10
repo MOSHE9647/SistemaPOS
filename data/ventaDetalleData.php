@@ -158,12 +158,11 @@
             try {
                 // Obtener los valores de las propiedades del objeto
                 $ventaid = $ventaDetalle->getVentaDetalleVenta()->getVentaID();
-                $productoid = $ventaDetalle->getVentaDetalleProducto()->getProductoID();
                 $precio = $ventaDetalle->getVentaDetallePrecio();
                 $cantidad = $ventaDetalle->getVentaDetalleCantidad();
-        
+         
                 // Verifica si el detalle de venta ya existe en la base de datos
-                $check = $this->ventaDetalleExiste(null, $ventaid, $productoid, false, true);
+                $check = $this->ventaDetalleExiste(null, $ventaid, false, true);
                 if (!$check["success"]) { throw new Exception($check["message"]); }
         
                 // En caso de existir
@@ -197,21 +196,19 @@
                 $queryInsert = 
                     "INSERT INTO " . TB_VENTA_DETALLE . " (" . 
                         VENTA_DETALLE_ID . ", " . 
-                        VENTA_ID . ", " . 
-                        PRODUCTO_ID . ", " . 
+                        VENTA_ID . ", " .  
                         VENTA_DETALLE_PRECIO . ", " . 
                         VENTA_DETALLE_CANTIDAD . 
                     ") " .
-                    "VALUES (?, ?, ?, ?, ?)";
+                    "VALUES (?, ?, ?, ?)";
                 $stmt = mysqli_prepare($conn, $queryInsert);
 
                 // Asigna los valores a cada '?' de la consulta
                 mysqli_stmt_bind_param(
                     $stmt,
-                    'iiidi', // i: entero, d: decimal
+                    'iidi', // i: entero, d: decimal
                     $nextId,
                     $ventaid,
-                    $productoid,
                     $precio,
                     $cantidad
                 );
