@@ -494,11 +494,11 @@
                 // Construir la consulta SQL
                 $querySelect = "
                     SELECT 
-                        v.*
-                    FROM " . TB_VENTA ." v ";
+                    *
+                    FROM " . TB_VENTA ."  ";
 
                 if ($onlyActive) {  
-                    $querySelect .= " WHERE v." . VENTA_ESTADO . " = TRUE"; // Asegúrate de que 1 represente estado activo
+                    $querySelect .= " WHERE " . VENTA_ESTADO . " = TRUE"; // Asegúrate de que 1 represente estado activo
                 }
 
                 // Ejecutar la consulta
