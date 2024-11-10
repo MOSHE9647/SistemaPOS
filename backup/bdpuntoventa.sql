@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost:3306
--- Tiempo de generación: 05-11-2024 a las 16:32:50
+-- Tiempo de generación: 10-11-2024 a las 08:27:12
 -- Versión del servidor: 8.0.39-0ubuntu0.24.04.2
 -- Versión de PHP: 8.3.6
 
@@ -96,7 +96,8 @@ INSERT INTO `tbcodigobarras` (`codigobarrasid`, `codigobarrasnumero`, `codigobar
 (1, '7945982662925', 1),
 (2, '6236446542321', 1),
 (3, '0119936861002', 1),
-(4, '6031139632675', 1);
+(4, '6031139632675', 1),
+(5, '6229688609495', 1);
 
 -- --------------------------------------------------------
 
@@ -284,7 +285,8 @@ INSERT INTO `tbproducto` (`productoid`, `codigobarrasid`, `categoriaid`, `subcat
 (1, 1, 4, 3, 1, 1, 'PRUEBA 1', 0, 1600.00, 10.00, '', '/view/static/img/productos/0004/0003/1_PRUEBA_1.webp', '2024-10-19', 1),
 (2, 2, 3, 1, 1, 1, 'BIG COLA', 20, 1500.00, 20.00, '', '/view/static/img/productos/0003/0001/2_BIG_COLA.webp', '2024-10-30', 1),
 (3, 3, 5, 2, 1, 1, 'EJEMPLO', 30, 1600.00, 20.00, '', '/view/static/img/product.webp', '2024-11-10', 1),
-(4, 4, 5, 2, 1, 1, 'COCA COLA', 30, 2300.00, 20.00, '', '/view/static/img/product.webp', '2024-10-30', 1);
+(4, 4, 5, 2, 1, 1, 'COCA COLA', 30, 2300.00, 20.00, '', '/view/static/img/product.webp', '2024-10-30', 1),
+(5, 5, 3, 1, 1, 1, 'PRUEBAME', 50, 3500.00, 10.00, 'Pueba', '/view/static/img/productos/0003/0001/5_PRUEBAME.webp', '2027-11-19', 1);
 
 -- --------------------------------------------------------
 
@@ -310,7 +312,8 @@ INSERT INTO `tbproveedor` (`proveedorid`, `categoriaid`, `proveedornombre`, `pro
 (1, 5, 'Proveedor 1', 'proveedor1@ejemplo.com', '2024-09-15 18:07:39', '2024-09-17 09:12:53', 1),
 (2, 4, 'Proveedor 2', 'proveedor2@gmail.com', '2024-09-17 09:10:20', '2024-09-17 09:18:21', 1),
 (3, 4, 'PROVEEDOR DE PRUEBA', 'proveedorprueba@ejemplo.com', '2024-10-20 16:39:03', '2024-10-20 17:48:46', 1),
-(4, 1, 'PROVEEDOR 3', 'proveedor3@ejemplo.com', '2024-11-03 19:18:28', '2024-11-03 19:18:28', 1);
+(4, 1, 'PROVEEDOR 3', 'proveedor3@ejemplo.com', '2024-11-03 19:18:28', '2024-11-03 19:18:28', 1),
+(5, 9, 'PROVEDORM', 'provedor@prueba.com', '2024-11-09 21:31:48', '2024-11-09 21:31:48', 1);
 
 -- --------------------------------------------------------
 
@@ -479,7 +482,8 @@ INSERT INTO `tbusuario` (`usuarioid`, `rolusuarioid`, `usuarionombre`, `usuarioa
 (3, 3, 'Prueba', 'Primero', 'Segundo', 'cajero@gmail.com', '$2y$10$jXNkOrLG49.wJdSf3DDrWuOfden5BzWj8NkU9I15OxoYYNUbwGa1.', '2024-10-03 20:23:56', '2024-10-03 20:47:29', 0),
 (4, 2, 'Dependiente', 'Dependant', 'Dependansen', 'dependiente@dependiente.com', '$2y$10$.Zv7MIUusPu0or0vhVOTEOLGzDO3YB05z/HezBf1HVMY32pl9lGei', '2024-10-09 20:09:02', '2024-10-09 20:09:02', 1),
 (5, 4, 'Cajero', 'Cajerson', 'Cajersen', 'cajero@cajero.com', '$2y$10$bbRGwU2vAzUg.Qmeex1b..7ppgkAWI.qOqUKwPfj4iES7G2pwRbsu', '2024-10-09 20:09:46', '2024-10-09 20:09:46', 1),
-(6, 1, 'Natalia', 'Ortiz', 'Martinez', 'natortiz@ejemplo.com', '$2y$10$FNEa.x2Nm82JBI3TzHp6rO9wLCeGU9yYmKpxjT.LjdjJ/F9kU49k6', '2024-10-26 19:12:11', '2024-10-31 13:59:46', 0);
+(6, 1, 'Natalia', 'Ortiz', 'Martinez', 'natortiz@ejemplo.com', '$2y$10$FNEa.x2Nm82JBI3TzHp6rO9wLCeGU9yYmKpxjT.LjdjJ/F9kU49k6', '2024-10-26 19:12:11', '2024-10-31 13:59:46', 0),
+(7, 1, 'Melanie', 'Oviedo', 'Maleaño', 'mela@prueba.com', '$2y$10$KpcLaqLh2p4fnXcIRsQbkOTulx5xkPv8dS0UbipQzShllMJH.DOaq', '2024-11-09 20:53:15', '2024-11-09 20:53:15', 1);
 
 -- --------------------------------------------------------
 
@@ -490,6 +494,7 @@ INSERT INTO `tbusuario` (`usuarioid`, `rolusuarioid`, `usuarionombre`, `usuarioa
 CREATE TABLE `tbventa` (
   `ventaid` int NOT NULL,
   `clienteid` int NOT NULL,
+  `usuarioid` int NOT NULL DEFAULT '-1' COMMENT 'ID del Usuario que realizó la venta',
   `ventanumerofactura` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `ventamoneda` char(3) COLLATE utf8mb4_unicode_ci NOT NULL,
   `ventamontobruto` decimal(10,2) NOT NULL,
@@ -511,9 +516,22 @@ CREATE TABLE `tbventa` (
 -- Volcado de datos para la tabla `tbventa`
 --
 
-INSERT INTO `tbventa` (`ventaid`, `clienteid`, `ventanumerofactura`, `ventamoneda`, `ventamontobruto`, `ventamontoneto`, `ventamontoimpuesto`, `ventacondicionventa`, `ventatipopago`, `ventatipocambio`, `ventamontopago`, `ventamontovuelto`, `ventareferenciatarjeta`, `ventacomprobantesinpe`, `ventafechacreacion`, `ventafechamodificacion`, `ventaestado`) VALUES
-(1, 1, '921547364850236', 'CRC', 1500.00, 480.00, 195.00, 'CREDITO', 'EFECTIVO', 0.00, 0.00, 0.00, '', '', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 0),
-(2, 1, '921547364850237', 'CRC', 3100.00, 1353.00, 403.00, 'CREDITO', 'EFECTIVO', 0.00, 0.00, 0.00, '', '', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 1);
+INSERT INTO `tbventa` (`ventaid`, `clienteid`, `usuarioid`, `ventanumerofactura`, `ventamoneda`, `ventamontobruto`, `ventamontoneto`, `ventamontoimpuesto`, `ventacondicionventa`, `ventatipopago`, `ventatipocambio`, `ventamontopago`, `ventamontovuelto`, `ventareferenciatarjeta`, `ventacomprobantesinpe`, `ventafechacreacion`, `ventafechamodificacion`, `ventaestado`) VALUES
+(1, 1, 2, '241107202356000001', 'CRC', 1500.00, 1695.00, 195.00, 'CREDITO', 'EFECTIVO', 0.00, 0.00, 0.00, '', '', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 1),
+(2, 1, 2, '241107171032000002', 'CRC', 3100.00, 1253.01, 403.00, 'CREDITO', 'EFECTIVO', 0.00, 0.00, 0.00, '', '', '2024-10-29 00:00:00', '2024-11-03 00:00:00', 1),
+(3, 2, 2, '241107234709000003', 'CRC', 3100.00, 3503.00, 403.00, 'CONTADO', 'EFECTIVO', 0.00, 3503.00, 0.00, '', '', '2024-11-07 05:47:09', '2024-11-07 05:47:09', 1),
+(4, 1, 2, '241107235239000004', 'CRC', 1500.00, 1695.00, 195.00, 'CONTADO', 'EFECTIVO', 0.00, 1695.00, 0.00, '', '', '2024-11-07 05:52:39', '2024-11-07 05:52:39', 1),
+(5, 3, 2, '241109190810000005', 'CRC', 3900.00, 4407.00, 507.00, 'CREDITO', 'CREDITO', 0.00, 0.00, 0.00, '', '', '2024-11-09 19:08:10', '2024-11-09 19:08:10', 1),
+(6, 2, 2, '241109192001000006', 'CRC', 3900.00, 4307.00, 507.00, 'CREDITO', 'CREDITO', 0.00, 0.00, 0.00, '', '', '2024-11-09 19:20:01', '2024-11-09 19:20:01', 1),
+(7, 2, 2, '241109192313000007', 'CRC', 1600.00, 1808.00, 208.00, 'CREDITO', 'CREDITO', 0.00, 0.00, 0.00, '', '', '2024-11-09 19:23:13', '2024-11-09 19:23:13', 1),
+(8, 3, 2, '241109201502000008', 'CRC', 1500.00, 1695.00, 195.00, 'CREDITO', 'CREDITO', 0.00, 0.00, 0.00, '', '', '2024-11-09 20:15:02', '2024-11-09 20:15:02', 1),
+(9, 1, 2, '241109203713000009', 'CRC', 1500.00, 1695.00, 195.00, 'CONTADO', 'TARJETA', 0.00, 0.00, 0.00, '20265797', '', '2024-11-09 20:37:13', '2024-11-09 20:37:13', 1),
+(10, 3, 2, '241109204219000010', 'CRC', 3100.00, 3503.00, 403.00, 'CONTADO', 'SINPE', 0.00, 0.00, 0.00, '', '93444628', '2024-11-09 20:42:19', '2024-11-09 20:42:19', 1),
+(11, 1, 2, '241109204739000012', 'CRC', 2300.00, 2599.00, 299.00, 'CONTADO', 'TARJETA', 0.00, 0.00, 0.00, '93444628', '', '2024-11-09 20:47:39', '2024-11-09 20:47:39', 1),
+(12, 1, 7, '241109212341000013', 'CRC', 3100.00, 3503.00, 403.00, 'CONTADO', 'EFECTIVO', 1.00, 5000.00, 1497.00, '', '', '2024-11-09 21:23:41', '2024-11-09 21:23:41', 1),
+(13, 1, 7, '241109212454000014', 'CRC', 3100.00, 3503.00, 403.00, 'CONTADO', 'EFECTIVO', 1.00, 5000.00, 1497.00, '', '', '2024-11-09 21:24:54', '2024-11-09 21:24:54', 1),
+(14, 1, 7, '241109212818000015', 'CRC', 38000.00, 42940.00, 4940.00, 'CONTADO', 'EFECTIVO', 1.00, 50000.00, 7060.00, '', '', '2024-11-09 21:28:18', '2024-11-09 21:28:18', 1),
+(15, 1, 7, '241109212855000016', 'CRC', 1500.00, 1695.00, 195.00, 'CONTADO', 'EFECTIVO', 0.00, 1695.00, 0.00, '', '', '2024-11-09 21:28:56', '2024-11-09 21:28:56', 1);
 
 -- --------------------------------------------------------
 
@@ -537,7 +555,27 @@ CREATE TABLE `tbventadetalle` (
 INSERT INTO `tbventadetalle` (`ventadetalleid`, `ventaid`, `productoid`, `ventadetalleprecio`, `ventadetallecantidad`, `ventadetalleestado`) VALUES
 (1, 1, 1, 1600.00, 2, 1),
 (2, 2, 2, 1500.00, 1, 1),
-(3, 2, 3, 1600.00, 1, 1);
+(3, 2, 3, 1600.00, 1, 1),
+(4, 3, 2, 1500.00, 1, 1),
+(5, 3, 3, 1600.00, 1, 1),
+(6, 4, 2, 1500.00, 1, 1),
+(7, 5, 4, 2300.00, 1, 1),
+(8, 5, 3, 1600.00, 1, 1),
+(9, 6, 4, 2300.00, 1, 1),
+(10, 6, 3, 1600.00, 1, 1),
+(11, 7, 3, 1600.00, 1, 1),
+(12, 8, 2, 1500.00, 1, 1),
+(13, 9, 2, 1500.00, 1, 1),
+(14, 10, 3, 1600.00, 1, 1),
+(15, 10, 2, 1500.00, 1, 1),
+(16, 11, 4, 2300.00, 1, 1),
+(17, 12, 2, 1500.00, 1, 1),
+(18, 12, 3, 1600.00, 1, 1),
+(19, 13, 2, 1500.00, 1, 1),
+(20, 13, 3, 1600.00, 1, 1),
+(21, 14, 2, 1500.00, 10, 1),
+(22, 14, 4, 2300.00, 10, 1),
+(23, 15, 2, 1500.00, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -559,8 +597,12 @@ CREATE TABLE `tbventaporcobrar` (
 --
 
 INSERT INTO `tbventaporcobrar` (`ventaporcobrarid`, `ventaid`, `ventaporcobrarfechavencimiento`, `ventaporcobrarcancelado`, `ventaporcobrarnotas`, `ventaporcobrarestado`) VALUES
-(1, 1, '2024-11-20', 0, '', 1),
-(2, 2, '2024-11-25', 0, ' ', 1);
+(1, 1, '2024-11-20', 0, '', 0),
+(2, 2, '2024-11-25', 0, ' ', 0),
+(3, 5, '2024-11-26', 0, 'Ninguna', 0),
+(4, 6, '2024-11-30', 0, '', 1),
+(5, 7, '2024-12-17', 0, '', 1),
+(6, 8, '2024-11-27', 0, '', 1);
 
 --
 -- Índices para tablas volcadas
