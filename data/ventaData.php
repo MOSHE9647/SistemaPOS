@@ -4,15 +4,11 @@
     require_once dirname(__DIR__, 1) . '/domain/Venta.php';
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
     require_once dirname(__DIR__, 1) . '/utils/Variables.php';
-    require_once dirname(__DIR__, 1) . '/data/usuarioData.php';
-    require_once dirname(__DIR__, 1) . '/data/clienteData.php';
 
     class VentaData extends Data{
 
         // Nombre de la clase
         private $className;
-        private $userData;
-        private $clientData;
 
         /**
          * Inicializa una nueva instancia de la clase ProductoData.
@@ -20,8 +16,6 @@
         public function __construct() {
             parent::__construct();
             $this->className = get_class($this);
-            $this->userData = new UsuarioData();
-            $this->clienteData = new ClienteData();
         }
 
         /**
@@ -494,9 +488,17 @@
                 // Construir la consulta SQL
                 $querySelect = "
                     SELECT 
-                    *
-                    FROM " . TB_VENTA ."  ";
-
+                        v.*, c.*, t.*, u.*, r.*
+                    FROM " . TB_VENTA . " v
+                    INNER JOIN " . TB_CLIENTE . " c 
+                        ON v." . CLIENTE_ID . " = c." . CLIENTE_ID . "
+                    INNER JOIN " . TB_USUARIO . " u
+                        ON v." . USUARIO_ID . " = u." . USUARIO_ID . "
+                    INNER JOIN " . TB_TELEFONO . " t
+                        ON c." . TELEFONO_ID . " = t." . TELEFONO_ID . "
+                    INNER JOIN " . TB_ROL . " r
+                        ON u." . ROL_ID . " = r." . ROL_ID . "
+                ";
                 if ($onlyActive) {  
                     $querySelect .= " WHERE " . VENTA_ESTADO . " = TRUE"; // Asegúrate de que 1 represente estado activo
                 }
@@ -510,20 +512,37 @@
                 $ventas = [];
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Crear objeto Venta
-                    $cliente = $this->clientData->getClienteByID($row[CLIENTE_ID]);
-                    if (!$cliente["success"]){
-                        throw new Exception("Error al extraer el cliente de la venta.");
-                    }
-
-                    $usuario = $this->userData->getUsuarioByID($row[USUARIO_ID]);
-                    if (!$usuario["success"]){
-                        throw new Exception("Error al extraer los datos del usuario.");
-                    }
-
                     $venta = new Venta(
                         $row[VENTA_ID],
-                        $cliente["cliente"], 
-                        $usuario["usuario"],
+                        new Cliente ( // Esto debe ser un objeto de tipo Cliente
+                            $row[CLIENTE_ID], // ID del cliente
+                            $row[CLIENTE_NOMBRE], // Nombre del cliente
+                            $row[CLIENTE_ALIAS], // Alias del cliente
+                            new Telefono (
+                                $row[TELEFONO_ID], // ID del teléfono
+                                $row[TELEFONO_TIPO], // Tipo de teléfono
+                                $row[TELEFONO_CODIGO_PAIS], // Código de país
+                                $row[TELEFONO_NUMERO], // Número de teléfono
+                                $row[TELEFONO_EXTENSION], // Extensión del teléfono
+                            ),
+                            $row[CLIENTE_CREACION], // Fecha de creación del cliente
+                            $row[CLIENTE_MODIFICACION], // Fecha de modificación del cliente
+                        ), 
+                        new Usuario ( // Esto debe ser un objeto de tipo Usuario
+                            $row[USUARIO_ID], // ID del usuario
+                            $row[USUARIO_NOMBRE], // Nombre del usuario
+                            $row[USUARIO_APELLIDO_1], // Primer apellido del usuario
+                            $row[USUARIO_APELLIDO_2], // Segundo apellido del usuario
+                            $row[USUARIO_EMAIL], // Correo electrónico del usuario
+                            $row[USUARIO_PASSWORD], // Contraseña del usuario
+                            new RolUsuario (
+                                $row[ROL_ID], // ID del rol
+                                $row[ROL_NOMBRE], // Nombre del rol
+                                $row[ROL_DESCRIPCION], // Descripción del rol
+                            ),
+                            $row[USUARIO_CREACION], // Fecha de creación del usuario
+                            $row[USUARIO_MODIFICACION], // Fecha de modificación del usuario
+                        ),
                         $row[VENTA_NUMERO_FACTURA],
                         $row[VENTA_MONEDA],
                         $row[VENTA_MONTO_BRUTO],
@@ -598,7 +617,7 @@
                         
                 // Consultar el total de registros en la tabla
                 $queryTotalCount = "SELECT COUNT(*) AS total FROM " . TB_VENTA;
-                if ($onlyActive) { $queryTotalCount .= " WHERE " . VENTA_ESTADO . " != " . ($deleted ? 'TRUE' : 'FALSE'); }
+                if ($onlyActive) { $queryTotalCount .= " WHERE " . VENTA_ESTADO . " != false" . ($deleted ? 'TRUE' : 'FALSE'); }
 
                 $totalResult = mysqli_query($conn, $queryTotalCount);
                 $totalRow = mysqli_fetch_assoc($totalResult);
@@ -608,10 +627,18 @@
                 // Construir la consulta SQL con joins para obtener nombres en lugar de IDs
                 $querySelect = "
                     SELECT 
-                        v.*
+                        v.*, c.*, t.*, u.*, r.*
                     FROM " . TB_VENTA . " v
                     INNER JOIN " . TB_CLIENTE . " c 
-                        ON v." . CLIENTE_ID . " = c." . CLIENTE_ID . " ";
+                        ON v." . CLIENTE_ID . " = c." . CLIENTE_ID . "
+                    INNER JOIN " . TB_USUARIO . " u
+                        ON v." . USUARIO_ID . " = u." . USUARIO_ID . "
+                    INNER JOIN " . TB_TELEFONO . " t
+                        ON c." . TELEFONO_ID . " = t." . TELEFONO_ID . "
+                    INNER JOIN " . TB_ROL . " r
+                        ON u." . ROL_ID . " = r." . ROL_ID . "
+                    WHERE v." . VENTA_ESTADO . " != false
+                ";
                 $params = [];
                 $types = "";
                 if ($search) {
@@ -625,7 +652,7 @@
                 if ($sort) {
                     $querySelect .= " ORDER BY c." . $sort . " ";
                 } else {
-                    $querySelect .= " ORDER BY v." . VENTA_ID . " DESC";
+                    $querySelect .= " ORDER BY c." . VENTA_ID . " DESC";
                 }
 
                 // Agregar límites a la consulta
@@ -645,20 +672,37 @@
                 $listaVentas = [];
                 while ($row = mysqli_fetch_assoc($result)) {
                     // Crear objeto Venta
-                    $cliente = $this->clientData->getClienteByID($row[CLIENTE_ID]);
-                    if (!$cliente["success"]){
-                        throw new Exception("Error al extraer el cliente de la venta.");
-                    }
-
-                    $usuario = $this->userData->getUsuarioByID($row[USUARIO_ID]);
-                    if (!$usuario["success"]){
-                        throw new Exception("Error al extraer los datos del usuario.");
-                    }
-
                     $venta = new Venta(
                         $row[VENTA_ID],
-                        $cliente["cliente"], 
-                        $usuario["usuario"],
+                        new Cliente ( // Esto debe ser un objeto de tipo Cliente
+                            $row[CLIENTE_ID], // ID del cliente
+                            $row[CLIENTE_NOMBRE], // Nombre del cliente
+                            $row[CLIENTE_ALIAS], // Alias del cliente
+                            new Telefono (
+                                $row[TELEFONO_ID], // ID del teléfono
+                                $row[TELEFONO_TIPO], // Tipo de teléfono
+                                $row[TELEFONO_CODIGO_PAIS], // Código de país
+                                $row[TELEFONO_NUMERO], // Número de teléfono
+                                $row[TELEFONO_EXTENSION], // Extensión del teléfono
+                            ),
+                            $row[CLIENTE_CREACION], // Fecha de creación del cliente
+                            $row[CLIENTE_MODIFICACION], // Fecha de modificación del cliente
+                        ), 
+                        new Usuario ( // Esto debe ser un objeto de tipo Usuario
+                            $row[USUARIO_ID], // ID del usuario
+                            $row[USUARIO_NOMBRE], // Nombre del usuario
+                            $row[USUARIO_APELLIDO_1], // Primer apellido del usuario
+                            $row[USUARIO_APELLIDO_2], // Segundo apellido del usuario
+                            $row[USUARIO_EMAIL], // Correo electrónico del usuario
+                            $row[USUARIO_PASSWORD], // Contraseña del usuario
+                            new RolUsuario (
+                                $row[ROL_ID], // ID del rol
+                                $row[ROL_NOMBRE], // Nombre del rol
+                                $row[ROL_DESCRIPCION], // Descripción del rol
+                            ),
+                            $row[USUARIO_CREACION], // Fecha de creación del usuario
+                            $row[USUARIO_MODIFICACION], // Fecha de modificación del usuario
+                        ),
                         $row[VENTA_NUMERO_FACTURA],
                         $row[VENTA_MONEDA],
                         $row[VENTA_MONTO_BRUTO],
@@ -738,8 +782,18 @@
                 // Obtenemos la información de la compra
                 $querySelect = "
                     SELECT 
-                    *
-                    FROM " . TB_VENTA . " ";
+                        v.*, c.*, t.*, u.*, r.*
+                    FROM " . TB_VENTA . " v 
+                    INNER JOIN " . TB_CLIENTE . " c 
+                        ON v." . CLIENTE_ID . " = c." . CLIENTE_ID . "
+                    INNER JOIN " . TB_USUARIO . " u
+                        ON v." . USUARIO_ID . " = u." . USUARIO_ID . "
+                    INNER JOIN " . TB_TELEFONO . " t
+                        ON c." . TELEFONO_ID . " = t." . TELEFONO_ID . "
+                    INNER JOIN " . TB_ROL . " r
+                        ON u." . ROL_ID . " = r." . ROL_ID . "
+                    WHERE v." . VENTA_ID . " = ? AND v." . VENTA_ESTADO . " != false
+                ";
                 $stmt = mysqli_prepare($conn, $querySelect);
 
                 // Asignar los parámetros y ejecutar la consulta
@@ -750,37 +804,54 @@
                 // Verifica si existe algún registro con los criterios dados
                 $venta = null;
                 if ($row = mysqli_fetch_assoc($result)) {
-                     // Crear objeto Venta
-                     $cliente = $this->clientData->getClienteByID($row[CLIENTE_ID]);
-                     if (!$cliente["success"]){
-                         throw new Exception("Error al extraer el cliente de la venta.");
-                     }
- 
-                     $usuario = $this->userData->getUsuarioByID($row[USUARIO_ID]);
-                     if (!$usuario["success"]){
-                         throw new Exception("Error al extraer los datos del usuario.");
-                     }
- 
-                     $venta = new Venta(
-                         $row[VENTA_ID],
-                         $cliente["cliente"], 
-                         $usuario["usuario"],
-                         $row[VENTA_NUMERO_FACTURA],
-                         $row[VENTA_MONEDA],
-                         $row[VENTA_MONTO_BRUTO],
-                         $row[VENTA_MONTO_NETO],
-                         $row[VENTA_MONTO_IMPUESTO],
-                         $row[VENTA_CONDICION_VENTA],
-                         $row[VENTA_TIPO_PAGO],
-                         $row[VENTA_TIPO_CAMBIO],
-                         $row[VENTA_MONTO_PAGO],
-                         $row[VENTA_MONTO_VUELTO],
-                         $row[VENTA_REFERENCIA_TARJETA],
-                         $row[VENTA_COMPROBANTE_SINPE],
-                         $row[VENTA_CREACION],
-                         $row[VENTA_MODIFICACION],
-                         $row[VENTA_ESTADO]
-                     );
+                    // Crear objeto Venta
+                    $venta = new Venta(
+                        $row[VENTA_ID],
+                        new Cliente ( // Esto debe ser un objeto de tipo Cliente
+                            $row[CLIENTE_ID], // ID del cliente
+                            $row[CLIENTE_NOMBRE], // Nombre del cliente
+                            $row[CLIENTE_ALIAS], // Alias del cliente
+                            new Telefono (
+                                $row[TELEFONO_ID], // ID del teléfono
+                                $row[TELEFONO_TIPO], // Tipo de teléfono
+                                $row[TELEFONO_CODIGO_PAIS], // Código de país
+                                $row[TELEFONO_NUMERO], // Número de teléfono
+                                $row[TELEFONO_EXTENSION], // Extensión del teléfono
+                            ),
+                            $row[CLIENTE_CREACION], // Fecha de creación del cliente
+                            $row[CLIENTE_MODIFICACION], // Fecha de modificación del cliente
+                        ), 
+                        new Usuario ( // Esto debe ser un objeto de tipo Usuario
+                            $row[USUARIO_ID], // ID del usuario
+                            $row[USUARIO_NOMBRE], // Nombre del usuario
+                            $row[USUARIO_APELLIDO_1], // Primer apellido del usuario
+                            $row[USUARIO_APELLIDO_2], // Segundo apellido del usuario
+                            $row[USUARIO_EMAIL], // Correo electrónico del usuario
+                            $row[USUARIO_PASSWORD], // Contraseña del usuario
+                            new RolUsuario (
+                                $row[ROL_ID], // ID del rol
+                                $row[ROL_NOMBRE], // Nombre del rol
+                                $row[ROL_DESCRIPCION], // Descripción del rol
+                            ),
+                            $row[USUARIO_CREACION], // Fecha de creación del usuario
+                            $row[USUARIO_MODIFICACION], // Fecha de modificación del usuario
+                        ),
+                        $row[VENTA_NUMERO_FACTURA],
+                        $row[VENTA_MONEDA],
+                        $row[VENTA_MONTO_BRUTO],
+                        $row[VENTA_MONTO_NETO],
+                        $row[VENTA_MONTO_IMPUESTO],
+                        $row[VENTA_CONDICION_VENTA],
+                        $row[VENTA_TIPO_PAGO],
+                        $row[VENTA_TIPO_CAMBIO],
+                        $row[VENTA_MONTO_PAGO],
+                        $row[VENTA_MONTO_VUELTO],
+                        $row[VENTA_REFERENCIA_TARJETA],
+                        $row[VENTA_COMPROBANTE_SINPE],
+                        $row[VENTA_CREACION],
+                        $row[VENTA_MODIFICACION],
+                        $row[VENTA_ESTADO]
+                    );
                     return ["success" => true, "venta" => $venta];
                 }
         
