@@ -252,6 +252,10 @@ export async function mostrarListaSeleccionableDeProductos() {
                     mostrarMensaje('Seleccione un producto para agregar a la lista.', 'error', 'Error de selección');
                     return false;
                 }
+                if (product.Cantidad < 1) {
+                    mostrarMensaje('El producto seleccionado no tiene existencia.', 'error', 'Error de existencia');
+                    return false;
+                }
                 return product;
             }
         }).then(result => {
@@ -788,11 +792,6 @@ function getSelectedProduct(productos) {
     const producto = productos.find(producto => producto.ID === parseInt(productID, 10));
 
     if (!producto) return null;
-    if (producto.Cantidad < 1) {
-        mostrarMensaje('El producto seleccionado no tiene existencias.', 'error', 'Error de existencia');
-        return null;
-    }
-
     return producto;
 }
 
