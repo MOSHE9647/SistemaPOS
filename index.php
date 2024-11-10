@@ -28,8 +28,8 @@
 	$logutURL = './view/auth/logout.php';
 
 	// Determina qué vista cargar
-	$view = isset($_GET['view']) ? $_GET['view'] : 'home'; // Por defecto carga home
-	$ajax = isset($_GET['ajax']) ? $_GET['ajax'] : false;
+	$view = $_GET['view'] ?? 'home'; // Por defecto carga home
+	$ajax = $_GET['ajax'] ?? false;
 	$urlBase = 'index.php?view=';
 
 	// Si la petición es vía AJAX, solo devuelve la vista sin toda la estructura    
