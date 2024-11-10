@@ -101,8 +101,9 @@
             }
         }
 
-        public function insertarListaVentaDetalle($listaVenta, $conn = null) {
+        public function insertarListaVentaDetalle($ventaData, $conn = null) {
             $createdConnection = false;
+            $consecutivo = null;
 
             try{
                 if (is_null($conn)) {
@@ -114,16 +115,19 @@
                     mysqli_begin_transaction($conn);
                 }
 
-                $venta = $listaVenta[0]->getVentaDetalleVenta();
+                $venta = $ventaData[0];
                 if (!$venta) { throw new Exception("No se encontró la venta asociada al detalle de venta."); }
 
                 $insertVenta = $this->ventadata->insertVenta($venta, $conn);
                 if (!$insertVenta["success"]) { throw new Exception($insertVenta["message"]); }
                 $datosVenta = ['id' => $insertVenta["id"], 'consecutivo' => $insertVenta["consecutivo"]];
 
-                foreach ($listaVenta as $ventaDetalle) {
+                // Obtiene el consecutivo de la venta
+                $consecutivo = $datosVenta['consecutivo'];
+
+                foreach ($ventaData[1] as $ventaDetalle) {
                     // Asignar el ID de la venta a cada detalle de venta
-                    $ventaDetalle->getVentaDetalleVenta()->setVentaID($datosVenta["id"]);
+                    $ventaDetalle->getVentaDetalleVenta()->setVentaID($datosVenta['id']);
 
                     // Insertar el detalle de venta en la base de datos
                     $insertDetalle = $this->insertVentaDetalle($ventaDetalle, $conn);
@@ -134,9 +138,10 @@
                 if ($createdConnection) { mysqli_commit($conn); }
 
                 $message = "Todos los detalles de venta fueron insertados exitosamente.";
-                return ["success" => true, "message" => $message, "consecutivo" => $$datosVenta['consecutivo']];
+                return ["success" => true, "message" => $message, "consecutivo" => $consecutivo, 'id' => $datosVenta['id']];
             }catch (Exception $e) {
                 if (isset($conn) && $createdConnection) { mysqli_rollback($conn); }
+                if ($consecutivo) { Utils::deshacerConsecutivo($consecutivo); }
 
                 $logMessage = "Error al insertar los detalles de venta en la base de datos: " . $e->getMessage();
                 $userMessage = $this->handleMysqlError($e->getCode(), $e->getMessage(), $logMessage, $this->className, __LINE__);

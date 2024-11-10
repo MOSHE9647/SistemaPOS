@@ -196,7 +196,7 @@ export async function insertVenta(datosVenta) {
 
     try {
         // Enviar la solicitud POST al servidor con los datos del detalle de venta
-        const phpScript = datosVenta.Condicion === 'CONTADO' ? 'ventaAction.php' : 'ventaPorCobrarAction.php';
+        const phpScript = datosVenta.Condicion === 'CONTADO' ? 'ventaDetalleAction.php' : 'ventaPorCobrarAction.php';
         const response = await fetch(`${window.baseURL}/controller/${phpScript}`, {
             method: 'POST',
             body: new URLSearchParams({

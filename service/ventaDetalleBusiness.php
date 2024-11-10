@@ -68,12 +68,14 @@ class VentaDetalleBusiness {
      * @param VentaDetalle $ventaDetalle Los datos del detalle de venta a insertar.
      * @return array Resultado de la operación de inserción.
      */
-    public function insertVentaDetalle($ventaDetalle) {
-        $check = $this->validarVentaDetalle($ventaDetalle[0]);
-        if (!$check["is_valid"]) {
-            return ["success" => false, "message" => $check["message"]];
+    public function insertVentaDetalle($ventaData) {
+        foreach ($ventaData[1] as $ventaDetalle) {
+            $check = $this->validarVentaDetalle($ventaDetalle);
+            if (!$check["is_valid"]) {
+                return ["success" => false, "message" => $check["message"]];
+            }
         }
-        return $this->ventaDetalleData->insertarListaVentaDetalle($ventaDetalle);
+        return $this->ventaDetalleData->insertarListaVentaDetalle($ventaData);
     }
 
     /**

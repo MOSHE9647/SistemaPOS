@@ -17,32 +17,30 @@
         }
 
         // Datos de VentaDetalle recibidos en la solicitud
-        $listaDetalles = isset($_POST['detalles']) ? json_decode($_POST['detalles']) : null;
-        if (empty($listaDetalles)) {
+        $ventaData = isset($_POST['detalles']) ? json_decode($_POST['detalles'], true) : null;
+        if (empty($ventaData) || empty($ventaData['Detalles'])) {
             Utils::enviarRespuesta(400, false, "No se han recibido los datos de la venta.");
         }
 
-        // Crear un arreglo de detalles de venta
-        $detalles = [];
-        foreach ($listaDetalles as $detalle) {
-            // Crear un objeto VentaDetalle con los datos recibidos
+        // Convertir los datos de la venta a objetos
+        $venta = Utils::convertToObject($ventaData, Venta::class);
+
+        // Convertir los detalles de la venta a objetos
+        $detalles = array_map(function($detalle) use ($venta) {
             $ventaDetalle = Utils::convertToObject($detalle, VentaDetalle::class);
-
-            // $check = $ventaDetalleBusiness->validarVentaDetalle($ventaDetalle, $accion != 'eliminar', $accion == 'insertar');
-            // if (!$check['is_valid']) Utils::enviarRespuesta(400, false, $check['message']);
-
-            array_push($detalles, $ventaDetalle);
-        }
+            $ventaDetalle->setVentaDetalleVenta($venta);
+            return $ventaDetalle;
+        }, $ventaData['Detalles'] ?? []);
 
         switch ($accion) {
             case 'insertar':
-                $response = $ventaDetalleBusiness->insertVentaDetalle($detalles);
+                $response = $ventaDetalleBusiness->insertVentaDetalle([$venta, $detalles]);
                 break;
             case 'actualizar':
                 $response = $ventaDetalleBusiness->updateVentaDetalle($ventaDetalle);
                 break;
             case 'eliminar':
-                $response = $ventaDetalleBusiness->deleteVentaDetalle($ventaDetalleID);
+                $response = $ventaDetalleBusiness->deleteVentaDetalle($venta->getVentaID());
                 break;
             default:
                 Utils::enviarRespuesta(400, false, "Acción no válida.");
