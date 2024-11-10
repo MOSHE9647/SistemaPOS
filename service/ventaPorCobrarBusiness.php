@@ -1,7 +1,8 @@
 <?php
 require_once dirname(__DIR__, 1) . '/data/ventaPorCobrarData.php';
-require_once dirname(__DIR__, 1) . '/utils/Utils.php';
+require_once dirname(__DIR__, 1) . '/service/ventaBusiness.php';
 require_once dirname(__DIR__, 1) . '/domain/VentaPorCobrar.php';
+require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
 class VentaPorCobrarBusiness{
     private $ventaCobrarData;
@@ -36,6 +37,11 @@ class VentaPorCobrarBusiness{
             return ["is_valid" => false, "message" => $e->getMessage()];
         }
     }
+
+    function insertarListaVentaPorCobrar($ventaCobrar, $listaDetalles) {
+        return $this->ventaCobrarData->insertarListaVentaPorCobrar($ventaCobrar, $listaDetalles);
+    }
+
     function insertVentaCobrar($ventaCobrar){
         return $this->ventaCobrarData->InsertaVentaPorCobrar($ventaCobrar);
     }
@@ -57,7 +63,35 @@ class VentaPorCobrarBusiness{
     function ventaPorCobrarClienteExiste($idCliente,$onlyActive = false, $delete = false){
         return $this->ventaCobrarData->ventaPorCobrarClienteExiste($idCliente,$onlyActive, $delete);
     }
-}
 
+    function abonarVentaCobrar($id, $abono){
+        if (empty($id) || empty($abono)) {
+            return ["success" => false, "message" => "El ID de la venta y el monto a abonar son requeridos"];
+        }
+
+        $ventaBusiness = new VentaBusiness();
+        $result = $ventaBusiness->getVentaByID($id);
+        if (!$result['success']) { return $result; }
+
+        $venta = $result['venta'];
+        $venta->setVentaMontoNeto($venta->getVentaMontoNeto() - $abono);
+        $montoNetoVenta = $venta->getVentaMontoNeto();
+
+        if ($montoNetoVenta <= 0) {
+            $delete = $ventaBusiness->deleteTBVenta($id);
+            if (!$delete['success']) {
+                return ["success" => false, "message" => $delete['message']];
+            }
+            return ["success" => true, "message" => "Abono realizado correctamente. La deuda ha sido cancelada."];
+        }
+
+        $update = $ventaBusiness->updateTBVenta($venta);
+        if (!$update['success']) {
+            return ["success" => false, "message" => $update['message']];
+        }
+
+        return ["success" => true, "message" => "Abono realizado correctamente"];
+    }
+}
 
 ?>

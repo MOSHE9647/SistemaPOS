@@ -4,17 +4,21 @@ require_once dirname(__DIR__, 1) . '/data/data.php';
 require_once dirname(__DIR__, 1) . '/domain/VentaPorCobrar.php';
 require_once dirname(__DIR__, 1) . '/utils/Variables.php';
 require_once dirname(__DIR__, 1) . '/data/ventaData.php';
+require_once dirname(__DIR__, 1) . '/data/ventaDetalleData.php';
 
 class VentaPorCobrarData extends Data {
+
     private $className;
     private $ventadata;
+    private $ventadetalledata;
+
     public function __construct(){
         parent::__construct();
         $this->className = get_class($this);
         $this->ventadata = new VentaData();
+        $this->ventaDetalleData = new VentaDetalleData();
     }
 
-    
     function ventaPorCobrarIdExiste($id){
         try{
             $result = $this->getConnection();
@@ -154,11 +158,71 @@ class VentaPorCobrarData extends Data {
 
     }
 
+    function insertarListaVentaPorCobrar($ventaCobrar, $listaDetalles, $conn = null) {
+        $createdConn = false;
+        $consecutivo = null;
+
+        try {
+            if(is_null($conn)) {
+                $result = $this->getConnection();
+                if (!$result["success"]) { throw new Exception($result["message"]); }
+                $conn = $result["connection"];
+                $createdConn = true;
+                mysqli_begin_transaction($conn);
+            }
+
+            // Obtiene la venta asociada a la venta por cobrar
+            $venta = $ventaCobrar->getVentaPorCobrarVenta();
+            if (!$venta) { throw new Exception("No se encontró la venta asociada al detalle de venta."); }
+
+            // Inserta la venta en la tabla TB_VENTA
+            $insertVenta = $this->ventadata->insertVenta($venta, $conn);
+            if (!$insertVenta["success"]) { throw new Exception($insertVenta["message"]); }
+            $datosVenta = ['id' => $insertVenta["id"], 'consecutivo' => $insertVenta["consecutivo"]];
+
+            // Obtiene el consecutivo de la venta
+            $consecutivo = $datosVenta['consecutivo'];
+
+            // Inserta la cada venta detalle de la venta en la tabla TB_VENTA_DETALLE
+            foreach ($listaDetalles as $detalle) {
+                $detalle->getVentaDetalleVenta()->setVentaID($datosVenta['id']);
+                $insertDetalle = $this->ventaDetalleData->insertVentaDetalle($detalle, $conn);
+                if (!$insertDetalle["success"]) { throw new Exception($insertDetalle["message"]); }
+            }
+
+            // Inserta la venta por cobrar en la tabla TB_VENTA_POR_COBRAR
+            $ventaCobrar->getVentaPorCobrarVenta()->setVentaID($datosVenta['id']);
+            $insertVentaCobrar = $this->InsertaVentaPorCobrar($ventaCobrar, $conn);
+            if (!$insertVentaCobrar["success"]) { throw new Exception($insertVentaCobrar["message"]); }
+
+            // Commit de la transacción
+            if ($createdConn) {
+                mysqli_commit($conn);
+            }
+
+            // Retorna el mensaje de éxito
+            $message = "Venta creada correctamente. Consecutivo: " . $consecutivo;
+            return ["success" => true, "message" => $message, "consecutivo" => $consecutivo, "id" => $insertVentaCobrar['id']];
+        } catch (Exception $e) {
+            // Rollback de la transacción y deshace el consecutivo
+            if (isset($conn) && $createdConn) { mysqli_rollback($conn); }
+            if ($consecutivo) { Utils::deshacerConsecutivo($consecutivo); }
+
+            // Log y manejo de errores
+            $logMessage = "Error al crear la venta en la base de datos: " . $e->getMessage();
+            $userMessage = $this->handleMysqlError($e->getCode(), $e->getMessage(), $logMessage, $this->className, __LINE__);
+            return ["success" => false, "message" => $userMessage];
+        } finally {
+            // Cierra la conexión
+            if (isset($conn) && !$createdConn) { mysqli_close($conn); }
+        }
+    }
+
     function InsertaVentaPorCobrar($ventaCobrar, $conn = null ){
         $nuevaConexion = false;
         $stmt = null;
+        
         try{
-
             if($conn === null){
                 $result = $this->getConnection();
                 if (!$result["success"]) { throw new Exception($result["message"]); }
@@ -166,6 +230,7 @@ class VentaPorCobrarData extends Data {
                 $nuevaConexion = true;
                 mysqli_begin_transaction($conn);
             }
+            
             $id = $ventaCobrar->getVentaPorCobrarID();
             $ventaid = $ventaCobrar->getVentaPorCobrarVenta()->getVentaID();
             $fechaVence = $ventaCobrar->getVentaPorCobrarFechaVencimiento();
@@ -179,14 +244,6 @@ class VentaPorCobrarData extends Data {
                 Utils::writeLog($mensaje,DATA_LOG_FILE,ERROR_MESSAGE,$this->className,__LINE__);
                 throw new  Exception("La fecha de vencimiento no es valida"); 
             }
-            // verifica la compra detalle en la tabla TB_VENTA
-            $result = $this->verificarVenta($ventaid,false,false);
-            if(!$result["success"]){ return $result; }
-            if(!$result["exists"]){ 
-                $mensaje = "Verificacion de la venta por cobrar venta id no existe o esta inactiva. compraID [$ventaid]";
-                Utils::writeLog($mensaje,DATA_LOG_FILE,ERROR_MESSAGE,$this->className,__LINE__);
-                throw new Exception("La venta no se ha creado o no es valida."); 
-            }
 
             //verifica compra detalle en la tabla TB_VENTA_POR_COBRAR
             $result = $this->verificarVenta($ventaid);
@@ -196,7 +253,6 @@ class VentaPorCobrarData extends Data {
                 Utils::writeLog($mensaje,DATA_LOG_FILE,ERROR_MESSAGE,$this->className,__LINE__);
                 throw new Exception("La venta ya esta añadida a otra venta por cobrar"); 
             }
-            
 
             // Obtenemos el último ID
             $queryGetLastId = "SELECT MAX(" . VENTA_POR_COBRAR_ID . ") FROM " . TB_VENTA_POR_COBRAR;
@@ -222,7 +278,7 @@ class VentaPorCobrarData extends Data {
 
             mysqli_stmt_bind_param(
                 $stmt,
-                "iisss",
+                "iisis",
                 $nextId,
                 $ventaid,
                 $fechaVence,

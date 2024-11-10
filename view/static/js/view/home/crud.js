@@ -193,41 +193,39 @@ export async function obtenerDeudasPorClienteID(id) {
  */
 export async function insertVenta(datosVenta) {
     showLoader(); // Mostrar el loader
-    console.log(datosVenta);
-    return { success: true, consecutivo: 1 };
 
-    // try {
-    //     // Enviar la solicitud POST al servidor con los datos del detalle de venta
-    //     const phpScript = datosVenta.Condicion === 'CONTADO' ? 'ventaAction.php' : 'ventaPorCobrarAction.php';
-    //     const response = await fetch(`${window.baseURL}/controller/${phpScript}`, {
-    //         method: 'POST',
-    //         body: new URLSearchParams({
-    //             accion: 'insertar',
-    //             detalles: JSON.stringify(datosVenta)
-    //         })
-    //     });
-    //     if (!response.ok) {
-    //         mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el detalle de venta');
-    //         return { success: false };
-    //     }
-    //     const data = await verificarRespuestaJSON(response);
+    try {
+        // Enviar la solicitud POST al servidor con los datos del detalle de venta
+        const phpScript = datosVenta.Condicion === 'CONTADO' ? 'ventaAction.php' : 'ventaPorCobrarAction.php';
+        const response = await fetch(`${window.baseURL}/controller/${phpScript}`, {
+            method: 'POST',
+            body: new URLSearchParams({
+                accion: 'insertar',
+                detalles: JSON.stringify(datosVenta)
+            })
+        });
+        if (!response.ok) {
+            mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al crear el detalle de venta');
+            return { success: false };
+        }
+        const data = await verificarRespuestaJSON(response);
         
-    //     // Verificar si hubo un error en la solicitud
-    //     if (!data.success) {
-    //         mostrarMensaje(data.message, 'error', 'Error al crear el detalle de venta');
-    //         return { success: false }; // Salir de la función si hay error
-    //     }
+        // Verificar si hubo un error en la solicitud
+        if (!data.success) {
+            mostrarMensaje(data.message, 'error', 'Error al crear el detalle de venta');
+            return { success: false }; // Salir de la función si hay error
+        }
 
-    //     // Mostrar mensaje de éxito y recargar los detalles de venta
-    //     mostrarMensaje(data.message, 'success');
-    //     return { success: true, consecutivo: data.consecutivo };
-    // } catch (error) {
-    //     // Mostrar mensaje de error detallado
-    //     mostrarMensaje(`Ocurrió un error al crear el detalle de venta.<br>${error}`, 'error', 'Error al crear el detalle de venta');
-    //     return { success: false };
-    // } finally {
-    //     hideLoader(); // Ocultar el loader
-    // }
+        // Mostrar mensaje de éxito y recargar los detalles de venta
+        mostrarMensaje(data.message, 'success');
+        return { success: true, consecutivo: data.consecutivo };
+    } catch (error) {
+        // Mostrar mensaje de error detallado
+        mostrarMensaje(`Ocurrió un error al crear el detalle de venta.<br>${error}`, 'error', 'Error al crear el detalle de venta');
+        return { success: false };
+    } finally {
+        hideLoader(); // Ocultar el loader
+    }
 }
 
 export function generarFactura(datosVenta) {
@@ -263,11 +261,11 @@ export async function abonarCuentaCliente(deudaData) {
         formData.append('id', deuda.ID);
     } else {
         formData.append('accion', 'actualizar');
-        formData.append('id', deuda.ID);
-        formData.append('venta', deuda.Venta.ID);
-        formData.append('vencimiento', deuda.VencimientoISO);
-        formData.append('cancelado', deuda.Cancelado ? 1 : 0);
-        formData.append('notas', deuda.Notas);
+        formData.append('ID', deuda.ID);
+        formData.append('Venta', deuda.Venta.ID);
+        formData.append('Vencimiento', deuda.VencimientoISO);
+        formData.append('Cancelado', deuda.Cancelado ? 1 : 0);
+        formData.append('Notas', deuda.Notas);
         formData.append('abono', abono);
     }
 

@@ -117,7 +117,7 @@
                 $venta = $listaVenta[0]->getVentaDetalleVenta();
                 if (!$venta) { throw new Exception("No se encontró la venta asociada al detalle de venta."); }
 
-                $insertVenta = $this->ventadata->insertVenta($listaVenta[0]->getVentaDetalleVenta(), $conn);
+                $insertVenta = $this->ventadata->insertVenta($venta, $conn);
                 if (!$insertVenta["success"]) { throw new Exception($insertVenta["message"]); }
                 $datosVenta = ['id' => $insertVenta["id"], 'consecutivo' => $insertVenta["consecutivo"]];
 
@@ -142,7 +142,7 @@
                 $userMessage = $this->handleMysqlError($e->getCode(), $e->getMessage(), $logMessage, $this->className, __LINE__);
                 return ["success" => false, "message" => $userMessage];
             } finally {
-                if (isset($conn)) { mysqli_close($conn); }
+                if (isset($conn) && !$createdConnection) { mysqli_close($conn); }
             }
         }
 

@@ -559,9 +559,6 @@ export function mostrarOpcionesDeCobro() {
             // Limpiar la lista de productos y renderizar la tabla
             clearProductList(getActiveTable().id);
             renderTable(productos[getActiveTable().id]);
-
-            // Mostrar mensaje de éxito
-            mostrarMensaje('Venta realizada con éxito.', 'success', 'Venta realizada');
             
             // Imprimimos la factura si el usuario lo desea
             detalleVenta.NumeroFactura = resultado.consecutivo ?? 'N/A';

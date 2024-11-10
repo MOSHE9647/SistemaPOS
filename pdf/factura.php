@@ -6,19 +6,23 @@
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
     // Datos de VentaDetalle recibidos en la solicitud
-    $venta = isset($_GET['detalles']) ? json_decode($_GET['detalles'], true) : null;
-    if (empty($venta) || !isset($venta['Detalles'])) {
+    $ventaDetalle = isset($_GET['detalles']) ? json_decode($_GET['detalles'], true) : null;
+    if (empty($ventaDetalle) || !isset($ventaDetalle['Detalles'])) {
         Utils::enviarRespuesta(400, false, "No se han recibido los datos de la venta.");
     }
 
+    // Crear un objeto Venta con los datos recibidos
+    $venta = Utils::convertToObject($ventaDetalle, Venta::class);
+
+    // Crear un objeto VentaPorCobrar con los datos recibidos
     $ventaPorCobrar = null;
-    if (isset($venta['VentaPorCobrar']) && !empty($venta['VentaPorCobrar'])) {
-        $ventaPorCobrar = Utils::convertToObject($venta['VentaPorCobrar'], VentaPorCobrar::class);
+    if (isset($ventaDetalle['VentaPorCobrar']) && !empty($ventaDetalle['VentaPorCobrar'])) {
+        $ventaPorCobrar = Utils::convertToObject($ventaDetalle['VentaPorCobrar'], VentaPorCobrar::class);
     }
 
     // Crear un arreglo de detalles de venta
-    $detalles = $venta['Detalles'];
-    foreach ($listaDetalles as $detalle) {
+    $detalles = [];
+    foreach ($ventaDetalle['Detalles'] as $detalle) {
         // Crear un objeto VentaDetalle con los datos recibidos
         $ventaDetalle = Utils::convertToObject($detalle, VentaDetalle::class);
         array_push($detalles, $ventaDetalle);
@@ -272,7 +276,7 @@
             total: parseFloat(venta.MontoNeto).toFixed(2),
             pago: parseFloat(venta.MontoPago).toFixed(2),
             vuelto: parseFloat(venta.MontoVuelto).toFixed(2),
-            vencimiento: deuda ? new Date(deuda.Vencimiento).toLocaleDateString('es-ES', {
+            vencimiento: deuda ? new Date(deuda.VencimientoISO).toLocaleDateString('es-ES', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric'
