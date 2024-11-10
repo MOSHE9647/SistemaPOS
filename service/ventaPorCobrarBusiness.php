@@ -60,7 +60,7 @@ class VentaPorCobrarBusiness{
     function getVentaCobrarID($id,$onlyActive = true, $delete = false){
         return $this->ventaCobrarData->getVentaPorCobrarById($id, $onlyActive, $delete);
     }
-    function ventaPorCobrarClienteExiste($idCliente,$onlyActive = false, $delete = false){
+    function ventaPorCobrarClienteExiste($idCliente,$onlyActive = true, $delete = false){
         return $this->ventaCobrarData->ventaPorCobrarClienteExiste($idCliente,$onlyActive, $delete);
     }
 

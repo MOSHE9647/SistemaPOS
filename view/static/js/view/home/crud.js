@@ -255,31 +255,31 @@ export async function abonarCuentaCliente(deudaData) {
         }
     }
 
-    const formData = new FormData();
     if (abono === totalDeuda) {
-        formData.append('accion', 'eliminar');
-        formData.append('id', deuda.ID);
+        deudaData = {
+            accion: 'eliminar',
+            ID: deuda.ID
+        };
     } else {
-        formData.append('accion', 'actualizar');
-        formData.append('ID', deuda.ID);
-        formData.append('Venta', deuda.Venta.ID);
-        formData.append('Vencimiento', deuda.VencimientoISO);
-        formData.append('Cancelado', deuda.Cancelado ? 1 : 0);
-        formData.append('Notas', deuda.Notas);
-        formData.append('abono', abono);
+        deudaData = deuda;
+        deudaData.accion = 'abonar';
+        deudaData.Abono = abono;
     }
 
-    return await updateVentaPorCobrar(formData);
+    return await updateVentaPorCobrar(deudaData);
 }
 
-async function updateVentaPorCobrar(formData) {
+async function updateVentaPorCobrar(deudaData) {
     showLoader(); // Mostrar el loader
 
     try {
         // Enviar la solicitud POST al servidor con los datos del abono
         const response = await fetch(`${window.baseURL}/controller/ventaPorCobrarAction.php`, {
             method: 'POST',
-            body: formData
+            body: new URLSearchParams({
+                accion: deudaData.accion,
+                detalles: JSON.stringify(deudaData)
+            })
         });
         if (!response.ok) {
             mostrarMensaje(`Error ${response.status} (${response.statusText})`, 'error', 'Error al abonar la cuenta del cliente');

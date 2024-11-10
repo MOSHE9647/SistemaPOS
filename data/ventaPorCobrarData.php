@@ -58,7 +58,7 @@ class VentaPorCobrarData extends Data {
         }
     }
 
-    function ventaPorCobrarClienteExiste($idCliente,$onlyActive = false, $delete = false){
+    function ventaPorCobrarClienteExiste($idCliente,$onlyActive = true, $delete = false){
         try{
             $result = $this->getConnection();
             if (!$result["success"]) { throw new Exception($result["message"]); }

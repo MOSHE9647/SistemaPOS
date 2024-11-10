@@ -8,82 +8,66 @@
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
 
     $response = [];
-    $method = $_SERVER["REQUEST_METHOD"];                   //<- Método de la solicitud
+    $method = $_SERVER["REQUEST_METHOD"]; // Método de la solicitud
     $ventaCobrarBusiness = new VentaPorCobrarBusiness();
 
     if ($method == "POST") {
-        // Acción a realizar (insertar, actualizar, eliminar, abonar)
         $accion = $_POST['accion'] ?? "";
         if (empty($accion)) {
-            // Enviar respuesta de error al cliente
             Utils::enviarRespuesta(400, false, "No se ha especificado una acción.");
         }
 
-        // Verificar si se quiere abonar una venta
-        // if ($accion === 'abonar') {
-        //     // Datos de la venta y el abono recibidos en la solicitud
-        //     $ventaPorCobrar = isset($_POST['venta']) ? json_decode($_POST['venta'], true) : null;
-        //     $response = $ventaCobrarBusiness->abonarVentaCobrar($ventaPorCobrar['ID'], $abono);
-        //     Utils::enviarRespuesta($response['success'] ? 200 : 400, $response['success'], $response['message']);
-        // }
-
-        // Extraer los datos de la venta y los detalles de la solicitud
         $ventaData = isset($_POST['detalles']) ? json_decode($_POST['detalles'], true) : null;
-        if (empty($ventaData) || !isset($ventaData['Detalles'])) {
-            // Enviar respuesta de error al cliente
+        if (empty($ventaData)) {
             Utils::enviarRespuesta(400, false, "No se han recibido los datos de la venta.");
         }
 
-        // Verificar si vienen los datos de venta por cobrar en la solicitud
-        if (!isset($ventaData['VentaPorCobrar']) || empty($ventaData['VentaPorCobrar'])) {
-            // Enviar respuesta de error al cliente
-            Utils::enviarRespuesta(400, false, "No se han recibido los datos de la venta por cobrar.");
-        }
-        
-        // Creamos los objetos necesarios
-        $venta = Utils::convertToObject($ventaData, Venta::class); //<- Crear objeto Venta
+        switch ($accion) {
+            case 'abonar':
+                $response = $ventaCobrarBusiness->abonarVentaCobrar($ventaData['Venta']['ID'], $ventaData['Abono']);
+                break;
+            case 'eliminar':
+                $response = $ventaCobrarBusiness->deleteVentaCobrar($ventaData['ID']);
+                break;
+            default:
+                // Validar los datos de la venta
+                if (!isset($ventaData['VentaPorCobrar']) || empty($ventaData['VentaPorCobrar'])) {
+                    Utils::enviarRespuesta(400, false, "No se han recibido los datos de la venta por cobrar.");
+                }
 
-        // Obtenemos la lista de ventaDetalle
-        $detalles = []; //<- Obtener los detalles de la venta
-        foreach ($ventaData['Detalles'] as $detalle) {
-            // Crear un objeto VentaDetalle con los datos recibidos
-            $ventaDetalle = Utils::convertToObject($detalle, VentaDetalle::class);
-            $ventaDetalle->setVentaDetalleVenta($venta);
-            array_push($detalles, $ventaDetalle);
+                // Convertir los datos de la venta a objetos
+                $venta = Utils::convertToObject($ventaData, Venta::class);
+
+                // Convertir los detalles de la venta a objetos
+                $detalles = array_map(function($detalle) use ($venta) {
+                    $ventaDetalle = Utils::convertToObject($detalle, VentaDetalle::class);
+                    $ventaDetalle->setVentaDetalleVenta($venta);
+                    return $ventaDetalle;
+                }, $ventaData['Detalles'] ?? []);
+
+                // Convertir los datos de la venta por cobrar a objetos
+                $ventaPorCobrar = Utils::convertToObject($ventaData['VentaPorCobrar'], VentaPorCobrar::class);
+                $ventaPorCobrar->setVentaPorCobrarVenta($venta);
+
+                $result = $ventaCobrarBusiness->validarCamposFecha($ventaPorCobrar, $accion === 'actualizar', true);
+                if ($result["is_valid"]) {
+                    switch ($accion) {
+                        case 'insertar':
+                            $response = $ventaCobrarBusiness->insertarListaVentaPorCobrar($ventaPorCobrar, $detalles);
+                            break;
+                        case 'actualizar':
+                            $response = $ventaCobrarBusiness->updateVentaCobrar($ventaPorCobrar);
+                            break;
+                        default:
+                            Utils::enviarRespuesta(400, false, "Acción no válida.");
+                    }
+                } else {
+                    Utils::enviarRespuesta(400, false, $result['message']);
+                }
+                break;
         }
 
-        // Creamos el objeto VentaPorCobrar y asignamos la Venta
-        $ventaPorCobrar = Utils::convertToObject($ventaData['VentaPorCobrar'], VentaPorCobrar::class);
-        $ventaPorCobrar->setVentaPorCobrarVenta($venta);
-        
-        $result = $ventaCobrarBusiness->validarCamposFecha($ventaPorCobrar, ($accion === 'actualizar') ? true : false, true);
-        if ($result["is_valid"]) {
-            switch($accion){
-                case 'insertar':
-                    $response =$ventaCobrarBusiness->insertarListaVentaPorCobrar($ventaPorCobrar, $detalles);
-                    break;
-                case 'eliminar':
-                    $response = $ventaCobrarBusiness->deleteVentaCobrar($id);
-                    break;
-                case 'actualizar':
-                    $response = $ventaCobrarBusiness->updateVentaCobrar($ventaobj);
-                    break;
-                case 'abonar':
-                    $abono = isset($_POST['abono']) ? floatval($_POST['abono']) : 0;
-                    $response = $ventaCobrarBusiness->abonarVentaCobrar($id, $abono);
-                    break;
-                default:
-                    Utils::enviarRespuesta(400, false, "Acción no válida.");
-                    break;
-            }
-        } else {
-            Utils::enviarRespuesta(400, false, $result['message']);
-        }
-
-        http_response_code($response['success'] ? 200 : 400);
-        header("Content-Type: application/json");
-        echo json_encode($response);
-        exit();
+        Utils::enviarRespuesta($response['success'] ? 200 : 400, $response['success'], $response['message']);
     }
 
     else if ($method == "GET"){
