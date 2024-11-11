@@ -186,7 +186,7 @@ class VentaPorCobrarData extends Data {
             // Inserta la cada venta detalle de la venta en la tabla TB_VENTA_DETALLE
             foreach ($listaDetalles as $detalle) {
                 $detalle->getVentaDetalleVenta()->setVentaID($datosVenta['id']);
-                $insertDetalle = $this->ventadetalledata->insertVentaDetalle($detalle, $conn);
+                $insertDetalle = $this->ventaDetalleData->insertVentaDetalle($detalle, $conn);
                 if (!$insertDetalle["success"]) { throw new Exception($insertDetalle["message"]); }
             }
 
