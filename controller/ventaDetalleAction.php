@@ -97,5 +97,3 @@
         // Enviar respuesta de método no permitido
         Utils::enviarRespuesta(405, false, "Método no permitido ($method).");
     }
-
-?>

@@ -69,6 +69,8 @@ class VentaDetalleBusiness {
      * @return array Resultado de la operación de inserción.
      */
     public function insertVentaDetalle($ventaData) {
+        //! NO ESTA VALIDANDO NI VENTA NI LOS PRODUCTOS DE VENTA DETALLE
+        //? SOLO ESTÁ VALIDANDO LOS DATOS DE VENTA DETALLE
         foreach ($ventaData[1] as $ventaDetalle) {
             $check = $this->validarVentaDetalle($ventaDetalle);
             if (!$check["is_valid"]) {

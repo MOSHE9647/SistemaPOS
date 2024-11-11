@@ -276,7 +276,7 @@
                     "UPDATE " . TB_VENTA_DETALLE . 
                     " SET " . 
                         VENTA_ID . " = ?, " .
-                        VENTA_DETALLE_PRODUCTO_ID . " = ?, " .
+                        PRODUCTO_ID . " = ?, " .
                         VENTA_DETALLE_PRECIO . " = ?, " .
                         VENTA_DETALLE_CANTIDAD . " = ?, " .
                         VENTA_DETALLE_ESTADO . " = TRUE " .
@@ -480,12 +480,12 @@
                 // Agregar filtro de estado a la consulta
                 if ($onlyActive) { 
                     $querySelect .= $search ? " AND " : " WHERE ";
-                    $querySelect .= VD."." . VENTA_DETALLE_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); 
+                    $querySelect .= "VD." . VENTA_DETALLE_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); 
                 }
         
                 // Agregar ordenamiento a la consulta
                 if ($sort) { 
-                    $querySelect .= " ORDER BY VD." . $sort . " ";
+                    $querySelect .= " ORDER BY VD.$sort ";
                 } else { 
                     $querySelect .= " ORDER BY VD." . VENTA_DETALLE_ID . " DESC"; 
                 }
