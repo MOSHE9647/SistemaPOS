@@ -5,16 +5,19 @@
     require_once dirname(__DIR__, 1) . '/utils/Utils.php';
     require_once dirname(__DIR__, 1) . '/utils/Variables.php';
     require_once dirname(__DIR__, 1) . '/data/ventaData.php';
-
+    require_once dirname(__DIR__, 1) . '/data/productoData.php';
     class VentaDetalleData extends Data {
         
         private $className;
         private $ventadata;
 
+        private $productodata;
+
         public function __construct() {
             parent::__construct();
             $this->className = get_class($this);
             $this->ventadata = new VentaData();
+            $this->productodata = new ProductoData();
         }
 
         /**
@@ -276,7 +279,7 @@
                     "UPDATE " . TB_VENTA_DETALLE . 
                     " SET " . 
                         VENTA_ID . " = ?, " .
-                        VENTA_DETALLE_PRODUCTO_ID . " = ?, " .
+                        PRODUCTO_ID . " = ?, " .
                         VENTA_DETALLE_PRECIO . " = ?, " .
                         VENTA_DETALLE_CANTIDAD . " = ?, " .
                         VENTA_DETALLE_ESTADO . " = TRUE " .
@@ -415,10 +418,11 @@
                     // Crea una instancia de VentaDetalle
                     $ventaDetalle = new VentaDetalle(
                         $row[VENTA_DETALLE_ID],
-                        $venta["venta"],  // Aquí se asume que el objeto `venta` tiene un método adecuado
-                        $producto["producto"],  // Aquí se asume que el objeto `producto` tiene un método adecuado
-                        $row[VENTA_DETALLE_CANTIDAD],
+                       // Aquí se asume que el objeto `producto` tiene un método adecuado
                         $row[VENTA_DETALLE_PRECIO],
+                        $row[VENTA_DETALLE_CANTIDAD],
+                        $venta["venta"],  // Aquí se asume que el objeto `venta` tiene un método adecuado
+                        $producto["producto"], 
                         $row[VENTA_DETALLE_ESTADO]
                     );
                     $ventaDetalles[] = $ventaDetalle;
@@ -480,7 +484,7 @@
                 // Agregar filtro de estado a la consulta
                 if ($onlyActive) { 
                     $querySelect .= $search ? " AND " : " WHERE ";
-                    $querySelect .= VD."." . VENTA_DETALLE_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); 
+                    $querySelect .= " ". VENTA_DETALLE_ESTADO . " != " . ($deleted ? "TRUE" : "FALSE"); 
                 }
         
                 // Agregar ordenamiento a la consulta
@@ -517,10 +521,10 @@
         
                     $ventaDetalle = new VentaDetalle(
                         $row[VENTA_DETALLE_ID],
+                        $row[VENTA_DETALLE_PRECIO],
+                        $row[VENTA_DETALLE_CANTIDAD],
                         $venta["venta"],  
                         $producto["producto"],
-                        $row[VENTA_DETALLE_CANTIDAD],
-                        $row[VENTA_DETALLE_PRECIO],
                         $row[VENTA_DETALLE_ESTADO]
                     );
                     $ventaDetalles[] = $ventaDetalle;
@@ -590,12 +594,23 @@
                 // Verifica si existe algún registro con los criterios dados
                 if ($row = mysqli_fetch_assoc($result)) {
                     // Crear un objeto de detalle de venta
+                    $venta = $this->ventadata->getVentaByID($row[VENTA_ID]);
+                    if(!$venta){
+                        throw new Exception("La venta no se encontro");
+                    }
+                    $producto = $this->productodata->getProductoByID($row[PRODUCTO_ID]);
+                    if(!$producto["success"]){
+                        throw new Exception("El producto no se encontro");
+                        
+                    }
+
                     $ventaDetalle = new VentaDetalle(
                         $row[VENTA_DETALLE_ID],
-                        $row[VENTA_DETALLE_VENTA], // ID de la venta a la que pertenece este detalle
-                        $row[VENTA_DETALLE_PRECIO], // Precio del producto
-                        $row[VENTA_DETALLE_CANTIDAD], // Cantidad vendida
-                        $row[VENTA_DETALLE_ESTADO] // Estado del detalle de venta
+                        $row[VENTA_DETALLE_PRECIO], // ID de la venta a la que pertenece este detalle
+                        $row[VENTA_DETALLE_CANTIDAD], // Precio del producto
+                        $venta["venta"], // Cantidad vendida
+                        $producto["producto"], // Estado del detalle de venta
+                        $row[VENTA_DETALLE_CANTIDAD]
                     );
         
                     return ["success" => true, "ventaDetalle" => $ventaDetalle];
