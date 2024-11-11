@@ -115,7 +115,7 @@ class VentaPorCobrarData extends Data {
             
 
             if(empty($ventaid) || !is_numeric($ventaid) || $ventaid <= 0){
-                $mensaje = "En vetna por cobrar la venta id no es valida. ventaID [$compraid]";
+                $mensaje = "En vetna por cobrar la venta id no es valida. ventaID [$ventaid]";
                 Utils::writeLog($mensaje,DATA_LOG_FILE,ERROR_MESSAGE,$this->className,__LINE__);
                 throw new Exception("La venta no es valida");
             }
@@ -186,7 +186,7 @@ class VentaPorCobrarData extends Data {
             // Inserta la cada venta detalle de la venta en la tabla TB_VENTA_DETALLE
             foreach ($listaDetalles as $detalle) {
                 $detalle->getVentaDetalleVenta()->setVentaID($datosVenta['id']);
-                $insertDetalle = $this->ventaDetalleData->insertVentaDetalle($detalle, $conn);
+                $insertDetalle = $this->ventadetalledata->insertVentaDetalle($detalle, $conn);
                 if (!$insertDetalle["success"]) { throw new Exception($insertDetalle["message"]); }
             }
 
@@ -479,7 +479,7 @@ class VentaPorCobrarData extends Data {
                 );
                 $listaVentasCobrar[] = $ventaCobrarObj;
             }
-            return["success"=>true, "ListaVentaPorCobrar"=>$ComprasPorPagar];
+            return["success"=>true, "ListaVentaPorCobrar"=>$listaVentasCobrar];
         }catch(Exception $e){
             $message = $this->handleMysqlError(
                 $e->getCode(),$e->getMessage(),
