@@ -489,7 +489,7 @@
         
                 // Agregar ordenamiento a la consulta
                 if ($sort) { 
-                    $querySelect .= " ORDER BY VD." . $sort . " ";
+                    $querySelect .= " ORDER BY VD.$sort ";
                 } else { 
                     $querySelect .= " ORDER BY VD." . VENTA_DETALLE_ID . " DESC"; 
                 }
