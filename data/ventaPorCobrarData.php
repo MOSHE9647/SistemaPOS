@@ -10,7 +10,7 @@ class VentaPorCobrarData extends Data {
 
     private $className;
     private $ventadata;
-    private $ventadetalledata;
+    private $ventaDetalleData;
 
     public function __construct(){
         parent::__construct();
@@ -136,7 +136,7 @@ class VentaPorCobrarData extends Data {
 
             $stmt = mysqli_prepare($conn,$query);
             mysqli_stmt_bind_param($stmt,$types,...$params);
-            mysqli_execute($stmt);
+            mysqli_stmt_execute($stmt);
             $resultado = mysqli_stmt_get_result($stmt);
 
             if($row = mysqli_fetch_all($resultado)){
@@ -647,4 +647,3 @@ class VentaPorCobrarData extends Data {
     }
     
 }
-?>
